@@ -1,4 +1,4 @@
-# centro-medico-salud-integral
+# Centro medico salud integral
 
 ## Integrantes
 
