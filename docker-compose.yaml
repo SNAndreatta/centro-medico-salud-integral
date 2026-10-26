@@ -1,0 +1,72 @@
+services:
+  db:
+    profiles: ["development"]
+    image: mysql:8.4
+    container_name: centro-medico-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-centro-medico}
+      MYSQL_USER: ${DB_USER:-app_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-app_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Si la base de datos está vacía (es decir, la primera vez que levantas el proyecto), MySQL revisa la carpeta /docker-entrypoint-initdb.d/ y ejecuta los scripts de esa carpeta
+      - ./backend/database/init_db.sql:/sql/01-init_db.sql:ro
+      - ./backend/database/seed.sql:/sql/02-seed.sql:ro
+      - ./backend/database/initdb.sh:/docker-entrypoint-initdb.d/00-initdb.sh:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-p${DB_ROOT_PASSWORD:-root_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 90s
+
+  api:
+    build:
+      context: backend
+      args:
+        FLASK_PORT: ${FLASK_PORT:-5000}
+    container_name: centro-medico-api
+    restart: unless-stopped
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-centro-medico}
+      DB_USER: ${DB_USER:-app_user}
+      DB_PASSWORD: ${DB_PASSWORD:-app_password}
+      SECRET_KEY: ${SECRET_KEY:-clave-de-desarrollo}
+      FLASK_HOST: 0.0.0.0
+      FLASK_PORT: ${FLASK_PORT:-5000}
+      FLASK_DEBUG: ${FLASK_DEBUG:-false}
+    ports:
+      - "${FLASK_PORT:-5000}:${FLASK_PORT:-5000}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,urllib.request; urllib.request.urlopen(f\"http://127.0.0.1:{os.getenv('FLASK_PORT', '5000')}/api/health\", timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: frontend
+      args:
+        FLASK_PORT: ${FLASK_FRONT_PORT:-8000}
+    container_name: centro-medico-frontend
+    restart: unless-stopped
+    environment:
+      FLASK_HOST: 0.0.0.0
+      FLASK_PORT: ${FLASK_FRONT_PORT:-8000}
+      FLASK_DEBUG: ${FLASK_FRONT_DEBUG:-false}
+    ports:
+      - "${FLASK_FRONT_PORT:-8000}:${FLASK_FRONT_PORT:-8000}"
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
+
+volumes:
+  mysql_data:

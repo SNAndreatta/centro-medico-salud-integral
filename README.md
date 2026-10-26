@@ -11,3 +11,9 @@
 - Lucía Saint Martin - 116324
 - Joaquin Berzunces - 116175
 - Nicolas Agustin Gonzalez Sanchez - 116641
+
+## Desarrollo
+Para ejecutar la db mysql local usar 
+``` bash
+docker compose -f docker-compose.yaml -f docker-compose.development.yaml --profile development up --build
+```
