@@ -17,14 +17,14 @@ VALUES (1, NULL, 101, 1), (2, NULL, 102, 1), (3, NULL, 201, 2);
 
 INSERT INTO Usuario (IDUsuario, IDRol, Nombre, Apellido, Correo_Electronico, DNI, Fecha_Nacimiento, Contrasenia) 
 VALUES
-    (1, 1, 'Admin', 'Sistema', 'admin@saludintegral.test', '30000001', '1980-06-15', 'pbkdf2:sha256:600000$seedAdmin2026$4aefecb22614f8fd70b74b12ac5f78d55cb50946031cf91d3301d45a6d898564'),
-    (2, 2, 'Sofia', 'Recepcion', 'recepcion@saludintegral.test', '30000002', '1990-02-10', 'pbkdf2:sha256:600000$seedRecep2026$ec08e727e82765edd5d68e0d39b7dd60487f4c154ebdefb0dd70b832b0591b21'),
-    (3, 3, 'Ana', 'Rossi', 'ana.rossi@saludintegral.test', '40000001', '1998-04-12', 'pbkdf2:sha256:600000$seedPac0012026$8a667f16954a00880245950611e981e1ca60d95137afe97aab66fd840b621b82'),
-    (4, 3, 'Bruno', 'Perez', 'bruno.perez@saludintegral.test', '40000002', '1987-08-20', 'pbkdf2:sha256:600000$seedPac0022026$5f824863b59124f3c7eb6f4a79c56ffc34e9c66fca6d37dabbc0758369cf41e1'),
-    (5, 3, 'Camila', 'Diaz', 'camila.diaz@saludintegral.test', '40000003', '1994-12-05', 'pbkdf2:sha256:600000$seedPac0032026$9e61a870f4c0c829d9aa689d34aae6b126cf2786a21c6769f9a9e67ad7b3eba8'),
-    (6, 4, 'Ana', 'Gutierrez', 'ana.gutierrez@saludintegral.test', '20000001', '1975-03-18', 'pbkdf2:sha256:600000$seedMed0012026$1b11a615868608ece1fd614034c72aaba3ec859f4e8ce9827becff4523368510'),
-    (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$seedMed0022026$56b8ab07f217876aea35f3cc9af9378108c8285ad89e4b48a2a6bf8906814daa'),
-    (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$seedMed0032026$4273b21fe678fc438bbeaba6f15292482b658fb246f13066c11d85819406690e')
+    (1, 1, 'Admin', 'Sistema', 'admin@saludintegral.test', '30000001', '1980-06-15', 'pbkdf2:sha256:600000$seedAdmin2026$7d54073a451544ae4beab9a15177788ac562fa89c66504f5c8b3ba6418699d8c'), --Contrasenia: Admin2026!
+    (2, 2, 'Sofia', 'Recepcion', 'recepcion@saludintegral.test', '30000002', '1990-02-10', 'pbkdf2:sha256:600000$seedRecep2026$530075682e67baa878f07b62dc2204a57e19124957defd71c3c08c337c73e155'), --Contrasenia: Recepcion2026!
+    (3, 3, 'Ana', 'Rossi', 'ana.rossi@saludintegral.test', '40000001', '1998-04-12', 'pbkdf2:sha256:600000$seedPac0012026$e79588dfa23b312a2c7a39f23d520e65769f1ad6fec830ded5a241034d150033'), --Contrasenia: PacienteAna2026!
+    (4, 3, 'Bruno', 'Perez', 'bruno.perez@saludintegral.test', '40000002', 'pbkdf2:sha256:600000$seedPac0022026$6691efe214dbca75f964a7332f569636d47f5d7a3bf8d2d313c7e8d4adbecc52'), --Contrasenia: PacienteBruno2026!
+    (5, 3, 'Camila', 'Diaz', 'camila.diaz@saludintegral.test', '40000003', '1994-12-05', 'pbkdf2:sha256:600000$seedPac0032026$23091450de17b2dc6d9001dad91b98078414bda6a8777b17d390f58d993e8f77'), --Contrasenia: PacienteCamila2026!
+    (6, 4, 'Ana', 'Gutierrez', 'ana.gutierrez@saludintegral.test', '20000001', '1975-03-18', 'pbkdf2:sha256:600000$seedMed0012026$e3fa408c17da15dc91588469108b3b4ef4f6b6ebb5640de0887959b6ff6dc279'), --Contrasenia: MedicaAna2026!
+    (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$seedMed0022026$e98ac5466afac82f8dc21b7485a1b9ff2032163739b90936abe54799bf6ac0d3'), --Contrasenia: MedicoMartin2026!
+    (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$seedMed0032026$19bdfe861b3e6599debe243c304ad931b8a5cea32a6a7c4de8c56390cb05accc') --Contrasenia: MedicaLucia2026!
 
 
 INSERT INTO Plan (IDPlan, IDCobertura, Nombre) 
