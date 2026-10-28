@@ -1,0 +1,1355 @@
+openapi: 3.0.3
+info:
+  title: API Backend - Centro Médico Salud Integral
+  description: "Documentación completa y definitiva de la API REST interna (Flask) para el Hito 2.\nIncluye todos los módulos ABM, Agendas, Turnos (con restricciones de negocio y QR), \nrelación Médico-Cobertura y Exportación a PDF.\n"
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/myself-0fe/Centro-Medico/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:5000
+  description: Servidor de Desarrollo Local
+tags:
+- name: Autenticación y Usuarios
+  description: "Login, logout y gestión de perfiles del personal."
+- name: Coberturas y Planes
+  description: "Gestión de Obras Sociales, Prepagas y sus respectivos planes."
+- name: Pacientes
+  description: ABM y búsqueda de pacientes (particulares o con cobertura).
+- name: Especialidades
+  description: Catálogo de especialidades médicas.
+- name: Consultorios
+  description: Gestión de espacios físicos de atención.
+- name: Médicos
+  description: ABM de profesionales y configuración de coberturas aceptadas.
+- name: Agendas
+  description: Configuración de días y horarios semanales de atención por médico.
+- name: Turnos (Reserva y Recepción)
+  description: "Motor principal de generación, búsqueda, reserva, cancelación y check-in QR."
+- name: Dashboards e Informes
+  description: Estadísticas agregadas y exportación de reportes PDF obligatorios.
+paths:
+  /api/auth/login:
+    post:
+      tags:
+      - Autenticación y Usuarios
+      summary: Iniciar sesión
+      description: "Valida las credenciales del usuario (correo y contraseña). Si son correctas, \ninicia una sesión en el servidor y devuelve los datos básicos y el rol para que \nel frontend renderice las vistas correspondientes (Admin, Recepción o Paciente).\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: Autenticación exitosa. Retorna información del perfil.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioInfo"
+        "401":
+          description: Credenciales inválidas (correo no existe o contraseña incorrecta).
+  /api/auth/logout:
+    post:
+      tags:
+      - Autenticación y Usuarios
+      summary: Cerrar sesión (invalida token/sesión)
+      description: Destruye la sesión activa del lado del servidor Flask para el usuario actual.
+      responses:
+        "200":
+          description: Sesión cerrada exitosamente.
+        "401":
+          description: No hay sesión activa.
+  /api/usuarios/me:
+    get:
+      tags:
+      - Autenticación y Usuarios
+      summary: Obtener datos del usuario logueado actualmente
+      description: "Utilizado por el frontend al recargar la página (F5) para verificar si \nexiste una sesión activa y reconstruir el estado de la aplicación (navbar, permisos).\n"
+      responses:
+        "200":
+          description: Datos del usuario actual.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioInfo"
+        "401":
+          description: No autenticado.
+  /api/usuarios:
+    get:
+      tags:
+      - Autenticación y Usuarios
+      summary: Listar usuarios del sistema (Admin)
+      description: Retorna una lista del personal (Administradores y Recepcionistas). No incluye pacientes.
+      parameters:
+      - name: rol
+        in: query
+        description: Filtra por el tipo de rol administrativo.
+        required: false
+        schema:
+          type: string
+          enum:
+          - admin
+          - recepcionista
+      responses:
+        "200":
+          description: Lista de usuarios obtenida.
+        "403":
+          description: Acceso denegado. Solo administradores pueden usar este endpoint.
+    post:
+      tags:
+      - Autenticación y Usuarios
+      summary: Crear usuario de Staff (Admin o Recepcionista)
+      description: Permite a un Administrador dar de alta nuevas cuentas para el personal de la clínica.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioStaffRegistro"
+        required: true
+      responses:
+        "201":
+          description: Cuenta de staff creada exitosamente.
+        "400":
+          description: "Error de validación (correo ya existe, DNI duplicado)."
+        "403":
+          description: Acceso denegado (requiere rol admin).
+  /api/usuarios/{id_usuario}/password:
+    put:
+      tags:
+      - Autenticación y Usuarios
+      summary: Blanquear o actualizar contraseña
+      description: "Permite al administrador forzar el blanqueo de clave de un empleado, o a un usuario cambiar su propia contraseña."
+      parameters:
+      - name: id_usuario
+        in: path
+        description: ID del usuario a modificar.
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordUpdate"
+        required: true
+      responses:
+        "200":
+          description: Contraseña actualizada correctamente.
+        "404":
+          description: Usuario no encontrado.
+  /api/coberturas:
+    get:
+      tags:
+      - Coberturas y Planes
+      summary: Listar todas las Obras Sociales / Prepagas
+      description: "Retorna el catálogo completo de coberturas disponibles en la clínica (ej. OSDE, Swiss Medical)."
+      responses:
+        "200":
+          description: Lista de coberturas.
+    post:
+      tags:
+      - Coberturas y Planes
+      summary: Crear nueva cobertura
+      description: Alta de una nueva obra social o prepaga en el sistema.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "201":
+          description: Cobertura creada exitosamente.
+        "400":
+          description: Falta el nombre o la cobertura ya existe.
+  /api/coberturas/{id_cobertura}:
+    put:
+      tags:
+      - Coberturas y Planes
+      summary: Modificar cobertura
+      description: Actualiza el nombre o los detalles comerciales de una cobertura existente.
+      parameters:
+      - name: id_cobertura
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "200":
+          description: Cobertura modificada con éxito.
+        "404":
+          description: La cobertura indicada no existe.
+    delete:
+      tags:
+      - Coberturas y Planes
+      summary: Eliminar cobertura
+      description: Borra lógicamente o físicamente una cobertura (solo si no tiene pacientes ni médicos asociados).
+      parameters:
+      - name: id_cobertura
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Cobertura eliminada.
+        "409":
+          description: Conflicto. No se puede eliminar porque hay pacientes/médicos que la utilizan.
+  /api/coberturas/{id_cobertura}/planes:
+    get:
+      tags:
+      - Coberturas y Planes
+      summary: Listar los planes asociados a una cobertura
+      description: "Retorna los planes jerárquicos de una obra social (ej. 210, 310, 410 para OSDE). Útil para cargar combos dependientes en el Frontend."
+      parameters:
+      - name: id_cobertura
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Lista de planes obtenida.
+        "404":
+          description: Cobertura no encontrada.
+    post:
+      tags:
+      - Coberturas y Planes
+      summary: Agregar plan a una cobertura
+      description: Crea un nuevo plan jerárquico bajo el paraguas de una cobertura específica.
+      parameters:
+      - name: id_cobertura
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "201":
+          description: Plan creado exitosamente.
+  /api/planes/{id_plan}:
+    put:
+      tags:
+      - Coberturas y Planes
+      summary: Modificar nombre de un plan
+      description: Actualiza la denominación de un plan de obra social existente.
+      parameters:
+      - name: id_plan
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "200":
+          description: Plan modificado.
+        "404":
+          description: Plan no encontrado.
+    delete:
+      tags:
+      - Coberturas y Planes
+      summary: Eliminar plan
+      description: Elimina un plan si no hay pacientes asignados al mismo.
+      parameters:
+      - name: id_plan
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Plan eliminado con éxito.
+        "409":
+          description: Existen pacientes usando este plan. No se puede borrar.
+  /api/pacientes/registro:
+    post:
+      tags:
+      - Pacientes
+      summary: Alta de paciente (Autogestión o Recepción)
+      description: |
+        Endpoint público o de recepción. Crea un registro en la tabla `usuario` y su perfil en `paciente`.
+        Soporta pacientes particulares (enviando `id_plan` y `nro_afiliado` nulos).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PacienteRegistro"
+        required: true
+      responses:
+        "201":
+          description: Paciente registrado exitosamente.
+        "400":
+          description: Error de validación (Email en uso).
+  /api/pacientes:
+    get:
+      tags:
+      - Pacientes
+      summary: Listar pacientes (Búsqueda en Recepción)
+      description: Herramienta para recepción. Permite buscar rápidamente el perfil de un paciente que llama por teléfono o llega al mostrador.
+      parameters:
+      - name: dni
+        in: query
+        description: Busca coincidencias exactas o parciales por DNI.
+        required: false
+        schema:
+          type: string
+      - name: apellido
+        in: query
+        description: Busca por apellido usando sentencias LIKE '%...%' en SQL.
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Resultados de la búsqueda obtenidos correctamente.
+  /api/pacientes/{id_paciente}:
+    get:
+      tags:
+      - Pacientes
+      summary: Obtener perfil completo del paciente
+      description: "Trae todos los datos personales, de contacto y de su cobertura/plan actual cruzando las tablas correspondientes."
+      parameters:
+      - name: id_paciente
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Perfil detallado del paciente.
+        "404":
+          description: El ID de paciente no existe.
+    put:
+      tags:
+      - Pacientes
+      summary: "Actualizar datos, plan o número de afiliado"
+      description: Permite al paciente o recepcionista actualizar su plan de salud (ej. cambió de prepaga) o datos de contacto.
+      parameters:
+      - name: id_paciente
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PacienteUpdate"
+        required: true
+      responses:
+        "200":
+          description: Datos actualizados correctamente en la BD.
+        "404":
+          description: Paciente no encontrado.
+  /api/pacientes/{id_paciente}/turnos:
+    get:
+      tags:
+      - Pacientes
+      summary: Historial y próximos turnos de un paciente
+      description: "Devuelve el panel de control del paciente, mostrando los turnos que tiene a futuro (estado reservado) y su historial pasado (atendido, cancelado, ausente)."
+      parameters:
+      - name: id_paciente
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Listado cronológico de turnos del paciente.
+  /api/especialidades:
+    get:
+      tags:
+      - Especialidades
+      summary: Listar especialidades
+      description: "Devuelve el catálogo médico completo (Clínica Médica, Cardiología, Pediatría, etc)."
+      responses:
+        "200":
+          description: Lista de especialidades obtenida.
+    post:
+      tags:
+      - Especialidades
+      summary: Crear especialidad
+      description: Da de alta una nueva rama médica en el sistema.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "201":
+          description: Especialidad creada.
+        "400":
+          description: Nombre inválido o duplicado.
+  /api/especialidades/{id_especialidad}:
+    put:
+      tags:
+      - Especialidades
+      summary: Modificar especialidad
+      description: Permite corregir errores de tipeo en el nombre de la especialidad.
+      parameters:
+      - name: id_especialidad
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NombreRequest"
+        required: true
+      responses:
+        "200":
+          description: Modificación exitosa.
+        "404":
+          description: Especialidad no existe.
+    delete:
+      tags:
+      - Especialidades
+      summary: Eliminar especialidad
+      description: Borra la especialidad (restringido si ya hay médicos asignados a ella).
+      parameters:
+      - name: id_especialidad
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Especialidad eliminada.
+        "409":
+          description: No se puede eliminar. Hay médicos asociados a esta especialidad.
+  /api/consultorios:
+    get:
+      tags:
+      - Consultorios
+      summary: Listar consultorios
+      description: Obtiene la lista de espacios físicos habilitados en la clínica.
+      responses:
+        "200":
+          description: Listado de consultorios.
+    post:
+      tags:
+      - Consultorios
+      summary: Crear consultorio
+      description: "Da de alta un nuevo espacio (ej. \"Consultorio 4, Piso 1\")."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultorioRequest"
+        required: true
+      responses:
+        "201":
+          description: Consultorio creado exitosamente.
+  /api/consultorios/{id_consultorio}:
+    put:
+      tags:
+      - Consultorios
+      summary: Modificar consultorio
+      description: Actualiza el número o piso de un consultorio existente.
+      parameters:
+      - name: id_consultorio
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultorioRequest"
+        required: true
+      responses:
+        "200":
+          description: Consultorio actualizado.
+        "404":
+          description: El consultorio no existe.
+    delete:
+      tags:
+      - Consultorios
+      summary: Eliminar consultorio
+      description: Baja de un consultorio físico (restringido si está en agendas activas).
+      parameters:
+      - name: id_consultorio
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Consultorio eliminado.
+        "409":
+          description: No se puede eliminar por estar vinculado a turnos/agendas.
+  /api/medicos:
+    get:
+      tags:
+      - Médicos
+      summary: Buscar médicos
+      description: Busca profesionales en la cartilla. Soporta múltiples filtros cruzados con tablas intermedias.
+      parameters:
+      - name: id_especialidad
+        in: query
+        description: Filtra médicos por especialidad (ej. Solo Traumatólogos).
+        required: false
+        schema:
+          type: integer
+      - name: id_cobertura
+        in: query
+        description: Filtra médicos que atienden por una obra social específica (JOIN con `cobertura_medico`).
+        required: false
+        schema:
+          type: integer
+      - name: nombre
+        in: query
+        description: Búsqueda parcial por nombre o apellido.
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Lista de médicos devuelta con éxito.
+    post:
+      tags:
+      - Médicos
+      summary: Crear médico
+      description: Genera el usuario de acceso para el médico y su perfil profesional en el sistema.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicoRegistro"
+        required: true
+      responses:
+        "201":
+          description: Perfil médico creado exitosamente.
+        "400":
+          description: "Error (correo duplicado, etc)."
+  /api/medicos/{id_medico}:
+    get:
+      tags:
+      - Médicos
+      summary: Ver perfil del médico
+      description: "Trae los datos personales, matrícula y especialidad del profesional."
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Perfil médico detallado.
+        "404":
+          description: Médico no encontrado.
+    put:
+      tags:
+      - Médicos
+      summary: Modificar datos del médico
+      description: Actualiza la especialidad o datos de contacto del médico.
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicoUpdate"
+        required: true
+      responses:
+        "200":
+          description: Datos actualizados.
+        "404":
+          description: Médico no encontrado.
+    delete:
+      tags:
+      - Médicos
+      summary: Eliminar médico
+      description: Inactiva o elimina al profesional de la clínica.
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Profesional eliminado.
+        "409":
+          description: No se puede eliminar (tiene turnos asignados a futuro).
+  /api/medicos/{id_medico}/coberturas:
+    get:
+      tags:
+      - Médicos
+      summary: Listar obras sociales que acepta el médico
+      description: Consulta la tabla intermedia `cobertura_medico` para saber qué prepagas trabaja el doctor.
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Lista de coberturas aceptadas.
+    post:
+      tags:
+      - Médicos
+      summary: Vincular médico con una cobertura
+      description: Crea un registro en la tabla intermedia indicando que el médico ahora atiende por esta obra social.
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/id_medico_coberturas_body"
+        required: true
+      responses:
+        "201":
+          description: Cobertura vinculada exitosamente al médico.
+  /api/medicos/{id_medico}/coberturas/{id_cobertura}:
+    delete:
+      tags:
+      - Médicos
+      summary: Desvincular médico de una cobertura
+      description: Elimina el registro de la tabla intermedia si el médico deja de atender por dicha prepaga.
+      parameters:
+      - name: id_medico
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: id_cobertura
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Vínculo eliminado.
+  /api/agendas:
+    get:
+      tags:
+      - Agendas
+      summary: Listar agendas con filtros ampliados
+      description: Herramienta administrativa para consultar qué médico atiende en qué días y consultorios.
+      parameters:
+      - name: id_medico
+        in: query
+        description: Agendas de un profesional específico.
+        required: false
+        schema:
+          type: integer
+      - name: id_consultorio
+        in: query
+        description: Ver quién ocupa un consultorio.
+        required: false
+        schema:
+          type: integer
+      - name: vigente
+        in: query
+        description: "Si es true, solo trae agendas donde `fecha_hasta` sea mayor o igual a hoy."
+        required: false
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: Grilla de agendas obtenida.
+    post:
+      tags:
+      - Agendas
+      summary: Crear nueva agenda semanal
+      description: "Impacta en dos tablas: Crea la cabecera en `agenda` y los días/horarios recurrentes en `agenda_dias`. \nEstablece la duración del turno y el rango de validez (ej. \"Del 1 de Nov al 31 de Dic, atiende los Lunes y Miércoles de 9 a 12\").\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgendaConfig"
+        required: true
+      responses:
+        "201":
+          description: Agenda configurada exitosamente.
+        "400":
+          description: Conflicto lógico (el consultorio ya está asignado a otro médico en ese horario).
+  /api/agendas/{id_agenda}:
+    get:
+      tags:
+      - Agendas
+      summary: Ver detalle de agenda
+      description: Trae la cabecera de la agenda y un JOIN con todos sus días y franjas horarias.
+      parameters:
+      - name: id_agenda
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Detalle estructural de la agenda.
+        "404":
+          description: Agenda no encontrada.
+    put:
+      tags:
+      - Agendas
+      summary: Modificar agenda
+      description: Permite acortar o extender la `fecha_hasta` de una agenda vigente.
+      parameters:
+      - name: id_agenda
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgendaUpdate"
+        required: true
+      responses:
+        "200":
+          description: Agenda modificada con éxito.
+        "404":
+          description: Agenda no encontrada.
+    delete:
+      tags:
+      - Agendas
+      summary: Eliminar agenda (si no tiene turnos)
+      description: Borra la agenda. Solo permitido si aún no se han generado y reservado turnos que dependan de ella.
+      parameters:
+      - name: id_agenda
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Agenda eliminada.
+        "409":
+          description: Error. Hay turnos vinculados a esta agenda que no pueden quedar huérfanos.
+  /api/turnos/generar:
+    post:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Generar turnos disponibles por bloque mensual/semanal
+      description: "Ejecuta la apertura manual de agendas para un rango de fechas. \nEl backend itera sobre los días configurados en la agenda, calcula las franjas \nhorarias sumando la duración, y realiza un INSERT masivo en la tabla `turno` \ncon estado `disponible` y el `id_paciente` en valor `NULL`.\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/turnos_generar_body"
+        required: true
+      responses:
+        "201":
+          description: Turnos generados exitosamente en la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_201"
+        "400":
+          description: Error (fechas incongruentes o turnos ya generados en ese bloque).
+        "404":
+          description: Agenda inexistente.
+  /api/turnos/disponibles:
+    get:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Buscar turnos libres (Frontend Paciente) con filtros avanzados
+      description: "Motor de búsqueda para pacientes. Solo retorna registros de la tabla `turno` \ndonde `id_estado` sea \"disponible\" (o equivalente) e `id_paciente` sea nulo.\nUtiliza INNER JOINs para aplicar filtros de especialidad y cobertura.\n"
+      parameters:
+      - name: id_especialidad
+        in: query
+        description: Filtra turnos libres de una rama específica (Ej. Odontología).
+        required: false
+        schema:
+          type: integer
+      - name: id_medico
+        in: query
+        description: Si el paciente busca un doctor en particular.
+        required: false
+        schema:
+          type: integer
+      - name: id_cobertura
+        in: query
+        description: Excluye los turnos de médicos que no atiendan la obra social del paciente (Supuesto 10).
+        required: false
+        schema:
+          type: integer
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: hora_desde
+        in: query
+        description: Permite buscar "turnos por la tarde" filtrando la hora.
+        required: false
+        schema:
+          type: string
+          format: time
+      - name: hora_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: time
+      responses:
+        "200":
+          description: Listado de franjas horarias disponibles.
+  /api/turnos:
+    get:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Grilla general de turnos (Backoffice Recepción)
+      description: "Vista maestra para los recepcionistas. Permite ver todos los turnos (disponibles, \nreservados, atendidos, ausentes) para administrar el flujo de la sala de espera.\n"
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: id_medico
+        in: query
+        description: Ver la grilla de un médico puntual del día de hoy.
+        required: false
+        schema:
+          type: integer
+      - name: id_estado
+        in: query
+        description: Filtrar por ejemplo solo los "Reservados".
+        required: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Tabla general devuelta exitosamente.
+  /api/turnos/{id_turno}:
+    get:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Obtener el detalle completo de un turno específico
+      description: "Devuelve toda la información del turno, con datos cruzados del Paciente, Médico, Consultorio, Cobertura y Código QR asignado."
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: JSON con toda la información relacional del turno.
+        "404":
+          description: Turno no encontrado.
+  /api/turnos/checkin:
+    post:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Escaneo de QR en recepción
+      description: "Endpoint protegido de uso exclusivo del personal. Recibe el token (hash/UUID) del QR \ndel paciente. Valida que el estado sea \"reservado\" y verifica la tolerancia temporal \n(-30 min a +15 min). Si es correcto, graba la `fecha_horario_llegada` y pasa el estado a \"confirmado\".\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/turnos_checkin_body"
+        required: true
+      responses:
+        "200":
+          description: Check-in exitoso. Muestra mensaje de "Llegada Registrada".
+        "400":
+          description: "Error de negocio (Fuera del rango horario permitido, o llegada ya registrada)."
+        "404":
+          description: QR inválido o expirado.
+  /api/turnos/{id_turno}/reservar:
+    post:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Reservar turno y enviar QR
+      description: "El paciente toma un turno \"disponible\". El backend verifica que siga libre (manejo \nde concurrencia), asigna el `id_paciente`, cambia el estado a \"reservado\", genera un \nhash para el campo `codigo_qr` y dispara la rutina de envío de correo SMTP con la imagen adjunta.\n"
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/id_turno_reservar_body"
+        required: true
+      responses:
+        "200":
+          description: Reserva concretada y correo enviado con éxito.
+        "409":
+          description: Conflicto. Alguien más reservó el turno segundos antes.
+  /api/turnos/{id_turno}/cancelar:
+    post:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: Cancelar reserva (valida > 24hs si es paciente)
+      description: "Anula un turno reservado. Si la petición viene de un rol \"paciente\", el sistema \nvalida que falten más de 24 horas para el turno. Si viene de \"recepcionista\", \nse ignora la restricción. Libera el horario para que vuelva a figurar como \"disponible\".\n"
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Turno cancelado correctamente.
+        "400":
+          description: Violación de regla de negocio (faltan menos de 24hs y el usuario es paciente).
+  /api/turnos/{id_turno}/estado:
+    put:
+      tags:
+      - Turnos (Reserva y Recepción)
+      summary: "Modificar manualmente el estado de un turno (Atendido, Ausente)"
+      description: "Permite al recepcionista avanzar el flujo del negocio (Supuesto 9). Cuando el médico \ntermina la consulta, el recepcionista envía el estado \"Atendido\". Si el paciente \nnunca llegó, envía \"Ausente\".\n"
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TurnoEstadoUpdate"
+        required: true
+      responses:
+        "200":
+          description: Estado del turno modificado exitosamente.
+        "400":
+          description: Transición de estado inválida.
+  /api/estadisticas/sala_espera:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Lista de pacientes aguardando ser atendidos
+      description: Cruza la tabla `turno` filtrando por el día de hoy y el estado "confirmado" (check-in realizado). Ordenado por hora de llegada.
+      responses:
+        "200":
+          description: Lista de espera generada.
+  /api/estadisticas/turnos:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: "Agrupamiento de estados (Atendidos, Ausentes, etc) para gráficos"
+      description: Ejecuta sentencias `COUNT` y `GROUP BY id_estado` para alimentar gráficos de torta/barras sobre presentismo y cancelación.
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Diccionario JSON con los recuentos estadísticos.
+  /api/estadisticas/ocupacion_consultorios:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Análisis de uso de los consultorios
+      description: Calcula qué consultorios físicos tuvieron mayor volumen de turnos (ocupación real) en un periodo dado.
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Métricas de utilización de infraestructura devueltas con éxito.
+  /api/estadisticas/exportar_pdf:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Generar y exportar reporte de turnos en formato PDF (Cumple requisito obligatorio)
+      description: "Endpoint especial que, en lugar de devolver JSON, procesa datos estadísticos \ny renderiza un documento binario mediante una librería como ReportLab o pdfkit, \nestableciendo el Content-Type adecuado (`application/pdf`) para descarga en el navegador.\n"
+      parameters:
+      - name: fecha_desde
+        in: query
+        description: Inicio del periodo a reportar en el documento.
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        description: Fin del periodo.
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Archivo PDF generado y listo para visualización o descarga.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "500":
+          description: Error interno al renderizar el documento PDF.
+components:
+  schemas:
+    LoginRequest:
+      required:
+      - correo_electronico
+      - password
+      type: object
+      properties:
+        correo_electronico:
+          type: string
+          format: email
+          example: juan.perez@email.com
+        password:
+          type: string
+          format: password
+          example: secreta123
+    UsuarioInfo:
+      type: object
+      properties:
+        id_usuario:
+          type: integer
+          example: 45
+        nombre:
+          type: string
+          example: Juan
+        apellido:
+          type: string
+          example: Pérez
+        id_rol:
+          type: integer
+          description: "1 = Admin, 2 = Recepción, 3 = Paciente"
+          example: 3
+      description: "Representa los datos base de sesión, sin importar si es paciente o staff."
+    PasswordUpdate:
+      required:
+      - nueva_password
+      type: object
+      properties:
+        nueva_password:
+          type: string
+          format: password
+          example: ClaveNueva2026!
+    NombreRequest:
+      required:
+      - nombre
+      type: object
+      properties:
+        nombre:
+          type: string
+          example: Cardiología
+      description: "Schema genérico para enviar nombres (especialidades, coberturas, planes)."
+    UsuarioStaffRegistro:
+      required:
+      - apellido
+      - correo_electronico
+      - dni
+      - id_rol
+      - nombre
+      - password
+      type: object
+      properties:
+        nombre:
+          type: string
+          example: Mariana
+        apellido:
+          type: string
+          example: Gómez
+        dni:
+          type: string
+          example: "25333444"
+        correo_electronico:
+          type: string
+          format: email
+          example: mgomez@clinica.com
+        password:
+          type: string
+          format: password
+          example: Segura99
+        id_rol:
+          type: integer
+          description: "1=Admin, 2=Recepcionista"
+          example: 2
+      description: Estructura para registrar administrativos (no pacientes).
+    PacienteRegistro:
+      required:
+      - apellido
+      - correo_electronico
+      - dni
+      - fecha_nacimiento
+      - nombre
+      - password
+      type: object
+      properties:
+        nombre:
+          type: string
+          example: Carlos
+        apellido:
+          type: string
+          example: Rodríguez
+        dni:
+          type: string
+          example: "30111222"
+        correo_electronico:
+          type: string
+          format: email
+          example: carlosr@email.com
+        fecha_nacimiento:
+          type: string
+          format: date
+          example: 1985-05-15
+        password:
+          type: string
+          format: password
+        id_plan:
+          type: integer
+          description: Nulo si es paciente particular (sin prepaga).
+          nullable: true
+          example: 12
+        nro_afiliado:
+          type: string
+          description: Nulo si es paciente particular.
+          nullable: true
+          example: 12345678-01
+      description: Estructura para registrar pacientes (soporta nulos para particulares).
+    PacienteUpdate:
+      type: object
+      properties:
+        correo_electronico:
+          type: string
+          format: email
+        id_plan:
+          type: integer
+          nullable: true
+        nro_afiliado:
+          type: string
+          nullable: true
+      description: Permite actualizar datos variables del paciente.
+    ConsultorioRequest:
+      required:
+      - numero
+      type: object
+      properties:
+        numero:
+          type: string
+          example: 10B
+        piso:
+          type: string
+          example: Planta Baja
+    MedicoRegistro:
+      required:
+      - apellido
+      - correo_electronico
+      - dni
+      - id_especialidad
+      - nombre
+      - password
+      type: object
+      properties:
+        nombre:
+          type: string
+          example: Dr. Roberto
+        apellido:
+          type: string
+          example: López
+        dni:
+          type: string
+          example: "15222333"
+        correo_electronico:
+          type: string
+          format: email
+          example: rlopez@clinica.com
+        password:
+          type: string
+          format: password
+        id_especialidad:
+          type: integer
+          example: 3
+      description: Creación de usuario y perfil médico en la misma transacción.
+    MedicoUpdate:
+      required:
+      - id_especialidad
+      type: object
+      properties:
+        id_especialidad:
+          type: integer
+          example: 4
+    AgendaConfig:
+      required:
+      - dias
+      - duracion_turno
+      - fecha_hasta
+      - fecha_inicio
+      - id_consultorio
+      - id_medico
+      type: object
+      properties:
+        id_medico:
+          type: integer
+          example: 5
+        id_consultorio:
+          type: integer
+          example: 2
+        duracion_turno:
+          type: integer
+          description: "Expresado en minutos (ej. 15, 30, 45)."
+          example: 20
+        fecha_inicio:
+          type: string
+          format: date
+          example: 2026-11-01
+        fecha_hasta:
+          type: string
+          format: date
+          example: 2026-12-31
+        dias:
+          type: array
+          description: Días de la semana en los que rige el horario.
+          items:
+            $ref: "#/components/schemas/AgendaConfig_dias"
+      description: Modelo complejo para definir agendas y sus reglas de recurrencia en días semanales.
+    AgendaUpdate:
+      required:
+      - fecha_hasta
+      type: object
+      properties:
+        fecha_hasta:
+          type: string
+          format: date
+          example: 2027-01-31
+      description: Actualización limitada de fechas de agenda (las horas se tocan creando una nueva).
+    TurnoEstadoUpdate:
+      required:
+      - id_estado
+      type: object
+      properties:
+        id_estado:
+          type: integer
+          description: "ID de la tabla Estado (Ej. 4 = Atendido, 6 = Ausente)"
+          example: 4
+      description: Utilizado para forzar la máquina de estados manual de un turno.
+    id_medico_coberturas_body:
+      required:
+      - id_cobertura
+      type: object
+      properties:
+        id_cobertura:
+          type: integer
+    turnos_generar_body:
+      required:
+      - fecha_desde
+      - fecha_hasta
+      - id_agenda
+      type: object
+      properties:
+        id_agenda:
+          type: integer
+          description: ID de la agenda base (médico y consultorio).
+        fecha_desde:
+          type: string
+          description: Inicio del bloque a generar.
+          format: date
+        fecha_hasta:
+          type: string
+          description: Fin del bloque a generar.
+          format: date
+    inline_response_201:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Apertura de agenda exitosa.
+        cantidad_generados:
+          type: integer
+          example: 120
+    turnos_checkin_body:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+          description: Cadena encriptada o UUID contenida en el código QR.
+    id_turno_reservar_body:
+      required:
+      - id_paciente
+      type: object
+      properties:
+        id_paciente:
+          type: integer
+    AgendaConfig_dias:
+      required:
+      - dia_semana
+      - hora_fin
+      - hora_inicio
+      type: object
+      properties:
+        dia_semana:
+          type: integer
+          description: "Ej. 1 = Lunes, 2 = Martes"
+          example: 1
+        hora_inicio:
+          type: string
+          format: time
+          example: 09:00:00
+        hora_fin:
+          type: string
+          format: time
+          example: 12:00:00
