@@ -35,14 +35,14 @@ INSERT IGNORE INTO usuario (
     contrasenia
 )
 VALUES
-    (1, 1, 'Admin', 'Sistema', 'admin@saludintegral.test', '30000001', '1980-06-15', 'pbkdf2:sha256:600000$seedAdmin2026$7d54073a451544ae4beab9a15177788ac562fa89c66504f5c8b3ba6418699d8c'),
-    (2, 2, 'Sofia', 'Recepcion', 'recepcion@saludintegral.test', '30000002', '1990-02-10', 'pbkdf2:sha256:600000$seedRecep2026$530075682e67baa878f07b62dc2204a57e19124957defd71c3c08c337c73e155'),
-    (3, 3, 'Ana', 'Rossi', 'ana.rossi@saludintegral.test', '40000001', '1998-04-12', 'pbkdf2:sha256:600000$seedPac0012026$e79588dfa23b312a2c7a39f23d520e65769f1ad6fec830ded5a241034d150033'),
-    (4, 3, 'Bruno', 'Perez', 'bruno.perez@saludintegral.test', '40000002', NULL, 'pbkdf2:sha256:600000$seedPac0022026$6691efe214dbca75f964a7332f569636d47f5d7a3bf8d2d313c7e8d4adbecc52'),
-    (5, 3, 'Camila', 'Diaz', 'camila.diaz@saludintegral.test', '40000003', '1994-12-05', 'pbkdf2:sha256:600000$seedPac0032026$23091450de17b2dc6d9001dad91b98078414bda6a8777b17d390f58d993e8f77'),
-    (6, 4, 'Ana', 'Gutierrez', 'ana.gutierrez@saludintegral.test', '20000001', '1975-03-18', 'pbkdf2:sha256:600000$seedMed0012026$e3fa408c17da15dc91588469108b3b4ef4f6b6ebb5640de0887959b6ff6dc279'),
-    (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$seedMed0022026$e98ac5466afac82f8dc21b7485a1b9ff2032163739b90936abe54799bf6ac0d3'),
-    (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$seedMed0032026$19bdfe861b3e6599debe243c304ad931b8a5cea32a6a7c4de8c56390cb05accc');
+    (1, 1, 'Admin', 'Sistema', 'admin@saludintegral.test', '30000001', '1980-06-15', 'pbkdf2:sha256:600000$bbb2232b0bdaeebf$ae6ce40e24f7a7db5b8cc0a6bd679f0a90ffd897305920298f1111eee62c3178'),
+    (2, 2, 'Sofia', 'Recepcion', 'recepcion@saludintegral.test', '30000002', '1990-02-10', 'pbkdf2:sha256:600000$4a5196950b065f67$f243dfcaf428f6bb558c1279f621ba329ee22320e0b053922fa64e2176cbb883'),
+    (3, 3, 'Ana', 'Rossi', 'ana.rossi@saludintegral.test', '40000001', '1998-04-12', 'pbkdf2:sha256:600000$7613960be6fa97a6$81cd403dc462ed5e34c0b4bb3067a3fccf3a5a099e0a7694a97aab6dd8d20faa'),
+    (4, 3, 'Bruno', 'Perez', 'bruno.perez@saludintegral.test', '40000002', NULL, 'pbkdf2:sha256:600000$7e0e10f11f4711c1$e5cc21bb97dab7ac5dedfa6918f2e8e368dfb2886db0808dcfe242fedc8e6c6c'),
+    (5, 3, 'Camila', 'Diaz', 'camila.diaz@saludintegral.test', '40000003', '1994-12-05', 'pbkdf2:sha256:600000$6f9311d8b6d2cd0f$2f41445f217948e0587fa1f0a6c37e6078296af87b5f53127067f14a195f3198'),
+    (6, 4, 'Ana', 'Gutierrez', 'ana.gutierrez@saludintegral.test', '20000001', '1975-03-18', 'pbkdf2:sha256:600000$1d1b4552548da5c5$abef5c248bae8fa7131073d880bf82779499845ae5cbb08e40dbae940f30df35'),
+    (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$062a597c05329416$b748f7b1e42f6724b17c56349e104212ae689121da2706f75ad11c65b90970d4'),
+    (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$054686320dec1783$fa475b38eec857f31ff9b9bb50285ead56191be995941d0bc4a2af738cd3813b');
 
 INSERT IGNORE INTO plan (id_plan, id_cobertura, nombre)
 VALUES (1, 1, 'OSDE 210'), (2, 1, 'OSDE 310'), (3, 2, 'SMG 20'), (4, 3, 'Galeno Azul');
