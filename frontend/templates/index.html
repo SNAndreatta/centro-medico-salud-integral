@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#e9edf2">
+
+    <title>Iniciar sesión | Salud Integral</title>
+
+    <!-- CSS generado por Tailwind CLI -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">   
+    <!-- Iconos Lucide, sin React -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="min-h-screen bg-[#e9edf2] font-sans text-[#123b56]">
+
+    <main class="flex min-h-screen items-center justify-center px-5 py-10">
+
+        <section class="w-full max-w-[360px]">
+
+            <!-- Logo -->
+            <header class="mb-6 flex flex-col items-center">
+                <div class="mb-2 flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-sm bg-[#073b59] text-white">
+                        <i data-lucide="heart-pulse" class="h-5 w-5"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-base font-bold leading-tight">
+                            Salud Integral
+                        </h2>
+                        <p class="text-[9px] tracking-[0.16em] text-slate-500">
+                            CENTRO MÉDICO
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tarjeta de inicio de sesión -->
+            <div class="rounded-lg bg-white px-6 py-7 shadow-sm">
+
+                <div class="mb-6 text-center">
+                    <h1 class="text-xl font-bold text-[#123b56]">
+                        Iniciar sesión
+                    </h1>
+
+                    <p class="mt-2 text-xs leading-5 text-slate-500">
+                        Ingresá tus datos para acceder a tu cuenta.
+                    </p>
+                </div>
+
+                <form id="login-form" class="space-y-4">
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email"
+                            class="mb-1.5 block text-xs font-semibold text-slate-700">
+                            Correo electrónico
+                        </label>
+
+                        <div class="flex items-center gap-2 rounded-md border border-slate-200 px-3 transition focus-within:border-[#073b59] focus-within:ring-2 focus-within:ring-[#073b59]/10">
+                            <i data-lucide="mail"
+                                class="h-4 w-4 shrink-0 text-slate-400"></i>
+
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="Ingresá tu correo"
+                                autocomplete="email"
+                                required
+                                class="h-10 min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div>
+                        <label for="password"
+                            class="mb-1.5 block text-xs font-semibold text-slate-700">
+                            Contraseña
+                        </label>
+
+                        <div class="flex items-center gap-2 rounded-md border border-slate-200 px-3 transition focus-within:border-[#073b59] focus-within:ring-2 focus-within:ring-[#073b59]/10">
+                            <i data-lucide="lock-keyhole"
+                                class="h-4 w-4 shrink-0 text-slate-400"></i>
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="Ingresá tu contraseña"
+                                autocomplete="current-password"
+                                required
+                                class="h-10 min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+                            >
+
+                            <button
+                                type="button"
+                                id="toggle-password"
+                                aria-label="Mostrar contraseña"
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-[#073b59]"
+                            >
+                                <i data-lucide="eye" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="mt-2 text-right">
+                            <a href="#recuperar"
+                                class="text-[11px] font-medium text-[#073b59] hover:underline">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje -->
+                    <p id="login-message"
+                        role="status"
+                        aria-live="polite"
+                        class="hidden rounded-md bg-blue-50 p-3 text-xs text-blue-800">
+                    </p>
+
+                    <!-- Botón -->
+                    <button
+                        type="submit"
+                        class="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#073b59] px-4 text-xs font-semibold text-white transition hover:bg-[#0b4c70] focus:outline-none focus:ring-2 focus:ring-[#073b59] focus:ring-offset-2"
+                    >
+                        Iniciar sesión
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </button>
+
+                </form>
+
+                <div class="my-5 flex items-center gap-3">
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                    <span class="text-[10px] text-slate-400">O</span>
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                </div>
+
+                <p class="text-center text-xs text-slate-600">
+                    ¿No tenés una cuenta?
+                    <a href="#registro"
+                        class="font-semibold text-[#073b59] hover:underline">
+                        Registrate
+                    </a>
+                </p>
+
+            </div>
+
+            <!-- Pie -->
+            <footer class="mt-5 flex items-center justify-center gap-1.5 text-[10px] text-slate-500">
+                <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                <span>Centro Médico de Salud Integral</span>
+            </footer>
+
+        </section>
+    </main>
+
+    <script>
+        // Dibujar iconos de Lucide
+        lucide.createIcons();
+
+        // Mostrar u ocultar contraseña
+        const password = document.querySelector("#password");
+        const togglePassword = document.querySelector("#toggle-password");
+
+        togglePassword.addEventListener("click", () => {
+            const mostrar = password.type === "password";
+
+            password.type = mostrar ? "text" : "password";
+
+            togglePassword.innerHTML = `
+                <i data-lucide="${mostrar ? "eye-off" : "eye"}"
+                   class="h-4 w-4"></i>
+            `;
+
+            togglePassword.setAttribute(
+                "aria-label",
+                mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
+            );
+
+            lucide.createIcons();
+        });
+
+        // Comportamiento provisional del formulario
+        const form = document.querySelector("#login-form");
+        const message = document.querySelector("#login-message");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            message.textContent =
+                "La interfaz funciona, pero todavía falta conectar el login con el backend.";
+
+            message.classList.remove("hidden");
+        });
+    </script>
+
+</body>
+</html>
