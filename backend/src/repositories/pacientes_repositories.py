@@ -1,4 +1,78 @@
+import mysql.connector
+from mysql.connector import errorcode
+
 from src.db import obtener_cursor
+
+
+def registrar_paciente(paciente):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM usuario WHERE correo_electronico = %s LIMIT 1',
+            (paciente['correo_electronico'],),
+        )
+        if cursor.fetchone() is not None:
+            return None, 'EMAIL_DUPLICADO'
+
+        if paciente['id_plan'] is not None:
+            cursor.execute(
+                'SELECT id_plan FROM plan WHERE id_plan = %s',
+                (paciente['id_plan'],),
+            )
+            if cursor.fetchone() is None:
+                return None, 'PLAN_INEXISTENTE'
+
+        cursor.execute(
+            """
+            INSERT INTO usuario (
+                id_rol, nombre, apellido, correo_electronico, dni,
+                fecha_nacimiento, contrasenia
+            )
+            VALUES (3, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                paciente['nombre'],
+                paciente['apellido'],
+                paciente['correo_electronico'],
+                paciente['dni'],
+                paciente['fecha_nacimiento'],
+                paciente['contrasenia'],
+            ),
+        )
+        id_usuario = int(cursor.lastrowid)
+
+        cursor.execute(
+            """
+            INSERT INTO paciente (id_plan, id_usuario, nro_afiliado)
+            VALUES (%s, %s, %s)
+            """,
+            (paciente['id_plan'], id_usuario, paciente['nro_afiliado']),
+        )
+        id_paciente = int(cursor.lastrowid)
+        conexion.commit()
+
+        return {
+            'id_paciente': id_paciente,
+            'id_usuario': id_usuario,
+            'nombre': paciente['nombre'],
+            'apellido': paciente['apellido'],
+            'dni': paciente['dni'],
+            'correo_electronico': paciente['correo_electronico'],
+            'fecha_nacimiento': paciente['fecha_nacimiento'].isoformat(),
+            'id_plan': paciente['id_plan'],
+            'nro_afiliado': paciente['nro_afiliado'],
+        }, None
+    except mysql.connector.IntegrityError as exc:
+        conexion.rollback()
+        if exc.errno == errorcode.ER_DUP_ENTRY:
+            return None, 'EMAIL_DUPLICADO'
+        raise
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
 
 
 def buscar_pacientes(dni=None, apellido=None):

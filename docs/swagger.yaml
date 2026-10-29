@@ -110,7 +110,7 @@ paths:
     put:
       tags:
       - Autenticación y Usuarios
-      summary: Blanquear o actualizar contraseña
+      summary: Blanquear o actualizar contraseña (!! A CHEQUEAR A FUTURO !!)
       description: "Permite al administrador forzar el blanqueo de clave de un empleado, o a un usuario cambiar su propia contraseña."
       parameters:
       - name: id_usuario
