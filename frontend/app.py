@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, render_template
+from routes.auth import auth_routes
 
 from src.config import Config
 
@@ -6,5 +7,16 @@ app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 app.json.ensure_ascii = False
 
-if __name__ == '__main__':
-    app.run(host=Config.FLASK_HOST, port=Config.FLASK_PORT, debug=Config.FLASK_DEBUG)
+app.register_blueprint(auth_routes)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+if __name__ == "__main__":
+    app.run(
+        host=Config.FLASK_HOST,
+        port=Config.FLASK_PORT,
+        debug=Config.FLASK_DEBUG
+    )
