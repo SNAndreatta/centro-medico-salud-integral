@@ -3,11 +3,19 @@ from pathlib import Path
 
 from flask import Flask
 from src.config import Config
+from src.routes.auth_routes import auth_bp
+from src.routes.usuarios_routes import usuarios_bp
+from src.routes.medicos_routes import medicos_bp
+from src.routes.pacientes_routes import pacientes_bp
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 app.json.ensure_ascii = False
+app.register_blueprint(auth_bp)
+app.register_blueprint(usuarios_bp)
+app.register_blueprint(medicos_bp)
+app.register_blueprint(pacientes_bp)
 
 
 @app.get('/health')

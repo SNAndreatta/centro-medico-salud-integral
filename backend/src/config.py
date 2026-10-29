@@ -19,4 +19,15 @@ class Config:
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'true').lower() == 'true'
 
     # Seguridad
-    SECRET_KEY = os.getenv('SECRET_KEY', 'clave-de-desarrollo')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    if not SECRET_KEY:
+        if FLASK_DEBUG:
+            SECRET_KEY = 'development-only-secret-change-before-deploying'
+        else:
+            raise RuntimeError('SECRET_KEY must be configured when debug mode is disabled')
+    elif not FLASK_DEBUG and len(SECRET_KEY) < 32:
+        raise RuntimeError('SECRET_KEY must contain at least 32 characters when debug mode is disabled')
+
+    JWT_ACCESS_TOKEN_MINUTES = int(os.getenv('JWT_ACCESS_TOKEN_MINUTES', '60'))
+    if JWT_ACCESS_TOKEN_MINUTES <= 0:
+        raise ValueError('JWT_ACCESS_TOKEN_MINUTES must be greater than zero')
