@@ -7,6 +7,7 @@ from src.routes.auth_routes import auth_bp
 from src.routes.usuarios_routes import usuarios_bp
 from src.routes.medicos_routes import medicos_bp
 from src.routes.pacientes_routes import pacientes_bp
+from src.utils.http_errors import handle_unexpected_errors
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 app = Flask(__name__)
@@ -19,6 +20,7 @@ app.register_blueprint(pacientes_bp)
 
 
 @app.get('/health')
+@handle_unexpected_errors
 def health():
     return {'status': 'ok'}
 

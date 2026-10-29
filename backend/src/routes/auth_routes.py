@@ -2,11 +2,13 @@ from flask import Blueprint, request
 
 from src.errores import error_respuesta
 from src.services.auth_service import autenticar_usuario
+from src.utils.http_errors import handle_unexpected_errors
 
 auth_bp = Blueprint('auth_bp', __name__)
 
 
 @auth_bp.post('/auth/login')
+@handle_unexpected_errors
 def login():
     datos = request.get_json(silent=True)
     if not isinstance(datos, dict):
