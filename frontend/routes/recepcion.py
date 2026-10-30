@@ -7,7 +7,7 @@ recepcion_routes = Blueprint('rutas_recepcion_prefijo_api', __name__)
 def home():
     return render_template('/recepcion/home.html')
 
-@recepcion_routes.route('/sala-espera')
+@recepcion_routes.route('/recepcion/sala-espera')
 def sala_espera():
 
     pacientes_en_espera = [
@@ -25,11 +25,58 @@ def sala_espera():
             "hora_turno": "15:50",
             "hora_llegada": "15:45",
             "modalidad": "PED",
-            "color_avatar": "bg-pink-500/30 text-pink-500"
+            "color_avatar": "bg-purple-500/30 text-purple-500"
         }
     ]
 
     return render_template(
         'recepcion/sala_espera.html',
         pacientes_en_espera=pacientes_en_espera
+    )
+
+@recepcion_routes.route("/recepcion/usuarios")
+def ver_usuarios():
+
+    usuarios = [
+        {
+            "id": 1,
+            "nombre": "Camila",
+            "apellido": "Núñez",
+            "cobertura": "OSDE",
+            "plan": "210",
+            "iniciales": "CN",
+            "color_fondo": "bg-pink-500/30 text-pink-500"
+        },
+        {
+            "id": 2,
+            "nombre": "Martín",
+            "apellido": "Pérez",
+            "cobertura": "Swiss Medical",
+            "plan": "SMG20",
+            "iniciales": "MP",
+            "color_fondo": "bg-purple-500/30 text-purple-500"
+        },
+        {
+            "id": 3,
+            "nombre": "Lucía",
+            "apellido": "Fernández",
+            "cobertura": "Galeno",
+            "plan": "Oro",
+            "iniciales": "LF",
+            "color_fondo": "bg-green-500/30 text-green-500"
+        },
+        {
+            "id": 4,
+            "nombre": "Tomás",
+            "apellido": "Gómez",
+            "cobertura": "Medifé",
+            "plan": "Plata",
+            "iniciales": "TG",
+            "color_fondo": "bg-red-500/30 text-red-500"
+        }
+    ]
+
+    return render_template(
+        "recepcion/ver_usuarios.html",
+        usuarios=usuarios
     )
