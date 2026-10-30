@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Mi perfil | Salud Integral{% endblock %}
+
+{% block content %}
+
+<main class="mx-auto w-full max-w-[1100px] px-5 pb-10 sm:px-10">
+
+    {% if rol == "medico" %}
+
+        {% include "profile/medico.html" %}
+
+    {% elif rol == "recepcion" %}
+
+        {% include "profile/recepcion.html" %}
+
+    {% elif rol == "paciente" %}
+
+        {% include "profile/paciente.html" %}
+
+    {% elif rol == "admin" %}
+
+        {% include "profile/admin.html" %}
+
+    {% else %}
+
+        <section class="rounded-2xl bg-background px-6 py-10 text-center">
+
+            <h2 class="text-xl font-bold text-acento">
+                Perfil no disponible
+            </h2>
+
+            <p class="mt-2 text-sm text-gray-500">
+                No se pudo identificar el rol del usuario.
+            </p>
+
+        </section>
+
+    {% endif %}
+
+</main>
+
+<script>
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+</script>
+
+{% endblock %}
