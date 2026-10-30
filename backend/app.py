@@ -8,6 +8,7 @@ from src.routes.usuarios_routes import usuarios_bp
 from src.routes.medicos_routes import medicos_bp
 from src.routes.pacientes_routes import pacientes_bp
 from src.routes.agendas_routes import agendas_bp
+from src.routes.turnos_routes import turnos_bp
 from src.utils.http_errors import handle_unexpected_errors
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -19,6 +20,7 @@ app.register_blueprint(usuarios_bp)
 app.register_blueprint(medicos_bp)
 app.register_blueprint(pacientes_bp)
 app.register_blueprint(agendas_bp)
+app.register_blueprint(turnos_bp)
 
 
 @app.get('/health')
