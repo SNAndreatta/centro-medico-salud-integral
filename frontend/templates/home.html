@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Salud Integral{% endblock %}
+
+{% block content %}
+
+    <!-- Contenido según el rol -->
+    <main class="mx-auto w-full max-w-[1100px] px-5 pb-10 sm:px-10">
+
+        {% if rol == "medico" %}
+
+            {% include "home/medico.html" %}
+
+        {% elif rol == "recepcion" %}
+
+            {% include "home/recepcion.html" %}
+
+        {% elif rol == "paciente" %}
+
+            {% include "home/paciente.html" %}
+
+        {% elif rol == "admin" %}
+
+            {% include "home/admin.html" %}
+
+        {% endif %}
+
+    </main>
+
+
+    <!-- JavaScript compartido -->
+    <body data-rol="{{ rol }}">
+
+        <!-- Todo el contenido que ya tenías en el body -->
+
+        <script>
+            lucide.createIcons();
+        </script>
+
+        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+
+    </body>
+{% endblock %}

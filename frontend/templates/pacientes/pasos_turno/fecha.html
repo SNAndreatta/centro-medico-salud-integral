@@ -1,0 +1,130 @@
+{% extends "/pacientes/pasos_turno/sacar_turno.html" %}
+
+{% set paso = 3 %}
+
+{% block contenido_paso %}
+
+<div class="space-y-5">
+
+    <!-- Título y duración -->
+    <div class="flex flex-wrap items-center justify-between gap-2">
+
+        <h2 class="font-lexend text-base font-semibold text-acento">
+            Elegí fecha y hora
+        </h2>
+
+        <p class="flex items-center gap-1 text-[10px] text-[#66869F]">
+            <i data-lucide="clock" class="h-3 w-3"></i>
+            Duración del turno: 15 min aprox.
+        </p>
+
+    </div>
+
+
+    <form method="POST" action="#confirmacion">
+
+        <!-- Fechas disponibles -->
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+
+            {% for fecha in fechas %}
+
+            <label class="cursor-pointer">
+
+                <input
+                    type="radio"
+                    name="fecha"
+                    value="{{ fecha.valor }}"
+                    class="peer sr-only"
+                    required
+                    {% if fecha_seleccionada is defined and fecha_seleccionada == fecha.valor %}
+                        checked
+                    {% endif %}
+                >
+
+                <div class="rounded-lg border border-gray-200 px-2 py-3 text-center transition hover:border-acento peer-checked:border-[#66869F] peer-checked:bg-[#E4EBEF]">
+
+                    <p class="text-xs font-semibold uppercase text-[#66869F]">
+                        {{ fecha.dia_semana }}
+                    </p>
+
+                    <p class="font-lexend text-2xl font-semibold text-acento">
+                        {{ fecha.dia }}
+                    </p>
+
+                    <p class="text-[9px] uppercase text-[#66869F]">
+                        {{ fecha.mes }}
+                    </p>
+
+                </div>
+
+            </label>
+
+            {% else %}
+
+            <p class="col-span-full py-6 text-center text-sm text-[#66869F]">
+                No hay fechas disponibles.
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- Horarios -->
+        <div class="mt-5">
+
+            <h3 class="mb-3 text-[11px] font-medium text-acento">
+                Horarios disponibles
+            </h3>
+
+            <div class="flex flex-wrap gap-2">
+
+                {% for horario in horarios %}
+
+                <label class="cursor-pointer">
+
+                    <input
+                        type="radio"
+                        name="hora"
+                        value="{{ horario }}"
+                        class="peer sr-only"
+                        required
+                    >
+
+                    <span class="inline-flex rounded-full border border-gray-200 px-3 py-1 text-[11px] font-medium text-acento transition hover:border-acento peer-checked:border-[#66869F] peer-checked:bg-[#E4EBEF]">
+                        {{ horario }}
+                    </span>
+
+                </label>
+
+                {% else %}
+
+                <p class="text-xs text-[#66869F]">
+                    Seleccioná una fecha para consultar los horarios.
+                </p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Continuar -->
+        <div class="mt-5 flex justify-end">
+
+            <button
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-full bg-acento px-5 py-2 text-xs font-medium text-white transition hover:opacity-90"
+            >
+                Continuar
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Administración | Salud Integral{% endblock %}
+
+{% block content %}
+
+        <!-- Título y filtros -->
+        <section class="relative mb-7">
+
+            <div class="flex items-center justify-between border-b border-slate-300 pb-2">
+
+                <h1 class="font-lexend text-xl font-semibold tracking-wide sm:text-2xl">
+                    VER TURNOS
+                </h1>
+
+
+                <!-- Botón filtrar -->
+                <button
+                    type="button"
+                    id="boton-filtros"
+                    class="flex items-center gap-3 font-lexend text-lg font-medium text-slate-500 transition hover:text-acento"
+                    aria-expanded="false"
+                >
+                    Filtrar
+                    <i data-lucide="sliders-horizontal" class="h-5 w-5"></i>
+                </button>
+
+            </div>
+
+
+            <!-- Panel de filtros -->
+            <div
+                id="panel-filtros"
+                class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+            >
+
+                <h2 class="mb-4 font-lexend text-base font-semibold">
+                    Filtrar turnos
+                </h2>
+
+
+                <!-- Filtro por cobertura -->
+                <div class="mb-4">
+
+                    <label for="filtro-cobertura" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
+                        COBERTURA
+                    </label>
+
+                    <select
+                        id="filtro-cobertura"
+                        class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                    >
+                        <option value="">Todas las coberturas</option>
+                        <option value="osde">OSDE</option>
+                        <option value="galeno">Galeno</option>
+                        <option value="swiss medical">Swiss Medical</option>
+                        <option value="medifé">Medifé</option>
+                    </select>
+
+                </div>
+
+
+                <!-- Filtro por médico -->
+                <div class="mb-5">
+
+                    <label for="filtro-medico" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
+                        ESPECIALIDAD / MÉDICO
+                    </label>
+
+                    <select
+                        id="filtro-medico"
+                        class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                    >
+                        <option value="">Todos los médicos</option>
+                        <option value="dr. juan pérez">Dr. Juan Pérez</option>
+                        <option value="dra. ana martínez">Dra. Ana Martínez</option>
+                        <option value="dr. carlos gómez">Dr. Carlos Gómez</option>
+                    </select>
+
+                </div>
+
+
+                <!-- Botones -->
+                <div class="flex items-center justify-between gap-3">
+
+                    <button
+                        type="button"
+                        id="limpiar-filtros"
+                        class="rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                    >
+                        Limpiar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="aplicar-filtros"
+                        class="rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                    >
+                        Aplicar filtros
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- Lista de turnos -->
+        <section id="lista-turnos" class="space-y-3.5">
+
+            {% for turno in turnos %}
+
+                <!-- Card de turno -->
+                <article
+                    class="turno-card grid grid-cols-1 items-center gap-4 rounded-2xl bg-background px-6 py-5 shadow-sm transition hover:shadow-md sm:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,1.5fr)] sm:gap-0 sm:px-8"
+                    data-cobertura="{{ turno.cobertura|lower }}"
+                    data-medico="{{ turno.especialidad|lower }}"
+                >
+
+
+                    <!-- Avatar y paciente -->
+                    <div class="flex min-w-0 items-center gap-5 sm:gap-7 sm:pr-5">
+
+                        <div
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-lexend text-lg font-medium {{ turno.color_fondo | default('bg-pink-500/30 text-pink-500') }}">
+                            {{ turno.iniciales | default('NC') }}
+                        </div>
+
+
+                        <div class="min-w-0">
+
+                            <p class="mb-0.5 font-lexend text-xs font-medium tracking-wide text-slate-500">
+                                COBERTURA
+                            </p>
+
+                            <h2 class="truncate font-lexend text-xl font-medium text-acento sm:text-2xl">
+                                {{ turno.paciente }}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Fecha y hora -->
+                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:px-5 sm:pt-0">
+
+                        <p class="mb-0.5 font-lexend text-xs font-medium tracking-wide text-slate-500">
+                            FECHA Y HORA
+                        </p>
+
+                        <p class="font-lexend text-xl font-medium leading-tight text-acento">
+                            {{ turno.hora }}
+                        </p>
+
+                        <p class="font-lexend text-xs font-medium leading-tight text-acento">
+                            {{ turno.fecha }}
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- Consultorio -->
+                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:px-5 sm:pt-0">
+
+                        <p class="mb-1 font-lexend text-xs font-medium tracking-wide text-slate-500">
+                            CONSULTORIO
+                        </p>
+
+                        <p class="font-lexend text-3xl font-semibold leading-tight text-acento">
+                            {{ turno.consultorio }}
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- Especialidad / médico -->
+                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:pl-5 sm:pt-0">
+
+                        <p class="mb-1 font-lexend text-xs font-medium tracking-wide text-slate-500">
+                            ESPECIALIDAD
+                        </p>
+
+                        <p class="truncate font-lexend text-lg font-medium text-acento">
+                            {{ turno.especialidad }}
+                        </p>
+
+                    </div>
+
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+
+
+        <!-- Sin resultados -->
+        <p
+            id="sin-resultados"
+            class="hidden py-10 text-center font-lexend text-slate-500"
+        >
+            No se encontraron turnos con esos filtros.
+        </p>
+
+
+    </main>
+
+
+
+    <script>
+
+        lucide.createIcons();
+
+
+        // Elementos del panel de filtros
+        const botonFiltros = document.querySelector("#boton-filtros");
+        const panelFiltros = document.querySelector("#panel-filtros");
+
+        const filtroCobertura = document.querySelector("#filtro-cobertura");
+        const filtroMedico = document.querySelector("#filtro-medico");
+
+        const aplicarFiltros = document.querySelector("#aplicar-filtros");
+        const limpiarFiltros = document.querySelector("#limpiar-filtros");
+
+        const tarjetas = document.querySelectorAll(".turno-card");
+        const mensajeVacio = document.querySelector("#sin-resultados");
+
+
+        // Mostrar u ocultar el panel
+        botonFiltros.addEventListener("click", (event) => {
+
+            event.stopPropagation();
+
+            panelFiltros.classList.toggle("hidden");
+
+            const abierto = !panelFiltros.classList.contains("hidden");
+
+            botonFiltros.setAttribute("aria-expanded", String(abierto));
+
+        });
+
+
+        // Aplicar filtros
+        function filtrarTurnos() {
+
+            const cobertura = filtroCobertura.value.toLowerCase();
+            const medico = filtroMedico.value.toLowerCase();
+
+            let turnosVisibles = 0;
+
+
+            tarjetas.forEach((tarjeta) => {
+
+                const coberturaTurno = tarjeta.dataset.cobertura;
+                const medicoTurno = tarjeta.dataset.medico;
+
+                const coincideCobertura =
+                    cobertura === "" || coberturaTurno === cobertura;
+
+                const coincideMedico =
+                    medico === "" || medicoTurno === medico;
+
+                const coincide =
+                    coincideCobertura && coincideMedico;
+
+
+                tarjeta.classList.toggle("hidden", !coincide);
+
+
+                if (coincide) {
+                    turnosVisibles++;
+                }
+
+            });
+
+
+            mensajeVacio.classList.toggle(
+                "hidden",
+                turnosVisibles !== 0
+            );
+
+        }
+
+
+        // Botón aplicar
+        aplicarFiltros.addEventListener("click", () => {
+
+            filtrarTurnos();
+
+            panelFiltros.classList.add("hidden");
+
+            botonFiltros.setAttribute("aria-expanded", "false");
+
+        });
+
+
+        // Limpiar filtros
+        limpiarFiltros.addEventListener("click", () => {
+
+            filtroCobertura.value = "";
+            filtroMedico.value = "";
+
+            filtrarTurnos();
+
+            panelFiltros.classList.add("hidden");
+
+            botonFiltros.setAttribute("aria-expanded", "false");
+
+        });
+
+
+        // Cerrar panel al hacer clic fuera
+        document.addEventListener("click", (event) => {
+
+            if (
+                !panelFiltros.contains(event.target) &&
+                !botonFiltros.contains(event.target)
+            ) {
+
+                panelFiltros.classList.add("hidden");
+
+                botonFiltros.setAttribute("aria-expanded", "false");
+
+            }
+
+        });
+
+    </script>
+
+{% endblock %}

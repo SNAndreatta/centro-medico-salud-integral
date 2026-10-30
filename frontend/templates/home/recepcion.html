@@ -1,0 +1,71 @@
+<!-- Información del usuario -->
+<div class="mb-7 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-acento px-5 py-3 text-white sm:px-7">
+
+    <p class="min-w-0 truncate text-sm font-semibold font-lexend sm:text-lg">
+        {{ usuario.nombre_completo | default('Nombre Completo') }}
+    </p>
+
+    <span class="shrink-0 text-sm font-semibold font-lexend sm:text-lg">
+        Recepción
+    </span>
+
+</div>
+
+
+<!-- Opciones principales -->
+<nav aria-label="Menú principal de paciente" class="space-y-5 sm:space-y-6">
+
+    <!-- Ver mis turnos -->
+    <a
+        href="#"
+        class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
+    >
+
+        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+            VER PACIENTES
+        </span>
+
+        <i
+            data-lucide="clock"
+            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+        ></i>
+
+    </a>
+
+
+    <!-- Solicitar turno -->
+    <a
+        href="#"
+        class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
+    >
+
+        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+            VER SALA DE ESPERA
+        </span>
+
+        <i
+            data-lucide="users"
+            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+        ></i>
+
+    </a>
+
+
+    <!-- Mi historial clínico -->
+    <a
+        href="#"
+        class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
+    >
+
+        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+            VER TURNOS
+        </span>
+
+        <i
+            data-lucide="clipboard-clock"
+            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+        ></i>
+
+    </a>
+
+</nav>

@@ -1,0 +1,154 @@
+{% extends "/pacientes/pasos_turno/sacar_turno.html" %}
+
+{% set paso = 1 %}
+
+{% block contenido_paso %}
+
+<div class="space-y-5">
+
+    <!-- Título y descripción -->
+    <div>
+        <h2 class="font-lexend text-base font-semibold text-acento">
+            ¿Qué especialidad necesitás?
+        </h2>
+
+        <p class="mt-1 text-xs text-[#66869F]">
+            Seleccioná la especialidad para encontrar el profesional indicado.
+        </p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="relative">
+        <i data-lucide="search"
+           class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#66869F]">
+        </i>
+
+        <input
+            type="text"
+            id="buscar-especialidad"
+            placeholder="Buscar especialidad..."
+            class="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm text-acento outline-none transition placeholder:text-gray-400 focus:border-acento"
+        >
+    </div>
+
+    <!-- Selección de especialidad -->
+    <form method="GET" action="#medico"
+          id="form-especialidad">
+
+        <input type="hidden" name="paso" value="2">
+
+        <div id="lista-especialidades"
+             class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+            {% for especialidad in especialidades %}
+
+            <label
+                class="tarjeta-especialidad cursor-pointer"
+                data-nombre="{{ especialidad.nombre | lower }}"
+            >
+
+                <input
+                    type="radio"
+                    name="especialidad_id"
+                    value="{{ especialidad.id }}"
+                    class="peer sr-only"
+                    required
+                >
+
+                <div class="flex min-h-[76px] items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 transition hover:border-acento hover:bg-[#F7F9FB] peer-checked:border-acento peer-checked:bg-[#EDF3F7]">
+
+                    <!-- Icono -->
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E7EEF3] text-acento">
+                        {% if especialidad.nombre == "Cardiología" %}
+                            <i data-lucide="scan-heart" class="h-5 w-5"></i>
+                        {% elif especialidad.nombre == "Clínica Médica" %}
+                            <i data-lucide="stethoscope" class="h-5 w-5"></i>
+                        {% elif especialidad.nombre == "Dermatología" %}
+                            <i data-lucide="scan-face" class="h-5 w-5"></i>
+                        {% elif especialidad.nombre == "Oftalmología" %}
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        {% elif especialidad.nombre == "Pediatría" %}
+                            <i data-lucide="baby" class="h-5 w-5"></i>
+                        {% elif especialidad.nombre == "Traumatología" %}
+                            <i data-lucide="bone" class="h-5 w-5"></i>
+                        {% else %}
+                            <i data-lucide="stethoscope" class="h-5 w-5"></i>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-acento">
+                            {{ especialidad.nombre }}
+                        </p>
+
+                        <p class="mt-1 text-[10px] text-[#66869F]">
+                            Consultar profesionales
+                        </p>
+                    </div>
+
+                    <!-- Selector -->
+                    <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-300 text-white peer-checked:border-acento peer-checked:bg-acento">
+                        <i data-lucide="check" class="h-3 w-3"></i>
+                    </div>
+
+                </div>
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- Mensaje si no hay resultados -->
+        <p id="sin-resultados"
+           class="hidden py-6 text-center text-sm text-[#66869F]">
+            No se encontraron especialidades.
+        </p>
+
+        <!-- Botón continuar -->
+        <div class="mt-6 flex justify-end">
+            <button
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-full bg-acento px-5 py-2.5 text-xs font-medium text-white transition hover:opacity-90"
+            >
+                Continuar
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+<!-- Buscador e iconos -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buscador = document.getElementById("buscar-especialidad");
+    const tarjetas = document.querySelectorAll(".tarjeta-especialidad");
+    const mensaje = document.getElementById("sin-resultados");
+
+    buscador.addEventListener("input", function () {
+        const consulta = buscador.value.trim().toLowerCase();
+        let visibles = 0;
+
+        tarjetas.forEach(function (tarjeta) {
+            const nombre = tarjeta.dataset.nombre;
+            const coincide = nombre.includes(consulta);
+
+            tarjeta.classList.toggle("hidden", !coincide);
+
+            if (coincide) {
+                visibles++;
+            }
+        });
+
+        mensaje.classList.toggle("hidden", visibles !== 0);
+    });
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+});
+</script>
+
+{% endblock %}

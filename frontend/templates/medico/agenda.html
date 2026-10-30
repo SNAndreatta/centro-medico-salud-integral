@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Mi agenda | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="px-1 sm:px-2">
+
+    <!-- Encabezado -->
+    <div class="mb-6 flex flex-col gap-3 border-b border-acento/30 pb-3 sm:flex-row sm:items-center sm:justify-between">
+
+        <h2 class="text-xl font-bold tracking-wide text-acento sm:text-2xl">
+            MI AGENDA
+        </h2>
+
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+
+            <p class="text-sm font-medium tracking-wide text-[#66869F] sm:text-base">
+                CONSULTORIO:
+                <span class="font-semibold text-acento">
+                    {{ consultorio | default('123', true) }}
+                </span>
+            </p>
+
+            <p class="text-sm font-medium tracking-wide text-[#66869F] sm:text-base">
+                {{ rango_fechas | default('09 OCT - 14 OCT', true) }}
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Calendario -->
+    <section aria-label="Agenda semanal">
+
+        <div class="relative">
+
+            <!-- Flecha semana anterior -->
+            <a
+                href="{{ url_for(request.endpoint, semana='anterior') }}"
+                aria-label="Semana anterior"
+                class="absolute -left-2 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-acento text-white shadow-sm transition hover:opacity-80 sm:-left-3"
+            >
+                <i data-lucide="chevron-left" class="h-5 w-5"></i>
+            </a>
+
+            <!-- Flecha semana siguiente -->
+            <a
+                href="{{ url_for(request.endpoint, semana='siguiente') }}"
+                aria-label="Semana siguiente"
+                class="absolute -right-2 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-acento text-white shadow-sm transition hover:opacity-80 sm:-right-3"
+            >
+                <i data-lucide="chevron-right" class="h-5 w-5"></i>
+            </a>
+
+            <!-- Contenedor del calendario -->
+            <div class="overflow-hidden rounded-2xl border border-[#66869F]/40 bg-white">
+
+                <!-- Cabecera de días -->
+                <div class="grid grid-cols-6 border-b border-[#66869F]/30 bg-dominante">
+
+                    {% for dia in dias_semana %}
+
+                    <div class="flex min-w-0 items-center justify-center border-r border-[#66869F]/30 px-1 py-3 last:border-r-0 sm:py-4">
+
+                        <span class="text-xs font-semibold tracking-wide text-acento sm:text-base md:text-lg">
+                            {{ dia.nombre }}
+                        </span>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <!-- Horarios -->
+                <div class="grid grid-cols-6">
+
+                    {% for dia in dias_semana %}
+
+                    <div class="min-w-0 border-r border-gray-200 px-1 py-3 last:border-r-0 sm:px-2 sm:py-4 md:px-3">
+
+                        <div class="flex min-h-[300px] flex-col justify-around gap-3 sm:min-h-[340px]">
+
+                            {% for turno in dia.turnos %}
+
+                            <div class="flex min-h-7 items-center justify-center">
+
+                                {% if turno.seleccionado %}
+
+                                    <!-- Horario seleccionado -->
+                                    <a
+                                        href="{{ url_for(request.endpoint, dia=dia.nombre, hora=turno.hora) }}"
+                                        aria-current="true"
+                                        class="flex w-full max-w-[100px] items-center justify-center rounded-full bg-acento px-1 py-1 text-[10px] font-semibold text-white transition hover:opacity-80 sm:px-2 sm:text-xs md:text-sm"
+                                    >
+                                        {{ turno.hora }}
+                                    </a>
+
+                                {% elif turno.disponible %}
+
+                                    <!-- Horario disponible -->
+                                    <a
+                                        href="{{ url_for(request.endpoint, dia=dia.nombre, hora=turno.hora) }}"
+                                        class="flex w-full max-w-[100px] items-center justify-center rounded-full bg-dominante px-1 py-1 text-[10px] font-semibold text-acento transition hover:bg-acento hover:text-white sm:px-2 sm:text-xs md:text-sm"
+                                    >
+                                        {{ turno.hora }}
+                                    </a>
+
+                                {% elif turno.hora %}
+
+                                    <!-- Horario no disponible -->
+                                    <span class="text-[10px] font-medium text-[#8CA1AE] sm:text-xs md:text-sm">
+                                        {{ turno.hora }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="text-xs font-semibold text-acento sm:text-sm">
+                                        -
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Ayuda para pantallas pequeñas -->
+        <p class="mt-2 text-center text-xs text-gray-500 sm:hidden">
+            Seleccioná un horario para consultar el turno.
+        </p>
+
+    </section>
+
+    <!-- Turno seleccionado -->
+    <section class="mt-7">
+
+        <div class="mb-3 border-b border-acento/30 pb-2">
+
+            <h2 class="text-xl font-bold tracking-wide text-acento sm:text-2xl">
+                TURNO SELECCIONADO
+            </h2>
+
+        </div>
+
+        {% if turno_seleccionado %}
+
+        <article class="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-8 lg:py-4">
+
+            <!-- Paciente -->
+            <div class="flex min-w-0 items-center gap-4 sm:gap-5 lg:w-[42%] lg:pr-5">
+
+                <!-- Iniciales -->
+                <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-medium sm:h-16 sm:w-16 {{ turno_seleccionado.color | default('bg-pink-100 text-pink-400', true) }}">
+                    {{ turno_seleccionado.iniciales | default('NC', true) }}
+                </div>
+
+                <!-- Nombre y cobertura -->
+                <div class="min-w-0 flex-1">
+
+                    <h3 class="break-words text-xl font-medium leading-tight text-acento sm:text-2xl">
+                        {{ turno_seleccionado.nombre_completo | default('Nombre Completo', true) }}
+                    </h3>
+
+                    <p class="truncate text-xs font-medium tracking-wide text-[#66869F]">
+                        {{ turno_seleccionado.cobertura | default('COBERTURA', true) }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Fecha y hora -->
+            <div class="border-t border-gray-200 pt-3 sm:pt-4 lg:w-[30%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5">
+
+                <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                    FECHA Y HORA
+                </p>
+
+                <p class="text-xl font-medium leading-tight text-acento">
+                    {{ turno_seleccionado.hora | default('10:30 am.', true) }}
+                </p>
+
+                <p class="text-xs font-medium text-acento">
+                    {{ turno_seleccionado.fecha | default('11 - 10 - 2026', true) }}
+                </p>
+
+            </div>
+
+            <!-- Consultorio -->
+            <div class="border-t border-gray-200 pt-3 sm:pt-4 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5">
+
+                <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                    CONSULTORIO
+                </p>
+
+                <p class="text-3xl font-bold leading-tight text-acento">
+                    {{ turno_seleccionado.consultorio | default(consultorio | default('123', true), true) }}
+                </p>
+
+            </div>
+
+        </article>
+
+        {% else %}
+
+        <!-- Sin turno seleccionado -->
+        <div class="rounded-2xl bg-white px-6 py-10 text-center shadow-sm">
+
+            <i
+                data-lucide="calendar-clock"
+                class="mx-auto mb-4 h-10 w-10 text-gray-400"
+            ></i>
+
+            <h3 class="text-lg font-bold text-acento">
+                Ningún turno seleccionado
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Seleccioná un horario de la agenda para ver los detalles del turno.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+<!-- Iconos -->
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+
+{% endblock %}
