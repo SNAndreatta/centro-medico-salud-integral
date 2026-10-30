@@ -7,9 +7,9 @@ from src.repositories.usuarios_repositories import (
     obtener_usuarios_staff,
 )
 from src.errores import error_respuesta
+from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
 
-
-ROLES_STAFF = {'admin': 1, 'recepcionista': 2}
+ROLES_STAFF = {'admin': ADMINISTRADOR, 'recepcionista': RECEPCIONISTA}
 CAMPOS_USUARIO_STAFF = {
     'nombre',
     'apellido',
@@ -56,7 +56,7 @@ def crear_usuario_staff(datos):
         return error_respuesta('El correo electrónico no es válido', 'EMAIL_INVALIDO'), 400
 
     id_rol = datos['id_rol']
-    if isinstance(id_rol, bool) or not isinstance(id_rol, int) or id_rol not in (1, 2):
+    if isinstance(id_rol, bool) or not isinstance(id_rol, int) or id_rol not in (ADMINISTRADOR, RECEPCIONISTA):
         return error_respuesta(
             'id_rol debe ser 1 (Administrador) o 2 (Recepcionista)',
             'ROL_INVALIDO',

@@ -44,7 +44,14 @@ def token_required(view):
 
 
 def roles_required(*role_ids):
+
+    if not role_ids:
+        raise ValueError('Debe especificarse al menos un rol permitido')
+
     allowed_roles = {int(role_id) for role_id in role_ids}
+
+    if any(role_id <= 0 for role_id in allowed_roles):
+        raise ValueError('Los identificadores de rol deben ser positivos')
 
     def decorator(view):
         @wraps(view)

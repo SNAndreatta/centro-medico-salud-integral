@@ -2,7 +2,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 from src.db import obtener_cursor
-
+from  src.utils.roles import PACIENTE
 
 def registrar_paciente(paciente):
     conexion, cursor = obtener_cursor()
@@ -28,9 +28,10 @@ def registrar_paciente(paciente):
                 id_rol, nombre, apellido, correo_electronico, dni,
                 fecha_nacimiento, contrasenia
             )
-            VALUES (3, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
+                PACIENTE,
                 paciente['nombre'],
                 paciente['apellido'],
                 paciente['correo_electronico'],

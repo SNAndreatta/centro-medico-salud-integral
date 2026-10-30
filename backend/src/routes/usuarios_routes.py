@@ -4,6 +4,7 @@ from src.errores import error_respuesta
 from src.repositories.auth_repository import obtener_usuario_por_id
 from src.services.usuarios_services import crear_usuario_staff, listar_usuarios_staff
 from src.utils.auth import roles_required, token_required
+from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
 from src.utils.http_errors import handle_unexpected_errors
 
 usuarios_bp = Blueprint('usuarios_bp', __name__)
@@ -12,6 +13,7 @@ usuarios_bp = Blueprint('usuarios_bp', __name__)
 @usuarios_bp.get('/usuarios/me')
 @handle_unexpected_errors
 @token_required
+@roles_required(*ROLES_VALIDOS)
 def usuario_actual():
     usuario = obtener_usuario_por_id(g.current_user['id_usuario'])
     if usuario is None:
@@ -31,7 +33,7 @@ def usuario_actual():
 @usuarios_bp.get('/usuarios')
 @handle_unexpected_errors
 @token_required
-@roles_required(1)
+@roles_required(ADMINISTRADOR)
 def listar_usuarios():
     rol = request.args.get('rol')
     if rol not in (None, 'admin', 'recepcionista'):
@@ -47,7 +49,7 @@ def listar_usuarios():
 @usuarios_bp.post('/usuarios')
 @handle_unexpected_errors
 @token_required
-@roles_required(1)
+@roles_required(ADMINISTRADOR)
 def crear_usuario():
     datos = request.get_json(silent=True)
     if not isinstance(datos, dict):
