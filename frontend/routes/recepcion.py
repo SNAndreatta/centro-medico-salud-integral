@@ -80,3 +80,21 @@ def ver_usuarios():
         "recepcion/ver_usuarios.html",
         usuarios=usuarios
     )
+
+@recepcion_routes.route("/recepcion/profile")
+def perfil():
+
+    usuario = {
+        "nombre": "Camila",
+        "apellido": "Núñez",
+        "iniciales": "CN",
+        "email": "ejemplo.usuario@gmail.com",
+        "documento": "44.444.444",
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
+    }
+
+    return render_template(
+        "/recepcion/profile.html",
+        usuario=usuario
+    )
