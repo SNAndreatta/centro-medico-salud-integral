@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from routes.auth import auth_routes
 from routes.recepcion import recepcion_routes
+from routes.home import home_routes
 
 from src.config import Config
 
@@ -10,6 +11,7 @@ app.json.ensure_ascii = False
 
 app.register_blueprint(auth_routes)
 app.register_blueprint(recepcion_routes)
+app.register_blueprint(home_routes)
 
 @app.route("/")
 def index():
