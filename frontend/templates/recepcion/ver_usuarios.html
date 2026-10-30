@@ -1,60 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#E7EBEF">
+{% extends "base.html" %}
 
-    <title>Ver usuarios | Salud Integral</title>
+{% block title %}Ver pacientes | Salud Integral{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gelasio:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-
-<body class="min-h-screen bg-dominante font-sans text-acento antialiased">
-
-    <main class="mx-auto min-h-screen w-full max-w-[1100px] px-5 py-5 sm:px-10 sm:py-7">
-
-        <!-- Encabezado -->
-        <header class="mb-7 flex items-center justify-between">
-
-            <!-- Logo -->
-            <div class="flex items-center gap-2.5">
-
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-acento text-white">
-                    <i data-lucide="activity" class="h-7 w-7"></i>
-                </div>
-
-                <div>
-                    <p class="text-[8px] font-medium font-lexend tracking-[0.16em] text-slate-500">
-                        CENTRO MÉDICO DE
-                    </p>
-
-                    <h2 class="font-gelasio text-2xl font-bold leading-tight sm:text-3xl">
-                        Salud Integral
-                    </h2>
-                </div>
-
-            </div>
-
-            <!-- Perfil -->
-            <button
-                type="button"
-                aria-label="Perfil"
-                class="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-white/60"
-            >
-                <i data-lucide="circle-user-round" class="h-10 w-10 stroke-[1.7]"></i>
-            </button>
-
-        </header>
-
+{% block content %}
 
         <!-- Título y buscador -->
         <section class="mb-5">
@@ -279,5 +227,4 @@
 
     </script>
 
-</body>
-</html>
+{% endblock %}

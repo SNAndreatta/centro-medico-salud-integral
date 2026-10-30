@@ -7,3 +7,11 @@ if (rolUsuario === "medico") {
 if (rolUsuario === "recepcion") {
     console.log("Home de recepción");
 }
+
+if (rolUsuario === "paciente") {
+    console.log("Home de paciente");
+}
+
+if (rolUsuario === "admin") {
+    console.log("Home de admin");
+}

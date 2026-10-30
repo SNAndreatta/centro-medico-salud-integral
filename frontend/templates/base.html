@@ -1,11 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro Médico de Salud Integral</title>
+
+    <title>{% block title %}Salud Integral{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuración de colores -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        acento: '#003858',
+                        dominante: '#E7ECF1',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-    <h1></h1>
+
+<body class="min-h-screen bg-white">
+
+    <!-- Contenedor principal -->
+    <div class="mx-auto min-h-[95vh] max-w-7xl bg-dominante px-5 py-6 sm:px-10 sm:py-8">
+
+        <!-- Header -->
+        <header class="mb-8 flex items-center justify-between">
+
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 text-acento">
+
+                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-acento text-white">
+                    <i data-lucide="activity" class="h-7 w-7"></i>
+                </div>
+
+                <div>
+                    <p class="text-[8px] font-medium uppercase tracking-[0.15em]">
+                        Centro Médico de
+                    </p>
+
+                    <h1 class="font-serif text-xl font-bold sm:text-2xl">
+                        Salud Integral
+                    </h1>
+                </div>
+
+            </a>
+
+            <!-- Usuario -->
+            <a href="#" 
+               class="flex h-11 w-11 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:bg-acento hover:text-white"
+               title="Mi perfil">
+
+                <i data-lucide="user-round" class="h-7 w-7"></i>
+
+            </a>
+
+        </header>
+
+        <!-- Contenido de cada página -->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+    <!-- Inicializar iconos -->
+    <script>
+        lucide.createIcons();
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+
 </body>
 </html>
