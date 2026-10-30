@@ -10,7 +10,7 @@ servers:
   description: Servidor de Desarrollo Local
 tags:
 - name: Autenticación y Usuarios
-  description: "Login, logout y gestión de perfiles del personal."
+  description: "Autenticación JWT y gestión de perfiles del personal."
 - name: Coberturas y Planes
   description: "Gestión de Obras Sociales, Prepagas y sus respectivos planes."
 - name: Pacientes
@@ -27,13 +27,16 @@ tags:
   description: "Motor principal de generación, búsqueda, reserva, cancelación y check-in QR."
 - name: Dashboards e Informes
   description: Estadísticas agregadas y exportación de reportes PDF obligatorios.
+security:
+- bearerAuth: []
 paths:
   /api/auth/login:
     post:
+      security: []
       tags:
       - Autenticación y Usuarios
       summary: Iniciar sesión
-      description: "Valida las credenciales del usuario (correo y contraseña). Si son correctas, \ninicia una sesión en el servidor y devuelve los datos básicos y el rol para que \nel frontend renderice las vistas correspondientes (Admin, Recepción o Paciente).\n"
+      description: "Valida las credenciales del usuario (correo y contraseña). Si son correctas, \nemite un JWT sin crear una sesión persistente en el servidor y devuelve el token \njunto con los datos básicos y el rol del usuario. El cliente debe enviar el token \ncomo Bearer en las solicitudes a endpoints protegidos.\n"
       requestBody:
         content:
           application/json:
@@ -46,26 +49,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UsuarioInfo"
+                $ref: "#/components/schemas/AuthResponse"
         "401":
           description: Credenciales inválidas (correo no existe o contraseña incorrecta).
-  /api/auth/logout:
-    post:
-      tags:
-      - Autenticación y Usuarios
-      summary: Cerrar sesión (invalida token/sesión)
-      description: Destruye la sesión activa del lado del servidor Flask para el usuario actual.
-      responses:
-        "200":
-          description: Sesión cerrada exitosamente.
-        "401":
-          description: No hay sesión activa.
   /api/usuarios/me:
     get:
       tags:
       - Autenticación y Usuarios
       summary: Obtener datos del usuario logueado actualmente
-      description: "Utilizado por el frontend al recargar la página (F5) para verificar si \nexiste una sesión activa y reconstruir el estado de la aplicación (navbar, permisos).\n"
+      description: "Valida el JWT enviado como Bearer y devuelve el usuario asociado. El frontend \npuede usarlo al recargar la página para reconstruir el estado de la aplicación.\n"
       responses:
         "200":
           description: Datos del usuario actual.
@@ -118,7 +110,7 @@ paths:
     put:
       tags:
       - Autenticación y Usuarios
-      summary: Blanquear o actualizar contraseña
+      summary: Blanquear o actualizar contraseña (!! A CHEQUEAR A FUTURO !!)
       description: "Permite al administrador forzar el blanqueo de clave de un empleado, o a un usuario cambiar su propia contraseña."
       parameters:
       - name: id_usuario
@@ -280,6 +272,7 @@ paths:
           description: Existen pacientes usando este plan. No se puede borrar.
   /api/pacientes/registro:
     post:
+      security: []
       tags:
       - Pacientes
       summary: Alta de paciente (Autogestión o Recepción)
@@ -1046,7 +1039,23 @@ paths:
         "500":
           description: Error interno al renderizar el documento PDF.
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
+    AuthResponse:
+      required:
+      - access_token
+      - usuario
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT firmado que el cliente enviará como Bearer en solicitudes protegidas.
+        usuario:
+          $ref: "#/components/schemas/UsuarioInfo"
     LoginRequest:
       required:
       - correo_electronico
