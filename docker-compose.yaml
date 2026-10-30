@@ -60,7 +60,9 @@ services:
     environment:
       FLASK_HOST: 0.0.0.0
       FLASK_PORT: ${FLASK_FRONT_PORT:-8000}
-      FLASK_DEBUG: ${FLASK_FRONT_DEBUG:-false}
+      FLASK_DEBUG: true
+    volumes:
+      - ./frontend:/app
     ports:
       - "${FLASK_FRONT_PORT:-8000}:${FLASK_FRONT_PORT:-8000}"
     depends_on:
