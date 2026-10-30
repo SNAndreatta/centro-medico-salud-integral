@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Mis turnos | Salud Integral{% endblock %}
+
+{% block content %}
+
+<main class="min-h-screen bg-[#E7EBF0] px-5 pb-16 pt-5 sm:px-10 lg:px-[60px]">
+    <!-- TÍTULO Y FILTRO -->
+    <section class="mb-[18px]">
+
+        <div class="flex items-center justify-between gap-4 px-1">
+
+            <h1 class="font-lexend text-xl font-bold tracking-wide text-acento sm:text-2xl">
+                MIS TURNOS
+            </h1>
+
+            <button
+                id="btn-filtrar"
+                type="button"
+                class="flex items-center gap-3 rounded-full bg-[#66869F] px-5 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+        <div class="mt-1 border-b-2 border-[#C9D4DC]"></div>
+
+    </section>
+
+
+    <!-- PANEL DE FILTROS -->
+    <section
+        id="panel-filtros"
+        class="mb-5 hidden rounded-2xl bg-white p-5 shadow-sm"
+    >
+
+        <form method="GET" action="{{ url_for(request.endpoint) }}"
+              class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div>
+                <label for="fecha" class="mb-1 block text-sm text-[#66869F]">
+                    Fecha
+                </label>
+
+                <input
+                    type="date"
+                    name="fecha"
+                    id="fecha"
+                    value="{{ request.args.get('fecha', '') }}"
+                    class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-acento outline-none focus:border-acento"
+                >
+            </div>
+
+            <div>
+                <label for="especialidad" class="mb-1 block text-sm text-[#66869F]">
+                    Especialidad
+                </label>
+
+                <input
+                    type="text"
+                    name="especialidad"
+                    id="especialidad"
+                    value="{{ request.args.get('especialidad', '') }}"
+                    placeholder="Buscar especialidad"
+                    class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-acento outline-none focus:border-acento"
+                >
+            </div>
+
+            <div>
+                <label for="estado" class="mb-1 block text-sm text-[#66869F]">
+                    Estado
+                </label>
+
+                <select
+                    name="estado"
+                    id="estado"
+                    class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-acento outline-none focus:border-acento"
+                >
+                    <option value="">Todos</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+
+            <div class="flex items-end gap-2">
+                <button
+                    type="submit"
+                    class="rounded-full bg-acento px-5 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                >
+                    Aplicar
+                </button>
+
+                <a
+                    href="{{ url_for(request.endpoint) }}"
+                    class="rounded-full border border-gray-200 px-5 py-2 text-sm text-[#66869F] transition hover:bg-gray-50"
+                >
+                    Limpiar
+                </a>
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- LISTADO DE TURNOS -->
+    <section class="space-y-[18px]">
+
+        {% if turnos %}
+
+            {% for turno in turnos %}
+
+                <article class="rounded-[18px] bg-white px-5 py-5 sm:px-8 sm:py-[18px]">
+
+                    <div class="grid grid-cols-1 items-center gap-5 md:grid-cols-[1.25fr_1fr_0.8fr_180px] md:gap-0">
+
+                        <!-- ESTADO, ESPECIALIDAD Y MÉDICO -->
+                        <div class="flex min-w-0 items-center gap-4 md:pr-5">
+
+                            <!-- Avatar de color -->
+                            <div class="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-full bg-[#D8F1F0] text-2xl font-medium text-[#36B0B0]">
+                                {{ turno.iniciales | default('NC') }}
+                            </div>
+
+                            <div class="min-w-0">
+
+                                <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                                    Estado del turno
+                                </p>
+
+                                <h2 class="mt-0.5 truncate font-lexend text-xl font-medium leading-tight text-acento">
+                                    {{ turno.especialidad | default('Especialidad') }}
+                                </h2>
+
+                                <p class="mt-1 truncate text-xs font-medium text-acento">
+                                    Dr. {{ turno.medico | default('Nombre Completo') }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FECHA Y HORA -->
+                        <div class="border-t border-[#C4D0D9] pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5 md:pr-4">
+
+                            <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                                Fecha y hora
+                            </p>
+
+                            <p class="mt-1 font-lexend text-xl font-semibold leading-tight text-acento">
+                                {{ turno.hora | default('15:00 pm.') }}
+                            </p>
+
+                            <p class="mt-0.5 text-sm text-acento">
+                                {{ turno.fecha | default('Día - Mes - Año') }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- CONSULTORIO -->
+                        <div class="border-t border-[#C4D0D9] pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5">
+
+                            <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                                Consultorio
+                            </p>
+
+                            <p class="mt-1 font-lexend text-4xl font-semibold leading-tight text-acento">
+                                {{ turno.consultorio | default('123') }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- BOTÓN CANCELAR -->
+                        <div class="flex justify-start border-t border-[#C4D0D9] pt-4 md:justify-end md:border-0 md:pt-0">
+
+                            <form
+                                method="POST"
+                                action="#"
+                                class="w-full md:w-auto"
+                                onsubmit="return confirmarCancelacion(event, this)"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="turno_id"
+                                    value="{{ turno.id | default('') }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="w-full rounded-full border border-[#D9A3A5] bg-[#F4DEDF] px-6 py-[5px] text-xs font-semibold tracking-[0.15em] text-[#A51E27] transition hover:bg-[#EFCBCD] md:w-[180px]"
+                                >
+                                    CANCELAR
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        {% else %}
+
+            <!-- ESTADO SIN TURNOS -->
+            <div class="rounded-[18px] bg-white px-6 py-12 text-center">
+
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#D8F1F0] text-[#36B0B0]">
+                    <i data-lucide="calendar-days" class="h-8 w-8"></i>
+                </div>
+
+                <h2 class="mt-4 font-lexend text-lg font-semibold text-acento">
+                    No tenés turnos para mostrar
+                </h2>
+
+                <p class="mt-2 text-sm text-[#66869F]">
+                    Cuando tengas turnos asignados, aparecerán en esta sección.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<!-- SCRIPTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        // Mostrar u ocultar filtros
+        const botonFiltrar = document.getElementById("btn-filtrar");
+        const panelFiltros = document.getElementById("panel-filtros");
+
+        if (botonFiltrar && panelFiltros) {
+            botonFiltrar.addEventListener("click", function () {
+                panelFiltros.classList.toggle("hidden");
+            });
+        }
+
+    });
+
+    // Confirmación visual de cancelación.
+    // La cancelación real debe conectarse a una ruta POST de Flask.
+    function confirmarCancelacion(event, formulario) {
+        event.preventDefault();
+
+        const confirmar = window.confirm(
+            "¿Estás seguro de que querés cancelar este turno?"
+        );
+
+        if (confirmar) {
+            alert(
+                "Todavía falta conectar la cancelación con el backend."
+            );
+        }
+
+        return false;
+    }
+</script>
+
+{% endblock %}

@@ -4,6 +4,7 @@ from routes.recepcion import recepcion_routes
 from routes.home import home_routes
 from routes.medico import medico_routes
 from routes.profile import profile_routes
+from routes.paciente import paciente_routes
 
 from src.config import Config
 
@@ -16,6 +17,7 @@ app.register_blueprint(recepcion_routes)
 app.register_blueprint(home_routes)
 app.register_blueprint(medico_routes)
 app.register_blueprint(profile_routes)
+app.register_blueprint(paciente_routes)
 
 @app.route("/")
 def index():
