@@ -149,3 +149,24 @@ def validar_datos_agenda(datos):
         'fecha_hasta': fecha_hasta.isoformat(),
         'dias': dias_validados,
     }, None
+
+def validar_datos_actualizacion_agenda(datos):
+    campos_esperados = {'fecha_hasta'}
+
+    if set(datos.keys()) !=  campos_esperados:
+        return None, error_respuesta('El cuerpo debe contener unicamente el campo fecha_hasta', 'CUERPO_INVALIDO')
+
+    fecha_hasta = datos['fecha_hasta']
+
+    if not isinstance(fecha_hasta, str):
+        return None, error_respuesta('La fecha_hasta debe ser un texto con formato YYYY-MM-DD', 'FECHA_INVALIDA')
+
+    try:
+        fecha_validada = date.fromisoformat(fecha_hasta)
+    except ValueError:
+        return None, error_respuesta('La fecha_hasta no tiene un formato valido', 'FECHA_INVALIDA')
+
+    if fecha_validada.isoformat() != fecha_hasta:
+        return None, error_respuesta('La fecha_hasta debe tener formato YYYY-MM-DD', 'FECHA_INVALIDA')
+
+    return {'fecha_hasta': fecha_hasta}, None

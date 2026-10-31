@@ -1,6 +1,6 @@
 from src.db import obtener_cursor
 
-def buscar_agendas(id_medico=None, id_consultorio=None, vigente=None, id_usuario_medico=None):
+def buscar_agendas(id_medico=None, id_consultorio=None, vigente=None, id_usuario_medico=None, id_agenda=None):
     condiciones = []
     parametros = []
 
@@ -20,6 +20,10 @@ def buscar_agendas(id_medico=None, id_consultorio=None, vigente=None, id_usuario
     if id_usuario_medico is not None:
         condiciones.append('m.id_usuario = %s')
         parametros.append(id_usuario_medico)
+
+    if id_agenda is not None:
+        condiciones.append('a.id_agenda = %s')
+        parametros.append(id_agenda)
 
     where = ' WHERE ' + ' AND '.join(condiciones) if condiciones else ''
 
@@ -196,3 +200,18 @@ def guardar_agenda(agenda):
     finally:
         cursor.close()
         conexion.close()
+
+def actualizar_fecha_hasta_agenda(id_agenda, fecha_hasta):
+    consulta = """
+            UPDATE agenda SET fecha_hasta = %s WHERE id_agenda = %s
+    """
+
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(consulta, (fecha_hasta, id_agenda))
+        conexion.commit()
+    finally:
+        cursor.close()
+        conexion.close()
+
+        
