@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Consultorios | Salud Integral{% endblock %}
+
+{% block content %}
+
+    <!-- Contenido principal -->
+    <!-- Contenedor blanco con forma de carpeta -->
+    <main class="relative mx-auto mb-20 mt-14 w-[94%] rounded-b-xl rounded-tr-xl bg-white p-5">
+
+        <!-- Solapa de la carpeta -->
+        <div class="absolute -top-7 left-0 rounded-t-xl bg-white px-4 pb-2 pt-2">
+            <h2 class="text-lg font-bold tracking-widest text-[#003b5c]">
+                CONSULTORIOS
+            </h2>
+        </div>
+
+        <!-- Buscador -->
+        <div class="mb-2 flex justify-end">
+            <div class="flex w-52 items-center rounded-full border border-[#cbd5df] px-3 py-1">
+                <input
+                    id="buscadorConsultorio"
+                    type="text"
+                    placeholder="Buscar consultorio"
+                    class="w-full bg-transparent text-xs outline-none"
+                >
+                <i data-lucide="search" class="h-3 w-3"></i>
+            </div>
+        </div>
+
+        <!-- Listado de consultorios -->
+        <div class="rounded-xl bg-[#e7ecf1] px-3">
+
+            {% for consultorio in consultorios %}
+
+            <div class="fila-consultorio grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-3 border-b border-white px-3 py-4 text-xs last:border-b-0"
+                data-busqueda="{{ consultorio.id }} {{ consultorio.piso }} {{ consultorio.numero }}">
+
+                <!-- ID -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                        ID CONSULTORIO
+                    </span>
+                    <span class="font-semibold text-[#003b5c]">
+                        {{ consultorio.id }}
+                    </span>
+                </div>
+
+                <!-- Piso -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                        PISO
+                    </span>
+                    <span class="font-semibold text-[#003b5c]">
+                        {{ consultorio.piso }}
+                    </span>
+                </div>
+
+                <!-- Número -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                        NÚMERO
+                    </span>
+                    <span class="font-semibold text-[#003b5c]">
+                        {{ consultorio.numero }}
+                    </span>
+                </div>
+
+                <!-- Opciones -->
+                <div class="relative">
+                    <button
+                        type="button"
+                        class="boton-menu rounded-full p-1 hover:bg-white"
+                        aria-label="Opciones"
+                    >
+                        <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
+                    </button>
+
+                    <div class="menu-consultorio absolute right-0 z-10 hidden min-w-32 rounded-lg bg-white p-2 text-xs shadow-lg">
+                        <button type="button"
+                                class="w-full rounded px-2 py-2 text-left hover:bg-gray-100">
+                            Editar
+                        </button>
+                        <button type="button"
+                                class="w-full rounded px-2 py-2 text-left text-red-600 hover:bg-gray-100">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            <p id="sinResultados" class="hidden px-4 py-6 text-center text-xs text-gray-500">
+                No se encontraron consultorios.
+            </p>
+
+        </div>
+
+        <!-- Botón crear -->
+        <div class="mt-3 flex justify-end">
+            <button
+                id="abrirModal"
+                type="button"
+                class="flex items-center gap-1 rounded-full bg-[#003b5c] px-4 py-2 text-xs font-medium text-white hover:bg-[#005078]"
+            >
+                Crear consultorio
+                <i data-lucide="plus" class="h-4 w-4"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal para crear consultorio -->
+    <div
+        id="modalConsultorio"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/20 p-4"
+    >
+        <div class="relative w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+
+            <button
+                id="cerrarModal"
+                type="button"
+                class="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                aria-label="Cerrar"
+            >
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+
+            <h2 class="mb-6 font-serif text-xl font-bold text-[#003b5c]">
+                Crear nuevo consultorio
+            </h2>
+
+            <form action="#crear" method="POST">
+
+                <!-- Piso -->
+                <div class="mb-5">
+                    <label for="piso" class="mb-2 block text-xs font-medium text-[#7190a5]">
+                        PISO
+                    </label>
+
+                    <select
+                        id="piso"
+                        name="piso"
+                        required
+                        class="w-full rounded-full border border-[#cbd5df] bg-white px-3 py-2 text-xs outline-none focus:border-[#003b5c]"
+                    >
+                        <option value="">Seleccionar piso</option>
+                        {% for piso in pisos %}
+                        <option value="{{ piso }}">{{ piso }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Número -->
+                <div class="mb-8">
+                    <label for="numero" class="mb-2 block text-xs font-medium text-[#7190a5]">
+                        NÚMERO DE CONSULTORIO
+                    </label>
+
+                    <input
+                        id="numero"
+                        name="numero"
+                        type="number"
+                        min="1"
+                        required
+                        placeholder="Ingresar número"
+                        class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-xs outline-none focus:border-[#003b5c]"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full rounded-full bg-[#003b5c] px-4 py-2 text-xs font-medium text-white hover:bg-[#005078]"
+                >
+                    Crear consultorio
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/consultorio.js') }}"></script>
+
+{% endblock %}
