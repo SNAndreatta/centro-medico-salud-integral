@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", function () {
 
     // Elementos del modal
@@ -5,31 +6,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const botonAbrir = document.getElementById("abrirModal");
     const botonCerrar = document.getElementById("cerrarModal");
 
-    // Abrir modal
-    botonAbrir.addEventListener("click", function () {
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-    });
+    // Abrir cualquier modal por ID
+    window.abrirModal = function (id) {
+        const modalSeleccionado = document.getElementById(id);
 
-    // Cerrar modal
-    function cerrarModal() {
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
+        if (modalSeleccionado) {
+            modalSeleccionado.classList.remove("hidden");
+            modalSeleccionado.classList.add("flex");
+        }
+    };
+
+    // Cerrar todos los modales
+    window.cerrarModal = function () {
+        document.querySelectorAll('[id^="modal"]').forEach(function (elemento) {
+            elemento.classList.add("hidden");
+            elemento.classList.remove("flex");
+        });
+    };
+
+    // Botón crear
+    if (botonAbrir) {
+        botonAbrir.addEventListener("click", function () {
+            window.abrirModal("modalConsultorio");
+        });
     }
 
-    botonCerrar.addEventListener("click", cerrarModal);
+    // Botón X
+    if (botonCerrar) {
+        botonCerrar.addEventListener("click", function () {
+            window.cerrarModal();
+        });
+    }
 
-    // Cerrar al hacer clic fuera del formulario
-    modal.addEventListener("click", function (evento) {
-        if (evento.target === modal) {
-            cerrarModal();
-        }
-    });
+    // Cerrar al hacer clic fuera del modal
+    if (modal) {
+        modal.addEventListener("click", function (evento) {
+            if (evento.target === modal) {
+                window.cerrarModal();
+            }
+        });
+    }
 
     // Cerrar con Escape
     document.addEventListener("keydown", function (evento) {
         if (evento.key === "Escape") {
-            cerrarModal();
+            window.cerrarModal();
         }
     });
 
@@ -38,49 +59,54 @@ document.addEventListener("DOMContentLoaded", function () {
     const filas = document.querySelectorAll(".fila-consultorio");
     const sinResultados = document.getElementById("sinResultados");
 
-    buscador.addEventListener("input", function () {
-        const texto = buscador.value.toLowerCase().trim();
-        let cantidadVisibles = 0;
+    if (buscador) {
+        buscador.addEventListener("input", function () {
+            const texto = buscador.value.toLowerCase().trim();
+            let cantidadVisibles = 0;
 
-        filas.forEach(function (fila) {
-            const contenido = fila.dataset.busqueda.toLowerCase();
-            const coincide = contenido.includes(texto);
+            filas.forEach(function (fila) {
+                const contenido = fila.dataset.busqueda.toLowerCase();
+                const coincide = contenido.includes(texto);
 
-            fila.classList.toggle("hidden", !coincide);
+                fila.classList.toggle("hidden", !coincide);
 
-            if (coincide) {
-                cantidadVisibles++;
+                if (coincide) {
+                    cantidadVisibles++;
+                }
+            });
+
+            if (sinResultados) {
+                sinResultados.classList.toggle("hidden", cantidadVisibles > 0);
             }
         });
-
-        sinResultados.classList.toggle("hidden", cantidadVisibles > 0);
-    });
+    }
 
     // Menú de opciones
     const botonesMenu = document.querySelectorAll(".boton-menu");
 
     botonesMenu.forEach(function (boton) {
-        boton.addEventListener("click", function () {
+        boton.addEventListener("click", function (evento) {
+            evento.stopPropagation();
+
             const menu = boton.nextElementSibling;
             const estabaAbierto = !menu.classList.contains("hidden");
 
-            // Cerrar todos los menús
             document.querySelectorAll(".menu-consultorio").forEach(function (otroMenu) {
                 otroMenu.classList.add("hidden");
             });
 
-            // Abrir el seleccionado si estaba cerrado
             if (!estabaAbierto) {
                 menu.classList.remove("hidden");
             }
         });
     });
 
-    // Cerrar los menús al hacer clic fuera de ellos
+    // Cerrar menús al hacer clic afuera
     document.addEventListener("click", function (evento) {
-        if (!evento.target.closest(".boton-menu") &&
-            !evento.target.closest(".menu-consultorio")) {
-
+        if (
+            !evento.target.closest(".boton-menu") &&
+            !evento.target.closest(".menu-consultorio")
+        ) {
             document.querySelectorAll(".menu-consultorio").forEach(function (menu) {
                 menu.classList.add("hidden");
             });
@@ -88,5 +114,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Inicializar iconos
-    lucide.createIcons();
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
 });

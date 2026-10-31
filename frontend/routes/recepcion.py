@@ -157,7 +157,7 @@ def ver_turnos():
             "fecha_filtro": "2026-10-11",
             "consultorio": "123",
             "especialidad": "Dra. Ana Martínez",
-            "color_fondo": "bg-blue-500/30 text-blue-500"
+            "color_fondo": "bg-cyan-500/30 text-cyan-500"
         }
     ]
 
