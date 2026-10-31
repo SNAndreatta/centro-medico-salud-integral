@@ -1,6 +1,6 @@
 from flask import Blueprint, g, request
 
-from src.services.agendas_services import filtrar_agendas, crear_agenda, obtener_agenda, actualizar_agenda
+from src.services.agendas_services import filtrar_agendas, crear_agenda, obtener_agenda, actualizar_agenda, eliminar_agenda
 from src.utils.auth import token_required, roles_required
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA, MEDICO, PACIENTE
 from src.utils.http_errors import handle_unexpected_errors
@@ -48,4 +48,12 @@ def modificar_agenda(id_agenda):
     if error_json:
         return error_json
     respuesta, status_code = actualizar_agenda(id_agenda, datos)
+    return respuesta, status_code
+
+@agendas_bp.delete('/agendas/<int:id_agenda>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR, RECEPCIONISTA)
+def borrar_agenda(id_agenda):
+    respuesta, status_code = eliminar_agenda(id_agenda)
     return respuesta, status_code

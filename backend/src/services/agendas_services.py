@@ -1,4 +1,4 @@
-from src.repositories.agendas_repositories import buscar_agendas, verificar_referencias_agenda, buscar_conflicto_agenda, guardar_agenda, actualizar_fecha_hasta_agenda
+from src.repositories.agendas_repositories import buscar_agendas, verificar_referencias_agenda, buscar_conflicto_agenda, guardar_agenda, actualizar_fecha_hasta_agenda, agenda_tiene_turnos, borrar_agenda
 from src.utils.roles import MEDICO
 from src.validators.agendas_validators import validar_filtros_agendas, validar_datos_agenda, validar_datos_actualizacion_agenda
 from src.errores import error_respuesta
@@ -97,3 +97,17 @@ def actualizar_agenda(id_agenda, datos):
     actualizar_fecha_hasta_agenda(id_agenda, actualizacion['fecha_hasta'])
     agenda_actualizada = buscar_agendas(id_agenda=id_agenda)
     return {'id_agenda': agenda_actualizada[0]}, 200
+
+
+def eliminar_agenda(id_agenda):
+    agenda = buscar_agendas(id_agenda=id_agenda)
+
+    if not agenda:
+        return error_respuesta('La agenda indicada no existe', 'AGENDA_INEXISTENTE'), 404
+
+    if agenda_tiene_turnos(id_agenda):
+        return error_respuesta('No se puede eliminar una agenda que tiene turnos asociados', 'AGENDA_CON_TURNOS'), 409
+
+    borrar_agenda(id_agenda)
+
+    return {'mensaje': 'Agenda eliminada correctamente'}, 200

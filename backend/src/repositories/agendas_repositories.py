@@ -214,4 +214,28 @@ def actualizar_fecha_hasta_agenda(id_agenda, fecha_hasta):
         cursor.close()
         conexion.close()
 
+def agenda_tiene_turnos(id_agenda):
+    consulta = """
+        SELECT 1 FROM turno WHERE id_agenda = %s LIMIT 1
+    """        
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(consulta, (id_agenda,))
+        return cursor.fetchone() is not None
+    finally:
+        cursor.close()
+        conexion.close()
+
+def borrar_agenda(id_agenda):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute("DELETE FROM agenda_dias WHERE id_agenda = %s", (id_agenda,))
         
+        cursor.execute("DELETE FROM agenda WHERE id_agenda = %s", (id_agenda,))
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
