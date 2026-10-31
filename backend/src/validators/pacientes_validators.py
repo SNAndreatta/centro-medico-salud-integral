@@ -76,6 +76,12 @@ def validar_datos_registro_paciente(datos):
             ), 400
         nro_afiliado = nro_afiliado.strip()
 
+    if (id_plan is None) != (nro_afiliado is None):
+        return None, error_respuesta(
+            'id_plan y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
+            'AFILIACION_INCOMPLETA',
+        ), 400
+
     return {
         'nombre': nombre,
         'apellido': apellido,
