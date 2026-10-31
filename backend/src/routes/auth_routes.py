@@ -3,6 +3,8 @@ from flask import Blueprint, request
 from src.errores import error_respuesta
 from src.services.auth_service import autenticar_usuario
 from src.utils.http_errors import handle_unexpected_errors
+from src.utils.utils import validar_objeto_json
+from src.validators.auth_validators import validar_credenciales_login
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -11,21 +13,13 @@ auth_bp = Blueprint('auth_bp', __name__)
 @handle_unexpected_errors
 def login():
     datos = request.get_json(silent=True)
-    if not isinstance(datos, dict):
-        return error_respuesta('El cuerpo debe ser un objeto JSON', 'CUERPO_INVALIDO'), 400
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
 
-    correo_electronico = datos.get('correo_electronico')
-    password = datos.get('password')
-    if (
-        not isinstance(correo_electronico, str)
-        or not correo_electronico.strip()
-        or not isinstance(password, str)
-        or not password
-    ):
-        return error_respuesta(
-            'correo_electronico y password son obligatorios',
-            'CREDENCIALES_REQUERIDAS',
-        ), 400
+    correo_electronico, password, error = validar_credenciales_login(datos)
+    if error:
+        return error, 400
 
     resultado = autenticar_usuario(correo_electronico, password)
     if resultado is None:

@@ -1,11 +1,11 @@
 from flask import Blueprint, request
 
-from src.errores import error_respuesta
 from src.services.pacientes_services import filtrar_pacientes
 from src.services.pacientes_registro_services import procesar_registro_paciente
 from src.utils.auth import roles_required, token_required
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
 from src.utils.http_errors import handle_unexpected_errors
+from src.utils.utils import validar_objeto_json
 
 pacientes_bp = Blueprint('pacientes_bp', __name__)
 
@@ -14,8 +14,9 @@ pacientes_bp = Blueprint('pacientes_bp', __name__)
 @handle_unexpected_errors
 def registrar_paciente():
     datos = request.get_json(silent=True)
-    if not isinstance(datos, dict):
-        return error_respuesta('El cuerpo debe ser un objeto JSON', 'CUERPO_INVALIDO'), 400
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
 
     respuesta, status_code = procesar_registro_paciente(datos)
     return respuesta, status_code
