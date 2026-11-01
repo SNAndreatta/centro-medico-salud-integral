@@ -5,42 +5,16 @@ from src.repositories.especialidades_repositories import (
     borrar_especialidad,
 )
 from src.errores import error_respuesta
-
-LONGITUD_MAXIMA_NOMBRE = 100
-
-def _validar_nombre(datos):
-    """Devuelve (nombre, None) si es válido o (None, (respuesta, status))."""
-    if not isinstance(datos, dict) or set(datos) != {'nombre'}:
-        return None, (error_respuesta(
-            'El cuerpo debe incluir únicamente el campo nombre',
-            'CUERPO_INVALIDO',
-        ), 400)
- 
-    nombre = datos['nombre']
-    if not isinstance(nombre, str) or not nombre.strip():
-        return None, (error_respuesta(
-            'El nombre es obligatorio',
-            'DATOS_INVALIDOS',
-        ), 400)
- 
-    nombre = nombre.strip()
-    if len(nombre) > LONGITUD_MAXIMA_NOMBRE:
-        return None, (error_respuesta(
-            f'El nombre no puede superar {LONGITUD_MAXIMA_NOMBRE} caracteres',
-            'DATOS_INVALIDOS',
-        ), 400)
- 
-    return nombre, None
-
+from src.validators.especialidades_validators import validar_datos_especialidad
 
 def listar_especialidades():
         especialidades = obtener_especialidades()
         return {'especialidades': especialidades}, 200
 
 def crear_especialidad(datos):
-    nombre, error = _validar_nombre(datos)
+    nombre, error = validar_datos_especialidad(datos)
     if error:
-        return error
+        return error, 400
  
     especialidad, error = guardar_especialidad(nombre)
     if error == 'ESPECIALIDAD_DUPLICADA':
@@ -52,9 +26,9 @@ def crear_especialidad(datos):
     return {'especialidad': especialidad}, 201
 
 def modificar_especialidad(id_especialidad, datos):
-    nombre, error = _validar_nombre(datos)
+    nombre, error = validar_datos_especialidad(datos)
     if error:
-        return error
+        return error, 400
  
     resultado, error = actualizar_especialidad(id_especialidad, nombre)
     if error == 'NO_EXISTE':
@@ -72,7 +46,7 @@ def modificar_especialidad(id_especialidad, datos):
  
  
 def eliminar_especialidad(id_especialidad):
-    resultado, error = borrar_especialidad(id_especialidad)
+    _, error = borrar_especialidad(id_especialidad)
     if error == 'NO_EXISTE':
         return error_respuesta(
             'La especialidad indicada no existe',
