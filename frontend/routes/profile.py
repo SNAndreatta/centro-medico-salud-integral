@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import render_template, request
+from flask import Blueprint, render_template, session
 
 profile_routes = Blueprint('rutas_profile_prefijo_api', __name__)
 
@@ -24,7 +23,7 @@ USUARIOS_DE_PRUEBA = {
         "fecha_registro": "20/04/2025",
         "email": "lucia.castro@example.com",
         "documento": "32456789",
-        "fecha_nacimiento": "08/09/1990",
+        "fecha_nacimiento": "08/09/1990"
     },
 
     "paciente": {
@@ -38,7 +37,7 @@ USUARIOS_DE_PRUEBA = {
         "fecha_nacimiento": "21/11/1995",
         "numero_afiliado": "987654321",
         "cobertura": "Nombre de cobertura",
-        "plan": "Nombre de plan",
+        "plan": "Nombre de plan"
     },
 
     "admin": {
@@ -49,20 +48,19 @@ USUARIOS_DE_PRUEBA = {
         "fecha_registro": "01/02/2025",
         "email": "ana.rodriguez@example.com",
         "documento": "28901234",
-        "fecha_nacimiento": "17/07/1980",
-    },
+        "fecha_nacimiento": "17/07/1980"
+    }
 }
 
-
-@profile_routes.route("/profile", methods=["GET"])
+@profile_routes.route("/profile")
 def profile():
 
-    # Selección temporal del usuario para las pruebas.
-    rol = request.args.get("rol", "paciente").lower()
+    rol = session.get("rol", "paciente")
 
-    # Si el rol no existe, mostrar el perfil de recepción.
     if rol not in USUARIOS_DE_PRUEBA:
         rol = "recepcion"
+
+    print(rol)
 
     usuario = USUARIOS_DE_PRUEBA[rol]
 

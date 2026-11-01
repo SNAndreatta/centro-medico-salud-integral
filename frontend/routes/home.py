@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session
 
 home_routes = Blueprint('rutas_home_prefijo_api', __name__)
 
@@ -9,6 +8,8 @@ def home():
     # ROL TEMPORAL PARA PROBAR LAS PANTALLAS
     rol = "admin"
 
+    session["rol"] = rol
+
     usuario = {
         "nombre_completo": "Juan Pérez"
     }
@@ -16,7 +17,6 @@ def home():
     datos = {}
 
     if rol == "medico":
-
         datos = {
             "consultorio": "123",
             "fecha": "25/10",
@@ -49,19 +49,13 @@ def home():
         }
 
     elif rol == "recepcion":
-
-        datos = {
-            # Acá colocarías los datos ficticios de recepción
-        }
+        datos = {}
 
     elif rol == "paciente":
-
-        datos = {
-            # Acá colocarías los datos ficticios del paciente
-        }
+        datos = {}
 
     return render_template(
-        "/home.html",
+        "home.html",
         rol=rol,
         usuario=usuario,
         datos=datos

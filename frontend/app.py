@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from routes.auth import auth_routes
 from routes.recepcion import recepcion_routes
 from routes.home import home_routes
@@ -32,6 +32,13 @@ app.register_blueprint(usuario_routes)
 def index():
     return render_template("index.html")
 
+@app.context_processor
+def agregar_datos_globales():
+    rol = session.get("rol", "paciente")
+
+    return {
+        "rol": rol
+    }
 
 if __name__ == "__main__":
     app.run(
