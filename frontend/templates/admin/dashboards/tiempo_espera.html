@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Tiempo de espera | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="px-1 sm:px-2">
+
+    <div class="space-y-7">
+
+        <!-- ========================================== -->
+        <!-- TIEMPO DE ESPERA POR MÉDICO -->
+        <!-- ========================================== -->
+
+        <section>
+
+            <!-- Encabezado -->
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[#B5C5D1] pb-1">
+
+                <h2 class="text-sm font-bold uppercase tracking-wider text-acento sm:text-base">
+                    Tiempo de espera por médico
+                </h2>
+
+                <!-- Buscador -->
+                <div class="relative flex items-center">
+
+                    <input
+                        type="search"
+                        id="buscar-medico"
+                        placeholder="Buscar"
+                        class="w-24 border-0 bg-transparent pr-7 text-sm font-semibold text-[#66869F] outline-none placeholder:text-[#66869F] focus:ring-0 sm:w-32"
+                    >
+
+                    <i
+                        data-lucide="search"
+                        class="pointer-events-none absolute right-1 h-5 w-5 text-[#66869F]"
+                    ></i>
+
+                </div>
+
+            </div>
+
+
+            <!-- Médicos -->
+            <div
+                id="lista-medicos"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+
+                {% for medico in medicos %}
+
+                <article
+                    class="medico-card flex min-w-0 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-3 sm:px-5"
+                    data-search="{{ medico.nombre | lower }}"
+                >
+
+                    <!-- Iniciales y nombre -->
+                    <div class="flex min-w-0 items-center gap-3 sm:gap-5">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-medium {{ medico.color_fondo }} {{ medico.color_texto }}">
+                            {{ medico.iniciales }}
+                        </div>
+
+                        <h3 class="truncate font-serif text-lg text-acento sm:text-xl">
+                            {{ medico.nombre }}
+                        </h3>
+
+                    </div>
+
+                    <!-- Tiempo de espera -->
+                    <p class="shrink-0 text-base font-semibold text-[#66869F] sm:text-xl">
+                        {{ medico.espera }} min
+                    </p>
+
+                </article>
+
+                {% else %}
+
+                <p class="col-span-full rounded-xl bg-white px-4 py-8 text-center text-sm text-gray-500">
+                    No hay información de médicos disponible.
+                </p>
+
+                {% endfor %}
+
+            </div>
+
+            <p id="sin-medicos" class="hidden py-5 text-center text-sm text-gray-500">
+                No se encontraron médicos.
+            </p>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TIEMPO DE ESPERA POR ESPECIALIDAD -->
+        <!-- ========================================== -->
+
+        <section>
+
+            <!-- Encabezado -->
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[#B5C5D1] pb-1">
+
+                <h2 class="text-sm font-bold uppercase tracking-wider text-acento sm:text-base">
+                    Tiempo de espera por especialidad
+                </h2>
+
+                <!-- Buscador -->
+                <div class="relative flex items-center">
+
+                    <input
+                        type="search"
+                        id="buscar-especialidad"
+                        placeholder="Buscar"
+                        class="w-24 border-0 bg-transparent pr-7 text-sm font-semibold text-[#66869F] outline-none placeholder:text-[#66869F] focus:ring-0 sm:w-32"
+                    >
+
+                    <i
+                        data-lucide="search"
+                        class="pointer-events-none absolute right-1 h-5 w-5 text-[#66869F]"
+                    ></i>
+
+                </div>
+
+            </div>
+
+
+            <!-- Especialidades -->
+            <div
+                id="lista-especialidades"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+
+                {% for especialidad in especialidades %}
+
+                <article
+                    class="especialidad-card flex items-center justify-between gap-3 rounded-2xl bg-white px-5 py-3 sm:px-6"
+                    data-search="{{ especialidad.nombre | lower }}"
+                >
+
+                    <h3 class="font-serif text-lg text-acento sm:text-xl">
+                        {{ especialidad.nombre }}
+                    </h3>
+
+                    <p class="shrink-0 text-base font-semibold text-[#66869F] sm:text-xl">
+                        {{ especialidad.espera }} min
+                    </p>
+
+                </article>
+
+                {% else %}
+
+                <p class="col-span-full rounded-xl bg-white px-4 py-8 text-center text-sm text-gray-500">
+                    No hay información de especialidades disponible.
+                </p>
+
+                {% endfor %}
+
+            </div>
+
+            <p id="sin-especialidades" class="hidden py-5 text-center text-sm text-gray-500">
+                No se encontraron especialidades.
+            </p>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- JavaScript -->
+<script src="{{ url_for('static', filename='js/tiempo_espera.js') }}"></script>
+
+{% endblock %}

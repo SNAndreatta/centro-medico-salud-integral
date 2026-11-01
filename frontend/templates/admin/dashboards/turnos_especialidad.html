@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Turnos por especialidad | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="px-1 sm:px-2">
+
+    <div class="space-y-5">
+
+        {% for especialidad in especialidades %}
+
+        <section class="overflow-hidden rounded-xl bg-white">
+
+            <!-- Encabezado de especialidad -->
+            <div class="flex items-center justify-between gap-3 bg-[#003B5C] px-4 py-2.5 text-white sm:px-5">
+
+                <h2 class="text-sm font-bold uppercase tracking-[0.15em] sm:text-base">
+                    {{ especialidad.nombre }}
+                </h2>
+
+                <p class="shrink-0 text-[9px] font-semibold uppercase tracking-wider sm:text-[10px]">
+                    TOTAL TURNOS:
+                    <span>{{ especialidad.total_turnos }}</span>
+                </p>
+
+            </div>
+
+
+            <!-- Lista de turnos -->
+            <div>
+
+                {% for turno in especialidad.turnos %}
+
+                <article class="grid grid-cols-1 items-center gap-3 border-b border-[#cbd5df] px-3 py-3 last:border-b-0 sm:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:gap-3 sm:px-4 sm:py-3">
+
+                    <!-- Estado del turno y médico -->
+                    <div class="flex min-w-0 items-center gap-4 sm:gap-6">
+
+                        <!-- Iniciales -->
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FAD8E0] text-base font-medium text-[#E47789] sm:h-[46px] sm:w-[46px]">
+                            {{ turno.iniciales }}
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="min-w-0">
+
+                            <p class="text-[9px] font-medium uppercase tracking-wide text-[#66869F]">
+                                ESTADO DEL TURNO
+                            </p>
+
+                            <h3 class="truncate text-base font-medium text-acento sm:text-lg">
+                                {{ turno.nombre }}
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Fecha y hora -->
+                    <div class="border-t border-[#cbd5df] pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+
+                        <p class="text-[9px] font-medium uppercase tracking-wide text-[#66869F]">
+                            FECHA Y HORA
+                        </p>
+
+                        <p class="text-base font-semibold leading-tight text-acento sm:text-lg">
+                            {{ turno.hora }}
+                        </p>
+
+                        <p class="text-[9px] font-medium text-acento sm:text-[10px]">
+                            {{ turno.fecha }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- Consultorio -->
+                    <div class="border-t border-[#cbd5df] pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+
+                        <p class="text-[9px] font-medium uppercase tracking-wide text-[#66869F]">
+                            CONSULTORIO
+                        </p>
+
+                        <p class="text-2xl font-bold leading-tight text-acento sm:text-3xl">
+                            {{ turno.consultorio }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- Ir al turno del médico -->
+                    <div class="flex justify-end sm:pl-2">
+
+                        <a
+                            href="#"
+                            class="inline-flex items-center gap-1 rounded-full bg-[#66869F] px-3 py-1 text-[9px] font-medium text-white transition hover:bg-acento sm:whitespace-nowrap"
+                        >
+                            Ir al turno del médico
+                            <i data-lucide="chevron-right" class="h-3 w-3"></i>
+                        </a>
+
+                    </div>
+
+                </article>
+
+                {% else %}
+
+                <div class="px-5 py-8 text-center text-sm text-gray-500">
+                    No hay turnos para esta especialidad.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        {% else %}
+
+        <div class="rounded-xl bg-white px-6 py-12 text-center">
+
+            <i data-lucide="calendar-x" class="mx-auto mb-3 h-10 w-10 text-gray-400"></i>
+
+            <h3 class="font-semibold text-acento">
+                No hay turnos disponibles
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-500">
+                No se encontraron turnos agrupados por especialidad.
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- JavaScript -->
+<script src="{{ url_for('static', filename='js/turnos_especialidad.js') }}"></script>
+
+{% endblock %}

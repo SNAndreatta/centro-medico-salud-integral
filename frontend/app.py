@@ -5,11 +5,16 @@ from routes.home import home_routes
 from routes.medico import medico_routes
 from routes.profile import profile_routes
 from routes.paciente import paciente_routes
-from routes.admin.cobertura import cobertura_routes
-from routes.admin.consultorio import consultorio_routes
-from routes.admin.especialidad import especialidad_routes
-from routes.admin.medico import medico_admin_routes
-from routes.admin.usuario import usuario_routes
+from routes.admin.abm.cobertura import cobertura_routes
+from routes.admin.abm.consultorio import consultorio_routes
+from routes.admin.abm.especialidad import especialidad_routes
+from routes.admin.abm.medico import medico_admin_routes
+from routes.admin.abm.usuario import usuario_routes
+from routes.admin.dashboards.sala_espera import sala_espera_admin_routes
+from routes.admin.dashboards.turnos_especialidad import turnos_especialidad_admin_routes
+from routes.admin.dashboards.ausentismo import ausentismo_admin_routes
+from routes.admin.dashboards.disponibilidad_consultorio import disponibilidad_consultorios_admin_routes
+from routes.admin.dashboards.tiempo_espera import tiempo_espera_admin_routes
 
 from src.config import Config
 
@@ -28,6 +33,11 @@ app.register_blueprint(consultorio_routes)
 app.register_blueprint(especialidad_routes)
 app.register_blueprint(usuario_routes)
 app.register_blueprint(medico_admin_routes)
+app.register_blueprint(sala_espera_admin_routes)
+app.register_blueprint(turnos_especialidad_admin_routes)
+app.register_blueprint(ausentismo_admin_routes)
+app.register_blueprint(disponibilidad_consultorios_admin_routes)
+app.register_blueprint(tiempo_espera_admin_routes)
 
 @app.route("/")
 def index():
