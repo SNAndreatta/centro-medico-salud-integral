@@ -41,10 +41,10 @@ def guardar_especialidad(nombre_especialidad):
             'nombre_especialidad': nombre_especialidad,
         }
         conexion.commit()
-        return especialidad_guardada
+        return especialidad_guardada, None
     except mysql.connector.IntegrityError:
         conexion.rollback()
-        return None
+        return None, 'ESPECIALIDAD_DUPLICADA'
     except Exception:
         conexion.rollback()
         raise

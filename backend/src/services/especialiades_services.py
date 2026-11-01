@@ -5,7 +5,6 @@ from src.repositories.especialidades_repositories import (
     borrar_especialidad,
 )
 from src.errores import error_respuesta
-from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
 
 LONGITUD_MAXIMA_NOMBRE = 100
 
@@ -43,8 +42,8 @@ def crear_especialidad(datos):
     if error:
         return error
  
-    especialidad = guardar_especialidad(nombre)
-    if especialidad is None:
+    especialidad, error = guardar_especialidad(nombre)
+    if error == 'ESPECIALIDAD_DUPLICADA':
         return error_respuesta(
             'Ya existe una especialidad con ese nombre',
             'ESPECIALIDAD_DUPLICADA',
