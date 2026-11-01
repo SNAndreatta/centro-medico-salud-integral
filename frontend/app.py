@@ -8,7 +8,7 @@ from routes.paciente import paciente_routes
 from routes.admin.cobertura import cobertura_routes
 from routes.admin.consultorio import consultorio_routes
 from routes.admin.especialidad import especialidad_routes
-
+from routes.admin.medico import medico_admin_routes
 from routes.admin.usuario import usuario_routes
 
 from src.config import Config
@@ -27,6 +27,7 @@ app.register_blueprint(cobertura_routes)
 app.register_blueprint(consultorio_routes)
 app.register_blueprint(especialidad_routes)
 app.register_blueprint(usuario_routes)
+app.register_blueprint(medico_admin_routes)
 
 @app.route("/")
 def index():

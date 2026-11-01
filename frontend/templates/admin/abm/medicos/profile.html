@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del médico | Salud Integral</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="min-h-screen bg-white font-sans text-[#073B57]">
+
+    <div class="mx-auto my-4 min-h-[calc(100vh-2rem)] w-[96%] bg-[#e7ecf1] px-5 py-4 sm:px-8">
+
+        <!-- ENCABEZADO -->
+        <header class="mb-5 flex items-center justify-between">
+
+            <div class="flex items-center gap-2">
+                <div class="flex h-9 w-9 items-center justify-center rounded-sm bg-[#073B57] text-white">
+                    <i data-lucide="activity" class="h-6 w-6"></i>
+                </div>
+
+                <div>
+                    <p class="text-[7px] uppercase tracking-widest">
+                        Centro médico de
+                    </p>
+
+                    <h1 class="font-serif text-2xl font-bold leading-none">
+                        Salud Integral
+                    </h1>
+                </div>
+            </div>
+
+            <button type="button" aria-label="Perfil">
+                <i data-lucide="circle-user-round" class="h-8 w-8"></i>
+            </button>
+
+        </header>
+
+
+        <!-- TARJETA DE INFORMACIÓN DEL MÉDICO -->
+        <section class="mb-5 overflow-hidden rounded-2xl bg-white">
+
+            <!-- Parte azul -->
+            <div class="relative flex min-h-[75px] items-center bg-[#003B5C] px-6 pl-24">
+
+                <!-- Iniciales -->
+                <div class="absolute -bottom-6 left-6 flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-[#003B5C] text-lg font-medium text-white">
+                    {{ medico.iniciales }}
+                </div>
+
+                <!-- Nombre -->
+                <h2 class="font-sans text-base font-bold text-white sm:text-lg">
+                    {{ medico.nombre_completo }}
+                </h2>
+
+            </div>
+
+            <!-- Parte blanca -->
+            <div class="flex min-h-[52px] items-center justify-between px-6 py-3 pl-24">
+
+                <div>
+                    <span class="mr-2 text-[9px] uppercase text-[#7190a5]">
+                        Matrícula
+                    </span>
+
+                    <span class="text-[10px] font-semibold text-[#073B57]">
+                        {{ medico.matricula }}
+                    </span>
+                </div>
+
+                <a
+                    href="#"
+                    class="flex items-center gap-2 rounded-full bg-[#003B5C] px-3 py-1 text-[10px] text-white hover:bg-[#005078]"
+                >
+                    <i data-lucide="pencil" class="h-3 w-3"></i>
+                    Editar
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- DATOS PERSONALES -->
+        <section class="mb-3 grid grid-cols-1 gap-3 rounded-xl bg-white px-5 py-3 sm:grid-cols-3">
+
+            <div class="border-b border-[#cbd5df] pb-2 sm:border-b-0 sm:border-r sm:pb-0">
+                <p class="mb-1 text-[9px] uppercase text-[#7190a5]">
+                    Email
+                </p>
+
+                <p class="text-[10px] font-medium underline">
+                    {{ medico.email }}
+                </p>
+            </div>
+
+            <div class="border-b border-[#cbd5df] pb-2 sm:border-b-0 sm:border-r sm:px-5 sm:pb-0">
+                <p class="mb-1 text-[9px] uppercase text-[#7190a5]">
+                    Documento
+                </p>
+
+                <p class="text-[10px] font-medium">
+                    {{ medico.documento }}
+                </p>
+            </div>
+
+            <div class="sm:px-5">
+                <p class="mb-1 text-[9px] uppercase text-[#7190a5]">
+                    Fecha de nacimiento
+                </p>
+
+                <p class="text-[10px] font-medium">
+                    {{ medico.fecha_nacimiento }}
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- ACCESOS A TURNOS Y AGENDA -->
+        <section class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+            <!-- Ver turnos -->
+            <a
+                href="#"
+                class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 hover:bg-[#f8fafb]"
+            >
+                <div>
+                    <h3 class="text-base font-bold">
+                        VER TURNOS
+                    </h3>
+
+                    <p class="mt-1 text-[9px] text-[#7190a5]">
+                        Podés ver el historial de turnos del médico
+                    </p>
+                </div>
+
+                <i data-lucide="chevron-right" class="h-6 w-6"></i>
+            </a>
+
+
+            <!-- Ver agenda -->
+            <a
+                href="#"
+                class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 hover:bg-[#f8fafb]"
+            >
+                <div>
+                    <h3 class="text-base font-bold">
+                        VER AGENDA
+                    </h3>
+
+                    <p class="mt-1 text-[9px] text-[#7190a5]">
+                        Podés ver su disponibilidad semanal.
+                    </p>
+                </div>
+
+                <i data-lucide="calendar-days" class="h-8 w-8"></i>
+            </a>
+
+        </section>
+
+
+        <!-- BOTÓN CREAR AGENDA -->
+        <div class="mb-2 flex justify-end">
+            <a
+                href="#"
+                class="rounded-full bg-[#003B5C] px-5 py-1.5 font-serif text-sm font-bold text-white hover:bg-[#005078]"
+            >
+                Crear agenda
+            </a>
+        </div>
+
+
+        <!-- COBERTURAS -->
+        <section>
+
+            <!-- Título y buscador -->
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+
+                <h3 class="text-xs font-medium uppercase tracking-wide text-[#91AABB]">
+                    COBERTURAS ({{ coberturas | length }})
+                </h3>
+
+                <div class="flex w-44 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
+                    <input
+                        id="buscadorCobertura"
+                        type="text"
+                        placeholder="Buscar cobertura"
+                        class="w-full bg-transparent text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
+                    >
+
+                    <i data-lucide="search" class="h-3 w-3 text-[#7190a5]"></i>
+                </div>
+
+            </div>
+
+
+            <!-- Listado de coberturas -->
+            <div id="listadoCoberturas" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+                {% for cobertura in coberturas %}
+
+                <div
+                    class="fila-cobertura flex min-h-[52px] items-center justify-between rounded-xl bg-white px-5 py-3"
+                    data-busqueda="{{ cobertura.nombre | lower }}"
+                >
+
+                    <span class="font-serif text-lg text-[#073B57]">
+                        {{ cobertura.nombre }}
+                    </span>
+
+                    <a
+                        href="#"
+                        class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1 text-[9px] text-white hover:bg-[#073B57]"
+                    >
+                        Ir al cobertura
+                        <i data-lucide="chevron-right" class="h-3 w-3"></i>
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- Sin resultados -->
+            <p
+                id="sinResultados"
+                class="mt-2 hidden rounded-xl bg-white px-4 py-6 text-center text-xs text-gray-500"
+            >
+                No se encontraron coberturas.
+            </p>
+
+        </section>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/perfil_medico.js') }}"></script>
+
+</body>
+</html>

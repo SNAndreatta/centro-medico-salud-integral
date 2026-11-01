@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import render_template, request
+from flask import Blueprint, render_template, request
 
 medico_routes = Blueprint('rutas_medico_prefijo_api', __name__)
 

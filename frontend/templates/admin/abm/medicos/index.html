@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Salud Integral{% endblock %}
+
+{% block content %}
+
+        <!-- Título y buscador -->
+        <section>
+
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+
+                <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+                    MÉDICOS
+                </h2>
+
+                <!-- Buscador -->
+                <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
+                    <input
+                        id="buscadorMedico"
+                        type="text"
+                        placeholder="Buscar médico"
+                        class="w-full bg-transparent text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
+                    >
+
+                    <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
+                </div>
+
+            </div>
+
+
+            <!-- Listado de médicos -->
+            <div id="listadoMedicos" class="flex flex-col gap-3">
+
+                {% for medico in medicos %}
+
+                <div
+                    class="fila-medico grid grid-cols-[48px_1.5fr_1fr_auto] items-center gap-3 rounded-2xl bg-white px-5 py-3 sm:grid-cols-[52px_1.5fr_1fr_auto] sm:gap-4 sm:px-8"
+                    data-busqueda="{{ medico.nombre_completo }} {{ medico.especialidad }}"
+                >
+
+                    <!-- Iniciales -->
+                    <div class="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-medium {{ medico.color }}">
+                        {{ medico.iniciales | default('NC') }}
+                    </div>
+
+
+                    <!-- Nombre del médico -->
+                    <span class="truncate font-serif text-lg text-[#073B57] sm:text-2xl">
+                        {{ medico.nombre_completo }}
+                    </span>
+
+
+                    <!-- Especialidad -->
+                    <span class="text-[10px] font-medium uppercase tracking-wide text-[#7190a5] sm:text-xs">
+                        {{ medico.especialidad }}
+                    </span>
+
+
+                    <!-- Ir al perfil -->
+                    <a
+                        href="#"
+                        class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1.5 text-[10px] text-white hover:bg-[#073B57] sm:text-xs"
+                    >
+                        Ir al perfil
+                        <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- Sin resultados -->
+            <p
+                id="sinResultados"
+                class="hidden rounded-xl bg-white px-4 py-8 text-center text-sm text-gray-500"
+            >
+                No se encontraron médicos.
+            </p>
+
+
+            <!-- Botón crear médico -->
+            <div class="mt-3 flex justify-end">
+                <a
+                    href="#"
+                    class="rounded-full bg-[#003559] px-4 py-2 text-xs text-white hover:bg-[#003559]"
+                >
+                    Crear médico
+                </a>
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/medicos.js') }}"></script>
+
+{% endblock %}
