@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Consultorios | Salud Integral{% endblock %}
+
+{% block content %}
+
+    <!-- Contenido -->
+    <main class="relative mx-auto mb-20 mt-8 w-[94%] rounded-b-xl rounded-tr-xl bg-[#B8C9D3] p-3 pt-6">
+
+        <!-- Solapa -->
+        <div class="absolute -top-7 left-0 rounded-t-xl bg-[#B8C9D3] px-4 pb-2 pt-2">
+            <h2 class="text-sm font-bold tracking-[0.2em] text-[#073B57]">
+                ESPECIALIDADES
+            </h2>
+        </div>
+
+        <!-- Buscador -->
+        <div class="mb-2 flex justify-end">
+            <div class="flex w-52 items-center rounded-full border border-[#cbd5df] bg-white px-3 py-1">
+                <input
+                    id="buscadorEspecialidad"
+                    type="text"
+                    placeholder="Buscar especialidad"
+                    class="w-full bg-transparent text-xs outline-none"
+                >
+                <i data-lucide="search" class="h-3 w-3"></i>
+            </div>
+        </div>
+
+        <!-- Listado de especialidades -->
+        <div class="overflow-visible rounded-xl bg-white">
+
+            {% for especialidad in especialidades %}
+
+            <div
+                class="fila-especialidad grid grid-cols-[1.2fr_1.2fr_1fr_auto] items-center gap-3 border-b border-[#d5dfe5] px-5 py-4 last:border-b-0"
+                data-busqueda="{{ especialidad.nombre }} {{ especialidad.id }} {{ especialidad.cantidad_medicos }}"
+            >
+
+                <!-- Nombre -->
+                <span class="font-serif text-base text-[#073B57]">
+                    {{ especialidad.nombre }}
+                </span>
+
+                <!-- ID -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] uppercase text-[#7190a5]">
+                        ID ESPECIALIDAD
+                    </span>
+                    <span class="text-[9px] font-semibold text-[#073B57]">
+                        {{ especialidad.id }}
+                    </span>
+                </div>
+
+                <!-- Cantidad de médicos -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] uppercase text-[#7190a5]">
+                        {{ especialidad.cantidad_medicos }} ESPECIALISTAS
+                    </span>
+                </div>
+
+                <!-- Menú -->
+                <div class="relative">
+                    <button
+                        type="button"
+                        onclick="alternarMenu('menu-especialidad-{{ especialidad.id }}')"
+                        class="rounded-full p-1 text-[#073B57] hover:bg-[#E7EBF0]"
+                        aria-label="Opciones"
+                    >
+                        <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
+                    </button>
+
+                    <div
+                        id="menu-especialidad-{{ especialidad.id }}"
+                        class="menu-especialidad absolute right-0 top-7 z-20 hidden w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+                    >
+                        <button
+                            type="button"
+                            onclick="cerrarMenus(); abrirModal('modal-editar-especialidad-{{ especialidad.id }}')"
+                            class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-[#073B57] hover:bg-[#E7EBF0]"
+                        >
+                            <i data-lucide="pencil" class="h-3 w-3"></i>
+                            Editar especialidad
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="cerrarMenus(); abrirModal('modal-eliminar-especialidad-{{ especialidad.id }}')"
+                            class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-red-600 hover:bg-red-50"
+                        >
+                            <i data-lucide="trash-2" class="h-3 w-3"></i>
+                            Eliminar especialidad
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            <p id="sinResultados" class="hidden px-4 py-6 text-center text-xs text-gray-500">
+                No se encontraron especialidades.
+            </p>
+
+        </div>
+
+        <!-- Botón crear -->
+        <div class="mt-3 flex justify-end">
+            <button
+                type="button"
+                onclick="abrirModal('modal-crear-especialidad')"
+                class="flex items-center gap-2 rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078]"
+            >
+                Crear especialidad
+                <i data-lucide="plus" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+    </main>
+
+
+    <!-- ================================= -->
+    <!-- POPUP CREAR ESPECIALIDAD -->
+    <!-- ================================= -->
+
+    <div
+        id="modal-crear-especialidad"
+        class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black/20 p-4"
+    >
+        <div class="relative flex min-h-[300px] w-full max-w-sm flex-col rounded-xl bg-white p-6 shadow-xl">
+
+            <button
+                type="button"
+                onclick="cerrarModal()"
+                class="absolute right-4 top-4 text-gray-400 hover:text-gray-700"
+                aria-label="Cerrar"
+            >
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+
+            <h2 class="mb-5 font-serif text-xl font-bold text-[#073B57]">
+                Crear nueva especialidad
+            </h2>
+
+            <form action="#crear especialidad" method="POST" class="flex flex-1 flex-col">
+
+                <!-- Nombre -->
+                <div class="mb-4">
+                    <label for="nombre-especialidad" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                        NOMBRE
+                    </label>
+
+                    <input
+                        id="nombre-especialidad"
+                        name="nombre"
+                        type="text"
+                        required
+                        placeholder="Nombre de la especialidad"
+                        class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-xs outline-none focus:border-[#073B57]"
+                    >
+                </div>
+
+                <!-- Seleccionar médicos -->
+                <div class="mb-4">
+                    <label class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                        MÉDICOS DE ESA ESPECIALIDAD
+                    </label>
+
+                    <div class="relative">
+                        <button
+                            type="button"
+                            onclick="alternarSelector('selector-medicos-crear')"
+                            class="flex w-full items-center justify-between rounded-full border border-[#cbd5df] bg-white px-3 py-2 text-left text-[10px] text-[#7190a5]"
+                        >
+                            <span id="texto-medicos-crear">MÉDICOS</span>
+                            <i data-lucide="chevron-down" class="h-3 w-3"></i>
+                        </button>
+
+                        <div
+                            id="selector-medicos-crear"
+                            class="selector-medicos absolute left-0 top-10 z-30 hidden max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white p-2 shadow-lg"
+                        >
+                            <p class="border-b border-gray-200 px-2 py-2 text-[10px] text-[#7190a5]">
+                                MÉDICOS
+                            </p>
+
+                            {% for medico in medicos %}
+                            <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-[#E7EBF0]">
+                                <input
+                                    type="checkbox"
+                                    name="medicos"
+                                    value="{{ medico.id }}"
+                                    class="h-3 w-3 accent-[#073B57]"
+                                    data-selector="crear"
+                                >
+                                <span class="text-xs text-[#073B57]">
+                                    {{ medico.nombre_completo }}
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <button
+                        type="submit"
+                        class="w-full rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078]"
+                    >
+                        Crear especialidad
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- POPUPS EDITAR ESPECIALIDAD -->
+    <!-- ================================= -->
+
+    {% for especialidad in especialidades %}
+
+    <div
+        id="modal-editar-especialidad-{{ especialidad.id }}"
+        class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black/20 p-4"
+    >
+        <div class="relative w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+
+            <button
+                type="button"
+                onclick="cerrarModal()"
+                class="absolute right-4 top-4 text-gray-400"
+                aria-label="Cerrar"
+            >
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+
+            <h2 class="mb-5 font-serif text-xl font-bold">
+                Editar especialidad
+            </h2>
+
+            <form action="#editar especialidad" method="POST">
+
+                <label class="mb-1 block text-[9px] text-[#7190a5]">
+                    NOMBRE
+                </label>
+
+                <input
+                    type="text"
+                    name="nombre"
+                    value="{{ especialidad.nombre }}"
+                    required
+                    class="mb-4 w-full rounded-full border border-[#cbd5df] px-3 py-2 text-xs outline-none focus:border-[#073B57]"
+                >
+
+                <label class="mb-1 block text-[9px] text-[#7190a5]">
+                    MÉDICOS DE ESA ESPECIALIDAD
+                </label>
+
+                <div class="mb-6 max-h-40 overflow-y-auto rounded-lg border border-[#cbd5df] p-2">
+
+                    {% for medico in medicos %}
+                    <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-[#E7EBF0]">
+                        <input
+                            type="checkbox"
+                            name="medicos"
+                            value="{{ medico.id }}"
+                            {% if medico.id in especialidad.medicos_ids %}checked{% endif %}
+                            class="h-3 w-3 accent-[#073B57]"
+                        >
+                        <span class="text-xs">{{ medico.nombre_completo }}</span>
+                    </label>
+                    {% endfor %}
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078]"
+                >
+                    Guardar cambios
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- POPUP ELIMINAR ESPECIALIDAD -->
+    <!-- ================================= -->
+
+    <div
+        id="modal-eliminar-especialidad-{{ especialidad.id }}"
+        class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black/20 p-4"
+    >
+        <div class="w-full max-w-xs rounded-xl bg-white p-6 shadow-xl">
+
+            <h2 class="mb-3 font-serif text-lg font-bold">
+                Eliminar especialidad
+            </h2>
+
+            <p class="mb-6 text-xs text-gray-600">
+                ¿Estás seguro de que querés eliminar la especialidad
+                <strong>{{ especialidad.nombre }}</strong>?
+            </p>
+
+            <div class="flex gap-3">
+
+                <button
+                    type="button"
+                    onclick="cerrarModal()"
+                    class="w-1/2 rounded-full border border-gray-300 px-3 py-2 text-[10px] text-[#073B57]"
+                >
+                    Cancelar
+                </button>
+
+                <form
+                    action="#eliminar especialidad"
+                    method="POST"
+                    class="w-1/2"
+                >
+                    <button
+                        type="submit"
+                        class="w-full rounded-full bg-red-600 px-3 py-2 text-[10px] text-white hover:bg-red-700"
+                    >
+                        Eliminar
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+
+
+    <script src="{{ url_for('static', filename='js/especialidades.js') }}"></script>
+
+
+{% endblock %}

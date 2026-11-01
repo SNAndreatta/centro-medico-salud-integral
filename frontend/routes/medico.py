@@ -63,7 +63,7 @@ def ver_turnos():
             'fecha': '11 - 10 - 2026',
             'consultorio': '123',
             'especialidad': 'Dr. Nombre Completo',
-            'color': "bg-blue-500/30 text-blue-500",
+            'color': "bg-cyan-500/30 text-cyan-500",
             'fecha_filtro': '2026-10-12',
             'cobertura_filtro': 'Swiss Medical',
             'especialidad_filtro': 'Dermatología'

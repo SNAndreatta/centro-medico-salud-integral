@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}Consultorios | Salud Integral{% endblock %}
+
+{% block content %}
+
+
+    <!-- Contenedor principal con solapa -->
+    <main class="relative mx-auto mb-20 mt-8 w-[94%] rounded-b-xl rounded-tr-xl bg-[#5D8197] p-3 pt-6">
+
+        <!-- Solapa -->
+        <div class="absolute -top-7 left-0 rounded-t-xl bg-[#5D8197] px-5 pb-2 pt-2">
+            <h2 class="text-sm font-bold tracking-[0.2em] text-white">
+                USUARIOS
+            </h2>
+        </div>
+
+
+        <!-- Buscadores y filtros -->
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+
+            <!-- Filtro por rol -->
+            <div class="relative">
+                <select
+                    id="filtroRol"
+                    class="w-40 appearance-none rounded-full border border-[#d5dfe5] bg-white px-3 py-1.5 pr-7 text-[10px] text-[#7190a5] outline-none"
+                >
+                    <option value="">Filtrar por rol</option>
+
+                    {% for rol in roles %}
+                    <option value="{{ rol.nombre | lower }}">
+                        {{ rol.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <i data-lucide="sliders-horizontal"
+                   class="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[#7190a5]">
+                </i>
+            </div>
+
+
+            <!-- Buscador -->
+            <div class="flex w-36 items-center rounded-full border border-[#d5dfe5] bg-white px-3 py-1.5 sm:w-44">
+                <input
+                    id="buscadorUsuario"
+                    type="text"
+                    placeholder="Buscar usuario"
+                    class="w-full bg-transparent text-[10px] outline-none"
+                >
+                <i data-lucide="search" class="h-3 w-3 text-[#7190a5]"></i>
+            </div>
+
+        </div>
+
+
+        <!-- Listado de usuarios -->
+        <div class="overflow-hidden rounded-xl bg-white">
+
+            {% for usuario in usuarios %}
+
+            <div
+                class="fila-usuario grid grid-cols-[40px_1.5fr_1fr_1fr_auto] items-center gap-2 border-b border-[#d5dfe5] px-3 py-2 last:border-b-0 sm:grid-cols-[42px_1.5fr_1fr_1fr_auto] sm:gap-3 sm:px-4"
+                data-nombre="{{ usuario.nombre_completo | lower }}"
+                data-rol="{{ usuario.rol | lower }}"
+                data-id="{{ usuario.id }}"
+            >
+
+                <div class="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-medium {{ usuario.color }}">
+                    {{ usuario.iniciales | default('NC') }}
+                </div>
+
+
+                <!-- Nombre -->
+                <span class="truncate font-serif text-sm text-[#073B57] sm:text-base">
+                    {{ usuario.nombre }} {{ usuario.apellido }}
+                </span>
+
+
+                <!-- Rol -->
+                <div class="min-w-0">
+                    <span class="mr-2 hidden text-[8px] text-[#7190a5] sm:inline">
+                        ROL
+                    </span>
+                    <span class="truncate text-[8px] font-semibold uppercase text-[#073B57]">
+                        {{ usuario.rol }}
+                    </span>
+                </div>
+
+
+                <!-- ID -->
+                <div class="min-w-0">
+                    <span class="mr-2 hidden text-[8px] text-[#7190a5] sm:inline">
+                        ID USUARIO
+                    </span>
+                    <span class="text-[9px] font-semibold text-[#073B57]">
+                        {{ usuario.id }}
+                    </span>
+                </div>
+
+
+                <!-- Ir al perfil -->
+                <a
+                    href="#"
+                    class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-2 py-1 text-[8px] text-white hover:bg-[#073B57] sm:px-3"
+                >
+                    Ir al perfil
+                    <i data-lucide="chevron-right" class="h-3 w-3"></i>
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+
+            <!-- Sin resultados -->
+            <p id="sinResultados" class="hidden px-4 py-6 text-center text-xs text-gray-500">
+                No se encontraron usuarios.
+            </p>
+
+        </div>
+
+
+        <!-- Botón crear usuario -->
+        <div class="mt-3 flex justify-end">
+            <button
+                type="button"
+                onclick="abrirModalUsuario()"
+                class="flex items-center gap-2 rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078]"
+            >
+                Crear usuario
+                <i data-lucide="plus" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+    </main>
+
+
+    <!-- ================================= -->
+    <!-- POPUP CREAR USUARIO -->
+    <!-- ================================= -->
+
+    <div
+        id="modalCrearUsuario"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/20 p-4"
+    >
+
+        <div class="relative w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl">
+
+            <!-- Cerrar -->
+            <button
+                type="button"
+                onclick="cerrarModalUsuario()"
+                class="absolute right-4 top-4 text-gray-400 hover:text-gray-700"
+                aria-label="Cerrar"
+            >
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+
+
+            <h2 class="mb-5 font-serif text-xl font-bold text-[#073B57]">
+                Crear usuario nuevo
+            </h2>
+
+
+            <form
+                action="#crear"
+                method="POST"
+                class="flex flex-col"
+            >
+
+                <!-- Primera fila -->
+                <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <!-- Nombre -->
+                    <div>
+                        <label for="nombre" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            NOMBRE/S
+                        </label>
+
+                        <input
+                            id="nombre"
+                            name="nombre"
+                            type="text"
+                            required
+                            placeholder="Ingresar nombre/s"
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-[10px] outline-none focus:border-[#073B57]"
+                        >
+                    </div>
+
+
+                    <!-- Apellido -->
+                    <div>
+                        <label for="apellido" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            APELLIDO/S
+                        </label>
+
+                        <input
+                            id="apellido"
+                            name="apellido"
+                            type="text"
+                            required
+                            placeholder="Ingresar apellido/s"
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-[10px] outline-none focus:border-[#073B57]"
+                        >
+                    </div>
+
+                </div>
+
+
+                <!-- Segunda fila -->
+                <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <!-- Mail -->
+                    <div>
+                        <label for="mail" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            MAIL
+                        </label>
+
+                        <input
+                            id="mail"
+                            name="mail"
+                            type="email"
+                            required
+                            placeholder="ejemplo.user@gmail.com"
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-[10px] outline-none focus:border-[#073B57]"
+                        >
+                    </div>
+
+
+                    <!-- Fecha de nacimiento -->
+                    <div>
+                        <label for="fecha_nacimiento" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            FECHA DE NACIMIENTO
+                        </label>
+
+                        <input
+                            id="fecha_nacimiento"
+                            name="fecha_nacimiento"
+                            type="date"
+                            required
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-[10px] text-[#7190a5] outline-none focus:border-[#073B57]"
+                        >
+                    </div>
+
+                </div>
+
+
+                <!-- Tercera fila -->
+                <div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <!-- DNI -->
+                    <div>
+                        <label for="dni" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            DNI
+                        </label>
+
+                        <input
+                            id="dni"
+                            name="dni"
+                            type="text"
+                            inputmode="numeric"
+                            required
+                            placeholder="Ingresar DNI"
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-[10px] outline-none focus:border-[#073B57]"
+                        >
+                    </div>
+
+
+                    <!-- ID Rol -->
+                    <div>
+                        <label for="id_rol" class="mb-1 block text-[9px] font-medium text-[#7190a5]">
+                            ID ROL
+                        </label>
+
+                        <select
+                            id="id_rol"
+                            name="id_rol"
+                            required
+                            class="w-full rounded-full border border-[#cbd5df] bg-white px-3 py-2 text-[10px] text-[#7190a5] outline-none focus:border-[#073B57]"
+                        >
+                            <option value="">ROL</option>
+
+                            {% for rol in roles %}
+                            <option value="{{ rol.id }}">
+                                {{ rol.nombre }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <!-- Crear -->
+                <div class="flex justify-center">
+                    <button
+                        type="submit"
+                        class="w-32 rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078] sm:w-40"
+                    >
+                        Crear usuario
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/usuarios.js') }}"></script>
+
+{% endblock %}

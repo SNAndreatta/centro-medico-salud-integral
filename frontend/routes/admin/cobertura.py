@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-admin_routes = Blueprint('rutas_admin_prefijo_api', __name__)
+cobertura_routes = Blueprint('rutas_cobertura_prefijo_api', __name__)
 
 
 # DATOS DE PRUEBA
@@ -15,7 +15,7 @@ def obtener_coberturas():
 
 
 # LISTADO DE COBERTURAS
-@admin_routes.route('/admin/coberturas')
+@cobertura_routes.route('/admin/coberturas')
 def listar_coberturas():
 
     coberturas = obtener_coberturas()
@@ -27,7 +27,7 @@ def listar_coberturas():
 
 
 # DETALLE DE UNA COBERTURA
-@admin_routes.route('/admin/coberturas/<int:cobertura_id>')
+@cobertura_routes.route('/admin/coberturas/<int:cobertura_id>')
 def detalle_cobertura(cobertura_id):
 
     coberturas = obtener_coberturas()
@@ -83,7 +83,7 @@ def detalle_cobertura(cobertura_id):
 
 
 # CREAR COBERTURA
-@admin_routes.route('/admin/coberturas/crear', methods=['POST'])
+@cobertura_routes.route('/admin/coberturas/crear', methods=['POST'])
 def crear_cobertura():
 
     nombre = request.form.get('nombre', '').strip()
@@ -98,7 +98,7 @@ def crear_cobertura():
 
 
 # EDITAR COBERTURA
-@admin_routes.route(
+@cobertura_routes.route(
     '/admin/coberturas/<int:cobertura_id>/editar',
     methods=['POST']
 )
@@ -120,7 +120,7 @@ def editar_cobertura(cobertura_id):
 
 
 # ELIMINAR COBERTURA
-@admin_routes.route(
+@cobertura_routes.route(
     '/admin/coberturas/<int:cobertura_id>/eliminar',
     methods=['POST']
 )
@@ -133,7 +133,7 @@ def eliminar_cobertura(cobertura_id):
 
 
 # CREAR PLAN
-@admin_routes.route(
+@cobertura_routes.route(
     '/admin/coberturas/<int:cobertura_id>/planes/crear',
     methods=['POST']
 )
@@ -155,7 +155,7 @@ def crear_plan(cobertura_id):
 
 
 # EDITAR PLAN
-@admin_routes.route(
+@cobertura_routes.route(
     '/admin/coberturas/<int:cobertura_id>/planes/<int:plan_id>/editar',
     methods=['POST']
 )
@@ -177,7 +177,7 @@ def editar_plan(cobertura_id, plan_id):
 
 
 # ELIMINAR PLAN
-@admin_routes.route(
+@cobertura_routes.route(
     '/admin/coberturas/<int:cobertura_id>/planes/<int:plan_id>/eliminar',
     methods=['POST']
 )
