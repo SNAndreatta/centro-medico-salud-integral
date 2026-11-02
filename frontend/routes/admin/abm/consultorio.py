@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import render_template, request
 
-consultorio_routes = Blueprint('rutas_consultorio_prefijo_api', __name__)
+consultorio_routes = Blueprint('rutas_admin_consultorio', __name__)
 
 # Datos simulados
 consultorios = [

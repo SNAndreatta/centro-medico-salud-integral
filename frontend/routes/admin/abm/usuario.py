@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-usuario_routes = Blueprint('rutas_usuario_prefijo_api', __name__)
+usuario_routes = Blueprint('rutas_admin_usuario', __name__)
 
 # =================================
 # DATOS SIMULADOS DE USUARIOS

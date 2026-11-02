@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from datetime import date, timedelta
 
-medico_admin_routes = Blueprint('rutas_medico_admin_prefijo_api', __name__)
+medico_admin_routes = Blueprint('rutas_admin_medico', __name__)
 
 # =================================
 # DATOS SIMULADOS DE MÉDICOS

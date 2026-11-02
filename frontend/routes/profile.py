@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session
 
-profile_routes = Blueprint('rutas_profile_prefijo_api', __name__)
+profile_routes = Blueprint('rutas_profile', __name__)
 
 USUARIOS_DE_PRUEBA = {
     "medico": {

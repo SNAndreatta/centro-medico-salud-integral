@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-ausentismo_admin_routes = Blueprint('rutas_ausentismo_admin_prefijo_api', __name__)
+ausentismo_admin_routes = Blueprint('rutas_admin_ausentismo', __name__)
 
 @ausentismo_admin_routes.route("/admin/ausentismo")
 def ausentismo():

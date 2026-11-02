@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-turnos_especialidad_admin_routes = Blueprint('rutas_turnos_especialidad_admin_prefijo_api', __name__)
+turnos_especialidad_admin_routes = Blueprint('rutas_admin_turnos_especialidad', __name__)
 
 @turnos_especialidad_admin_routes.route("/admin/turnos-especialidad")
 def turnos_especialidad():

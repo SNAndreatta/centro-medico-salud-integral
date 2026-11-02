@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 from datetime import date
 
-disponibilidad_consultorios_admin_routes = Blueprint('disponibilidad_admin_routes', __name__)
+disponibilidad_consultorios_admin_routes = Blueprint('rutas_admin_disponibilidad_consultorios', __name__)
 
 @disponibilidad_consultorios_admin_routes.route("/admin/disponibilidad-consultorios")
 def disponibilidad_consultorios():

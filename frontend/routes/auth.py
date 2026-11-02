@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import render_template
 
-auth_routes = Blueprint('rutas_prefijo_api', __name__)
+auth_routes = Blueprint('rutas_auth', __name__)
 
 @auth_routes.route('/login')
 def login():

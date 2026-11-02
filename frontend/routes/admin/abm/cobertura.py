@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-cobertura_routes = Blueprint('rutas_cobertura_prefijo_api', __name__)
+cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
 
 
 # DATOS DE PRUEBA

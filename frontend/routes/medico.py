@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 
-medico_routes = Blueprint('rutas_medico_prefijo_api', __name__)
+medico_routes = Blueprint('rutas_medico', __name__)
 
 @medico_routes.route('/turnos', methods=['GET'])
 def ver_turnos():

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-especialidad_routes = Blueprint('rutas_especialidad_prefijo_api', __name__)
+especialidad_routes = Blueprint('rutas_admin_especialidad', __name__)
 
 # Médicos simulados
 medicos = [

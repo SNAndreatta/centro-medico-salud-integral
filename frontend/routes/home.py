@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session
 
-home_routes = Blueprint('rutas_home_prefijo_api', __name__)
+home_routes = Blueprint('rutas_home', __name__)
 
 @home_routes.route("/home")
 def home():

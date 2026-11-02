@@ -1,8 +1,6 @@
-from flask import Blueprint
-from flask import render_template, request
-from datetime import date, timedelta
+from flask import Blueprint, render_template
 
-paciente_routes = Blueprint('rutas_paciente_prefijo_api', __name__)
+paciente_routes = Blueprint('rutas_paciente', __name__)
 
 @paciente_routes.route('/turnos-paciente', methods=['GET'])
 def mis_turnos():

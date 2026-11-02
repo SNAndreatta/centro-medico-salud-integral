@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-tiempo_espera_admin_routes = Blueprint('tiempo_espera_admin_routes', __name__)
+tiempo_espera_admin_routes = Blueprint('rutas_admin_tiempo_espera', __name__)
 
 
 @tiempo_espera_admin_routes.route('/admin/tiempo-espera')

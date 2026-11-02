@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-recepcion_routes = Blueprint('rutas_recepcion_prefijo_api', __name__)
+recepcion_routes = Blueprint('rutas_recepcion', __name__)
 
 @recepcion_routes.route('/recepcion/sala-espera')
 def sala_espera():
