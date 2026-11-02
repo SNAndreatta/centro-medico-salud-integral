@@ -148,6 +148,12 @@ def borrar_cobertura(id_cobertura):
             WHERE id_cobertura = %s
         """
         cursor.execute(consulta_cobertura_medico, (id_cobertura,))
+
+        consulta_cobertura = """
+            DELETE FROM cobertura
+            WHERE id_cobertura = %s
+        """
+        cursor.execute(consulta_cobertura, (id_cobertura,))
         conexion.commit()
         return 'OK', None
     except mysql.connector.IntegrityError:

@@ -46,6 +46,9 @@ def _hora_obligatoria(valor, nombre):
     try:
         hora = time.fromisoformat(valor)
     except ValueError:
+        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
+
+    if hora.tzinfo is not None:
         return None, error_respuesta(f'{nombre} no debe incluir zona horaria', 'HORA_INVALIDA')
 
     return hora.strftime('%H:%M:%S'), None
