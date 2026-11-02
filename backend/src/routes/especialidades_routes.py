@@ -10,7 +10,7 @@ from src.services.especialiades_services import (
     eliminar_especialidad,
     )
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
-from src.utils.utils import validar_cuerpo_json, validar_objeto_json
+from src.utils.utils import validar_objeto_json
 
 especialidades_bp = Blueprint('especialidades_bp', __name__)
 
@@ -28,7 +28,7 @@ def obtener_especialidades():
 @roles_required(ADMINISTRADOR)
 def alta_especialidad():
     datos = request.get_json(silent=True)
-    error_json = validar_cuerpo_json(datos)
+    error_json = validar_objeto_json(datos)
     if error_json:
         return error_json
 
