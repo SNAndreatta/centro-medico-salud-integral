@@ -1,121 +1,88 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Elementos del modal
-    const modal = document.getElementById("modalConsultorio");
-    const botonAbrir = document.getElementById("abrirModal");
-    const botonCerrar = document.getElementById("cerrarModal");
+    // =========================================
+    // DESPLEGAR / OCULTAR CONSULTORIOS
+    // =========================================
 
-    // Abrir cualquier modal por ID
-    window.abrirModal = function (id) {
-        const modalSeleccionado = document.getElementById(id);
+    document.addEventListener("click", function (event) {
 
-        if (modalSeleccionado) {
-            modalSeleccionado.classList.remove("hidden");
-            modalSeleccionado.classList.add("flex");
+        const boton = event.target.closest(".boton-consultorio");
+
+        // Si el clic no fue sobre un consultorio, no hacemos nada.
+        if (!boton) return;
+
+        // Obtenemos el identificador del panel correspondiente.
+        const idDetalle = boton.getAttribute("aria-controls");
+
+        const detalle = document.getElementById(idDetalle);
+
+        // Verificamos que exista el panel.
+        if (!detalle) {
+            console.error(
+                "No se encontró el detalle del consultorio:",
+                idDetalle
+            );
+            return;
         }
-    };
 
-    // Cerrar todos los modales
-    window.cerrarModal = function () {
-        document.querySelectorAll('[id^="modal"]').forEach(function (elemento) {
-            elemento.classList.add("hidden");
-            elemento.classList.remove("flex");
-        });
-    };
+        // Comprobamos si el consultorio ya estaba abierto.
+        const estabaAbierto =
+            boton.getAttribute("aria-expanded") === "true";
 
-    // Botón crear
-    if (botonAbrir) {
-        botonAbrir.addEventListener("click", function () {
-            window.abrirModal("modalConsultorio");
-        });
-    }
 
-    // Botón X
-    if (botonCerrar) {
-        botonCerrar.addEventListener("click", function () {
-            window.cerrarModal();
-        });
-    }
+        // =========================================
+        // CERRAR TODOS LOS CONSULTORIOS
+        // =========================================
 
-    // Cerrar al hacer clic fuera del modal
-    if (modal) {
-        modal.addEventListener("click", function (evento) {
-            if (evento.target === modal) {
-                window.cerrarModal();
+        document.querySelectorAll(".boton-consultorio").forEach(function (otroBoton) {
+
+            const otroId = otroBoton.getAttribute("aria-controls");
+
+            const otroDetalle = document.getElementById(otroId);
+
+            if (otroDetalle) {
+                otroDetalle.classList.add("hidden");
             }
-        });
-    }
 
-    // Cerrar con Escape
-    document.addEventListener("keydown", function (evento) {
-        if (evento.key === "Escape") {
-            window.cerrarModal();
+            otroBoton.setAttribute("aria-expanded", "false");
+
+            const otroIcono = otroBoton.querySelector(".icono-consultorio");
+
+            if (otroIcono) {
+                otroIcono.classList.remove("rotate-180");
+            }
+
+        });
+
+
+        // =========================================
+        // ABRIR EL CONSULTORIO SELECCIONADO
+        // =========================================
+
+        if (!estabaAbierto) {
+
+            detalle.classList.remove("hidden");
+
+            boton.setAttribute("aria-expanded", "true");
+
+            const icono = boton.querySelector(".icono-consultorio");
+
+            if (icono) {
+                icono.classList.add("rotate-180");
+            }
+
         }
+
     });
 
-    // Buscador
-    const buscador = document.getElementById("buscadorConsultorio");
-    const filas = document.querySelectorAll(".fila-consultorio");
-    const sinResultados = document.getElementById("sinResultados");
 
-    if (buscador) {
-        buscador.addEventListener("input", function () {
-            const texto = buscador.value.toLowerCase().trim();
-            let cantidadVisibles = 0;
+    // =========================================
+    // ICONOS LUCIDE
+    // =========================================
 
-            filas.forEach(function (fila) {
-                const contenido = fila.dataset.busqueda.toLowerCase();
-                const coincide = contenido.includes(texto);
-
-                fila.classList.toggle("hidden", !coincide);
-
-                if (coincide) {
-                    cantidadVisibles++;
-                }
-            });
-
-            if (sinResultados) {
-                sinResultados.classList.toggle("hidden", cantidadVisibles > 0);
-            }
-        });
-    }
-
-    // Menú de opciones
-    const botonesMenu = document.querySelectorAll(".boton-menu");
-
-    botonesMenu.forEach(function (boton) {
-        boton.addEventListener("click", function (evento) {
-            evento.stopPropagation();
-
-            const menu = boton.nextElementSibling;
-            const estabaAbierto = !menu.classList.contains("hidden");
-
-            document.querySelectorAll(".menu-consultorio").forEach(function (otroMenu) {
-                otroMenu.classList.add("hidden");
-            });
-
-            if (!estabaAbierto) {
-                menu.classList.remove("hidden");
-            }
-        });
-    });
-
-    // Cerrar menús al hacer clic afuera
-    document.addEventListener("click", function (evento) {
-        if (
-            !evento.target.closest(".boton-menu") &&
-            !evento.target.closest(".menu-consultorio")
-        ) {
-            document.querySelectorAll(".menu-consultorio").forEach(function (menu) {
-                menu.classList.add("hidden");
-            });
-        }
-    });
-
-    // Inicializar iconos
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
 
 });

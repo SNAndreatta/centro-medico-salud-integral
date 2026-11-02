@@ -1,24 +1,28 @@
+
 {% extends "base.html" %}
 
 {% block title %}Disponibilidad de consultorios | Salud Integral{% endblock %}
 
 {% block content %}
 
-<div class="px-1 sm:px-2">
+<div class="w-full rounded-xl bg-[#E7EBF0] p-4 sm:p-6">
 
-    <!-- Encabezado -->
+    <!-- ENCABEZADO -->
     <div class="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#66869F]/40 pb-2">
 
-        <h2 class="text-lg font-bold tracking-wide text-acento sm:text-xl">
+        <h2 class="text-lg font-bold tracking-wide text-[#123E59] sm:text-xl">
             DISPONIBILIDAD DE CONSULTORIOS
         </h2>
 
-        <!-- Selector de fecha -->
-        <form method="GET" action="{{ url_for(request.endpoint) }}" class="flex items-center gap-2">
-
+        <!-- SELECTOR DE FECHA -->
+        <form
+            method="GET"
+            action="{{ url_for('rutas_admin_consultorio.disponibilidad_consultorios') }}"
+            class="flex items-center gap-2"
+        >
             <label
                 for="fecha"
-                class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#66869F] transition hover:text-acento sm:text-base"
+                class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#66869F] transition hover:text-[#123E59] sm:text-base"
             >
                 <i data-lucide="calendar-days" class="h-5 w-5"></i>
                 Elegir fecha
@@ -29,113 +33,113 @@
                 id="fecha"
                 name="fecha"
                 value="{{ fecha }}"
-                class="max-w-[135px] rounded-lg border border-[#66869F]/40 bg-white px-2 py-1 text-xs text-acento outline-none focus:border-acento"
+                class="max-w-[150px] rounded-lg border border-[#66869F]/40 bg-white px-2 py-1 text-xs text-[#123E59] outline-none focus:border-[#123E59]"
                 onchange="this.form.submit()"
             >
-
         </form>
 
     </div>
 
 
-    <!-- Consultorios agrupados por piso -->
-    <div class="space-y-3">
+    <!-- CONSULTORIOS POR PISO -->
+    <div class="space-y-4">
 
         {% for piso in pisos %}
 
-        <section>
+            <section>
 
-            <!-- Nombre del piso -->
-            <h3 class="mb-2 text-lg font-semibold tracking-wide text-[#66869F] sm:text-xl">
-                PISO {{ piso.numero }}
-            </h3>
-
-
-            <!-- Tarjetas de consultorios -->
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-
-                {% for consultorio in piso.consultorios %}
-
-                <article class="overflow-hidden rounded-2xl bg-white">
-
-                    <!-- Botón desplegable -->
-                    <button
-                        type="button"
-                        class="boton-consultorio flex min-h-[62px] w-full items-center justify-between gap-3 px-5 py-3 text-left transition hover:bg-gray-50 sm:px-6"
-                        aria-expanded="false"
-                        aria-controls="detalle-consultorio-{{ consultorio.id }}"
-                    >
-
-                        <span class="font-serif text-xl text-acento sm:text-2xl">
-                            Consultorio {{ consultorio.numero }}
-                        </span>
-
-                        <i
-                            data-lucide="chevron-down"
-                            class="icono-consultorio h-5 w-5 shrink-0 text-[#66869F] transition-transform duration-200"
-                        ></i>
-
-                    </button>
+                <!-- NOMBRE DEL PISO -->
+                <h3 class="mb-2 font-lexend text-lg font-semibold tracking-wide text-[#66869F]">
+                    PISO {{ piso.numero }}
+                </h3>
 
 
-                    <!-- Información desplegable -->
-                    <div
-                        id="detalle-consultorio-{{ consultorio.id }}"
-                        class="detalle-consultorio hidden border-t border-[#d5dfe5] px-5 py-4 sm:px-6"
-                    >
+                <!-- GRILLA DE CONSULTORIOS -->
+                <div class="grid grid-cols-2 items-start gap-3 sm:grid-cols-3">
 
-                        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-[#66869F]">
-                            DISPONIBILIDAD DEL DÍA
-                        </p>
+                    {% for consultorio in piso.consultorios %}
 
-                        <div class="flex flex-wrap gap-2">
+                        <!-- TARJETA -->
+                        <div class="consultorio-card min-w-0 self-start overflow-hidden rounded-xl bg-white">
 
-                            {% for horario in consultorio.horarios %}
-
-                            <span
-                                class="rounded-full px-3 py-1 text-xs font-medium
-                                {% if horario.disponible %}
-                                    bg-[#E7ECEF] text-acento
-                                {% else %}
-                                    bg-red-100 text-red-700
-                                {% endif %}"
+                            <!-- BOTÓN DEL CONSULTORIO -->
+                            <button
+                                type="button"
+                                onclick="toggleConsultorio(this)"
+                                class="boton-consultorio flex w-full cursor-pointer items-center justify-between bg-white px-5 py-4 text-left transition hover:bg-gray-50"
+                                aria-expanded="false"
+                                aria-controls="detalle-{{ consultorio.id }}"
                             >
-                                {{ horario.hora }}
-                                ·
-                                {{ "Disponible" if horario.disponible else "Ocupado" }}
-                            </span>
 
-                            {% else %}
+                                <span class="font-lexend text-lg text-[#123E59]">
+                                    Consultorio {{ consultorio.numero }}
+                                </span>
 
-                            <p class="text-sm text-gray-500">
-                                No hay horarios registrados para este consultorio.
-                            </p>
+                                <i
+                                    data-lucide="chevron-down"
+                                    class="icono-consultorio h-5 w-5 shrink-0 text-[#45677D] transition-transform duration-200"
+                                ></i>
 
-                            {% endfor %}
+                            </button>
+
+
+                            <!-- DETALLE DE HORARIOS -->
+                            <div
+                                id="detalle-{{ consultorio.id }}"
+                                class="detalle-consultorio border-t border-gray-200 p-4"
+                                style="display: none;"
+                            >
+
+                                <h4 class="mb-3 font-semibold text-[#123E59]">
+                                    Horarios del consultorio
+                                </h4>
+
+
+                                {% if consultorio.horarios %}
+
+                                    <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+
+                                        {% for horario in consultorio.horarios %}
+
+                                            <!-- HORARIO DISPONIBLE / NO DISPONIBLE -->
+                                            <div
+                                                class="flex items-center justify-center rounded-2xl border px-2 py-1
+                                                {% if horario.disponible %}
+                                                    border-green-200 bg-green-100
+                                                {% else %}
+                                                    border-red-200 bg-red-100
+                                                {% endif %}"
+                                                title="{{ 'Disponible' if horario.disponible else 'No disponible' }}"
+                                                aria-label="{{ horario.hora }} - {{ 'Disponible' if horario.disponible else 'No disponible' }}"
+                                            >
+
+                                                <span class="text-sm font-semibold text-gray-600">
+                                                    {{ horario.hora }}
+                                                </span>
+
+                                            </div>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% else %}
+
+                                    <p class="text-sm text-[#66869F]">
+                                        No hay horarios cargados para este consultorio.
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
 
                         </div>
 
-                    </div>
+                    {% endfor %}
 
-                </article>
+                </div>
 
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-        {% else %}
-
-        <div class="rounded-2xl bg-white px-6 py-10 text-center">
-
-            <i data-lucide="door-closed" class="mx-auto mb-3 h-10 w-10 text-gray-400"></i>
-
-            <h3 class="font-semibold text-acento">
-                No hay consultorios registrados
-            </h3>
-
-        </div>
+            </section>
 
         {% endfor %}
 
@@ -144,6 +148,74 @@
 </div>
 
 
-<script src="{{ url_for('static', filename='js/admin/dashboards/disponibilidad_consultorios.js') }}"></script>
+<!-- =========================================
+     FUNCIONALIDAD DE DESPLIEGUE
+========================================= -->
+
+<script>
+
+    function toggleConsultorio(boton) {
+
+        const idDetalle = boton.getAttribute("aria-controls");
+
+        const detalle = document.getElementById(idDetalle);
+
+        if (!detalle) {
+            console.error("No se encontró el detalle:", idDetalle);
+            return;
+        }
+
+        // Comprobar si el consultorio seleccionado está abierto.
+        const estabaAbierto =
+            boton.getAttribute("aria-expanded") === "true";
+
+
+        // Cerrar todos los consultorios.
+        document.querySelectorAll(".boton-consultorio").forEach(function(otroBoton) {
+
+            const otroId = otroBoton.getAttribute("aria-controls");
+
+            const otroDetalle = document.getElementById(otroId);
+
+            if (otroDetalle) {
+                otroDetalle.style.display = "none";
+            }
+
+            otroBoton.setAttribute("aria-expanded", "false");
+
+            const otroIcono = otroBoton.querySelector(".icono-consultorio");
+
+            if (otroIcono) {
+                otroIcono.classList.remove("rotate-180");
+            }
+
+        });
+
+
+        // Si estaba cerrado, abrirlo.
+        // Si estaba abierto, permanece cerrado.
+        if (!estabaAbierto) {
+
+            detalle.style.display = "block";
+
+            boton.setAttribute("aria-expanded", "true");
+
+            const icono = boton.querySelector(".icono-consultorio");
+
+            if (icono) {
+                icono.classList.add("rotate-180");
+            }
+
+        }
+
+    }
+
+
+    // Inicializar iconos Lucide.
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
+</script>
 
 {% endblock %}
