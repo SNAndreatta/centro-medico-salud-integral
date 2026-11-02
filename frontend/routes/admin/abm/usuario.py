@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-usuario_routes = Blueprint('rutas_admin_usuario', __name__)
+usuario_admin_routes = Blueprint('rutas_admin_usuario', __name__)
 
 # =================================
 # DATOS SIMULADOS DE USUARIOS
@@ -24,7 +24,8 @@ usuarios = [
         "mail": "camila@gmail.com",
         "fecha_nacimiento": "1990-05-12",
         "dni": "12345678",
-        "color": "bg-pink-500/30 text-pink-500"
+        "color": "bg-pink-500/30 text-pink-500",
+        "fecha_registro": "17/03/2022"
     },
     {
         "id": 2,
@@ -37,7 +38,8 @@ usuarios = [
         "mail": "nicolas@gmail.com",
         "fecha_nacimiento": "1988-03-20",
         "dni": "23456789",
-        "color": "bg-green-500/30 text-green-500"
+        "color": "bg-green-500/30 text-green-500",
+        "fecha_registro": "20/05/2021"
     },
     {
         "id": 3,
@@ -50,7 +52,8 @@ usuarios = [
         "mail": "natalia@gmail.com",
         "fecha_nacimiento": "1992-07-15",
         "dni": "34567890",
-        "color": "bg-slate-500/30 text-slate-500"
+        "color": "bg-slate-500/30 text-slate-500",
+        "fecha_registro": "19/06/2007"
     },
     {
         "id": 4,
@@ -63,7 +66,8 @@ usuarios = [
         "mail": "nicolas.perez@gmail.com",
         "fecha_nacimiento": "1985-11-08",
         "dni": "45678901",
-        "color": "bg-lime-500/30 text-lime-500"
+        "color": "bg-lime-500/30 text-lime-500",
+        "fecha_registro": "17/03/2022"
     },
     {
         "id": 5,
@@ -76,7 +80,8 @@ usuarios = [
         "mail": "marcos@gmail.com",
         "fecha_nacimiento": "1995-01-25",
         "dni": "56789012",
-        "color": "bg-amber-500/30 text-amber-500"
+        "color": "bg-amber-500/30 text-amber-500",
+        "fecha_registro": "17/03/2022"
     },
     {
         "id": 6,
@@ -89,7 +94,8 @@ usuarios = [
         "mail": "marcos@gmail.com",
         "fecha_nacimiento": "1995-01-25",
         "dni": "56789012",
-        "color": "bg-indigo-500/30 text-indigo-500"
+        "color": "bg-indigo-500/30 text-indigo-500",
+        "fecha_registro": "05/01/2007"
     },
     {
         "id": 7,
@@ -102,7 +108,8 @@ usuarios = [
         "mail": "marcos@gmail.com",
         "fecha_nacimiento": "1995-01-25",
         "dni": "56789012",
-        "color": "bg-emerald-500/30 text-emerald-500"
+        "color": "bg-emerald-500/30 text-emerald-500",
+        "fecha_registro": "17/03/2022"
     },
     {
         "id": 8,
@@ -115,7 +122,8 @@ usuarios = [
         "mail": "marcos@gmail.com",
         "fecha_nacimiento": "1995-01-25",
         "dni": "56789012",
-        "color": "bg-teal-500/30 text-teal-500"
+        "color": "bg-teal-500/30 text-teal-500",
+        "fecha_registro": "19/03/2007"
     },
 ]
 
@@ -124,7 +132,7 @@ usuarios = [
 # MOSTRAR USUARIOS
 # =================================
 
-@usuario_routes.route("/usuarios")
+@usuario_admin_routes.route("/usuarios")
 def obtener_usuarios():
 
     return render_template(
@@ -138,7 +146,7 @@ def obtener_usuarios():
 # CREAR USUARIO
 # =================================
 
-@usuario_routes.route("/usuarios/crear", methods=["POST"])
+@usuario_admin_routes.route("/usuarios/crear", methods=["POST"])
 def crear_usuario():
 
     nombre = request.form.get("nombre", "").strip()
@@ -193,3 +201,21 @@ def crear_usuario():
     usuarios.append(nuevo_usuario)
 
     return redirect(url_for("usuarios_index"))
+
+@usuario_admin_routes.route("/usuario/<int:id_usuario>")
+def usuario_perfil(id_usuario):
+
+    usuario_encontrado = None
+
+    for usuario in usuarios:
+        if usuario["id"] == id_usuario:
+            usuario_encontrado = usuario
+            break
+
+    if usuario_encontrado is None:
+        return "Usuario no encontrado", 404
+
+    return render_template(
+        "admin/abm/usuarios/profile.html",
+        usuario=usuario_encontrado
+    )

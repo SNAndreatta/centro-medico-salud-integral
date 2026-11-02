@@ -99,29 +99,48 @@ coberturas = [
     {"id": 4, "nombre": "OSDE"},
 ]
 
+# =================================
+# CONSULTORIOS Y AGENDAS SIMULADAS
+# =================================
+
+consultorios = [
+    {"id": 1, "numero": 101},
+    {"id": 2, "numero": 102},
+    {"id": 3, "numero": 103},
+]
+
+agendas_medicos = []
 
 # =================================
 # PERFIL DE UN MÉDICO
 # =================================
 
+
 @medico_admin_routes.route("/medicos/<int:id_medico>")
 def medico_perfil(id_medico):
 
-    medico_encontrado = None
-
-    for medico in medicos:
-        if medico["id"] == id_medico:
-            medico_encontrado = medico
-            break
+    medico_encontrado = next(
+        (m for m in medicos if m["id"] == id_medico),
+        None
+    )
 
     if medico_encontrado is None:
         return "Médico no encontrado", 404
 
+    # Separar nombre y apellido para completar el formulario.
+    partes_nombre = medico_encontrado["nombre_completo"].replace("Dr. ", "").split(" ", 1)
+
+    medico_vista = medico_encontrado.copy()
+    medico_vista["nombre"] = partes_nombre[0] if partes_nombre else ""
+    medico_vista["apellido"] = partes_nombre[1] if len(partes_nombre) > 1 else ""
+
     return render_template(
         "admin/abm/medicos/profile.html",
-        medico=medico_encontrado,
-        coberturas=coberturas
+        medico=medico_vista,
+        coberturas=coberturas,
+        consultorios=consultorios
     )
+
 
 # =================================
 # DATOS SIMULADOS DE TURNOS
@@ -302,4 +321,153 @@ def agenda(id_medico):
         turno_seleccionado=turno_seleccionado,
         rango_semana=rango_semana,
         fecha_inicio=lunes.isoformat()
+    )
+
+
+
+# =================================
+# EDITAR DATOS DEL MÉDICO
+# =================================
+
+@medico_admin_routes.route(
+    "/medicos/<int:id_medico>/editar",
+    methods=["POST"]
+)
+def editar_medico(id_medico):
+
+    medico = next(
+        (m for m in medicos if m["id"] == id_medico),
+        None
+    )
+
+    if medico is None:
+        return "Médico no encontrado", 404
+
+    nombre = request.form.get("nombre", "").strip()
+    apellido = request.form.get("apellido", "").strip()
+    email = request.form.get("email", "").strip()
+    documento = request.form.get("documento", "").strip()
+    fecha_nacimiento = request.form.get("fecha_nacimiento", "").strip()
+
+    if not all([nombre, apellido, email, documento, fecha_nacimiento]):
+        return "Todos los campos son obligatorios", 400
+
+    medico["nombre_completo"] = f"Dr. {nombre} {apellido}"
+    medico["iniciales"] = (
+        nombre[0].upper() + apellido[0].upper()
+    )
+    medico["email"] = email
+    medico["documento"] = documento
+    medico["fecha_nacimiento"] = fecha_nacimiento
+
+    # Guardar IDs de las coberturas seleccionadas.
+    ids_coberturas = request.form.getlist("coberturas")
+    medico["coberturas_ids"] = [
+        int(id_cobertura)
+        for id_cobertura in ids_coberturas
+        if id_cobertura.isdigit()
+    ]
+
+    return redirect(
+        url_for(
+            "rutas_admin_medico.medico_perfil",
+            id_medico=id_medico
+        )
+    )
+
+
+# =================================
+# ELIMINAR MÉDICO
+# =================================
+
+@medico_admin_routes.route(
+    "/medicos/<int:id_medico>/eliminar",
+    methods=["POST"]
+)
+def eliminar_medico(id_medico):
+
+    medico = next(
+        (m for m in medicos if m["id"] == id_medico),
+        None
+    )
+
+    if medico is None:
+        return "Médico no encontrado", 404
+
+    medicos.remove(medico)
+
+    return redirect(
+        url_for("rutas_admin_medico.obtener_medicos")
+    )
+
+
+# =================================
+# CREAR AGENDA DE UN MÉDICO
+# =================================
+
+@medico_admin_routes.route(
+    "/medicos/<int:id_medico>/agenda/crear",
+    methods=["POST"]
+)
+def crear_agenda(id_medico):
+
+    medico = next(
+        (m for m in medicos if m["id"] == id_medico),
+        None
+    )
+
+    if medico is None:
+        return "Médico no encontrado", 404
+
+    consultorio_id = request.form.get("consultorio", "").strip()
+    duracion_turno = request.form.get("duracion_turno", "").strip()
+    fecha_inicio = request.form.get("fecha_inicio", "").strip()
+    fecha_hasta = request.form.get("fecha_hasta", "").strip()
+
+    if not all([
+        consultorio_id,
+        duracion_turno,
+        fecha_inicio,
+        fecha_hasta
+    ]):
+        return "Todos los campos son obligatorios", 400
+
+    consultorio_encontrado = next(
+        (
+            c for c in consultorios
+            if c["id"] == int(consultorio_id)
+        ),
+        None
+    )
+
+    if consultorio_encontrado is None:
+        return "Consultorio no encontrado", 404
+
+    if int(duracion_turno) not in [15, 20, 30, 45, 60]:
+        return "Duración de turno inválida", 400
+
+    try:
+        inicio = date.fromisoformat(fecha_inicio)
+        fin = date.fromisoformat(fecha_hasta)
+    except ValueError:
+        return "Formato de fecha inválido", 400
+
+    if fin < inicio:
+        return "La fecha hasta no puede ser anterior a la fecha de inicio", 400
+
+    agendas_medicos.append({
+        "id": len(agendas_medicos) + 1,
+        "id_medico": id_medico,
+        "consultorio_id": int(consultorio_id),
+        "consultorio_numero": consultorio_encontrado["numero"],
+        "duracion_turno": int(duracion_turno),
+        "fecha_inicio": fecha_inicio,
+        "fecha_hasta": fecha_hasta
+    })
+
+    return redirect(
+        url_for(
+            "rutas_admin_medico.medico_perfil",
+            id_medico=id_medico
+        )
     )

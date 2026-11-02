@@ -1,54 +1,229 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // =================================
-    // BUSCADOR DE MÉDICOS
+    // FUNCIONES GENERALES PARA MODALES
     // =================================
 
-    const buscador_medico = document.getElementById("buscadorMedico");
-    const filas_medico = document.querySelectorAll(".fila-medico");
-    const sinResultados_medico = document.getElementById("sinResultados");
+    function abrirModal(modal) {
+        if (!modal) return;
 
-    buscador_medico.addEventListener("input", function () {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        modal.setAttribute("aria-hidden", "false");
 
-        const texto = buscador_medico.value.toLowerCase().trim();
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
 
-        let cantidadVisibles = 0;
+    function cerrarModal(modal) {
+        if (!modal) return;
 
-        filas_medico.forEach(function (fila) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        modal.setAttribute("aria-hidden", "true");
+    }
 
-            const contenido = fila.dataset.busqueda.toLowerCase();
 
-            const coincide = contenido.includes(texto);
+    // =================================
+    // REFERENCIAS A LOS MODALES
+    // =================================
 
-            fila.classList.toggle("hidden", !coincide);
+    const modalEditar = document.getElementById("modalEditarMedico");
+    const modalEliminar = document.getElementById("modalEliminarMedico");
+    const modalAgenda = document.getElementById("modalCrearAgenda");
 
-            if (coincide) {
-                cantidadVisibles++;
+
+    // =================================
+    // MODAL EDITAR MÉDICO
+    // =================================
+
+    const botonAbrirEditar = document.getElementById("abrirModalEditarMedico");
+    const botonCerrarEditar = document.getElementById("cerrarModalEditarMedico");
+
+    botonAbrirEditar?.addEventListener("click", function (event) {
+        event.preventDefault();
+        abrirModal(modalEditar);
+    });
+
+    botonCerrarEditar?.addEventListener("click", function () {
+        cerrarModal(modalEditar);
+    });
+
+
+    // =================================
+    // MODAL ELIMINAR MÉDICO
+    // =================================
+
+    const botonAbrirEliminar = document.getElementById(
+        "abrirConfirmarEliminarMedico"
+    );
+
+    const botonCancelarEliminar = document.getElementById(
+        "cancelarEliminarMedico"
+    );
+
+    botonAbrirEliminar?.addEventListener("click", function () {
+        cerrarModal(modalEditar);
+        abrirModal(modalEliminar);
+    });
+
+    botonCancelarEliminar?.addEventListener("click", function () {
+        cerrarModal(modalEliminar);
+        abrirModal(modalEditar);
+    });
+
+
+    // =================================
+    // MODAL CREAR AGENDA
+    // =================================
+
+    const botonAbrirAgenda = document.getElementById("abrirModalCrearAgenda");
+    const botonCerrarAgenda = document.getElementById("cerrarModalCrearAgenda");
+
+    botonAbrirAgenda?.addEventListener("click", function () {
+        abrirModal(modalAgenda);
+    });
+
+    botonCerrarAgenda?.addEventListener("click", function () {
+        cerrarModal(modalAgenda);
+    });
+
+
+    // =================================
+    // CERRAR MODALES AL HACER CLICK FUERA
+    // =================================
+
+    [modalEditar, modalEliminar, modalAgenda].forEach(function (modal) {
+
+        modal?.addEventListener("click", function (event) {
+
+            if (event.target === modal) {
+                cerrarModal(modal);
             }
 
         });
 
-        sinResultados_medico.classList.toggle("hidden", cantidadVisibles > 0);
+    });
+
+
+    // =================================
+    // CERRAR MODALES CON ESCAPE
+    // =================================
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+            cerrarModal(modalEditar);
+            cerrarModal(modalEliminar);
+            cerrarModal(modalAgenda);
+        }
 
     });
+
+
+    // =================================
+    // SELECTOR DE COBERTURAS
+    // =================================
+
+    const botonSelectorCoberturas = document.getElementById(
+        "botonSelectorCoberturas"
+    );
+
+    const selectorCoberturas = document.getElementById(
+        "selector-coberturas"
+    );
+
+    const textoCoberturas = document.getElementById("texto-coberturas");
+
+    // Función utilizada por el onclick del botón en el HTML.
+    window.alternarSelector = function (id) {
+
+        const selector = document.getElementById(id);
+
+        if (!selector) return;
+
+        selector.classList.toggle("hidden");
+    };
+
+
+    // Actualizar el texto según las coberturas seleccionadas.
+    function actualizarTextoCoberturas() {
+
+        if (!selectorCoberturas || !textoCoberturas) return;
+
+        const seleccionadas = selectorCoberturas.querySelectorAll(
+            'input[name="coberturas"]:checked'
+        );
+
+        if (seleccionadas.length === 0) {
+
+            textoCoberturas.textContent = "COBERTURAS";
+
+        } else if (seleccionadas.length === 1) {
+
+            const nombre = seleccionadas[0]
+                .closest("label")
+                ?.querySelector("span")
+                ?.textContent.trim();
+
+            textoCoberturas.textContent = nombre || "1 cobertura seleccionada";
+
+        } else {
+
+            textoCoberturas.textContent =
+                seleccionadas.length + " coberturas seleccionadas";
+
+        }
+    }
+
+
+    // Escuchar cambios en los checkboxes.
+    selectorCoberturas?.querySelectorAll(
+        'input[name="coberturas"]'
+    ).forEach(function (checkbox) {
+
+        checkbox.addEventListener("change", actualizarTextoCoberturas);
+
+    });
+
+
+    // Cerrar el selector al hacer clic fuera.
+    document.addEventListener("click", function (event) {
+
+        if (
+            selectorCoberturas &&
+            botonSelectorCoberturas &&
+            !selectorCoberturas.contains(event.target) &&
+            !botonSelectorCoberturas.contains(event.target)
+        ) {
+            selectorCoberturas.classList.add("hidden");
+        }
+
+    });
+
 
     // =================================
     // BUSCADOR DE COBERTURAS
     // =================================
 
-    const buscador_cobertura = document.getElementById("buscadorCobertura");
-    const filas_cobertura = document.querySelectorAll(".fila-cobertura");
-    const sinResultados_cobertura = document.getElementById("sinResultados");
+    const buscadorCobertura = document.getElementById("buscadorCobertura");
 
-    buscador_cobertura.addEventListener("input", function () {
+    const filasCobertura = document.querySelectorAll(".fila-cobertura");
 
-        const texto = buscador_cobertura.value.toLowerCase().trim();
+    const sinResultadosCobertura = document.getElementById(
+        "sinResultadosCobertura"
+    );
+
+    buscadorCobertura?.addEventListener("input", function () {
+
+        const texto = buscadorCobertura.value.toLowerCase().trim();
 
         let cantidadVisibles = 0;
 
-        filas_cobertura.forEach(function (fila) {
+        filasCobertura.forEach(function (fila) {
 
-            const nombre = fila.dataset.busqueda;
+            const nombre = (fila.dataset.busqueda || "").toLowerCase();
 
             const coincide = nombre.includes(texto);
 
@@ -60,15 +235,80 @@ document.addEventListener("DOMContentLoaded", function () {
 
         });
 
-        sinResultados_cobertura.classList.toggle("hidden", cantidadVisibles > 0);
+        // Mostrar mensaje cuando no hay coincidencias.
+        sinResultadosCobertura?.classList.toggle(
+            "hidden",
+            cantidadVisibles > 0
+        );
 
     });
 
 
     // =================================
-    // ICONOS
+    // VALIDAR FECHAS DE LA AGENDA
     // =================================
 
-    lucide.createIcons();
+    const fechaInicio = document.getElementById("fechaInicioAgenda");
+    const fechaHasta = document.getElementById("fechaHastaAgenda");
+
+    const errorFechas = document.getElementById("errorFechasAgenda");
+
+
+    function validarFechasAgenda() {
+
+        if (!fechaInicio || !fechaHasta) {
+            return true;
+        }
+
+        // La fecha final no puede ser anterior a la inicial.
+        fechaHasta.min = fechaInicio.value;
+
+        const fechasInvalidas =
+            fechaInicio.value !== "" &&
+            fechaHasta.value !== "" &&
+            fechaHasta.value < fechaInicio.value;
+
+        errorFechas?.classList.toggle("hidden", !fechasInvalidas);
+
+        fechaHasta.setCustomValidity(
+            fechasInvalidas
+                ? "La fecha de finalización debe ser igual o posterior a la fecha de inicio."
+                : ""
+        );
+
+        return !fechasInvalidas;
+    }
+
+
+    fechaInicio?.addEventListener("change", validarFechasAgenda);
+    fechaHasta?.addEventListener("change", validarFechasAgenda);
+
+
+    // =================================
+    // VALIDAR FORMULARIO DE CREAR AGENDA
+    // =================================
+
+    const formularioAgenda = modalAgenda?.querySelector("form");
+
+    formularioAgenda?.addEventListener("submit", function (event) {
+
+        if (!validarFechasAgenda()) {
+
+            event.preventDefault();
+
+            fechaHasta?.reportValidity();
+
+        }
+
+    });
+
+
+    // =================================
+    // ICONOS LUCIDE
+    // =================================
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 
 });

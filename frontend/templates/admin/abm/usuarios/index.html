@@ -6,7 +6,7 @@
 
 
     <!-- Contenedor principal con solapa -->
-    <main class="relative mx-auto mb-20 mt-8 w-[94%] rounded-b-xl rounded-tr-xl bg-[#5D8197] p-3 pt-6">
+    <main class="relative mx-auto mb-20 mt-14 w-[94%] rounded-b-xl rounded-tr-xl bg-[#5D8197] p-3 pt-6">
 
         <!-- Solapa -->
         <div class="absolute -top-7 left-0 rounded-t-xl bg-[#5D8197] px-5 pb-2 pt-2">
@@ -101,7 +101,7 @@
 
                 <!-- Ir al perfil -->
                 <a
-                    href="#"
+                    href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=usuario.id) }}"
                     class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-2 py-1 text-[8px] text-white hover:bg-[#073B57] sm:px-3"
                 >
                     Ir al perfil
@@ -126,7 +126,7 @@
             <button
                 type="button"
                 onclick="abrirModalUsuario()"
-                class="flex items-center gap-2 rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078]"
+                class="flex items-center gap-2 rounded-full bg-[#073B57] px-4 py-2 text-[13px] text-white hover:bg-[#005078]"
             >
                 Crear usuario
                 <i data-lucide="plus" class="h-4 w-4"></i>
@@ -297,7 +297,7 @@
                 <div class="flex justify-center">
                     <button
                         type="submit"
-                        class="w-32 rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#005078] sm:w-40"
+                        class="w-32 rounded-full bg-[#073B57] px-4 py-2 text-[13px] text-white hover:bg-[#005078] sm:w-40"
                     >
                         Crear usuario
                     </button>

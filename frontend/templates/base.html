@@ -7,6 +7,11 @@
 
     <title>{% block title %}Salud Integral{% endblock %}</title>
 
+    <!-- Fuentes Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gelasio:wght@400;500;600;700&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -30,7 +35,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen bg-white">
+<body class="min-h-screen bg-white font-lexend">
 
     <!-- Contenedor principal -->
     <div class="mx-auto min-h-[100vh] max-w-7xl bg-dominante px-5 py-6 sm:px-10 sm:py-8">
@@ -39,7 +44,7 @@
         <header class="mb-8 flex items-center justify-between">
 
             <!-- Logo -->
-            <a href="/" class="flex items-center gap-2 text-acento">
+            <a href="{{ url_for('rutas_home.home') }}" class="flex items-center gap-2 text-acento">
 
                 <div class="flex h-10 w-10 items-center justify-center rounded-md bg-acento text-white">
                     <i data-lucide="activity" class="h-7 w-7"></i>

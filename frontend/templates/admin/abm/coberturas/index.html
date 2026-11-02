@@ -4,11 +4,11 @@
 
 {% block content %}
 
-<div class="min-h-screen bg-[#E7EBF0] px-4 py-4 sm:px-6 lg:px-8">
+<div class="min-h-[500px] bg-[#E7EBF0] px-4 py-4 sm:px-6 lg:px-8 font-lexend">
     <div class="mx-auto max-w-[1100px]">
 
         <!-- PANEL -->
-        <section class="relative mt-12 rounded-[11px] bg-[#8EA7B5] px-3 pb-3 pt-8 sm:px-4 sm:pb-4 sm:pt-9">
+        <section class="relative mt-6 rounded-[11px] bg-[#8EA7B5] px-3 pb-3 pt-4 sm:px-4 sm:pb-4">
 
             <div class="absolute -top-[30px] left-0 flex h-[39px] items-center rounded-t-[12px] bg-[#8EA7B5] px-5">
                 <h1 class="font-lexend text-sm font-bold tracking-[0.16em] text-white sm:text-base">
@@ -72,16 +72,26 @@
                class="hidden rounded-b-xl bg-white px-4 py-6 text-center text-xs text-[#66869F]">
                 No se encontraron coberturas.
             </p>
+            <div class="flex flex-row justify-between mt-3 w-full">
+                <div>
+                <a href="{{ url_for('rutas_home.home') }}"
+                   class="inline-flex items-center gap-1 text-[13px] text-white hover:text-acento">
+                    <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                    Volver al menú
+                </a>
+            </div>
 
             <!-- CREAR -->
-            <div class="mt-2 flex justify-end">
+            <div class="flex">
                 <button type="button"
                         onclick="abrirModal('modal-crear-cobertura')"
-                        class="inline-flex h-[24px] items-center gap-2 rounded-full bg-[#073B57] px-2.5 text-[9px] font-medium text-white transition hover:bg-[#0B4D70]">
+                        class="inline-flex h-[24px] items-center gap-2 rounded-full bg-[#073B57] px-2.5 text-[11px] font-medium text-white transition hover:bg-[#0B4D70]">
                     Crear cobertura
                     <i data-lucide="plus" class="h-4 w-4"></i>
                 </button>
             </div>
+            </div>
+            
 
         </section>
     </div>
@@ -100,21 +110,14 @@
 
         <div class="mb-5 flex items-center justify-between">
             <h2 id="titulo-crear-cobertura"
-                class="font-serif text-lg font-bold text-[#073B57]">
+                class="font-serif text-xl font-bold text-[#073B57]">
                 Crear cobertura
             </h2>
-
-            <button type="button"
-                    onclick="cerrarModal('modal-crear-cobertura')"
-                    aria-label="Cerrar"
-                    class="text-[#66869F] hover:text-[#073B57]">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
         </div>
 
         <form method="POST"
               action="{{ url_for('rutas_admin_cobertura.crear_cobertura') }}"
-              class="space-y-4">
+              class="space-y-2">
 
             <div>
                 <label for="nombre-nueva-cobertura"
@@ -130,15 +133,15 @@
                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-[#073B57] outline-none focus:border-[#66869F]">
             </div>
 
-            <div class="flex justify-end gap-2 pt-2">
+            <div class="flex justify-ceneter gap-2 pt-2">
                 <button type="button"
                         onclick="cerrarModal('modal-crear-cobertura')"
-                        class="rounded-full border border-gray-200 px-4 py-2 text-[10px] text-[#66869F] hover:bg-gray-50">
+                        class="rounded-full w-1/2 border border-gray-200 px-4 py-2 text-[13px] text-[#66869F] hover:bg-gray-50">
                     Cancelar
                 </button>
 
                 <button type="submit"
-                        class="rounded-full bg-[#073B57] px-4 py-2 text-[10px] font-medium text-white hover:bg-[#0B4D70]">
+                        class="rounded-full w-1/2 bg-[#073B57] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#0B4D70]">
                     Crear cobertura
                 </button>
             </div>

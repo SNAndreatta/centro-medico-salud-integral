@@ -117,11 +117,11 @@
                      onclick="cerrarSiFondo(event, 'modal-editar-plan-{{ plan.id }}')">
 
                     <section role="dialog" aria-modal="true"
-                             class="w-full max-w-[500px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
+                             class="w-full max-w-[350px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
                              onclick="event.stopPropagation()">
 
                         <div class="mb-5 flex items-center justify-between">
-                            <h2 class="font-serif text-base font-bold text-[#073B57]">
+                            <h2 class="font-serif text-xl font-bold text-[#073B57]">
                                 Editar datos de plan
                             </h2>
 
@@ -134,7 +134,7 @@
 
                         <form method="POST"
                               action="{{ url_for('rutas_admin_cobertura.editar_plan', cobertura_id=cobertura.id, plan_id=plan.id) }}"
-                              class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                              class="grid grid-cols-1 gap-4">
 
                             <div>
                                 <label class="mb-1.5 block text-[9px] uppercase text-[#66869F]"
@@ -146,29 +146,11 @@
                                        name="nombre"
                                        value="{{ plan.nombre }}"
                                        required
-                                       class="w-full rounded-full border border-gray-200 px-3 py-2 text-[10px] text-[#073B57] outline-none focus:border-[#66869F]">
+                                       class="w-full rounded-full border border-gray-200 px-3 py-2 text-[13px] text-[#073B57] outline-none focus:border-[#66869F]">
 
                                 <button type="submit"
-                                        class="mt-2 w-full rounded-full bg-[#073B57] px-3 py-2 text-[9px] text-white hover:bg-[#0B4D70]">
+                                        class="mt-2 w-full rounded-full bg-[#073B57] px-3 py-2 text-[13px] text-white hover:bg-[#0B4D70]">
                                     Cambiar nombre
-                                </button>
-                            </div>
-
-                            <div class="flex flex-col justify-between gap-3 rounded-lg bg-[#F7E1E1] p-3">
-                                <div>
-                                    <h3 class="text-[9px] font-semibold text-red-700">
-                                        ELIMINAR PLAN
-                                    </h3>
-                                    <p class="mt-1 text-[8px] leading-4 text-red-500">
-                                        Cuidado, esta acción puede afectar los datos relacionados.
-                                    </p>
-                                </div>
-
-                                <button type="button"
-                                        onclick="cerrarModal('modal-editar-plan-{{ plan.id }}'); abrirModal('modal-eliminar-plan-{{ plan.id }}')"
-                                        class="flex items-center justify-between rounded-full bg-white/70 px-3 py-2 text-[9px] text-red-700 hover:bg-white">
-                                    Eliminar plan
-                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
                                 </button>
                             </div>
                         </form>
@@ -186,7 +168,7 @@
                              onclick="event.stopPropagation()">
 
                         <div class="flex items-center justify-between">
-                            <h2 class="font-serif text-base font-bold text-[#073B57]">
+                            <h2 class="font-serif text-xl font-bold text-[#073B57]">
                                 Eliminar plan
                             </h2>
 
@@ -208,16 +190,16 @@
 
                         <form method="DELETE"
                               action="{{ url_for('rutas_admin_cobertura.eliminar_plan', cobertura_id=cobertura.id, plan_id=plan.id) }}"
-                              class="mt-5 flex justify-end gap-2">
+                              class="mt-5 flex justify-center gap-2">
 
                             <button type="button"
                                     onclick="cerrarModal('modal-eliminar-plan-{{ plan.id }}')"
-                                    class="rounded-full border border-gray-200 px-4 py-2 text-[10px] text-[#66869F]">
+                                    class="rounded-full w-1/2 border border-gray-200 px-4 py-2 text-[13px] text-[#66869F] hover:bg-gray-100">
                                 Cancelar
                             </button>
 
                             <button type="submit"
-                                    class="rounded-full bg-red-600 px-4 py-2 text-[10px] text-white hover:bg-red-700">
+                                    class="rounded-full w-1/2 bg-red-600  px-4 py-2 text-[13px] text-white hover:bg-red-700">
                                 Confirmar eliminación
                             </button>
                         </form>
@@ -305,7 +287,7 @@
 
         <div class="mb-5 flex items-center justify-between">
             <h2 id="titulo-editar-cobertura"
-                class="font-serif text-base font-bold text-[#073B57]">
+                class="font-serif text-xl font-bold text-[#073B57]">
                 Editar datos de cobertura
             </h2>
 
@@ -334,7 +316,7 @@
                        class="w-full rounded-full border border-gray-200 px-3 py-2 text-[10px] text-[#073B57] outline-none focus:border-[#66869F]">
 
                 <button type="submit"
-                        class="w-full rounded-full bg-[#073B57] px-3 py-2 text-[9px] text-white hover:bg-[#0B4D70]">
+                        class="w-full rounded-full bg-[#073B57] px-3 py-2 text-[11px] text-white hover:bg-[#0B4D70]">
                     Cambiar nombre
                 </button>
             </form>
@@ -416,24 +398,19 @@
      onclick="cerrarSiFondo(event, 'modal-crear-plan')">
 
     <section role="dialog" aria-modal="true"
-             class="w-full max-w-[440px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
+             class="w-full max-w-[350px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
              onclick="event.stopPropagation()">
 
         <div class="mb-5 flex items-center justify-between">
-            <h2 class="font-serif text-base font-bold text-[#073B57]">
+            <h2 class="font-serif text-xl font-bold text-[#073B57]">
                 Crear plan
             </h2>
 
-            <button type="button"
-                    onclick="cerrarModal('modal-crear-plan')"
-                    aria-label="Cerrar">
-                <i data-lucide="x" class="h-5 w-5 text-[#66869F]"></i>
-            </button>
         </div>
 
         <form method="POST"
               action="{{ url_for('rutas_admin_cobertura.crear_plan', cobertura_id=cobertura.id) }}"
-              class="space-y-4">
+              class="space-y-2">
 
             <div>
                 <label for="nombre-nuevo-plan"
@@ -449,16 +426,16 @@
                        class="w-full rounded-full border border-gray-200 px-3 py-2 text-[10px] text-[#073B57] outline-none focus:border-[#66869F]">
             </div>
 
-            <div class="flex justify-end gap-2 pt-2">
+            <div class="flex justify-center gap-2 pt-2">
                 <button type="button"
                         onclick="cerrarModal('modal-crear-plan')"
-                        class="rounded-full border border-gray-200 px-4 py-2 text-[10px] text-[#66869F]">
-                    Cancelar
+                        class="rounded-full w-1/2 border border-gray-200 px-4 py-1 text-[13px] text-[#66869F]">
+                    CANCELAR
                 </button>
 
                 <button type="submit"
-                        class="rounded-full bg-[#073B57] px-4 py-2 text-[10px] text-white hover:bg-[#0B4D70]">
-                    Crear plan
+                        class="rounded-full w-1/2 bg-[#073B57] px-4 py-1 text-[13px] text-white hover:bg-[#0B4D70]">
+                    CREAR PLAN
                 </button>
             </div>
         </form>
