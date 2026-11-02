@@ -133,7 +133,7 @@
                         </div>
 
                         <form method="POST"
-                              action="#editar"
+                              action="{{ url_for('rutas_admin_cobertura.editar_plan', cobertura_id=cobertura.id, plan_id=plan.id) }}"
                               class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                             <div>
@@ -206,8 +206,8 @@
                             </p>
                         </div>
 
-                        <form method="POST"
-                              action="#eliminar"
+                        <form method="DELETE"
+                              action="{{ url_for('rutas_admin_cobertura.eliminar_plan', cobertura_id=cobertura.id, plan_id=plan.id) }}"
                               class="mt-5 flex justify-end gap-2">
 
                             <button type="button"
@@ -281,7 +281,7 @@
             </p>
 
             <div class="mt-5 border-t border-gray-200 pt-3">
-                <a href="#listar"
+                <a href="{{ url_for('rutas_admin_cobertura.obtener_coberturas') }}"
                    class="inline-flex items-center gap-1 text-[10px] text-[#66869F] hover:text-[#073B57]">
                     <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
                     Volver a coberturas
@@ -319,7 +319,7 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
             <form method="POST"
-                  action="#editar"
+                  action="{{ url_for('rutas_admin_cobertura.editar_cobertura', cobertura_id=cobertura.id) }}"
                   class="space-y-2">
 
                 <label for="nombre-cobertura"
@@ -391,8 +391,8 @@
             </p>
         </div>
 
-        <form method="POST"
-              action="#eliminar"
+        <form method="DELETE"
+              action="{{ url_for('rutas_admin_cobertura.eliminar_cobertura', cobertura_id=cobertura.id) }}"
               class="mt-5 flex justify-end gap-2">
 
             <button type="button"
@@ -432,7 +432,7 @@
         </div>
 
         <form method="POST"
-              action="#crear"
+              action="{{ url_for('rutas_admin_cobertura.crear_plan', cobertura_id=cobertura.id) }}"
               class="space-y-4">
 
             <div>

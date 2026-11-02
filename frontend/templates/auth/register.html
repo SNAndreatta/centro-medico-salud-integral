@@ -261,7 +261,7 @@
                     ¿Ya tenés una cuenta?
 
                     <a
-                        href="#login"
+                        href="{{ url_for('rutas_auth.login') }}"
                         class="font-semibold font-lexend text-acento underline-offset-4 hover:underline"
                     >
                         Iniciá sesión
@@ -269,12 +269,6 @@
                 </p>
 
             </div>
-
-            <!-- Protección de datos -->
-            <p class="mt-5 flex items-center justify-center gap-2 text-xs font-lexend text-slate-500">
-                <i data-lucide="shield-check" class="h-4 w-4"></i>
-                Tu información está protegida
-            </p>
 
         </section>
     </main>

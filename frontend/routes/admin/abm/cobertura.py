@@ -4,7 +4,7 @@ cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
 
 
 # DATOS DE PRUEBA
-def obtener_coberturas():
+def listar_coberturas():
     return [
         {"id": 1, "nombre": "Galeno", "cantidad_planes": 4},
         {"id": 2, "nombre": "IOMA", "cantidad_planes": 12},
@@ -16,9 +16,9 @@ def obtener_coberturas():
 
 # LISTADO DE COBERTURAS
 @cobertura_routes.route('/admin/coberturas')
-def listar_coberturas():
+def obtener_coberturas():
 
-    coberturas = obtener_coberturas()
+    coberturas = listar_coberturas()
 
     return render_template(
         'admin/abm/coberturas/index.html',
@@ -30,7 +30,7 @@ def listar_coberturas():
 @cobertura_routes.route('/admin/coberturas/<int:cobertura_id>')
 def detalle_cobertura(cobertura_id):
 
-    coberturas = obtener_coberturas()
+    coberturas = listar_coberturas()
 
     cobertura = next(
         (c for c in coberturas if c["id"] == cobertura_id),
@@ -94,8 +94,9 @@ def crear_cobertura():
 
     # TODO: guardar la cobertura en la base de datos.
 
-    return redirect(url_for('rutas_admin_prefijo_api.listar_coberturas'))
-
+    return redirect(
+        url_for('rutas_admin_cobertura.obtener_coberturas')
+    )
 
 # EDITAR COBERTURA
 @cobertura_routes.route(
@@ -113,7 +114,7 @@ def editar_cobertura(cobertura_id):
 
     return redirect(
         url_for(
-            'rutas_admin_prefijo_api.detalle_cobertura',
+            'rutas_admin_cobertura.detalle_cobertura',
             cobertura_id=cobertura_id
         )
     )
@@ -129,7 +130,7 @@ def eliminar_cobertura(cobertura_id):
     # TODO: eliminar la cobertura de la base de datos.
     # Antes de eliminar, verificar si tiene planes o médicos asociados.
 
-    return redirect(url_for('rutas_admin_prefijo_api.listar_coberturas'))
+    return redirect(url_for('rutas_admin_cobertura.obtener_coberturas'))
 
 
 # CREAR PLAN
@@ -148,7 +149,7 @@ def crear_plan(cobertura_id):
 
     return redirect(
         url_for(
-            'rutas_admin_prefijo_api.detalle_cobertura',
+            'rutas_admin_cobertura.detalle_cobertura',
             cobertura_id=cobertura_id
         )
     )
@@ -170,7 +171,7 @@ def editar_plan(cobertura_id, plan_id):
 
     return redirect(
         url_for(
-            'rutas_admin_prefijo_api.detalle_cobertura',
+            'rutas_admin_cobertura.detalle_cobertura',
             cobertura_id=cobertura_id
         )
     )
@@ -187,7 +188,7 @@ def eliminar_plan(cobertura_id, plan_id):
 
     return redirect(
         url_for(
-            'rutas_admin_prefijo_api.detalle_cobertura',
+            'rutas_admin_cobertura.detalle_cobertura',
             cobertura_id=cobertura_id
         )
     )

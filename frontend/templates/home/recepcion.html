@@ -15,9 +15,9 @@
 <!-- Opciones principales -->
 <nav aria-label="Menú principal de paciente" class="space-y-5 sm:space-y-6">
 
-    <!-- Ver mis turnos -->
+    <!-- Ver turnos -->
     <a
-        href="#"
+        href="{{ url_for('rutas_recepcion.ver_turnos') }}"
         class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
     >
 
@@ -33,9 +33,9 @@
     </a>
 
 
-    <!-- Solicitar turno -->
+    <!-- Ver sala de espera -->
     <a
-        href="#"
+        href="{{ url_for('rutas_recepcion.sala_espera') }}"
         class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
     >
 
@@ -51,14 +51,14 @@
     </a>
 
 
-    <!-- Mi historial clínico -->
+    <!-- Ver usuarios -->
     <a
-        href="#"
+        href="{{ url_for('rutas_recepcion.ver_usuarios') }}"
         class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-background px-5 py-5 transition hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-acento/30 sm:min-h-[84px] sm:px-7"
     >
 
         <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
-            VER TURNOS
+            VER USUARIOS
         </span>
 
         <i

@@ -125,7 +125,7 @@ usuarios = [
 # =================================
 
 @usuario_routes.route("/usuarios")
-def usuarios_index():
+def obtener_usuarios():
 
     return render_template(
         "admin/abm/usuarios/index.html",

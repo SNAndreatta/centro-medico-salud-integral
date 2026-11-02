@@ -52,7 +52,7 @@
                     </span>
 
                     <div class="flex justify-end">
-                        <a href="#detalle"
+                        <a href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
                            class="inline-flex h-[22px] items-center gap-1 rounded-full bg-[#66869F] px-2.5 text-[9px] font-medium tracking-wide text-white transition hover:bg-[#073B57]">
                             DETALLES
                             <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
@@ -113,7 +113,7 @@
         </div>
 
         <form method="POST"
-              action="#crear"
+              action="{{ url_for('rutas_admin_cobertura.crear_cobertura') }}"
               class="space-y-4">
 
             <div>

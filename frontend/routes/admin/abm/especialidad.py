@@ -43,7 +43,7 @@ especialidades = [
 
 # Mostrar especialidades
 @especialidad_routes.route("/especialidades/")
-def especialidades_index():
+def obtener_especialidades():
 
     # Calculamos la cantidad de médicos de cada especialidad
     for especialidad in especialidades:

@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import render_template, request
+from flask import Blueprint, render_template, request
 
 consultorio_routes = Blueprint('rutas_admin_consultorio', __name__)
 
@@ -16,7 +15,7 @@ pisos_disponibles = [1, 2, 3, 4, 5]
 
 
 @consultorio_routes.route("/consultorios")
-def consultorios_view():
+def obtener_consultorios():
     return render_template(
         "/admin/abm/consultorios/index.html",
         consultorios=consultorios,

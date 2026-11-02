@@ -1,43 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil del médico | Salud Integral</title>
+{% block title %}Mi perfil | Salud Integral{% endblock %}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-
-<body class="min-h-screen bg-white font-sans text-[#073B57]">
-
-    <div class="mx-auto my-4 min-h-[calc(100vh-2rem)] w-[96%] bg-[#e7ecf1] px-5 py-4 sm:px-8">
-
-        <!-- ENCABEZADO -->
-        <header class="mb-5 flex items-center justify-between">
-
-            <div class="flex items-center gap-2">
-                <div class="flex h-9 w-9 items-center justify-center rounded-sm bg-[#073B57] text-white">
-                    <i data-lucide="activity" class="h-6 w-6"></i>
-                </div>
-
-                <div>
-                    <p class="text-[7px] uppercase tracking-widest">
-                        Centro médico de
-                    </p>
-
-                    <h1 class="font-serif text-2xl font-bold leading-none">
-                        Salud Integral
-                    </h1>
-                </div>
-            </div>
-
-            <button type="button" aria-label="Perfil">
-                <i data-lucide="circle-user-round" class="h-8 w-8"></i>
-            </button>
-
-        </header>
+{% block content %}
 
 
         <!-- TARJETA DE INFORMACIÓN DEL MÉDICO -->
@@ -125,7 +90,7 @@
 
             <!-- Ver turnos -->
             <a
-                href="#"
+                href="{{ url_for('rutas_admin_medico.turnos', id_medico=medico.id) }}"
                 class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 hover:bg-[#f8fafb]"
             >
                 <div>
@@ -144,7 +109,7 @@
 
             <!-- Ver agenda -->
             <a
-                href="#"
+                href="{{ url_for('rutas_admin_medico.agenda', id_medico=medico.id) }}"
                 class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 hover:bg-[#f8fafb]"
             >
                 <div>
@@ -213,10 +178,10 @@
                     </span>
 
                     <a
-                        href="#"
+                        href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
                         class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1 text-[9px] text-white hover:bg-[#073B57]"
                     >
-                        Ir al cobertura
+                        Detalles
                         <i data-lucide="chevron-right" class="h-3 w-3"></i>
                     </a>
 
@@ -242,5 +207,4 @@
 
     <script src="{{ url_for('static', filename='js/admin/abm/profile.js') }}"></script>
 
-</body>
-</html>
+{% endblock %}

@@ -58,7 +58,7 @@
 
                     <!-- Ir al perfil -->
                     <a
-                        href="#"
+                        href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id) }}"
                         class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1.5 text-[10px] text-white hover:bg-[#073B57] sm:text-xs"
                     >
                         Ir al perfil

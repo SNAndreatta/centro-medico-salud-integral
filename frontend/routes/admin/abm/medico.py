@@ -81,7 +81,7 @@ medicos = [
 # =================================
 
 @medico_admin_routes.route("/medicos/")
-def medicos_index():
+def obtener_medicos():
 
     return render_template(
         "admin/abm/medicos/index.html",
