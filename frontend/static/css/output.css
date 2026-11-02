@@ -253,6 +253,9 @@
   .pointer-events-none {
     pointer-events: none;
   }
+  .visible {
+    visibility: visible;
+  }
   .sr-only {
     position: absolute;
     width: 1px;
@@ -522,6 +525,9 @@
   .table {
     display: table;
   }
+  .h-0 {
+    height: 0px;
+  }
   .h-3 {
     height: calc(var(--spacing) * 3);
   }
@@ -678,6 +684,9 @@
   .min-h-screen {
     min-height: 100vh;
   }
+  .w-0 {
+    width: 0px;
+  }
   .w-1 {
     width: var(--spacing);
   }
@@ -761,6 +770,9 @@
   }
   .w-\[94\%\] {
     width: 94%;
+  }
+  .w-\[125px\] {
+    width: 125px;
   }
   .w-full {
     width: 100%;
@@ -2033,6 +2045,9 @@
   .accent-\[\#66869F\] {
     accent-color: #66869F;
   }
+  .opacity-0 {
+    opacity: 0%;
+  }
   .shadow-lg {
     --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -2075,6 +2090,10 @@
   .outline-none {
     --tw-outline-style: none;
     outline-style: none;
+  }
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
   }
   @media (hover: hover) {
     .group-hover\:scale-110:is(:where(.group):hover *) {

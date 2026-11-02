@@ -59,7 +59,7 @@
     <!-- ACCESOS -->
     <section class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
-        <a href="#"
+        <a href="{{ url_for('rutas_admin_medico.turnos', id_medico=medico.id) }}"
            class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 transition hover:bg-[#f8fafb]">
             <div>
                 <h3 class="text-base font-bold text-acento">VER TURNOS</h3>
@@ -70,7 +70,7 @@
             <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
         </a>
 
-        <a href="#"
+        <a href="{{ url_for('rutas_admin_medico.agenda', id_medico=medico.id) }}"
            class="flex min-h-[70px] items-center justify-between rounded-xl bg-white px-4 py-3 transition hover:bg-[#f8fafb]">
             <div>
                 <h3 class="text-base font-bold text-acento">VER AGENDA</h3>
@@ -122,7 +122,7 @@
                     {{ cobertura.nombre }}
                 </span>
 
-                <a href="#"
+                <a href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
                    class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1 text-[9px] text-white hover:bg-[#073B57]">
                     Detalles
                     <i data-lucide="chevron-right" class="h-3 w-3"></i>

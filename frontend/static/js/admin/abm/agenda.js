@@ -1,137 +1,320 @@
-document.addEventListener("DOMContentLoaded", function () {
 
-    // =================================
-    // ELEMENTOS
-    // =================================
+document.addEventListener("DOMContentLoaded", () => {
 
-    const botonAnterior = document.getElementById("semanaAnterior");
-    const botonSiguiente = document.getElementById("semanaSiguiente");
-    const rangoSemana = document.getElementById("rangoSemana");
+    // ==========================================
+    // ELEMENTOS DEL DOM
+    // ==========================================
+
+    const datosAgenda = document.getElementById("datosAgenda");
+
+    const selectorFecha = document.getElementById("selectorFecha");
+    const contenedorFecha = document.getElementById("contenedorFecha");
+    const fechaVisible = document.getElementById("fechaVisible");
 
     const horarios = document.querySelectorAll(".horario-agenda");
 
     const horaTurno = document.getElementById("horaTurno");
     const fechaTurno = document.getElementById("fechaTurno");
 
-    const datosAgenda = document.getElementById("datosAgenda");
 
-    let fechaInicio = new Date(
-        datosAgenda.dataset.fechaInicio + "T12:00:00"
-    );
+    // ==========================================
+    // FUNCIONES DE FECHAS
+    // ==========================================
+
+    function obtenerFechaISO(fecha) {
+
+        const anio = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+        const dia = String(fecha.getDate()).padStart(2, "0");
+
+        return `${anio}-${mes}-${dia}`;
+    }
 
 
-    // =================================
-    // FORMATEAR FECHAS
-    // =================================
+    function obtenerLunes(fecha) {
+
+        const lunes = new Date(fecha);
+
+        const diaSemana = lunes.getDay();
+
+        lunes.setDate(
+            lunes.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1)
+        );
+
+        lunes.setHours(0, 0, 0, 0);
+
+        return lunes;
+    }
+
 
     function formatearFecha(fecha) {
-        const dia = String(fecha.getDate()).padStart(2, "0");
-        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-        const anio = fecha.getFullYear();
 
-        return dia + " - " + mes + " - " + anio;
-    }
-
-    function formatearRango() {
-
-        const fin = new Date(fechaInicio);
-        fin.setDate(fin.getDate() + 5);
-
-        const opciones = {
+        return fecha.toLocaleDateString("es-AR", {
             day: "2-digit",
-            month: "short"
-        };
-
-        const inicioTexto = fechaInicio
-            .toLocaleDateString("es-AR", opciones)
-            .toUpperCase();
-
-        const finTexto = fin
-            .toLocaleDateString("es-AR", opciones)
-            .toUpperCase();
-
-        rangoSemana.textContent = inicioTexto + " - " + finTexto;
+            month: "2-digit",
+            year: "numeric"
+        });
     }
 
 
-    // =================================
-    // ACTUALIZAR FECHAS DE LOS HORARIOS
-    // =================================
+    // ==========================================
+    // FECHA INICIAL
+    // ==========================================
 
-    function actualizarFechas() {
+    let fechaInicio =
+        selectorFecha?.value ||
+        datosAgenda?.dataset.fechaInicio;
 
-        horarios.forEach(function (horario) {
+    if (!fechaInicio) {
+        fechaInicio = obtenerFechaISO(new Date());
+    }
 
-            const indiceDia = Number(horario.dataset.dia);
 
-            const fecha = new Date(fechaInicio);
-            fecha.setDate(fecha.getDate() + indiceDia);
+    // ==========================================
+    // ACTUALIZAR FECHAS DE LA AGENDA
+    // ==========================================
 
-            horario.dataset.fecha = formatearFecha(fecha);
+    function actualizarFechas(lunes) {
+
+        // Actualizar fecha de cada horario
+
+        horarios.forEach((horario) => {
+
+            const indiceDia = Number(horario.dataset.dia || 0);
+
+            const fecha = new Date(lunes);
+
+            fecha.setDate(lunes.getDate() + indiceDia);
+
+            horario.dataset.fecha = obtenerFechaISO(fecha);
 
         });
 
-        formatearRango();
+
+        // Actualizar encabezados de los días
+
+        const encabezados = document.querySelectorAll("[data-fecha-dia]");
+
+        encabezados.forEach((encabezado, indice) => {
+
+            const fecha = new Date(lunes);
+
+            fecha.setDate(lunes.getDate() + indice);
+
+            encabezado.textContent = String(fecha.getDate()).padStart(2, "0");
+
+        });
+
+
+        // Actualizar fecha visible
+
+        if (fechaVisible) {
+            fechaVisible.textContent = formatearFecha(lunes);
+        }
+
     }
 
 
-    // =================================
-    // CAMBIAR DE SEMANA
-    // =================================
+    // ==========================================
+    // LIMPIAR SELECCIÓN DE HORARIO
+    // ==========================================
 
-    botonAnterior.addEventListener("click", function () {
+    function limpiarSeleccion() {
 
-        fechaInicio.setDate(fechaInicio.getDate() - 7);
+        horarios.forEach((horario) => {
 
-        actualizarFechas();
+            horario.classList.remove(
+                "bg-acento",
+                "text-white",
+                "seleccionado"
+            );
 
-    });
+            horario.classList.add(
+                "bg-dominante",
+                "text-acento"
+            );
 
-    botonSiguiente.addEventListener("click", function () {
+            horario.removeAttribute("aria-current");
 
-        fechaInicio.setDate(fechaInicio.getDate() + 7);
-
-        actualizarFechas();
-
-    });
+        });
 
 
-    // =================================
-    // SELECCIONAR HORARIO
-    // =================================
+        if (horaTurno) {
+            horaTurno.textContent = "—";
+        }
 
-    horarios.forEach(function (horario) {
+        if (fechaTurno) {
+            fechaTurno.textContent = "—";
+        }
 
-        horario.addEventListener("click", function () {
+    }
 
-            if (horario.dataset.disponible !== "true") {
+
+    // ==========================================
+    // SELECTOR DE CALENDARIO
+    // ==========================================
+
+    if (selectorFecha && contenedorFecha) {
+
+        // Evitar escritura manual
+
+        selectorFecha.addEventListener("keydown", (event) => {
+            event.preventDefault();
+        });
+
+
+        selectorFecha.addEventListener("paste", (event) => {
+            event.preventDefault();
+        });
+
+
+        selectorFecha.addEventListener("drop", (event) => {
+            event.preventDefault();
+        });
+
+
+        // El input ocupa todo el contenedor.
+        // El navegador abre el calendario nativo directamente.
+
+        selectorFecha.addEventListener("change", () => {
+
+            if (!selectorFecha.value) return;
+
+            const [anio, mes, dia] = selectorFecha.value
+                .split("-")
+                .map(Number);
+
+            const fechaSeleccionada = new Date(
+                anio,
+                mes - 1,
+                dia
+            );
+
+            // Calcular lunes de la semana seleccionada
+
+            const lunes = obtenerLunes(fechaSeleccionada);
+
+            fechaInicio = obtenerFechaISO(lunes);
+
+            // Actualizar selector al lunes correspondiente
+
+            selectorFecha.value = fechaInicio;
+
+            // Actualizar agenda
+
+            actualizarFechas(lunes);
+
+            // Limpiar turno seleccionado
+
+            limpiarSeleccion();
+
+        });
+
+    }
+
+
+    // ==========================================
+    // SELECCIÓN DE HORARIOS
+    // ==========================================
+
+    horarios.forEach((horario) => {
+
+        horario.addEventListener("click", () => {
+
+            // No permitir seleccionar horarios ocupados
+
+            if (
+                horario.classList.contains("ocupado") ||
+                horario.dataset.disponible === "false"
+            ) {
                 return;
             }
 
+
             // Quitar selección anterior
-            horarios.forEach(function (otroHorario) {
-                otroHorario.classList.remove("bg-[#003B5C]", "text-white");
-                otroHorario.classList.add("bg-[#e7ecef]", "text-[#073B57]");
-            });
 
-            // Marcar horario seleccionado
-            horario.classList.remove("bg-[#e7ecef]", "text-[#073B57]");
-            horario.classList.add("bg-[#003B5C]", "text-white");
+            limpiarSeleccion();
 
-            // Actualizar turno seleccionado
-            horaTurno.textContent = horario.dataset.hora;
-            fechaTurno.textContent = horario.dataset.fecha;
+
+            // Seleccionar horario actual
+
+            horario.classList.remove(
+                "bg-dominante",
+                "text-acento"
+            );
+
+            horario.classList.add(
+                "bg-acento",
+                "text-white",
+                "seleccionado"
+            );
+
+            horario.setAttribute("aria-current", "true");
+
+
+            // Obtener hora y fecha
+
+            const hora =
+                horario.dataset.hora ||
+                horario.textContent.trim();
+
+            const fecha = horario.dataset.fecha;
+
+
+            // Actualizar resumen del turno
+
+            if (horaTurno) {
+                horaTurno.textContent = hora;
+            }
+
+
+            if (fechaTurno && fecha) {
+
+                const [anio, mes, dia] = fecha.split("-").map(Number);
+
+                const fechaSeleccionada = new Date(
+                    anio,
+                    mes - 1,
+                    dia
+                );
+
+                fechaTurno.textContent = formatearFecha(fechaSeleccionada);
+
+            }
 
         });
 
     });
 
 
-    // =================================
-    // INICIALIZAR
-    // =================================
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
 
-    actualizarFechas();
-    lucide.createIcons();
+    const [anio, mes, dia] = fechaInicio.split("-").map(Number);
+
+    const fechaInicial = new Date(
+        anio,
+        mes - 1,
+        dia
+    );
+
+    const lunesInicial = obtenerLunes(fechaInicial);
+
+    actualizarFechas(lunesInicial);
+
+
+    if (selectorFecha) {
+        selectorFecha.value = fechaInicio;
+    }
+
+
+    // ==========================================
+    // ICONOS LUCIDE
+    // ==========================================
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 
 });
