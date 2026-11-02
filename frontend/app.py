@@ -39,10 +39,6 @@ app.register_blueprint(ausentismo_admin_routes)
 app.register_blueprint(disponibilidad_consultorios_admin_routes)
 app.register_blueprint(tiempo_espera_admin_routes)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
 @app.context_processor
 def agregar_datos_globales():
     rol = session.get("rol", "paciente")
