@@ -219,3 +219,63 @@ def buscar_turnos(
     finally:
         cursor.close()
         conexion.close()
+
+def insertar_turnos_disponibles(turnos):
+    if not turnos:
+        return 0
+
+    turnos_por_agenda = {}
+
+    for turno in turnos:
+        id_agenda = turno['id_agenda']
+        turnos_por_agenda.setdefault(id_agenda, []).append(turno['fecha_horario_inicial'])
+    conexion, cursor = obtener_cursor()
+    cantidad_insertada = 0
+
+    try:
+        for id_agenda in sorted(turnos_por_agenda):
+            cursor.execute(
+                """
+                    SELECT id_agenda FROM agenda WHERE id_agenda = %s FOR UPDATE
+                """, (id_agenda,)
+            )
+            if cursor.fetchone() is None:
+                continue
+
+            cursor.execute(
+                """
+                    SELECT fecha_horario_inicial FROM turno
+                    WHERE id_agenda = %s FOR UPDATE
+                """, (id_agenda,)
+            )
+
+            existentes = {
+                fila['fecha_horario_inicial']
+                for fila in cursor.fetchall()
+            }
+
+            nuevos = []
+
+            for fecha_horario in turnos_por_agenda[id_agenda]:
+                if fecha_horario not in existentes:
+                    nuevos.append((id_agenda, fecha_horario))
+                    existentes.add(fecha_horario)
+
+            if nuevos:
+                cursor.executemany(
+                    """
+                        INSERT INTO turno(id_agenda, id_paciente, id_estado, fecha_horario_inicial)
+                        VALUES (%s, NULL, 1, %s)
+                    """, (nuevos)
+                )
+                cantidad_insertada += cursor.rowcount
+
+        conexion.commit()
+        return cantidad_insertada
+    except Exception:
+        conexion.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        conexion.close()
