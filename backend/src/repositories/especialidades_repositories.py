@@ -130,7 +130,7 @@ def borrar_especialidad(id_especialidad):
         """
         cursor.execute(consulta,(id_especialidad,))
         conexion.commit()
-        return None, 'OK'
+        return 'OK', None
     except mysql.connector.IntegrityError:
         conexion.rollback()
         return None, 'EN_USO'
