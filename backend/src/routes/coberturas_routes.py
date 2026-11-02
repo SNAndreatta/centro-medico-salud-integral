@@ -6,6 +6,10 @@ from src.services.coberturas_services import (
     listar_coberturas,
     modificar_cobertura,
 )
+from src.services.planes_services import (
+    crear_plan,
+    listar_planes_por_cobertura,
+)
 from src.utils.auth import roles_required, token_required
 from src.utils.http_errors import handle_unexpected_errors
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
@@ -53,4 +57,25 @@ def editar_cobertura(id_cobertura):
 @roles_required(ADMINISTRADOR)
 def baja_cobertura(id_cobertura):
     respuesta, status_code = eliminar_cobertura(id_cobertura)
+    return respuesta, status_code
+
+@coberturas_bp.get('/coberturas/<int:id_cobertura>/planes')
+@handle_unexpected_errors
+@token_required
+@roles_required(*ROLES_VALIDOS)
+def obtener_planes(id_cobertura):
+    respuesta, status_code = listar_planes_por_cobertura(id_cobertura)
+    return respuesta, status_code
+ 
+@coberturas_bp.post('/coberturas/<int:id_cobertura>/planes')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR)
+def alta_plan(id_cobertura):
+    datos = request.get_json(silent=True)
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
+
+    respuesta, status_code = crear_plan(id_cobertura, datos)
     return respuesta, status_code
