@@ -1,51 +1,208 @@
+
 {% extends "base.html" %}
 
 {% block title %}Sala de espera | Salud Integral{% endblock %}
 
 {% block content %}
 
-            <!-- Título y botón de ingreso -->
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-400/70 px-1 pb-1">
+<div class="w-full">
 
-                <h2 class="text-lg font-bold font-lexend tracking-wide text-acento sm:text-2xl">
-                    SALA DE ESPERA
-                </h2>
-            </div>
+    <!-- ENCABEZADO Y FILTRO -->
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-400/70 px-1 pb-2">
 
-            <!-- Listado de pacientes -->
-            <section aria-label="Pacientes en espera" class="space-y-3.5 sm:space-y-4">
+        <h2 class="text-lg font-bold font-lexend tracking-wide text-acento sm:text-2xl">
+            SALA DE ESPERA
+        </h2>
 
-                {% for paciente in pacientes_en_espera %}
+        <!-- FILTRO POR ESPECIALIDAD -->
+        <div class="relative">
 
-                    {% include "recepcion/_card_paciente.html" %}
+            <select
+                id="filtroRol"
+                class="w-48 appearance-none rounded-full border border-[#d5dfe5] bg-white px-3 py-2 pr-8 text-xs text-[#7190a5] outline-none transition focus:border-acento focus:ring-1 focus:ring-acento/20"
+            >
 
-                {% else %}
+                <option value="">
+                    Todas las especialidades
+                </option>
 
-                    <!-- Estado sin pacientes -->
-                    <div class="flex flex-col items-center justify-center rounded-2xl bg-background px-5 py-12 text-center">
+                {% for especialidad in especialidades %}
 
-                        <i data-lucide="users-round" class="mb-4 h-12 w-12 text-slate-400"></i>
-
-                        <h3 class="font-gelasio text-xl font-semibold text-acento sm:text-2xl">
-                            Sala de espera vacía
-                        </h3>
-
-                        <p class="mt-2 text-sm font-lexend text-slate-500">
-                            Todavía no hay pacientes esperando atención.
-                        </p>
-
-                    </div>
+                    <option value="{{ especialidad.nombre | lower }}">
+                        {{ especialidad.nombre }}
+                    </option>
 
                 {% endfor %}
 
-            </section>
+            </select>
 
-        </section>
+            <i
+                data-lucide="sliders-horizontal"
+                class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7190a5]"
+            ></i>
 
-    </main>
+        </div>
 
-    <script>
-        lucide.createIcons();
-    </script>
-    
+    </div>
+
+
+    <!-- LISTADO DE PACIENTES -->
+    <section
+        id="listaPacientes"
+        aria-label="Pacientes en espera"
+        class="space-y-3.5 sm:space-y-4"
+    >
+
+        {% for paciente in pacientes_en_espera %}
+
+            <!-- CONTENEDOR CON ESPECIALIDAD DEL PACIENTE -->
+            <div
+                class="tarjeta-paciente"
+                data-especialidad="{{ paciente.especialidad | lower | trim }}"
+            >
+
+                {% include "recepcion/_card_paciente.html" %}
+
+            </div>
+
+        {% else %}
+
+            <!-- SALA DE ESPERA VACÍA -->
+            <div
+                id="estadoVacio"
+                class="flex flex-col items-center justify-center rounded-2xl bg-background px-5 py-12 text-center"
+            >
+
+                <i data-lucide="users-round" class="mb-4 h-12 w-12 text-slate-400"></i>
+
+                <h3 class="font-gelasio text-xl font-semibold text-acento sm:text-2xl">
+                    Sala de espera vacía
+                </h3>
+
+                <p class="mt-2 text-sm font-lexend text-slate-500">
+                    Todavía no hay pacientes esperando atención.
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+
+        <!-- SIN RESULTADOS PARA EL FILTRO -->
+        <div
+            id="sinResultados"
+            class="hidden flex-col items-center justify-center rounded-2xl bg-background px-5 py-12 text-center"
+        >
+
+            <i data-lucide="search-x" class="mb-4 h-12 w-12 text-slate-400"></i>
+
+            <h3 class="font-gelasio text-xl font-semibold text-acento sm:text-2xl">
+                No hay pacientes
+            </h3>
+
+            <p class="mt-2 text-sm font-lexend text-slate-500">
+                No hay pacientes esperando atención en esta especialidad.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================
+     FILTRO DE PACIENTES POR ESPECIALIDAD
+========================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const filtro = document.getElementById("filtroRol");
+
+    const tarjetas = document.querySelectorAll(".tarjeta-paciente");
+
+    const sinResultados = document.getElementById("sinResultados");
+
+    if (!filtro) return;
+
+
+    // Normalizar texto para evitar problemas con tildes
+    // y diferencias entre mayúsculas y minúsculas.
+    function normalizarTexto(texto) {
+
+        return texto
+            .toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+    }
+
+
+    // Aplicar filtro.
+    function filtrarPacientes() {
+
+        const especialidadSeleccionada = normalizarTexto(
+            filtro.value
+        );
+
+        let pacientesVisibles = 0;
+
+
+        tarjetas.forEach(function (tarjeta) {
+
+            const especialidadPaciente = normalizarTexto(
+                tarjeta.dataset.especialidad || ""
+            );
+
+            // Si no hay especialidad seleccionada,
+            // mostrar todos los pacientes.
+            const coincide =
+                especialidadSeleccionada === "" ||
+                especialidadPaciente === especialidadSeleccionada;
+
+            tarjeta.style.display = coincide ? "" : "none";
+
+            if (coincide) {
+                pacientesVisibles++;
+            }
+
+        });
+
+
+        // Mostrar mensaje si no hay coincidencias.
+        if (sinResultados) {
+
+            if (tarjetas.length > 0 && pacientesVisibles === 0) {
+
+                sinResultados.classList.remove("hidden");
+                sinResultados.classList.add("flex");
+
+            } else {
+
+                sinResultados.classList.add("hidden");
+                sinResultados.classList.remove("flex");
+
+            }
+
+        }
+
+    }
+
+
+    // Escuchar cambios en el selector.
+    filtro.addEventListener("change", filtrarPacientes);
+
+
+    // Inicializar iconos.
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
+});
+
+</script>
+
 {% endblock %}

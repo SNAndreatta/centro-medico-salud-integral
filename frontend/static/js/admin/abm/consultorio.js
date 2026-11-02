@@ -2,79 +2,218 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // =========================================
-    // DESPLEGAR / OCULTAR CONSULTORIOS
+    // MENÚ DE TRES PUNTOS
     // =========================================
 
-    document.addEventListener("click", function (event) {
+    window.alternarMenu = function (id, boton) {
 
-        const boton = event.target.closest(".boton-consultorio");
+        const menu = document.getElementById(id);
 
-        // Si el clic no fue sobre un consultorio, no hacemos nada.
-        if (!boton) return;
+        if (!menu) return;
 
-        // Obtenemos el identificador del panel correspondiente.
-        const idDetalle = boton.getAttribute("aria-controls");
+        const estabaAbierto = !menu.classList.contains("hidden");
 
-        const detalle = document.getElementById(idDetalle);
+        cerrarMenus();
 
-        // Verificamos que exista el panel.
-        if (!detalle) {
-            console.error(
-                "No se encontró el detalle del consultorio:",
-                idDetalle
-            );
-            return;
-        }
+        if (!estabaAbierto) {
+            menu.classList.remove("hidden");
 
-        // Comprobamos si el consultorio ya estaba abierto.
-        const estabaAbierto =
-            boton.getAttribute("aria-expanded") === "true";
-
-
-        // =========================================
-        // CERRAR TODOS LOS CONSULTORIOS
-        // =========================================
-
-        document.querySelectorAll(".boton-consultorio").forEach(function (otroBoton) {
-
-            const otroId = otroBoton.getAttribute("aria-controls");
-
-            const otroDetalle = document.getElementById(otroId);
-
-            if (otroDetalle) {
-                otroDetalle.classList.add("hidden");
+            if (boton) {
+                boton.setAttribute("aria-expanded", "true");
             }
+        }
+    };
 
-            otroBoton.setAttribute("aria-expanded", "false");
 
-            const otroIcono = otroBoton.querySelector(".icono-consultorio");
+    // Cerrar todos los menús.
+    window.cerrarMenus = function () {
 
-            if (otroIcono) {
-                otroIcono.classList.remove("rotate-180");
+        document.querySelectorAll(".menu-consultorio").forEach(function (menu) {
+
+            menu.classList.add("hidden");
+
+            const contenedor = menu.parentElement;
+
+            if (contenedor) {
+                const boton = contenedor.querySelector(".boton-menu");
+
+                if (boton) {
+                    boton.setAttribute("aria-expanded", "false");
+                }
             }
 
         });
 
+    };
 
-        // =========================================
-        // ABRIR EL CONSULTORIO SELECCIONADO
-        // =========================================
 
-        if (!estabaAbierto) {
+    // Cerrar menú al hacer clic fuera.
+    document.addEventListener("click", function (event) {
 
-            detalle.classList.remove("hidden");
+        if (
+            !event.target.closest(".menu-consultorio") &&
+            !event.target.closest(".boton-menu")
+        ) {
+            cerrarMenus();
+        }
 
-            boton.setAttribute("aria-expanded", "true");
+    });
 
-            const icono = boton.querySelector(".icono-consultorio");
 
-            if (icono) {
-                icono.classList.add("rotate-180");
-            }
+    // =========================================
+    // ABRIR MODALES
+    // =========================================
+
+    window.abrirModal = function (id) {
+
+        const modal = document.getElementById(id);
+
+        if (!modal) {
+            console.error("No se encontró el modal:", id);
+            return;
+        }
+
+        cerrarMenus();
+
+        // Cerramos otros modales antes de abrir uno nuevo.
+        document.querySelectorAll(".modal-overlay").forEach(function (otroModal) {
+
+            otroModal.classList.add("hidden");
+            otroModal.classList.remove("flex");
+
+        });
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+
+        document.body.classList.add("overflow-hidden");
+
+        // Inicializar iconos del modal.
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+    };
+
+
+    // =========================================
+    // CERRAR MODALES
+    // =========================================
+
+    window.cerrarModal = function (id) {
+
+        const modal = document.getElementById(id);
+
+        if (!modal) return;
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+        // Restaurar scroll si no hay otro modal abierto.
+        const modalAbierto = document.querySelector(".modal-overlay.flex");
+
+        if (!modalAbierto) {
+            document.body.classList.remove("overflow-hidden");
+        }
+
+    };
+
+
+    // =========================================
+    // CERRAR AL HACER CLIC EN EL FONDO
+    // =========================================
+
+    window.cerrarSiFondo = function (event, id) {
+
+        if (event.target === event.currentTarget) {
+            cerrarModal(id);
+        }
+
+    };
+
+
+    // =========================================
+    // CERRAR CON ESCAPE
+    // =========================================
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+
+            cerrarMenus();
+
+            document.querySelectorAll(".modal-overlay.flex").forEach(function (modal) {
+                cerrarModal(modal.id);
+            });
 
         }
 
     });
+
+
+    // =========================================
+    // BUSCADOR DE CONSULTORIOS
+    // =========================================
+
+    const buscador = document.getElementById("buscadorConsultorio");
+
+    const filas = document.querySelectorAll(".fila-consultorio");
+
+    const sinResultados = document.getElementById("sinResultados");
+
+
+    if (buscador) {
+
+        buscador.addEventListener("input", function () {
+
+            const consulta = normalizarTexto(buscador.value);
+
+            let cantidadVisible = 0;
+
+            filas.forEach(function (fila) {
+
+                const datos = normalizarTexto(
+                    fila.dataset.busqueda || ""
+                );
+
+                const coincide = datos.includes(consulta);
+
+                fila.classList.toggle("hidden", !coincide);
+
+                if (coincide) {
+                    cantidadVisible++;
+                }
+
+            });
+
+
+            if (sinResultados) {
+
+                sinResultados.classList.toggle(
+                    "hidden",
+                    cantidadVisible > 0
+                );
+
+            }
+
+        });
+
+    }
+
+
+    // =========================================
+    // NORMALIZAR TEXTO
+    // =========================================
+
+    function normalizarTexto(texto) {
+
+        return texto
+            .toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+    }
 
 
     // =========================================

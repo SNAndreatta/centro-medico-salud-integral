@@ -1,6 +1,5 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for
-from datetime import date
 
 
 consultorio_routes = Blueprint(
@@ -40,112 +39,39 @@ pisos_disponibles = [1, 2, 3]
 
 
 # =========================================
-# HORARIOS SIMULADOS
+# FUNCIONES AUXILIARES
 # =========================================
 
-def obtener_horarios_consultorio(consultorio_id):
+def buscar_consultorio(consultorio_id):
 
-    """
-    Devuelve los horarios de un consultorio.
-
-    disponible = True  -> Horario disponible.
-    disponible = False -> Horario no disponible.
-    """
-
-    horarios = [
-        "08:00",
-        "08:30",
-        "09:00",
-        "09:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "12:00",
-        "12:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-    ]
-
-    # Patrones de disponibilidad de cada consultorio.
-    # True = Disponible.
-    # False = No disponible.
-
-    disponibilidad = {
-
-        111: [True, True, False, True, False, True, True, False,
-              True, True, False, True, True, False, True, True],
-
-        112: [False, True, True, False, True, True, False, True,
-              True, False, True, True, False, True, True, False],
-
-        113: [True, False, True, True, True, False, True, False,
-              True, True, True, False, True, False, True, True],
-
-        114: [True, True, True, False, False, True, True, True,
-              False, True, False, True, True, True, False, True],
-
-        201: [False, True, True, False, True, True, True, False,
-              True, False, True, True, False, True, True, True],
-
-        202: [True, False, True, True, False, True, False, True,
-              True, True, False, True, True, False, True, False],
-
-        203: [True, True, False, True, True, False, True, True,
-              False, True, True, False, True, True, False, True],
-
-        204: [False, True, False, True, True, True, False, True,
-              True, False, True, False, True, True, True, False],
-
-        301: [True, False, True, True, False, True, True, False,
-              True, True, False, True, False, True, True, True],
-
-        302: [True, True, False, True, True, False, True, True,
-              False, True, False, True, True, False, True, True],
-
-        303: [False, True, True, True, False, True, False, True,
-              True, True, False, True, True, False, True, False],
-
-        304: [True, False, True, False, True, True, True, False,
-              True, False, True, True, False, True, True, True],
-
-    }
-
-    # Buscamos el consultorio por su identificador.
-    consultorio = next(
+    return next(
         (
-            c for c in consultorios
-            if c["id"] == str(consultorio_id)
+            consultorio
+            for consultorio in consultorios
+            if consultorio["id"] == str(consultorio_id)
         ),
         None
     )
 
-    if consultorio is None:
-        return []
 
-    numero = consultorio["numero"]
+def existe_consultorio(piso, numero, excluir_id=None):
 
-    # Obtenemos el patrón correspondiente.
-    patron = disponibilidad.get(numero)
+    return any(
+        consultorio["piso"] == piso
+        and consultorio["numero"] == numero
+        and consultorio["id"] != str(excluir_id)
+        for consultorio in consultorios
+    )
 
-    if patron is None:
-        patron = [True] * len(horarios)
 
-    # Construimos la lista de horarios.
-    resultado = []
+def generar_nuevo_id():
 
-    for hora, disponible in zip(horarios, patron):
+    if not consultorios:
+        return "1"
 
-        resultado.append({
-            "hora": hora,
-            "disponible": disponible
-        })
-
-    return resultado
+    return str(
+        max(int(c["id"]) for c in consultorios) + 1
+    )
 
 
 # =========================================
@@ -173,28 +99,31 @@ def crear_consultorio():
 
     numero = request.form.get("numero", type=int)
 
-    if piso not in pisos_disponibles or numero is None or numero < 1:
+    # Validaciones.
+    if (
+        piso not in pisos_disponibles
+        or numero is None
+        or numero < 1
+    ):
+        return redirect(
+            url_for("rutas_admin_consultorio.obtener_consultorios")
+        )
+
+    # Evitar consultorios duplicados en el mismo piso.
+    if existe_consultorio(piso, numero):
 
         return redirect(
             url_for("rutas_admin_consultorio.obtener_consultorios")
         )
 
-    existe = any(
-        c["piso"] == piso and c["numero"] == numero
-        for c in consultorios
-    )
+    # Crear consultorio.
+    nuevo_consultorio = {
+        "id": generar_nuevo_id(),
+        "piso": piso,
+        "numero": numero
+    }
 
-    if not existe:
-
-        nuevo_id = str(
-            max(int(c["id"]) for c in consultorios) + 1
-        ) if consultorios else "1"
-
-        consultorios.append({
-            "id": nuevo_id,
-            "piso": piso,
-            "numero": numero
-        })
+    consultorios.append(nuevo_consultorio)
 
     return redirect(
         url_for("rutas_admin_consultorio.obtener_consultorios")
@@ -202,71 +131,73 @@ def crear_consultorio():
 
 
 # =========================================
-# DISPONIBILIDAD DE CONSULTORIOS
+# EDITAR CONSULTORIO
 # =========================================
 
-@consultorio_routes.route("/disponibilidad-consultorios")
-def disponibilidad_consultorios():
+@consultorio_routes.route(
+    "/consultorios/<consultorio_id>/editar",
+    methods=["POST"]
+)
+def editar_consultorio(consultorio_id):
 
-    # -------------------------------------
-    # FECHA SELECCIONADA
-    # -------------------------------------
+    consultorio = buscar_consultorio(consultorio_id)
 
-    fecha = request.args.get("fecha")
+    if consultorio is None:
+        return redirect(
+            url_for("rutas_admin_consultorio.obtener_consultorios")
+        )
 
-    if fecha:
+    piso = request.form.get("piso", type=int)
 
-        try:
-            date.fromisoformat(fecha)
+    numero = request.form.get("numero", type=int)
 
-        except ValueError:
-            fecha = date.today().isoformat()
+    # Validar datos.
+    if (
+        piso not in pisos_disponibles
+        or numero is None
+        or numero < 1
+    ):
+        return redirect(
+            url_for("rutas_admin_consultorio.obtener_consultorios")
+        )
 
-    else:
-        fecha = date.today().isoformat()
+    # Evitar duplicados, excepto el propio consultorio.
+    if existe_consultorio(
+        piso,
+        numero,
+        excluir_id=consultorio_id
+    ):
 
+        return redirect(
+            url_for("rutas_admin_consultorio.obtener_consultorios")
+        )
 
-    # -------------------------------------
-    # AGRUPAR CONSULTORIOS POR PISO
-    # -------------------------------------
+    # Actualizar datos.
+    consultorio["piso"] = piso
 
-    pisos = []
+    consultorio["numero"] = numero
 
-    for numero_piso in pisos_disponibles:
-
-        consultorios_del_piso = []
-
-        for consultorio in consultorios:
-
-            if consultorio["piso"] == numero_piso:
-
-                consultorio_con_horarios = {
-                    **consultorio,
-
-                    "horarios": obtener_horarios_consultorio(
-                        consultorio["id"]
-                    )
-                }
-
-                consultorios_del_piso.append(
-                    consultorio_con_horarios
-                )
-
-        # Agregamos únicamente los pisos que tienen consultorios.
-        if consultorios_del_piso:
-
-            pisos.append({
-                "numero": numero_piso,
-                "consultorios": consultorios_del_piso
-            })
+    return redirect(
+        url_for("rutas_admin_consultorio.obtener_consultorios")
+    )
 
 
-    # -------------------------------------
-    # ENVIAR INFORMACIÓN A LA PLANTILLA
-    # -------------------------------------
+# =========================================
+# ELIMINAR CONSULTORIO
+# =========================================
 
-    return render_template(
-        "admin/dashboards/disponibilidad_consultorio.html",
-        pisos=pisos,
-        fecha=fecha
+@consultorio_routes.route(
+    "/consultorios/<consultorio_id>/eliminar",
+    methods=["POST"]
+)
+def eliminar_consultorio(consultorio_id):
+
+    consultorio = buscar_consultorio(consultorio_id)
+
+    if consultorio is not None:
+
+        consultorios.remove(consultorio)
+
+    return redirect(
+        url_for("rutas_admin_consultorio.obtener_consultorios")
     )
