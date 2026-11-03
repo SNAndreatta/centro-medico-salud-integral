@@ -23,6 +23,10 @@
                     colors: {
                         acento: '#003858',
                         dominante: '#E7ECF1',
+                    },
+                    fontFamily: {
+                        gelasio: ['Gelasio', 'serif'],
+                        lexend: ['Lexend', 'sans-serif'],
                     }
                 }
             }
@@ -38,7 +42,7 @@
 <body class="min-h-screen bg-white font-lexend">
 
     <!-- Contenedor principal -->
-    <div class="mx-auto min-h-auto max-w-7xl bg-dominante px-5 py-6 sm:px-10 sm:py-8">
+    <div class="mx-auto min-h-screen max-w-7xl bg-dominante px-5 py-6 sm:px-10 sm:py-8">
 
         <!-- Header -->
         <header class="mb-8 flex items-center justify-between">
@@ -55,7 +59,7 @@
                         Centro Médico de
                     </p>
 
-                    <h1 class="font-serif text-xl font-bold sm:text-2xl">
+                    <h1 class="font-gelasio text-xl font-bold sm:text-2xl">
                         Salud Integral
                     </h1>
                 </div>
@@ -64,10 +68,9 @@
 
             <!-- Usuario -->
             <a href="{{ url_for('rutas_profile.profile', rol=rol) }}" 
-               class="flex h-11 w-11 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:bg-acento hover:text-white"
+               class="flex h-11 w-11 items-center justify-center rounded-full border-2 border-acento text-acento transition md:h-10 md:w-10"
                title="Mi perfil">
-
-                <i data-lucide="user-round" class="h-7 w-7"></i>
+                <i data-lucide="user-round" class="h-9 w-9" stroke-width="1.5"></i>
 
             </a>
 
