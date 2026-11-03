@@ -1,49 +1,246 @@
 {% extends "base.html" %}
 
-{% block title %}Mi perfil | Salud Integral{% endblock %}
+{% block title %}Mi perfil{% endblock %}
 
 {% block content %}
+<div class="min-h-screen bg-[#e9eef2] px-4 sm:px-6">
+    <div class="mx-auto max-w-5xl">
+        {% if rol == "medico" %}
+            {% include "profile/medico.html" %}
+        {% elif rol == "recepcion" or rol == "recepcionista" %}
+            {% include "profile/recepcion.html" %}
+        {% elif rol == "paciente" %}
+            {% include "profile/paciente.html" %}
+        {% elif rol == "admin" or rol == "administrador" %}
+            {% include "profile/admin.html" %}
+        {% endif %}
+    </div>
+</div>
 
-<main class="mx-auto w-full max-w-[1100px] px-5 pb-10 sm:px-10">
+<!-- Modal de configuración -->
+<div id="configuracion-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-3 sm:p-6"
+     aria-hidden="true">
 
-    {% if rol == "medico" %}
+    <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-configuracion"
+        class="relative grid w-full max-w-[860px] grid-cols-1 overflow-y-auto rounded-[14px] bg-white p-6 shadow-sm sm:max-h-[92vh] sm:grid-cols-2 sm:p-4">
 
-        {% include "profile/medico.html" %}
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="border-b border-[#d5dfe6] pb-7 sm:border-b-0 sm:border-r sm:px-[14px] sm:pb-2 sm:pr-10">
 
-    {% elif rol == "recepcion" %}
-
-        {% include "profile/recepcion.html" %}
-
-    {% elif rol == "paciente" %}
-
-        {% include "profile/paciente.html" %}
-
-    {% elif rol == "admin" %}
-
-        {% include "profile/admin.html" %}
-
-    {% else %}
-
-        <section class="rounded-2xl bg-background px-6 py-10 text-center">
-
-            <h2 class="text-xl font-bold text-acento">
-                Perfil no disponible
+            <h2 class="font-['Gelasio',serif] text-[25px] font-semibold leading-tight text-[#073b5d]">
+                Editar datos del perfil
             </h2>
 
-            <p class="mt-2 text-sm text-gray-500">
-                No se pudo identificar el rol del usuario.
-            </p>
+            <form id="form-editar-perfil" action="#" method="post" class="mt-5 space-y-5">
 
-        </section>
+                <!-- MAIL -->
+                <div>
+                    <label for="email-perfil"
+                           class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
+                        MAIL
+                    </label>
 
-    {% endif %}
+                    <input
+                        id="email-perfil"
+                        name="email"
+                        type="email"
+                        value="{{ usuario.email if usuario is defined and usuario.email is defined else '' }}"
+                        placeholder="ejemplo.usuario@gmail.com"
+                        class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none placeholder:text-[#7893a8] focus:border-[#073b5d] focus:ring-2 focus:ring-[#073b5d]/10">
+                </div>
 
-</main>
+                <!-- CONTRASEÑA ACTUAL -->
+                <div>
+                    <label for="password-visible"
+                           class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
+                        CONTRASEÑA
+                    </label>
 
-<script>
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
-</script>
+                    <div class="relative">
+                        <input
+                            id="password-visible"
+                            type="password"
+                            value="••••••••••••••••"
+                            readonly
+                            autocomplete="off"
+                            class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] tracking-[0.18em] text-[#52718a] outline-none">
 
+                        <button
+                            type="button"
+                            class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
+                            data-target="password-visible"
+                            aria-label="Mostrar contraseña">
+                            ◉
+                        </button>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="toggle-cambiar-password"
+                        class="mt-4 rounded-full bg-[#003b5c] px-4 py-[7px] font-['Lexend',sans-serif] text-[11px] text-white transition hover:bg-[#075078]">
+                        Cambiar contraseña
+                    </button>
+                </div>
+
+                <!-- CAMPOS PARA CAMBIAR CONTRASEÑA -->
+                <div id="seccion-cambiar-password" class="hidden space-y-5">
+
+                    <div>
+                        <label for="password-actual"
+                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
+                            CONTRASEÑA ANTERIOR
+                        </label>
+
+                        <div class="relative">
+                            <input
+                                id="password-actual"
+                                name="password_actual"
+                                type="password"
+                                autocomplete="current-password"
+                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+
+                            <button
+                                type="button"
+                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
+                                data-target="password-actual"
+                                aria-label="Mostrar contraseña anterior">
+                                ◉
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="nueva-password"
+                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
+                            CONTRASEÑA NUEVA
+                        </label>
+
+                        <div class="relative">
+                            <input
+                                id="nueva-password"
+                                name="nueva_password"
+                                type="password"
+                                autocomplete="new-password"
+                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+
+                            <button
+                                type="button"
+                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
+                                data-target="nueva-password"
+                                aria-label="Mostrar contraseña nueva">
+                                ◉
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="confirmar-password"
+                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
+                            REPETIR CONTRASEÑA NUEVA
+                        </label>
+
+                        <div class="relative">
+                            <input
+                                id="confirmar-password"
+                                name="confirmar_password"
+                                type="password"
+                                autocomplete="new-password"
+                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+
+                            <button
+                                type="button"
+                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
+                                data-target="confirmar-password"
+                                aria-label="Mostrar confirmación de contraseña">
+                                ◉
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        form="form-cambiar-password"
+                        class="rounded-full bg-[#003b5c] px-4 py-[7px] font-['Lexend',sans-serif] text-[11px] text-white transition hover:bg-[#075078]">
+                        Guardar contraseña
+                    </button>
+                </div>
+            </form>
+
+            <form id="form-cambiar-password" action="#" method="post" class="hidden"></form>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="pt-7 sm:px-[14px] sm:pl-16 sm:pt-0">
+
+            <h2 id="titulo-configuracion"
+                class="font-['Gelasio',serif] text-[25px] font-semibold leading-tight text-[#073b5d]">
+                Configuración del perfil
+            </h2>
+
+            <div class="mt-6 space-y-8">
+
+                <!-- CERRAR SESIÓN -->
+                <a href="#"
+                   id="cerrar-sesion"
+                   class="flex min-h-[85px] items-center justify-between rounded-[15px] bg-[#f7dddd] px-5 py-4 text-[#c91f1b] transition hover:bg-[#f3d2d2]">
+
+                    <span>
+                        <span class="block font-['Lexend',sans-serif] text-[15px] font-medium tracking-[0.02em]">
+                            CERRAR SESIÓN
+                        </span>
+
+                        <span class="mt-0.5 block font-['Lexend',sans-serif] text-[9px] text-[#d76b68]">
+                            Nos vemos la próxima
+                        </span>
+                    </span>
+
+                    <svg viewBox="0 0 32 32"
+                         class="h-8 w-8 shrink-0"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.7"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M18 5H8a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h10"/>
+                        <path d="M15 16h13m-5-5 5 5-5 5"/>
+                    </svg>
+                </a>
+
+                <!-- ELIMINAR CUENTA -->
+                <a href="#"
+                   id="eliminar-cuenta"
+                   class="flex min-h-[85px] items-center justify-between rounded-[15px] bg-[#f7dddd] px-5 py-4 text-[#c91f1b] transition hover:bg-[#f3d2d2]">
+
+                    <span>
+                        <span class="block font-['Lexend',sans-serif] text-[15px] font-medium tracking-[0.02em]">
+                            ELIMINAR CUENTA
+                        </span>
+
+                        <span class="mt-0.5 block font-['Lexend',sans-serif] text-[9px] text-[#d76b68]">
+                            Cuidado, esta acción tendrá consecuencias graves.
+                        </span>
+                    </span>
+
+                    <svg viewBox="0 0 32 32"
+                         class="h-8 w-8 shrink-0"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.7"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M5 8h22M12 8V5h8v3m-13 0 1.5 19h15L25 8"/>
+                        <path d="M13 13v9m6-9v9"/>
+                    </svg>
+                </a>
+
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}" defer></script>
 {% endblock %}

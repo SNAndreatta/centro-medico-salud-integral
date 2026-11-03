@@ -136,6 +136,7 @@ FECHAS = [
 HORARIOS = ["15:30", "16:30", "17:30", "18:30"]
 
 
+
 @paciente_routes.route('/sacar-turno', methods=['GET', 'POST'])
 def sacar_turno():
 
@@ -149,7 +150,7 @@ def sacar_turno():
         session.pop('turno_fecha', None)
         session.pop('turno_hora', None)
 
-    paso = int(request.args.get('paso', 1))
+    paso = request.args.get('paso', 1, type=int)
 
     # --------------------------------------
     # PROCESAR FORMULARIOS
@@ -157,7 +158,8 @@ def sacar_turno():
 
     if request.method == 'POST':
 
-        paso = int(request.form.get('paso', 1))
+        paso = request.form.get('paso', 1, type=int)
+        accion = request.form.get('accion')
 
         # PASO 1: ESPECIALIDAD
         if paso == 1:
@@ -165,10 +167,7 @@ def sacar_turno():
             especialidad_id = request.form.get('especialidad_id', type=int)
 
             especialidad = next(
-                (
-                    e for e in ESPECIALIDADES
-                    if e['id'] == especialidad_id
-                ),
+                (e for e in ESPECIALIDADES if e['id'] == especialidad_id),
                 None
             )
 
@@ -178,17 +177,19 @@ def sacar_turno():
 
             session['turno_especialidad_id'] = especialidad_id
 
-            # Al cambiar de especialidad se reinician las selecciones posteriores.
+            # Reiniciar las selecciones posteriores.
             session.pop('turno_medico_id', None)
             session.pop('turno_fecha', None)
             session.pop('turno_hora', None)
 
-            return redirect(
-                url_for('rutas_paciente.sacar_turno', paso=2)
-            )
+            return redirect(url_for('rutas_paciente.sacar_turno', paso=2))
 
         # PASO 2: MÉDICO
         elif paso == 2:
+
+            # Volver al paso anterior.
+            if accion == 'anterior':
+                return redirect(url_for('rutas_paciente.sacar_turno', paso=1))
 
             especialidad_id = session.get('turno_especialidad_id')
             medico_id = request.form.get('medico_id', type=int)
@@ -204,26 +205,24 @@ def sacar_turno():
 
             if medico is None:
                 flash('Seleccioná un médico válido.', 'error')
-                return redirect(
-                    url_for('rutas_paciente.sacar_turno', paso=2)
-                )
+                return redirect(url_for('rutas_paciente.sacar_turno', paso=2))
 
             session['turno_medico_id'] = medico_id
 
             session.pop('turno_fecha', None)
             session.pop('turno_hora', None)
 
-            return redirect(
-                url_for('rutas_paciente.sacar_turno', paso=3)
-            )
+            return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
 
         # PASO 3: FECHA Y HORARIO
         elif paso == 3:
 
+            # Volver al paso anterior.
+            if accion == 'anterior':
+                return redirect(url_for('rutas_paciente.sacar_turno', paso=2))
+
             if not session.get('turno_medico_id'):
-                return redirect(
-                    url_for('rutas_paciente.sacar_turno')
-                )
+                return redirect(url_for('rutas_paciente.sacar_turno'))
 
             fecha = request.form.get('fecha')
             hora = request.form.get('hora')
@@ -236,40 +235,45 @@ def sacar_turno():
 
             if not fecha_valida or not horario_valido:
                 flash('Seleccioná una fecha y un horario válidos.', 'error')
-                return redirect(
-                    url_for('rutas_paciente.sacar_turno', paso=3)
-                )
+                return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
 
             session['turno_fecha'] = fecha
             session['turno_hora'] = hora
 
-            return redirect(
-                url_for('rutas_paciente.sacar_turno', paso=4)
-            )
+            return redirect(url_for('rutas_paciente.sacar_turno', paso=4))
 
         # PASO 4: CONFIRMAR TURNO
         elif paso == 4:
 
+            # Verificar que estén completas todas las selecciones.
             if not all([
                 session.get('turno_especialidad_id'),
                 session.get('turno_medico_id'),
                 session.get('turno_fecha'),
                 session.get('turno_hora')
             ]):
-                return redirect(
-                    url_for('rutas_paciente.sacar_turno')
-                )
+                return redirect(url_for('rutas_paciente.sacar_turno'))
 
-            # Por ahora no se guarda en la base de datos.
-            flash(
-                'La selección está completa. Falta conectar el guardado del turno.',
-                'success'
-            )
+            # Volver al paso anterior.
+            if accion == 'anterior':
+                return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
 
-            return redirect(
-                url_for('rutas_paciente.sacar_turno', paso=4)
-            )
+            # Confirmar turno.
+            elif accion == 'confirmar':
 
+                # Por ahora no se guarda en la base de datos.
+                session['turno_reservado'] = True
+
+                session.pop('turno_especialidad_id', None)
+                session.pop('turno_medico_id', None)
+                session.pop('turno_fecha', None)
+                session.pop('turno_hora', None)
+
+                return redirect(url_for('rutas_home.home'))
+
+    # --------------------------------------
+    # RECUPERAR DATOS DE LA SESIÓN
+    # --------------------------------------
 
     especialidad_id = session.get('turno_especialidad_id')
     medico_id = session.get('turno_medico_id')
@@ -291,7 +295,11 @@ def sacar_turno():
         None
     )
 
+    # --------------------------------------
+    # MOSTRAR LOS TEMPLATES
+    # --------------------------------------
 
+    # PASO 1: ESPECIALIDAD
     if paso == 1:
 
         return render_template(
@@ -300,6 +308,7 @@ def sacar_turno():
             especialidades=ESPECIALIDADES
         )
 
+    # PASO 2: MÉDICO
     elif paso == 2:
 
         if especialidad is None:
@@ -313,10 +322,11 @@ def sacar_turno():
         return render_template(
             'pacientes/pasos_turno/medico.html',
             paso=2,
+            especialidad=especialidad,
             medicos=medicos_disponibles,
             medico_seleccionado=medico_id
         )
-
+    # PASO 3: FECHA Y HORARIO
     elif paso == 3:
 
         if especialidad is None or medico is None:
@@ -325,20 +335,33 @@ def sacar_turno():
         return render_template(
             'pacientes/pasos_turno/fecha.html',
             paso=3,
+            especialidad=especialidad,
+            medico=medico,
             fechas=FECHAS,
             horarios=HORARIOS,
             fecha_seleccionada=fecha_seleccionada,
             hora_seleccionada=hora_seleccionada
         )
 
+    # PASO 4: CONFIRMACIÓN
     elif paso == 4:
 
-        if not all([especialidad, medico, fecha_objeto, hora_seleccionada]):
+        if not all([
+            especialidad,
+            medico,
+            fecha_seleccionada,
+            hora_seleccionada
+        ]):
             return redirect(url_for('rutas_paciente.sacar_turno'))
 
-        fecha_texto = (
-            f"{fecha_objeto['dia']} de {fecha_objeto['mes']}"
-        )
+        fecha_texto = None
+
+        if fecha_objeto:
+            fecha_texto = (
+                f"{fecha_objeto['dia_semana']} "
+                f"{fecha_objeto['dia']} DE "
+                f"{fecha_objeto['mes']}"
+            )
 
         return render_template(
             'pacientes/pasos_turno/confirmacion.html',
@@ -350,30 +373,6 @@ def sacar_turno():
             hora=hora_seleccionada
         )
 
-    elif paso == 5:
+    # Número de paso inválido.
+    return redirect(url_for('rutas_home.sacar_turno'))
 
-        if not all([
-        session.get('turno_especialidad_id'),
-        session.get('turno_medico_id'),
-        session.get('turno_fecha'),
-        session.get('turno_hora')
-        ]):
-            return redirect(
-                url_for('rutas_paciente.sacar_turno')
-            )
-
-        # Por ahora, simulamos la reserva.
-        session['turno_reservado'] = True
-
-        # Limpiamos los datos del proceso.
-        session.pop('turno_especialidad_id', None)
-        session.pop('turno_medico_id', None)
-        session.pop('turno_fecha', None)
-        session.pop('turno_hora', None)
-
-        return redirect(
-            url_for('rutas_home.home')
-        )
-    
-    # Si llega un número de paso inválido.
-    return redirect(url_for('rutas_paciente.sacar_turno'))
