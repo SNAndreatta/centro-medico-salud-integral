@@ -9,7 +9,7 @@
 
             <div class="flex items-center justify-between border-b border-slate-300 pb-2">
 
-                <h1 class="font-lexend text-xl font-semibold tracking-wide sm:text-2xl">
+                <h1 class="font-lexend text-xl font-semibold text-acento tracking-wide sm:text-2xl">
                     VER TURNOS
                 </h1>
 
@@ -114,7 +114,7 @@
 
                 <!-- Card de turno -->
                 <article
-                    class="turno-card grid grid-cols-1 items-center gap-4 rounded-2xl bg-background px-6 py-5 shadow-sm transition hover:shadow-md sm:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,1.5fr)] sm:gap-0 sm:px-8"
+                    class="turno-card grid grid-cols-1 items-center gap-4 rounded-2xl bg-white px-6 py-5 shadow-sm transition hover:shadow-md sm:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,1.5fr)] sm:gap-0 sm:px-8"
                     data-cobertura="{{ turno.cobertura|lower }}"
                     data-medico="{{ turno.especialidad|lower }}"
                 >
@@ -165,7 +165,7 @@
 
 
                     <!-- Consultorio -->
-                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:px-5 sm:pt-0">
+                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:px-5 sm:pt-0">
 
                         <p class="mb-1 font-lexend text-xs font-medium tracking-wide text-slate-500">
                             CONSULTORIO
@@ -180,7 +180,7 @@
 
 
                     <!-- Especialidad / médico -->
-                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:pl-5 sm:pt-0">
+                    <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
 
                         <p class="mb-1 font-lexend text-xs font-medium tracking-wide text-slate-500">
                             ESPECIALIDAD
@@ -211,127 +211,7 @@
 
 
     </main>
-
-
-
-    <script>
-
-        lucide.createIcons();
-
-
-        // Elementos del panel de filtros
-        const botonFiltros = document.querySelector("#boton-filtros");
-        const panelFiltros = document.querySelector("#panel-filtros");
-
-        const filtroCobertura = document.querySelector("#filtro-cobertura");
-        const filtroMedico = document.querySelector("#filtro-medico");
-
-        const aplicarFiltros = document.querySelector("#aplicar-filtros");
-        const limpiarFiltros = document.querySelector("#limpiar-filtros");
-
-        const tarjetas = document.querySelectorAll(".turno-card");
-        const mensajeVacio = document.querySelector("#sin-resultados");
-
-
-        // Mostrar u ocultar el panel
-        botonFiltros.addEventListener("click", (event) => {
-
-            event.stopPropagation();
-
-            panelFiltros.classList.toggle("hidden");
-
-            const abierto = !panelFiltros.classList.contains("hidden");
-
-            botonFiltros.setAttribute("aria-expanded", String(abierto));
-
-        });
-
-
-        // Aplicar filtros
-        function filtrarTurnos() {
-
-            const cobertura = filtroCobertura.value.toLowerCase();
-            const medico = filtroMedico.value.toLowerCase();
-
-            let turnosVisibles = 0;
-
-
-            tarjetas.forEach((tarjeta) => {
-
-                const coberturaTurno = tarjeta.dataset.cobertura;
-                const medicoTurno = tarjeta.dataset.medico;
-
-                const coincideCobertura =
-                    cobertura === "" || coberturaTurno === cobertura;
-
-                const coincideMedico =
-                    medico === "" || medicoTurno === medico;
-
-                const coincide =
-                    coincideCobertura && coincideMedico;
-
-
-                tarjeta.classList.toggle("hidden", !coincide);
-
-
-                if (coincide) {
-                    turnosVisibles++;
-                }
-
-            });
-
-
-            mensajeVacio.classList.toggle(
-                "hidden",
-                turnosVisibles !== 0
-            );
-
-        }
-
-
-        // Botón aplicar
-        aplicarFiltros.addEventListener("click", () => {
-
-            filtrarTurnos();
-
-            panelFiltros.classList.add("hidden");
-
-            botonFiltros.setAttribute("aria-expanded", "false");
-
-        });
-
-
-        // Limpiar filtros
-        limpiarFiltros.addEventListener("click", () => {
-
-            filtroCobertura.value = "";
-            filtroMedico.value = "";
-
-            filtrarTurnos();
-
-            panelFiltros.classList.add("hidden");
-
-            botonFiltros.setAttribute("aria-expanded", "false");
-
-        });
-
-
-        // Cerrar panel al hacer clic fuera
-        document.addEventListener("click", (event) => {
-
-            if (
-                !panelFiltros.contains(event.target) &&
-                !botonFiltros.contains(event.target)
-            ) {
-
-                panelFiltros.classList.add("hidden");
-
-                botonFiltros.setAttribute("aria-expanded", "false");
-
-            }
-
-        });
-
-    </script>
+    
+    <script src="{{ url_for('static', filename='js/recepcion/ver_turnos.js') }}"></script>
 
 {% endblock %}

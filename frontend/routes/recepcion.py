@@ -164,3 +164,29 @@ def ver_turnos():
         "recepcion/ver_turnos.html",
         turnos=turnos
     )
+
+@recepcion_routes.route("/recepcion/profile/<int:id_usuario>")
+def perfil_usuario(id_usuario):
+
+    usuarios = {
+        1: {
+            "id": 1,
+            "nombre": "Camila",
+            "apellido": "Núñez",
+            "iniciales": "CN",
+            "email": "ejemplo.usuario@gmail.com",
+            "documento": "44.444.444",
+            "fecha_nacimiento": "DD/MM/AAAA",
+            "fecha_registro": "DD/MM/AAAA"
+        }
+    }
+
+    usuario = usuarios.get(id_usuario)
+
+    if not usuario:
+        return "Usuario no encontrado", 404
+
+    return render_template(
+        "recepcion/profile.html",
+        usuario=usuario
+    )
