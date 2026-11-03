@@ -6,7 +6,7 @@ home_routes = Blueprint('rutas_home', __name__)
 def home():
 
     # ROL TEMPORAL PARA PROBAR LAS PANTALLAS
-    rol = "paciente"
+    rol = "medico"
 
     session["rol"] = rol
     reserva_exitosa = session.pop('turno_reservado', False)
@@ -23,6 +23,7 @@ def home():
             "fecha": "25/10",
             "turnos_del_dia": [
                 {
+                    "id": 1,
                     "nombre_paciente": "Camila Núñez",
                     "iniciales": "CN",
                     "cobertura": "Galeno",
@@ -32,6 +33,7 @@ def home():
                     "color_fondo": "bg-pink-500/30 text-pink-500"
                 },
                 {
+                    "id": 2,
                     "nombre_paciente": "Martín Pérez",
                     "iniciales": "MP",
                     "cobertura": "OSDE",
