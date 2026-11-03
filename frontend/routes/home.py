@@ -6,9 +6,10 @@ home_routes = Blueprint('rutas_home', __name__)
 def home():
 
     # ROL TEMPORAL PARA PROBAR LAS PANTALLAS
-    rol = "admin"
+    rol = "paciente"
 
     session["rol"] = rol
+    reserva_exitosa = session.pop('turno_reservado', False)
 
     usuario = {
         "nombre_completo": "Juan Pérez"
@@ -58,5 +59,6 @@ def home():
         "home.html",
         rol=rol,
         usuario=usuario,
-        datos=datos
+        datos=datos,
+        reserva_exitosa=reserva_exitosa
     )

@@ -1,4 +1,4 @@
-{% extends "/pacientes/pasos_turno/sacar_turno.html" %}
+{% extends "pacientes/pasos_turno/sacar_turno.html" %}
 
 {% set paso = 4 %}
 
@@ -77,8 +77,9 @@
 
 
     <!-- Confirmar -->
-    <form method="POST" action="#guardar">
+    <form method="POST">
 
+        <input type="hidden" name="paso" value="5">
         <input type="hidden" name="especialidad_id" value="{{ especialidad.id }}">
         <input type="hidden" name="medico_id" value="{{ medico.id }}">
         <input type="hidden" name="fecha" value="{{ fecha }}">

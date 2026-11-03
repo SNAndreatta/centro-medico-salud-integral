@@ -1,4 +1,4 @@
-{% extends "/pacientes/pasos_turno/sacar_turno.html" %}
+{% extends "pacientes/pasos_turno/sacar_turno.html" %}
 
 {% set paso = 2 %}
 
@@ -10,7 +10,9 @@
         Elegí tu médico de confianza
     </h2>
 
-    <form method="POST" action="#fecha">
+    <form method="POST">
+
+    <input type="hidden" name="paso" value="2">
 
         <div class="space-y-2">
 

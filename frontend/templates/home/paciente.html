@@ -177,3 +177,56 @@
     </section>
 
 </div>
+
+
+{% if reserva_exitosa %}
+
+<div id="popup-reserva"
+     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
+
+    <div class="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-xl">
+
+        <!-- Icono -->
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E7EEF3] text-acento">
+            <i data-lucide="check-circle" class="h-8 w-8"></i>
+        </div>
+
+        <!-- Mensaje -->
+        <h2 class="mt-4 font-lexend text-lg font-semibold text-acento">
+            ¡Turno reservado!
+        </h2>
+
+        <p class="mt-2 text-sm text-[#66869F]">
+            Tu turno se reservó correctamente. Ya podés consultar los detalles en la sección Mis turnos.
+        </p>
+
+        <!-- Botón -->
+        <button
+            type="button"
+            onclick="cerrarPopupReserva()"
+            class="mt-6 w-full rounded-full bg-acento px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+        >
+            Aceptar
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+    function cerrarPopupReserva() {
+        const popup = document.getElementById("popup-reserva");
+
+        if (popup) {
+            popup.remove();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    });
+</script>
+
+{% endif %}

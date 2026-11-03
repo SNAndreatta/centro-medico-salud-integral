@@ -1,4 +1,4 @@
-{% extends "/pacientes/pasos_turno/sacar_turno.html" %}
+{% extends "pacientes/pasos_turno/sacar_turno.html" %}
 
 {% set paso = 3 %}
 
@@ -21,7 +21,9 @@
     </div>
 
 
-    <form method="POST" action="#confirmacion">
+    <form method="POST">
+
+        <input type="hidden" name="paso" value="3">
 
         <!-- Fechas disponibles -->
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -89,6 +91,9 @@
                         value="{{ horario }}"
                         class="peer sr-only"
                         required
+                        {% if hora_seleccionada is defined and hora_seleccionada == horario %}
+                            checked
+                        {% endif %}
                     >
 
                     <span class="inline-flex rounded-full border border-gray-200 px-3 py-1 text-[11px] font-medium text-acento transition hover:border-acento peer-checked:border-[#66869F] peer-checked:bg-[#E4EBEF]">
