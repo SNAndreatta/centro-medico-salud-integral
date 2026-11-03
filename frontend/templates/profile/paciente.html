@@ -52,7 +52,7 @@
 <section class="flex flex-col gap-4">
     <div class="flex items-center justify-between gap-3 border-b border-[#C4D0D9] px-1 pb-3">
         <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-[#8298A8] sm:text-base">Próximos turnos</h2>
-        <a href="#" class="inline-flex items-center gap-2 font-lexend text-xs text-[#8298A8] transition hover:text-acento">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+        <a href="{{ url_for('rutas_paciente.mis_turnos') }}" class="inline-flex items-center gap-2 font-lexend text-xs text-[#8298A8] transition hover:text-acento">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
     </div>
     <div class="flex flex-col gap-4">
     {% if proximos_turnos is defined and proximos_turnos %}
