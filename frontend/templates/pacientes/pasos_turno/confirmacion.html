@@ -76,19 +76,33 @@
     </div>
 
 
-    <!-- Confirmar -->
-    <form method="POST">
 
-        <input type="hidden" name="paso" value="5">
+    <!-- Botones atras adelante -->
+    <form method="POST">
+        <input type="hidden" name="paso" value="4">
         <input type="hidden" name="especialidad_id" value="{{ especialidad.id }}">
         <input type="hidden" name="medico_id" value="{{ medico.id }}">
         <input type="hidden" name="fecha" value="{{ fecha }}">
         <input type="hidden" name="hora" value="{{ hora }}">
+            <!-- Botón siguiente y anterior -->
+        <div class="mt-6 flex w-full flex-row justify-between">
 
-        <div class="flex justify-end">
-
+            <!-- Anterior -->
             <button
                 type="submit"
+                name="accion"
+                value="anterior"
+                class="inline-flex items-center gap-2 rounded-full border border-acento px-5 py-2 text-xs font-medium text-acento transition hover:bg-[#EDF3F7]"
+            >
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Anterior
+            </button>
+
+            <!-- Confirmar -->
+            <button
+                type="submit"
+                name="accion"
+                value="confirmar"
                 class="inline-flex items-center gap-2 rounded-full bg-acento px-5 py-2 text-xs font-medium text-white transition hover:opacity-90"
             >
                 Confirmar
@@ -98,7 +112,7 @@
         </div>
 
     </form>
-
+    </div>
 </div>
 
 {% endblock %}
