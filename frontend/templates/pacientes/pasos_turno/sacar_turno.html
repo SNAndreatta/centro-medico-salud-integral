@@ -168,12 +168,6 @@
 
 
 <!-- ICONOS -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/sacar_turno.js') }}" defer></script>
 
 {% endblock %}
