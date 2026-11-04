@@ -1,4 +1,10 @@
-from src.repositories.turnos_repositories import buscar_turnos, buscar_turnos_disponibles, insertar_turnos_disponibles
+from src.repositories.turnos_repositories import (
+    buscar_turnos,
+    buscar_turnos_disponibles,
+    insertar_turnos_disponibles,
+    cancelar_turno as cancelar_turno_repositorio,
+)
+from src.errores import error_respuesta
 from src.utils.roles import PACIENTE, MEDICO
 from src.validators.turnos_validators import (
     validar_filtros_turnos,
@@ -7,6 +13,32 @@ from src.validators.turnos_validators import (
 from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
 from src.repositories.agendas_repositories import buscar_agendas
+
+
+def cancelar_turno(id_turno, usuario_actual):
+    resultado = cancelar_turno_repositorio(
+        id_turno,
+        usuario_actual['id_usuario'],
+        usuario_actual['id_rol'],
+    )
+    if resultado is None:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+    if resultado['resultado'] == 'NO_AUTORIZADO':
+        return error_respuesta(
+            'El turno no pertenece al paciente autenticado',
+            'TURNO_NO_AUTORIZADO',
+        ), 403
+    if resultado['resultado'] == 'NO_CANCELABLE':
+        return error_respuesta(
+            'El turno no se encuentra reservado',
+            'TURNO_NO_CANCELABLE',
+        ), 409
+    return {
+        'mensaje': 'Turno cancelado correctamente',
+        'id_turno': resultado['id_turno'],
+        'estado': 'cancelado',
+        'disponible': True,
+    }, 200
 
 def filtrar_turnos_disponibles(parametros):
     filtros, error = validar_filtros_turnos_disponibles(parametros)
