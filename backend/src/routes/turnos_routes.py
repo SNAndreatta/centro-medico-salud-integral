@@ -1,7 +1,8 @@
 from flask import Blueprint, g, request
 
 from src.errores import error_respuesta
-from src.repositories.pacientes_repositories import obtener_paciente_por_usuario
+from src.repositories.pacientes_repositories import obtener_paciente_por_usuario, obtener_usuario_por_paciente
+from src.services.smtp_service import validar_token_cancelacion_turno
 from src.services.turnos_services import (
     cancelar_turno,
     filtrar_turnos,
@@ -87,6 +88,30 @@ def checkin_turno_endpoint():
         return error_respuesta('token es obligatorio', 'TOKEN_REQUERIDO'), 400
 
     respuesta, status_code = registrar_checkin_por_qr(token.strip())
+    return respuesta, status_code
+
+
+@turnos_bp.get('/turnos/<int:id_turno>/cancelar')
+@handle_unexpected_errors
+def cancelar_turno_por_email_endpoint(id_turno):
+    token = request.args.get('token')
+    if not token:
+        return error_respuesta('El token de cancelación es obligatorio', 'TOKEN_REQUERIDO'), 400
+
+    try:
+        payload = validar_token_cancelacion_turno(token)
+    except ValueError as exc:
+        return error_respuesta(str(exc), 'TOKEN_INVALIDO'), 400
+
+    if int(payload.get('id_turno')) != id_turno:
+        return error_respuesta('El token no corresponde a este turno', 'TOKEN_INVALIDO'), 400
+
+    id_paciente = int(payload.get('id_paciente'))
+    id_usuario = obtener_usuario_por_paciente(id_paciente)
+    if id_usuario is None:
+        return error_respuesta('El paciente asociado a este enlace ya no existe', 'PACIENTE_INEXISTENTE'), 404
+
+    respuesta, status_code = cancelar_turno(id_turno, {'id_usuario': id_usuario, 'id_rol': PACIENTE})
     return respuesta, status_code
 
 

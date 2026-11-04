@@ -31,3 +31,16 @@ class Config:
     JWT_ACCESS_TOKEN_MINUTES = int(os.getenv('JWT_ACCESS_TOKEN_MINUTES', '60'))
     if JWT_ACCESS_TOKEN_MINUTES <= 0:
         raise ValueError('JWT_ACCESS_TOKEN_MINUTES must be greater than zero')
+
+    # SMTP para comprobantes por correo
+    SMTP_ENABLED = os.getenv('SMTP_ENABLED', 'false').lower() == 'true'
+    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME', '')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+    SMTP_USE_TLS = os.getenv('SMTP_USE_TLS', 'true').lower() == 'true'
+    SMTP_USE_SSL = os.getenv('SMTP_USE_SSL', 'false').lower() == 'true'
+    SMTP_TIMEOUT = int(os.getenv('SMTP_TIMEOUT', '15'))
+    SMTP_DEFAULT_SENDER = os.getenv('SMTP_DEFAULT_SENDER', 'no-reply@saludintegral.local')
+    PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'http://localhost:5000')
+    CANCELACION_TTL_MINUTES = int(os.getenv('CANCELACION_TTL_MINUTES', '60'))

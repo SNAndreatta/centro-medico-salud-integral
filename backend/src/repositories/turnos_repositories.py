@@ -91,6 +91,45 @@ def buscar_turno_por_codigo_qr(codigo_qr):
         conexion.close()
 
 
+def buscar_datos_turno_comprobante(id_turno):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+                SELECT
+                    t.id_turno,
+                    t.id_agenda,
+                    t.id_paciente,
+                    DATE_FORMAT(t.fecha_horario_inicial, '%Y-%m-%d %H:%i:%S') AS fecha_horario_inicial,
+                    a.duracion_turno,
+                    m.id_medico,
+                    um.nombre AS nombre_medico,
+                    um.apellido AS apellido_medico,
+                    e.nombre_especialidad,
+                    c.numero AS numero_consultorio,
+                    c.piso AS piso_consultorio,
+                    p.id_usuario AS id_usuario_paciente,
+                    up.nombre AS nombre_paciente,
+                    up.apellido AS apellido_paciente,
+                    up.correo_electronico
+                FROM turno t
+                JOIN agenda a ON a.id_agenda = t.id_agenda
+                JOIN medico m ON m.id_medico = a.id_medico
+                JOIN usuario um ON um.id_usuario = m.id_usuario
+                JOIN especialidad e ON e.id_especialidad = m.id_especialidad
+                JOIN consultorio c ON c.id_consultorio = a.id_consultorio
+                LEFT JOIN paciente p ON p.id_paciente = t.id_paciente
+                LEFT JOIN usuario up ON up.id_usuario = p.id_usuario
+                WHERE t.id_turno = %s
+            """,
+            (id_turno,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def confirmar_checkin(id_turno, fecha_horario_llegada):
     conexion, cursor = obtener_cursor()
     try:
