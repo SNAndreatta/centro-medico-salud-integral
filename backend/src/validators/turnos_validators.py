@@ -5,6 +5,7 @@ from src.utils.utils import (
     validar_fecha_iso_opcional,
     validar_id_positivo,
     validar_rango_fechas,
+    validar_objeto_json,
 )
 
 
@@ -77,3 +78,19 @@ def validar_filtros_turnos(parametros):
             return None, error
         filtros[nombre] = valor
     return filtros, None
+
+
+def validar_cancelacion_turno(datos):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return None, error_json
+
+    id_turno, error = validar_id_positivo(datos.get('id_turno'), 'id_turno')
+    if error:
+        return None, (error, 400)
+    if id_turno is None:
+        return None, (
+            error_respuesta('id_turno es obligatorio', 'ID_TURNO_REQUERIDO'),
+            400,
+        )
+    return id_turno, None

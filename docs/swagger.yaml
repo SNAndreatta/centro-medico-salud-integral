@@ -914,23 +914,34 @@ paths:
           description: Reserva concretada y correo enviado con éxito.
         "409":
           description: Conflicto. Alguien más reservó el turno segundos antes.
-  /api/turnos/{id_turno}/cancelar:
+  /api/turnos/cancelar:
     post:
       tags:
       - Turnos (Reserva y Recepción)
-      summary: Cancelar reserva (valida > 24hs si es paciente)
-      description: "Anula un turno reservado. Si la petición viene de un rol \"paciente\", el sistema \nvalida que falten más de 24 horas para el turno. Si viene de \"recepcionista\", \nse ignora la restricción. Libera el horario para que vuelva a figurar como \"disponible\".\n"
-      parameters:
-      - name: id_turno
-        in: path
+      summary: Cancelar reserva y liberar disponibilidad
+      description: "Cancela un turno reservado, conserva el estado \"cancelado\" para el historial, desvincula al paciente y libera inmediatamente el horario para que vuelva a estar disponible."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - id_turno
+              properties:
+                id_turno:
+                  type: integer
         required: true
-        schema:
-          type: integer
       responses:
         "200":
           description: Turno cancelado correctamente.
+        "403":
+          description: El turno no pertenece al paciente autenticado.
+        "404":
+          description: Turno no encontrado.
+        "409":
+          description: El turno no se encuentra reservado.
         "400":
-          description: Violación de regla de negocio (faltan menos de 24hs y el usuario es paciente).
+          description: El identificador del turno es inválido.
   /api/turnos/{id_turno}/estado:
     put:
       tags:

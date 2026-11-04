@@ -1,4 +1,5 @@
 from src.db import obtener_cursor
+from src.utils.roles import PACIENTE
 
 
 def buscar_turnos_disponibles(
@@ -11,7 +12,7 @@ def buscar_turnos_disponibles(
     hora_hasta=None,
 ):
     condiciones = [
-        "LOWER(et.estado_turno) = 'disponible'",
+        "LOWER(et.estado_turno) IN ('disponible', 'cancelado')",
         't.id_paciente IS NULL',
     ]
     parametros = []
@@ -276,6 +277,59 @@ def insertar_turnos_disponibles(turnos):
         conexion.rollback()
         raise
 
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def cancelar_turno(id_turno, id_usuario, id_rol):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT
+                t.id_turno,
+                t.id_paciente,
+                p.id_usuario AS id_usuario_paciente,
+                t.id_estado,
+                LOWER(et.estado_turno) AS estado_turno
+            FROM turno t
+            JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+            LEFT JOIN paciente p ON p.id_paciente = t.id_paciente
+            WHERE t.id_turno = %s
+            """,
+            (id_turno,),
+        )
+        turno = cursor.fetchone()
+        if turno is None:
+            return None
+
+        if turno['estado_turno'] != 'reservado':
+            return {'resultado': 'NO_CANCELABLE', 'estado': turno['estado_turno']}
+
+        if id_rol == PACIENTE and turno['id_usuario_paciente'] != id_usuario:
+            return {'resultado': 'NO_AUTORIZADO'}
+
+        cursor.execute(
+            """
+            UPDATE turno
+            SET id_estado = (
+                SELECT id_estado_turno
+                FROM estado_turno
+                WHERE LOWER(estado_turno) = 'cancelado'
+            ),
+                id_paciente = NULL,
+                codigo_qr = NULL,
+                fecha_horario_llegada = NULL
+            WHERE id_turno = %s
+            """,
+            (id_turno,),
+        )
+        conexion.commit()
+        return {'resultado': 'CANCELADO', 'id_turno': id_turno}
+    except Exception:
+        conexion.rollback()
+        raise
     finally:
         cursor.close()
         conexion.close()
