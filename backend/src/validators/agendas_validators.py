@@ -1,6 +1,8 @@
+import re
+from datetime import date, time
+
 from src.errores import error_respuesta
 from src.utils.utils import validar_id_positivo
-from datetime import date, time
 
 def _booleano_opcional(valor, nombre):
     if valor is None:
@@ -43,8 +45,13 @@ def _fecha_obligatoria(valor, nombre):
 def _hora_obligatoria(valor, nombre):
     if not isinstance(valor, str):
         return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
+
+    hora_texto = valor.strip()
+    if not re.fullmatch(r'\d{2}:\d{2}(:\d{2})?$', hora_texto):
+        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
+
     try:
-        hora = time.fromisoformat(valor)
+        hora = time.fromisoformat(hora_texto)
     except ValueError:
         return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
 
