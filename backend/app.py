@@ -13,6 +13,7 @@ from src.routes.estadisticas_routes import estadisticas_bp
 from src.routes.especialidades_routes import especialidades_bp
 from src.routes.coberturas_routes import coberturas_bp
 from src.routes.planes_routes import planes_bp
+from src.routes.consultorios_routes import consultorios_bp
 from src.utils.http_errors import handle_unexpected_errors
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -22,6 +23,7 @@ app.json.ensure_ascii = False
 app.register_blueprint(auth_bp)
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(medicos_bp)
+app.register_blueprint(consultorios_bp)
 app.register_blueprint(pacientes_bp)
 app.register_blueprint(agendas_bp)
 app.register_blueprint(turnos_bp)
