@@ -163,7 +163,7 @@ def crear_usuario():
     )
 
     if not nombre or not apellido or not mail or not fecha_nacimiento or not dni or rol_seleccionado is None:
-        return redirect(url_for("usuarios_index"))
+        return redirect(url_for("rutas_admin_usuario.obtener_usuarios"))
 
     # Generar ID
     nuevo_id = max((usuario["id"] for usuario in usuarios), default=0) + 1
@@ -200,7 +200,7 @@ def crear_usuario():
 
     usuarios.append(nuevo_usuario)
 
-    return redirect(url_for("usuarios_index"))
+    return redirect(url_for("rutas_admin_usuario.obtener_usuarios"))
 
 @usuario_admin_routes.route("/usuario/<int:id_usuario>")
 def usuario_perfil(id_usuario):
