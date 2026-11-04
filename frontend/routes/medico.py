@@ -108,38 +108,20 @@ def marcar_turno_atendido(id_turno):
 # VER TURNOS
 # ==========================================================
 
+
 @medico_routes.route('/turnos', methods=['GET'])
 def ver_turnos():
 
-    fecha = request.args.get('fecha', '')
-    especialidad = request.args.get('especialidad', '')
-    cobertura = request.args.get('cobertura', '')
-
+    # Todos los turnos disponibles
     turnos = todos_los_turnos
 
-    if fecha:
-        turnos = [
-            turno for turno in turnos
-            if turno['fecha_filtro'] == fecha
-        ]
-
-    if especialidad:
-        turnos = [
-            turno for turno in turnos
-            if turno['especialidad_filtro'] == especialidad
-        ]
-
-    if cobertura:
-        turnos = [
-            turno for turno in turnos
-            if turno['cobertura_filtro'] == cobertura
-        ]
-
+    # Especialidades disponibles para el filtro
     especialidades = sorted(set(
         turno['especialidad_filtro']
         for turno in todos_los_turnos
     ))
 
+    # Coberturas disponibles para el filtro
     coberturas = sorted(set(
         turno['cobertura_filtro']
         for turno in todos_los_turnos

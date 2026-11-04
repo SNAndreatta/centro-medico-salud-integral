@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Mis turnos | Salud Integral{% endblock %}
@@ -6,217 +7,262 @@
 
 <div id="turnos" class="px-1 sm:px-2">
 
-    <!-- Título y filtros -->
-    <div class="mb-5 flex items-center justify-between border-b border-acento/30 pb-2">
+    <!-- TÍTULO Y FILTRO -->
+    <section class="relative mb-5">
 
-        <h2 class="text-xl font-semibold tracking-wide text-acento sm:text-2xl">
-            MIS TURNOS
-        </h2>
+        <div class="flex items-center justify-between gap-4 border-b border-acento/30 pb-2">
 
-        <button
-            type="button"
-            onclick="document.getElementById('filtros').classList.toggle('hidden')"
-            class="flex items-center gap-3 rounded-full bg-[#66869F] px-5 py-2 text-sm font-semibold text-white transition hover:bg-acento"
+            <h2 class="text-xl font-semibold tracking-wide text-acento sm:text-2xl">
+                MIS TURNOS
+            </h2>
+
+            <button
+                id="boton-filtros"
+                type="button"
+                aria-expanded="false"
+                class="flex items-center gap-3 rounded-full bg-[#66869F] px-5 py-2 text-sm font-semibold text-white transition hover:bg-acento"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+        <!-- PANEL DE FILTROS -->
+        <div
+            id="panel-filtros"
+            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
         >
-            <span>Filtrar</span>
-            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
-        </button>
 
-    </div>
+            <h3 class="mb-4 font-lexend text-base font-semibold text-acento">
+                Filtrar turnos
+            </h3>
 
-    <!-- Panel de filtros -->
-    <div
-        id="panel-filtros"
-        class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
-    >
+            <!-- FECHA -->
+            <div class="mb-4">
 
-        <h2 class="mb-4 font-lexend text-base font-semibold">
-            Filtrar turnos
-        </h2>
+                <label
+                    for="filtro-fecha"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    FECHA
+                </label>
 
+                <input
+                    type="date"
+                    id="filtro-fecha"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
 
-        <!-- Filtro por cobertura -->
-        <div class="mb-4">
+            </div>
 
-            <label for="filtro-cobertura" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
-                COBERTURA
-            </label>
+            <!-- ESPECIALIDAD -->
+            <div class="mb-4">
 
-            <select
-                id="filtro-cobertura"
-                class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
-            >
-                <option value="">Todas las coberturas</option>
-                <option value="osde">OSDE</option>
-                <option value="galeno">Galeno</option>
-                <option value="swiss medical">Swiss Medical</option>
-                <option value="medifé">Medifé</option>
-            </select>
+                <label
+                    for="filtro-especialidad"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    ESPECIALIDAD
+                </label>
+
+                <select
+                    id="filtro-especialidad"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+
+                    <option value="">Todas las especialidades</option>
+
+                    {% for especialidad in especialidades %}
+                        <option value="{{ especialidad | lower }}">
+                            {{ especialidad }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- COBERTURA -->
+            <div class="mb-5">
+
+                <label
+                    for="filtro-cobertura"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    COBERTURA
+                </label>
+
+                <select
+                    id="filtro-cobertura"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+
+                    <option value="">Todas las coberturas</option>
+
+                    {% for cobertura in coberturas %}
+                        <option value="{{ cobertura | lower }}">
+                            {{ cobertura }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex items-center justify-between gap-3">
+
+                <button
+                    type="button"
+                    id="limpiar-filtros"
+                    class="w-1/2 rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                >
+                    Limpiar
+                </button>
+
+                <button
+                    type="button"
+                    id="aplicar-filtros"
+                    class="w-1/2 rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                >
+                    Aplicar filtros
+                </button>
+
+            </div>
 
         </div>
 
-
-        <!-- Filtro por médico -->
-        <div class="mb-5">
-
-            <label for="filtro-medico" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
-                ESPECIALIDAD / MÉDICO
-            </label>
-
-            <select
-                id="filtro-medico"
-                class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
-            >
-                <option value="">Todos los médicos</option>
-                <option value="dr. juan pérez">Dr. Juan Pérez</option>
-                <option value="dra. ana martínez">Dra. Ana Martínez</option>
-                <option value="dr. carlos gómez">Dr. Carlos Gómez</option>
-            </select>
-
-        </div>
+    </section>
 
 
-        <!-- Botones -->
-        <div class="flex items-center justify-between gap-3">
-
-            <button
-                type="button"
-                id="limpiar-filtros"
-                class="rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
-            >
-                Limpiar
-            </button>
-
-            <button
-                type="button"
-                id="aplicar-filtros"
-                class="rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
-            >
-                Aplicar filtros
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- Cantidad de turnos -->
+    <!-- CANTIDAD DE TURNOS -->
     <div class="mb-4 flex items-center justify-between">
 
         <p class="text-sm text-gray-500">
-            {{ turnos|length }} turnos encontrados
+            <span id="cantidad-turnos">{{ turnos | length }}</span> turnos encontrados
         </p>
 
     </div>
 
-    <!-- Lista de turnos -->
-    <div class="space-y-4">
+
+    <!-- LISTA DE TURNOS -->
+    <section class="space-y-4" id="listado-turnos">
 
         {% for turno in turnos %}
 
-        <article
-            class="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
-        >
+            <article
+                class="turno-card flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
+                data-fecha="{{ turno.fecha_filtro }}"
+                data-especialidad="{{ turno.especialidad_filtro | lower }}"
+                data-cobertura="{{ turno.cobertura_filtro | lower }}"
+            >
 
-            <!-- Paciente y cobertura -->
-            <div class="flex min-w-0 items-center gap-5 lg:w-[42%] lg:pr-5">
+                <!-- PACIENTE Y COBERTURA -->
+                <div class="flex min-w-0 items-center gap-5 lg:w-[42%] lg:pr-5">
 
-                <!-- Iniciales -->
-                <div
-                    class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-medium {{ turno.color }}"
-                >
-                    {{ turno.iniciales }}
+                    <div
+                        class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-medium {{ turno.color }}"
+                    >
+                        {{ turno.iniciales }}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+
+                        <h3 class="truncate text-xl font-medium leading-tight text-acento sm:text-2xl">
+                            {{ turno.nombre_completo | default(turno.nombre_paciente | default('Nombre Completo', true), true) }}
+                        </h3>
+
+                        <p class="truncate text-xs font-medium tracking-wide text-[#66869F]">
+                            {{ turno.cobertura }}
+                        </p>
+
+                    </div>
+
                 </div>
 
-                <!-- Nombre y cobertura -->
-                <div class="min-w-0 flex-1">
 
-                    <h3 class="truncate text-xl font-medium leading-tight text-acento sm:text-2xl">
-                        {{ turno.nombre_completo | default(turno.nombre | default('Nombre Completo', true), true) }}
-                    </h3>
+                <!-- FECHA Y HORA -->
+                <div
+                    class="border-t border-gray-200 pt-3 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5 lg:pr-3"
+                >
 
-                    <p class="truncate text-xs font-medium tracking-wide text-[#66869F]">
-                        {{ turno.cobertura }}
+                    <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                        FECHA Y HORA
+                    </p>
+
+                    <p class="text-xl font-medium leading-tight text-acento">
+                        {{ turno.hora }}
+                    </p>
+
+                    <p class="text-xs font-medium text-acento">
+                        {{ turno.fecha }}
                     </p>
 
                 </div>
 
-            </div>
 
-            <!-- Fecha y hora -->
-            <div
-                class="border-t border-gray-200 pt-3 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5 lg:pr-3"
-            >
+                <!-- CONSULTORIO -->
+                <div
+                    class="border-t border-gray-200 pt-3 lg:w-[16%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5"
+                >
 
-                <p class="text-xs font-medium tracking-wide text-[#66869F]">
-                    FECHA Y HORA
-                </p>
+                    <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                        CONSULTORIO
+                    </p>
 
-                <p class="text-xl font-medium leading-tight text-acento">
-                    {{ turno.hora }}
-                </p>
+                    <p class="text-3xl font-medium leading-tight text-acento">
+                        {{ turno.consultorio }}
+                    </p>
 
-                <p class="text-xs font-medium text-acento">
-                    {{ turno.fecha }}
-                </p>
+                </div>
 
-            </div>
 
-            <!-- Consultorio -->
-            <div
-                class="border-t border-gray-200 pt-3 lg:w-[16%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5"
-            >
+                <!-- ESTADO DEL TURNO -->
+                <div
+                    class="flex items-center justify-start border-t border-gray-200 pt-3 lg:w-[14%] lg:justify-end lg:border-t-0 lg:pt-0"
+                >
 
-                <p class="text-xs font-medium tracking-wide text-[#66869F]">
-                    CONSULTORIO
-                </p>
+                    {% set estado = turno.estado | default('Pendiente', true) | string | lower %}
 
-                <p class="text-3xl font-medium leading-tight text-acento">
-                    {{ turno.consultorio }}
-                </p>
+                    {% if estado in ['atendido', 'completado', 'realizado'] %}
 
-            </div>
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-green-600/60 px-4 py-1.5 text-sm font-medium text-white"
+                        >
+                            Atendido
+                        </span>
 
-            <!-- Estado del turno -->
-            <div
-                class="flex items-center justify-start border-t border-gray-200 pt-3 lg:w-[14%] lg:justify-end lg:border-t-0 lg:pt-0"
-            >
+                    {% elif estado in ['cancelado', 'cancelada'] %}
 
-                {% set estado = turno.estado | default('Pendiente', true) | string | lower %}
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-red-500/60 px-4 py-1.5 text-sm font-medium text-white"
+                        >
+                            Cancelado
+                        </span>
 
-                {% if estado in ['atendido', 'completado', 'realizado'] %}
+                    {% else %}
 
-                    <span
-                        class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-green-600/60 px-4 py-1.5 text-sm font-medium text-white"
-                    >
-                        Atendido
-                    </span>
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-dominante px-4 py-1.5 text-sm font-medium text-acento"
+                        >
+                            {{ turno.estado | default('Pendiente', true) }}
+                        </span>
 
-                {% elif estado in ['cancelado', 'cancelada'] %}
+                    {% endif %}
 
-                    <span
-                        class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-red-500/60 px-4 py-1.5 text-sm font-medium text-white"
-                    >
-                        Cancelado
-                    </span>
+                </div>
 
-                {% else %}
+            </article>
 
-                    <span
-                        class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-dominante px-4 py-1.5 text-sm font-medium text-acento"
-                    >
-                        {{ turno.estado | default('Pendiente', true) }}
-                    </span>
+        {% endfor %}
 
-                {% endif %}
 
-            </div>
-
-        </article>
-
-        {% else %}
-
-        <!-- Mensaje cuando no hay turnos -->
-        <div class="rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+        <!-- MENSAJE SIN RESULTADOS -->
+        <div
+            id="sin-resultados"
+            class="{% if turnos %}hidden{% endif %} rounded-2xl bg-white px-6 py-12 text-center shadow-sm"
+        >
 
             <i
                 data-lucide="calendar-x"
@@ -233,17 +279,10 @@
 
         </div>
 
-        {% endfor %}
-
-    </div>
+    </section>
 
 </div>
 
-<!-- Inicialización de iconos -->
-<script>
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-</script>
+<script src="{{ url_for('static', filename='js/mis_turnos.js') }}"></script>
 
 {% endblock %}

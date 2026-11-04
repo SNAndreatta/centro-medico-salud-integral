@@ -1,4 +1,3 @@
-console.log("MIS_TURNOS.JS SE CARGÓ");
 document.addEventListener("DOMContentLoaded", () => {
 
     // ==========================================
