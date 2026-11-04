@@ -6,6 +6,7 @@ from src.errores import error_respuesta
 from src.repositories.agendas_repositories import buscar_agendas
 from src.repositories.pacientes_repositories import obtener_paciente_por_usuario
 from src.repositories.turnos_repositories import (
+    buscar_datos_turno_comprobante,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
     buscar_turnos,
@@ -15,6 +16,7 @@ from src.repositories.turnos_repositories import (
     reservar_turno as reservar_turno_repositorio,
     cancelar_turno as cancelar_turno_repositorio,
 )
+from src.services.smtp_service import enviar_comprobante_turno, validar_token_cancelacion_turno
 from src.utils.qr_utils import decodificar_payload_qr, generar_qr_para_turno
 from src.utils.roles import PACIENTE, MEDICO
 from src.validators.turnos_validators import (
@@ -43,7 +45,36 @@ def reservar_turno(id_turno, id_paciente):
     if resultado['resultado'] == 'NO_DISPONIBLE':
         return error_respuesta('El turno ya no está disponible', 'TURNO_NO_DISPONIBLE'), 409
 
-    return {
+    datos_turno = buscar_datos_turno_comprobante(id_turno)
+    paciente = None
+    if datos_turno is not None and datos_turno.get('correo_electronico'):
+        paciente = {
+            'id_paciente': int(id_paciente),
+            'nombre': datos_turno.get('nombre_paciente'),
+            'apellido': datos_turno.get('apellido_paciente'),
+            'correo_electronico': datos_turno.get('correo_electronico'),
+        }
+
+    email_result = enviar_comprobante_turno(
+        {
+            'id_turno': id_turno,
+            'fecha_horario_inicial': turno['fecha_horario_inicial'],
+            'medico': {
+                'nombre': datos_turno.get('nombre_medico') if datos_turno else None,
+                'apellido': datos_turno.get('apellido_medico') if datos_turno else None,
+                'especialidad': datos_turno.get('nombre_especialidad') if datos_turno else None,
+            },
+            'consultorio': {
+                'numero': datos_turno.get('numero_consultorio') if datos_turno else None,
+                'piso': datos_turno.get('piso_consultorio') if datos_turno else None,
+            },
+        },
+        paciente,
+        qr['imagen_bytes'],
+        qr['mime_type'],
+    )
+
+    respuesta = {
         'mensaje': 'Turno reservado correctamente',
         'turno': {
             'id_turno': id_turno,
@@ -56,7 +87,18 @@ def reservar_turno(id_turno, id_paciente):
             'mime_type': qr['mime_type'],
             'imagen_base64': base64.b64encode(qr['imagen_bytes']).decode('ascii'),
         },
-    }, 200
+    }
+
+    if email_result.get('enviado') is False:
+        respuesta['email'] = {
+            'enviado': False,
+            'motivo': email_result.get('motivo', 'ERROR_ENVIO'),
+            'error': email_result.get('error'),
+        }
+    else:
+        respuesta['email'] = {'enviado': True, 'destinatario': email_result.get('destinatario')}
+
+    return respuesta, 200
 
 
 def registrar_checkin_por_qr(token):

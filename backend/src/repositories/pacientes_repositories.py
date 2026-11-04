@@ -21,6 +21,22 @@ def obtener_paciente_por_usuario(id_usuario):
         conexion.close()
 
 
+def obtener_usuario_por_paciente(id_paciente):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM paciente WHERE id_paciente = %s LIMIT 1',
+            (id_paciente,),
+        )
+        fila = cursor.fetchone()
+        if fila is None:
+            return None
+        return int(fila['id_usuario'])
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def registrar_paciente(paciente):
     conexion, cursor = obtener_cursor()
     try:
