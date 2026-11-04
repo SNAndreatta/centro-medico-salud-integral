@@ -13,6 +13,8 @@ def mis_turnos():
             "iniciales": "NC",
             "especialidad": "Especialidad",
             "medico": "Nombre Completo",
+            "fecha_iso": "2026-11-09",
+            "estado": "pendiente",
             "fecha": "Día - Mes - Año",
             "hora": "15:00",
             "consultorio": "123"
@@ -22,6 +24,8 @@ def mis_turnos():
             "iniciales": "NC",
             "especialidad": "Especialidad",
             "medico": "Nombre Completo",
+            "fecha_iso": "2026-11-09",
+            "estado": "pendiente",
             "fecha": "Día - Mes - Año",
             "hora": "15:00",
             "consultorio": "123"
@@ -31,6 +35,8 @@ def mis_turnos():
             "iniciales": "NC",
             "especialidad": "Especialidad",
             "medico": "Nombre Completo",
+            "fecha_iso": "2026-11-09",
+            "estado": "pendiente",
             "fecha": "Día - Mes - Año",
             "hora": "15:00",
             "consultorio": "123"
@@ -40,6 +46,8 @@ def mis_turnos():
             "iniciales": "NC",
             "especialidad": "Especialidad",
             "medico": "Nombre Completo",
+            "fecha_iso": "2026-11-09",
+            "estado": "pendiente",
             "fecha": "Día - Mes - Año",
             "hora": "15:00",
             "consultorio": "123"
@@ -48,7 +56,8 @@ def mis_turnos():
 
     return render_template(
         'pacientes/mis_turnos.html',
-        turnos=turnos
+        turnos=turnos,
+        especialidades=ESPECIALIDADES
     )
 
 
