@@ -2,6 +2,117 @@ from src.db import obtener_cursor
 from src.utils.roles import PACIENTE
 
 
+def buscar_turno_por_id(id_turno):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+                SELECT
+                    t.id_turno,
+                    t.id_agenda,
+                    t.id_paciente,
+                    t.id_estado,
+                    LOWER(et.estado_turno) AS estado_turno,
+                    DATE_FORMAT(t.fecha_horario_inicial, '%Y-%m-%d %H:%i:%S') AS fecha_horario_inicial,
+                    t.codigo_qr
+                FROM turno t
+                JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+                WHERE t.id_turno = %s
+            """,
+            (id_turno,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def reservar_turno(id_turno, id_paciente, codigo_qr):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+                SELECT id_turno, id_paciente, id_estado
+                FROM turno
+                WHERE id_turno = %s
+                FOR UPDATE
+            """,
+            (id_turno,),
+        )
+        turno = cursor.fetchone()
+        if turno is None:
+            return None
+        if turno['id_paciente'] is not None or turno['id_estado'] != 1:
+            return {'resultado': 'NO_DISPONIBLE'}
+
+        cursor.execute(
+            """
+                UPDATE turno
+                SET id_paciente = %s,
+                    id_estado = (SELECT id_estado_turno FROM estado_turno WHERE LOWER(estado_turno) = 'reservado'),
+                    codigo_qr = %s
+                WHERE id_turno = %s
+            """,
+            (id_paciente, codigo_qr, id_turno),
+        )
+        conexion.commit()
+        return {'resultado': 'RESERVADO', 'id_turno': id_turno, 'codigo_qr': codigo_qr}
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def buscar_turno_por_codigo_qr(codigo_qr):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+                SELECT
+                    t.id_turno,
+                    t.id_agenda,
+                    t.id_paciente,
+                    t.id_estado,
+                    LOWER(et.estado_turno) AS estado_turno,
+                    DATE_FORMAT(t.fecha_horario_inicial, '%Y-%m-%d %H:%i:%S') AS fecha_horario_inicial,
+                    DATE_FORMAT(t.fecha_horario_llegada, '%Y-%m-%d %H:%i:%S') AS fecha_horario_llegada,
+                    t.codigo_qr
+                FROM turno t
+                JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+                WHERE t.codigo_qr = %s
+            """,
+            (codigo_qr,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def confirmar_checkin(id_turno, fecha_horario_llegada):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+                UPDATE turno
+                SET id_estado = (SELECT id_estado_turno FROM estado_turno WHERE LOWER(estado_turno) = 'confirmado'),
+                    fecha_horario_llegada = %s
+                WHERE id_turno = %s
+            """,
+            (fecha_horario_llegada, id_turno),
+        )
+        conexion.commit()
+        return cursor.rowcount > 0
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def buscar_turnos_disponibles(
     id_especialidad=None,
     id_medico=None,

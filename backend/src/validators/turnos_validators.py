@@ -1,3 +1,4 @@
+import re
 from datetime import time
 
 from src.errores import error_respuesta
@@ -12,8 +13,12 @@ from src.utils.utils import (
 def validar_hora_opcional(valor, nombre):
     if valor is None or not str(valor).strip():
         return None, None
+
+    texto = str(valor).strip()
+    if not re.fullmatch(r'\d{2}:\d{2}(:\d{2})?$', texto):
+        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
     try:
-        hora = time.fromisoformat(str(valor).strip())
+        hora = time.fromisoformat(texto)
     except ValueError:
         return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
     if hora.tzinfo is not None:
