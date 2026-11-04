@@ -1,3 +1,5 @@
+{% from "components/modales.html" import modal_confirmar %}
+
 <div class="flex flex-col gap-7">
     <section class="relative overflow-hidden rounded-[20px] bg-white">
         <div class="h-28 bg-acento"></div>
@@ -77,7 +79,7 @@
                     <p class="font-lexend text-3xl font-semibold text-acento">{{ turno.consultorio | default('123') }}</p>
                 </div>
                 <div class="flex md:justify-end">
-                    <button type="button" data-turno-id="{{ turno.id | default('') }}" class="cancelar-turno rounded-full bg-[#F3DEDF] px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-[#A52A2A] transition hover:bg-[#EFCBCD]">Cancelar</button>
+                    <button type="button" data-turno-id="{{ turno.id | default('') }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}" class="cancelar-turno rounded-full bg-[#F3DEDF] px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-[#A52A2A] transition hover:bg-[#EFCBCD]">Cancelar</button>
                 </div>
             </div>
         </article>
@@ -87,5 +89,16 @@
     {% endif %}
     </div>
 </section>
+
+{# POPUPS: CANCELAR TURNO #}
+{% if proximos_turnos is defined and proximos_turnos %}
+    {% for turno in proximos_turnos %}
+    {{ modal_confirmar(
+        id="modal-cancelar-turno-" ~ (turno.id | default(loop.index, true)),
+        titulo="¿Está seguro que quiere cancelar su turno?",
+        accion="#"
+    ) }}
+    {% endfor %}
+{% endif %}
 
 </div>

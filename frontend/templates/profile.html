@@ -3,6 +3,8 @@
 {% block title %}Mi perfil{% endblock %}
 
 {% block content %}
+{% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
+
 <div class="min-h-auto bg-[#e9eef2] px-4 sm:px-6">
     <div class="mx-auto max-w-5xl">
         {% if rol == "medico" %}
@@ -17,31 +19,50 @@
     </div>
 </div>
 
-<!-- Modal de configuración -->
-<div id="configuracion-modal"
-     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-3 sm:p-6"
-     aria-hidden="true">
 
-    <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="titulo-configuracion"
-        class="relative grid w-full max-w-[860px] grid-cols-1 overflow-y-auto rounded-[14px] bg-white p-6 shadow-sm sm:max-h-[92vh] sm:grid-cols-2 sm:p-4">
+<!-- POPUP: CONFIGURACIÓN DEL PERFIL -->
+{% call modal("configuracion-modal", "Configuración del perfil", "max-w-[860px]") %}
 
-        <!-- COLUMNA IZQUIERDA -->
-        <div class="border-b border-[#d5dfe6] pb-7 sm:border-b-0 sm:border-r sm:px-[14px] sm:pb-2 sm:pr-10">
+    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-10">
 
-            <h2 class="font-['Gelasio',serif] text-[25px] font-semibold leading-tight text-[#073b5d]">
-                Editar datos del perfil
-            </h2>
+        <!-- COLUMNA DERECHA: ACCIONES DE LA CUENTA -->
+        <div class="order-2 space-y-3 border-t border-gray-200 pt-5 sm:border-l sm:border-t-0 sm:pl-10 sm:pt-0">
 
-            <form id="form-editar-perfil" action="#" method="post" class="mt-5 space-y-5">
+            <button type="button"
+                    id="cerrar-sesion"
+                    data-abrir-modal="modal-cerrar-sesion"
+                    class="flex w-full items-center justify-between rounded-2xl border border-red-300 bg-[#F7E1E1] px-5 py-4 text-left text-red-700 transition hover:bg-[#F1CFCF]">
+                <span>
+                    <span class="block text-sm font-medium uppercase tracking-[0.12em]">Cerrar sesión</span>
+                    <span class="mt-0.5 block text-[10px] text-[#d76b68]">Nos vemos la próxima</span>
+                </span>
+                <i data-lucide="log-out" class="h-6 w-6 shrink-0"></i>
+            </button>
+
+            <button type="button"
+                    id="eliminar-cuenta"
+                    data-abrir-modal="modal-eliminar-cuenta"
+                    class="flex w-full items-center justify-between rounded-2xl border border-red-300 bg-[#F7E1E1] px-5 py-4 text-left text-red-700 transition hover:bg-[#F1CFCF]">
+                <span>
+                    <span class="block text-sm font-medium uppercase tracking-[0.12em]">Eliminar cuenta</span>
+                    <span class="mt-0.5 block text-[10px] text-[#d76b68]">Cuidado, esta acción tendrá consecuencias graves.</span>
+                </span>
+                <i data-lucide="trash-2" class="h-6 w-6 shrink-0"></i>
+            </button>
+
+        </div>
+
+
+        <!-- COLUMNA IZQUIERDA: EDITAR DATOS -->
+        <div class="order-1">
+
+            <form id="form-editar-perfil" action="#" method="post" class="space-y-4">
 
                 <!-- MAIL -->
                 <div>
                     <label for="email-perfil"
-                           class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
-                        MAIL
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                        Mail
                     </label>
 
                     <input
@@ -50,14 +71,14 @@
                         type="email"
                         value="{{ usuario.email if usuario is defined and usuario.email is defined else '' }}"
                         placeholder="ejemplo.usuario@gmail.com"
-                        class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none placeholder:text-[#7893a8] focus:border-[#073b5d] focus:ring-2 focus:ring-[#073b5d]/10">
+                        class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-[#073B57] outline-none placeholder:text-[#7893a8] focus:border-[#66869F]">
                 </div>
 
                 <!-- CONTRASEÑA ACTUAL -->
                 <div>
                     <label for="password-visible"
-                           class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
-                        CONTRASEÑA
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                        Contraseña
                     </label>
 
                     <div class="relative">
@@ -67,180 +88,143 @@
                             value="••••••••••••••••"
                             readonly
                             autocomplete="off"
-                            class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] tracking-[0.18em] text-[#52718a] outline-none">
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm tracking-[0.18em] text-[#073B57] outline-none">
 
                         <button
                             type="button"
-                            class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
+                            class="toggle-password absolute inset-y-0 right-4 flex items-center text-[#7893a8]"
                             data-target="password-visible"
                             aria-label="Mostrar contraseña">
-                            ◉
+                            <i data-lucide="eye-off" class="h-4 w-4 [input[type=text]~button_&]:hidden"></i>
+                            <i data-lucide="eye" class="hidden h-4 w-4 [input[type=text]~button_&]:block"></i>
                         </button>
                     </div>
 
                     <button
                         type="button"
                         id="toggle-cambiar-password"
-                        class="mt-4 rounded-full bg-[#003b5c] px-4 py-[7px] font-['Lexend',sans-serif] text-[11px] text-white transition hover:bg-[#075078]">
+                        class="mt-3 rounded-full border border-[#073B57] px-4 py-2 text-xs font-medium text-[#073B57] transition hover:bg-gray-50">
                         Cambiar contraseña
                     </button>
                 </div>
 
                 <!-- CAMPOS PARA CAMBIAR CONTRASEÑA -->
-                <div id="seccion-cambiar-password" class="hidden space-y-5">
+                <div id="seccion-cambiar-password" class="hidden space-y-4">
 
-                    <div>
-                        <label for="password-actual"
-                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
-                            CONTRASEÑA ANTERIOR
-                        </label>
+                <div>
+                    <label for="password-actual"
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                        Contraseña anterior
+                    </label>
 
-                        <div class="relative">
-                            <input
-                                id="password-actual"
-                                name="password_actual"
-                                type="password"
-                                autocomplete="current-password"
-                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+                    <div class="relative">
+                        <input
+                            id="password-actual"
+                            name="password_actual"
+                            type="password"
+                            autocomplete="current-password"
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
 
-                            <button
-                                type="button"
-                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
-                                data-target="password-actual"
-                                aria-label="Mostrar contraseña anterior">
-                                ◉
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            class="toggle-password absolute inset-y-0 right-4 flex items-center text-[#7893a8]"
+                            data-target="password-actual"
+                            aria-label="Mostrar contraseña anterior">
+                            <i data-lucide="eye-off" class="h-4 w-4 [input[type=text]~button_&]:hidden"></i>
+                            <i data-lucide="eye" class="hidden h-4 w-4 [input[type=text]~button_&]:block"></i>
+                        </button>
                     </div>
+                </div>
 
-                    <div>
-                        <label for="nueva-password"
-                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
-                            CONTRASEÑA NUEVA
-                        </label>
+                <div>
+                    <label for="nueva-password"
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                        Contraseña nueva
+                    </label>
 
-                        <div class="relative">
-                            <input
-                                id="nueva-password"
-                                name="nueva_password"
-                                type="password"
-                                autocomplete="new-password"
-                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+                    <div class="relative">
+                        <input
+                            id="nueva-password"
+                            name="nueva_password"
+                            type="password"
+                            autocomplete="new-password"
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
 
-                            <button
-                                type="button"
-                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
-                                data-target="nueva-password"
-                                aria-label="Mostrar contraseña nueva">
-                                ◉
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            class="toggle-password absolute inset-y-0 right-4 flex items-center text-[#7893a8]"
+                            data-target="nueva-password"
+                            aria-label="Mostrar contraseña nueva">
+                            <i data-lucide="eye-off" class="h-4 w-4 [input[type=text]~button_&]:hidden"></i>
+                            <i data-lucide="eye" class="hidden h-4 w-4 [input[type=text]~button_&]:block"></i>
+                        </button>
                     </div>
+                </div>
 
-                    <div>
-                        <label for="confirmar-password"
-                               class="mb-1 block font-['Lexend',sans-serif] text-[11px] tracking-[0.04em] text-[#52718a]">
-                            REPETIR CONTRASEÑA NUEVA
-                        </label>
+                <div>
+                    <label for="confirmar-password"
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                        Repetir contraseña nueva
+                    </label>
 
-                        <div class="relative">
-                            <input
-                                id="confirmar-password"
-                                name="confirmar_password"
-                                type="password"
-                                autocomplete="new-password"
-                                class="h-[29px] w-full rounded-full border border-[#b8cbd9] bg-white px-4 pr-10 font-['Lexend',sans-serif] text-[11px] text-[#52718a] outline-none focus:border-[#073b5d]">
+                    <div class="relative">
+                        <input
+                            id="confirmar-password"
+                            name="confirmar_password"
+                            type="password"
+                            autocomplete="new-password"
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
 
-                            <button
-                                type="button"
-                                class="toggle-password absolute inset-y-0 right-3 text-[#7893a8]"
-                                data-target="confirmar-password"
-                                aria-label="Mostrar confirmación de contraseña">
-                                ◉
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            class="toggle-password absolute inset-y-0 right-4 flex items-center text-[#7893a8]"
+                            data-target="confirmar-password"
+                            aria-label="Mostrar confirmación de contraseña">
+                            <i data-lucide="eye-off" class="h-4 w-4 [input[type=text]~button_&]:hidden"></i>
+                            <i data-lucide="eye" class="hidden h-4 w-4 [input[type=text]~button_&]:block"></i>
+                        </button>
                     </div>
+                </div>
 
                     <button
                         type="submit"
                         form="form-cambiar-password"
-                        class="rounded-full bg-[#003b5c] px-4 py-[7px] font-['Lexend',sans-serif] text-[11px] text-white transition hover:bg-[#075078]">
+                        class="rounded-full bg-[#073B57] px-4 py-2 text-xs font-medium text-white transition hover:bg-[#0B4D70]">
                         Guardar contraseña
                     </button>
                 </div>
+
+                {{ botones_modal("configuracion-modal", "Guardar") }}
             </form>
 
             <form id="form-cambiar-password" action="#" method="post" class="hidden"></form>
+
         </div>
+    </div>
 
-        <!-- COLUMNA DERECHA -->
-        <div class="pt-7 sm:px-[14px] sm:pl-16 sm:pt-0">
+{% endcall %}
 
-            <h2 id="titulo-configuracion"
-                class="font-['Gelasio',serif] text-[25px] font-semibold leading-tight text-[#073b5d]">
-                Configuración del perfil
-            </h2>
 
-            <div class="mt-6 space-y-8">
+<!-- POPUP: CERRAR SESIÓN -->
+{{ modal_confirmar(
+    id="modal-cerrar-sesion",
+    titulo="¿Está seguro que quiere cerrar sesión?",
+    accion="#"
+) }}
 
-                <!-- CERRAR SESIÓN -->
-                <a href="#"
-                   id="cerrar-sesion"
-                   class="flex min-h-[85px] items-center justify-between rounded-[15px] bg-[#f7dddd] px-5 py-4 text-[#c91f1b] transition hover:bg-[#f3d2d2]">
 
-                    <span>
-                        <span class="block font-['Lexend',sans-serif] text-[15px] font-medium tracking-[0.02em]">
-                            CERRAR SESIÓN
-                        </span>
+<!-- POPUP: ELIMINAR CUENTA -->
+{{ modal_confirmar(
+    id="modal-eliminar-cuenta",
+    titulo="¿Está seguro que quiere eliminar su cuenta?",
+    mensaje="Se eliminarán todos sus datos.",
+    accion="#"
+) }}
 
-                        <span class="mt-0.5 block font-['Lexend',sans-serif] text-[9px] text-[#d76b68]">
-                            Nos vemos la próxima
-                        </span>
-                    </span>
+{% endblock %}
 
-                    <svg viewBox="0 0 32 32"
-                         class="h-8 w-8 shrink-0"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.7"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-                        <path d="M18 5H8a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h10"/>
-                        <path d="M15 16h13m-5-5 5 5-5 5"/>
-                    </svg>
-                </a>
 
-                <!-- ELIMINAR CUENTA -->
-                <a href="#"
-                   id="eliminar-cuenta"
-                   class="flex min-h-[85px] items-center justify-between rounded-[15px] bg-[#f7dddd] px-5 py-4 text-[#c91f1b] transition hover:bg-[#f3d2d2]">
-
-                    <span>
-                        <span class="block font-['Lexend',sans-serif] text-[15px] font-medium tracking-[0.02em]">
-                            ELIMINAR CUENTA
-                        </span>
-
-                        <span class="mt-0.5 block font-['Lexend',sans-serif] text-[9px] text-[#d76b68]">
-                            Cuidado, esta acción tendrá consecuencias graves.
-                        </span>
-                    </span>
-
-                    <svg viewBox="0 0 32 32"
-                         class="h-8 w-8 shrink-0"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.7"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-                        <path d="M5 8h22M12 8V5h8v3m-13 0 1.5 19h15L25 8"/>
-                        <path d="M13 13v9m6-9v9"/>
-                    </svg>
-                </a>
-
-            </div>
-        </div>
-    </section>
-</div>
-
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/profile.js') }}" defer></script>
 {% endblock %}

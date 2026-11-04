@@ -10,3 +10,32 @@
     --color-dominante: #E7EBEF;
     --color-background: #ffffff;
 }
+
+/* ===== Scrollbars ===== */
+
+/* Firefox (y navegadores sin soporte de ::-webkit-scrollbar) */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #0a2235 transparent;
+    }
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #B8C9D3;
+    border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #0a2235;
+}
