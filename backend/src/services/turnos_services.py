@@ -1,12 +1,166 @@
-from src.repositories.turnos_repositories import buscar_turnos, buscar_turnos_disponibles, insertar_turnos_disponibles
+import base64
+from datetime import datetime, date, time, timedelta
+from zoneinfo import ZoneInfo
+
+from src.errores import error_respuesta
+from src.repositories.agendas_repositories import buscar_agendas
+from src.repositories.pacientes_repositories import obtener_paciente_por_usuario
+from src.repositories.turnos_repositories import (
+    buscar_datos_turno_comprobante,
+    buscar_turno_por_codigo_qr,
+    buscar_turno_por_id,
+    buscar_turnos,
+    buscar_turnos_disponibles,
+    confirmar_checkin,
+    insertar_turnos_disponibles,
+    reservar_turno as reservar_turno_repositorio,
+    cancelar_turno as cancelar_turno_repositorio,
+)
+from src.services.smtp_service import enviar_comprobante_turno, validar_token_cancelacion_turno
+from src.utils.qr_utils import decodificar_payload_qr, generar_qr_para_turno
 from src.utils.roles import PACIENTE, MEDICO
 from src.validators.turnos_validators import (
     validar_filtros_turnos,
     validar_filtros_turnos_disponibles,
 )
-from datetime import datetime, date, time, timedelta
-from zoneinfo import ZoneInfo
-from src.repositories.agendas_repositories import buscar_agendas
+
+
+def reservar_turno(id_turno, id_paciente):
+    turno = buscar_turno_por_id(id_turno)
+    if turno is None:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+    if turno['id_paciente'] is not None or turno['estado_turno'] != 'disponible':
+        return error_respuesta('El turno ya no está disponible', 'TURNO_NO_DISPONIBLE'), 409
+
+    qr = generar_qr_para_turno({
+        'id_turno': turno['id_turno'],
+        'id_agenda': turno['id_agenda'],
+        'id_paciente': id_paciente,
+        'fecha_horario_inicial': turno['fecha_horario_inicial'],
+    }, estado='reservado', formato='png')
+
+    resultado = reservar_turno_repositorio(id_turno, id_paciente, qr['codigo_qr'])
+    if resultado is None:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+    if resultado['resultado'] == 'NO_DISPONIBLE':
+        return error_respuesta('El turno ya no está disponible', 'TURNO_NO_DISPONIBLE'), 409
+
+    datos_turno = buscar_datos_turno_comprobante(id_turno)
+    paciente = None
+    if datos_turno is not None and datos_turno.get('correo_electronico'):
+        paciente = {
+            'id_paciente': int(id_paciente),
+            'nombre': datos_turno.get('nombre_paciente'),
+            'apellido': datos_turno.get('apellido_paciente'),
+            'correo_electronico': datos_turno.get('correo_electronico'),
+        }
+
+    email_result = enviar_comprobante_turno(
+        {
+            'id_turno': id_turno,
+            'fecha_horario_inicial': turno['fecha_horario_inicial'],
+            'medico': {
+                'nombre': datos_turno.get('nombre_medico') if datos_turno else None,
+                'apellido': datos_turno.get('apellido_medico') if datos_turno else None,
+                'especialidad': datos_turno.get('nombre_especialidad') if datos_turno else None,
+            },
+            'consultorio': {
+                'numero': datos_turno.get('numero_consultorio') if datos_turno else None,
+                'piso': datos_turno.get('piso_consultorio') if datos_turno else None,
+            },
+        },
+        paciente,
+        qr['imagen_bytes'],
+        qr['mime_type'],
+    )
+
+    respuesta = {
+        'mensaje': 'Turno reservado correctamente',
+        'turno': {
+            'id_turno': id_turno,
+            'id_paciente': id_paciente,
+            'estado': 'reservado',
+            'codigo_qr': qr['codigo_qr'],
+        },
+        'qr': {
+            'codigo_qr': qr['codigo_qr'],
+            'mime_type': qr['mime_type'],
+            'imagen_base64': base64.b64encode(qr['imagen_bytes']).decode('ascii'),
+        },
+    }
+
+    if email_result.get('enviado') is False:
+        respuesta['email'] = {
+            'enviado': False,
+            'motivo': email_result.get('motivo', 'ERROR_ENVIO'),
+            'error': email_result.get('error'),
+        }
+    else:
+        respuesta['email'] = {'enviado': True, 'destinatario': email_result.get('destinatario')}
+
+    return respuesta, 200
+
+
+def registrar_checkin_por_qr(token):
+    try:
+        payload = decodificar_payload_qr(token)
+    except ValueError as exc:
+        return error_respuesta(str(exc), 'QR_INVALIDO'), 400
+
+    turno = buscar_turno_por_codigo_qr(token)
+    if turno is None:
+        return error_respuesta('El código QR no pertenece a un turno válido', 'QR_INEXISTENTE'), 404
+    if turno['estado_turno'] != 'reservado':
+        return error_respuesta('El turno ya no está en estado reservado', 'TURNO_NO_RESERVADO'), 409
+
+    fecha_turno = datetime.fromisoformat(turno['fecha_horario_inicial'])
+    ahora = datetime.now().replace(tzinfo=None)
+    inicio_valido = fecha_turno - timedelta(minutes=30)
+    fin_valido = fecha_turno + timedelta(minutes=15)
+
+    if not (inicio_valido <= ahora <= fin_valido):
+        return error_respuesta('El check-in está fuera del rango permitido', 'QR_EXPIRADO'), 409
+
+    id_turno = int(turno['id_turno'])
+    if int(payload.get('id_turno', -1)) != id_turno:
+        return error_respuesta('El QR no coincide con el turno asociado', 'QR_INVALIDO'), 400
+
+    actualizado = confirmar_checkin(id_turno, ahora.strftime('%Y-%m-%d %H:%M:%S'))
+    if not actualizado:
+        return error_respuesta('No fue posible confirmar el check-in del turno', 'CHECKIN_NO_ACTUALIZADO'), 500
+
+    return {
+        'mensaje': 'Check-in registrado correctamente',
+        'id_turno': id_turno,
+        'estado': 'confirmado',
+        'fecha_horario_llegada': ahora.strftime('%Y-%m-%d %H:%M:%S'),
+    }, 200
+
+
+def cancelar_turno(id_turno, usuario_actual):
+    resultado = cancelar_turno_repositorio(
+        id_turno,
+        usuario_actual['id_usuario'],
+        usuario_actual['id_rol'],
+    )
+    if resultado is None:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+    if resultado['resultado'] == 'NO_AUTORIZADO':
+        return error_respuesta(
+            'El turno no pertenece al paciente autenticado',
+            'TURNO_NO_AUTORIZADO',
+        ), 403
+    if resultado['resultado'] == 'NO_CANCELABLE':
+        return error_respuesta(
+            'El turno no se encuentra reservado',
+            'TURNO_NO_CANCELABLE',
+        ), 409
+    return {
+        'mensaje': 'Turno cancelado correctamente',
+        'id_turno': resultado['id_turno'],
+        'estado': 'cancelado',
+        'disponible': True,
+    }, 200
 
 def filtrar_turnos_disponibles(parametros):
     filtros, error = validar_filtros_turnos_disponibles(parametros)

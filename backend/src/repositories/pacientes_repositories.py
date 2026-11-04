@@ -2,7 +2,40 @@ import mysql.connector
 from mysql.connector import errorcode
 
 from src.db import obtener_cursor
-from  src.utils.roles import PACIENTE
+from src.utils.roles import PACIENTE
+
+
+def obtener_paciente_por_usuario(id_usuario):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_paciente FROM paciente WHERE id_usuario = %s LIMIT 1',
+            (id_usuario,),
+        )
+        fila = cursor.fetchone()
+        if fila is None:
+            return None
+        return int(fila['id_paciente'])
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def obtener_usuario_por_paciente(id_paciente):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM paciente WHERE id_paciente = %s LIMIT 1',
+            (id_paciente,),
+        )
+        fila = cursor.fetchone()
+        if fila is None:
+            return None
+        return int(fila['id_usuario'])
+    finally:
+        cursor.close()
+        conexion.close()
+
 
 def registrar_paciente(paciente):
     conexion, cursor = obtener_cursor()

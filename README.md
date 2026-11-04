@@ -22,6 +22,8 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 
 Copiar el valor generado en `backend/.env`. El backend acepta una clave de desarrollo solo cuando `FLASK_DEBUG=true`; en modo no-debug exige una clave de al menos 32 caracteres.
 
+Para habilitar el envío de comprobantes por email, completar también las variables SMTP del archivo `backend/.env` con la cuenta del proveedor y el host seguro (por ejemplo Gmail, SMTP de la empresa o un relay corporativo). Las opciones `SMTP_USE_TLS`/`SMTP_USE_SSL` controlan la conexión segura, y el envío queda deshabilitado por defecto si `SMTP_ENABLED=false`.
+
 Para ejecutar la db mysql local usar 
 ``` bash
 docker compose -f docker-compose.yaml -f docker-compose.development.yaml --profile development up --build
