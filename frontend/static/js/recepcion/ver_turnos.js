@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ==========================================
-    // ELEMENTOS DEL PANEL DE FILTROS
+    // ELEMENTOS DEL DOM
     // ==========================================
 
     const botonFiltros = document.querySelector("#boton-filtros");
@@ -31,6 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // ABRIR Y CERRAR PANEL DE FILTROS
     // ==========================================
 
+    function abrirPanelFiltros() {
+
+        if (!panelFiltros || !botonFiltros) return;
+
+        panelFiltros.classList.remove("hidden");
+
+        botonFiltros.setAttribute("aria-expanded", "true");
+
+    }
+
+
     function cerrarPanelFiltros() {
 
         if (!panelFiltros || !botonFiltros) return;
@@ -42,17 +53,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    function alternarPanelFiltros() {
+
+        if (!panelFiltros) return;
+
+        const estaAbierto = !panelFiltros.classList.contains("hidden");
+
+        if (estaAbierto) {
+            cerrarPanelFiltros();
+        } else {
+            abrirPanelFiltros();
+        }
+
+    }
+
+
     if (botonFiltros && panelFiltros) {
 
         botonFiltros.addEventListener("click", (event) => {
 
+            event.preventDefault();
             event.stopPropagation();
 
-            panelFiltros.classList.toggle("hidden");
-
-            const abierto = !panelFiltros.classList.contains("hidden");
-
-            botonFiltros.setAttribute("aria-expanded", String(abierto));
+            alternarPanelFiltros();
 
         });
 
@@ -65,10 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function filtrarTurnos() {
 
-        if (!filtroCobertura || !filtroMedico) return;
+        const cobertura = filtroCobertura
+            ? filtroCobertura.value.toLowerCase().trim()
+            : "";
 
-        const cobertura = filtroCobertura.value.toLowerCase().trim();
-        const medico = filtroMedico.value.toLowerCase().trim();
+        const medico = filtroMedico
+            ? filtroMedico.value.toLowerCase().trim()
+            : "";
 
         let turnosVisibles = 0;
 
@@ -103,13 +129,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
 
-        // Mostrar mensaje si no hay resultados
+        // Mostrar mensaje cuando no hay resultados.
 
         if (mensajeVacio) {
 
             mensajeVacio.classList.toggle(
                 "hidden",
-                turnosVisibles !== 0
+                turnosVisibles > 0
             );
 
         }
@@ -123,7 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (aplicarFiltros) {
 
-        aplicarFiltros.addEventListener("click", () => {
+        aplicarFiltros.addEventListener("click", (event) => {
+
+            event.preventDefault();
 
             filtrarTurnos();
 
@@ -140,7 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (limpiarFiltros) {
 
-        limpiarFiltros.addEventListener("click", () => {
+        limpiarFiltros.addEventListener("click", (event) => {
+
+            event.preventDefault();
 
             if (filtroCobertura) {
                 filtroCobertura.value = "";
@@ -165,15 +195,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("click", (event) => {
 
-        if (
-            panelFiltros &&
-            botonFiltros &&
-            !panelFiltros.contains(event.target) &&
-            !botonFiltros.contains(event.target)
-        ) {
+        if (!panelFiltros || !botonFiltros) return;
 
+        const clicDentroDelPanel = panelFiltros.contains(event.target);
+        const clicEnBoton = botonFiltros.contains(event.target);
+
+        if (!clicDentroDelPanel && !clicEnBoton) {
             cerrarPanelFiltros();
-
         }
 
     });
@@ -186,11 +214,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (event) => {
 
         if (event.key === "Escape") {
-
             cerrarPanelFiltros();
-
         }
 
     });
+
 
 });

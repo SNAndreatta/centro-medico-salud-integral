@@ -127,6 +127,194 @@
 
         </div>
 
+<<<<<<< HEAD
+=======
+
+        <!-- =====================================
+             MODAL: EDITAR CONSULTORIO
+        ====================================== -->
+
+        <div
+            id="modal-editar-consultorio-{{ consultorio.id }}"
+            class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4 py-6"
+            onclick="cerrarSiFondo(event, 'modal-editar-consultorio-{{ consultorio.id }}')"
+        >
+
+            <section
+                role="dialog"
+                aria-modal="true"
+                class="w-full max-w-[350px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
+                onclick="event.stopPropagation()"
+            >
+
+                <!-- CABECERA -->
+                <div class="mb-5 flex items-center justify-between">
+
+                    <h2 class="font-serif text-xl font-bold text-[#073B57]">
+                        Editar consultorio
+                    </h2>
+
+                </div>
+
+
+                <!-- FORMULARIO -->
+                <form
+                    method="POST"
+                    action="{{ url_for('rutas_admin_consultorio.editar_consultorio', consultorio_id=consultorio.id) }}"
+                    class="space-y-4"
+                >
+
+                    <!-- PISO -->
+                    <div>
+
+                        <label
+                            for="piso-editar-{{ consultorio.id }}"
+                            class="mb-2 block text-[9px] font-medium uppercase text-[#7190a5]"
+                        >
+                            PISO
+                        </label>
+
+                        <select
+                            id="piso-editar-{{ consultorio.id }}"
+                            name="piso"
+                            required
+                            class="w-full rounded-full border border-[#cbd5df] bg-white px-3 py-2 text-xs text-[#003b5c] outline-none focus:border-[#003b5c]"
+                        >
+
+                            {% for piso in pisos %}
+
+                            <option
+                                value="{{ piso }}"
+                                {% if consultorio.piso == piso %}selected{% endif %}
+                            >
+                                Piso {{ piso }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- NÚMERO -->
+                    <div>
+
+                        <label
+                            for="numero-editar-{{ consultorio.id }}"
+                            class="mb-2 block text-[9px] font-medium uppercase text-[#7190a5]"
+                        >
+                            NÚMERO DE CONSULTORIO
+                        </label>
+
+                        <input
+                            id="numero-editar-{{ consultorio.id }}"
+                            name="numero"
+                            type="number"
+                            min="1"
+                            max="9999"
+                            value="{{ consultorio.numero }}"
+                            required
+                            class="w-full rounded-full border border-[#cbd5df] px-3 py-2 text-xs text-[#003b5c] outline-none focus:border-[#003b5c]"
+                        >
+
+                    </div>
+
+
+                    <!-- BOTONES -->
+                    <div class="flex gap-2 pt-2">
+
+                        <button
+                            type="button"
+                            onclick="cerrarModal('modal-editar-consultorio-{{ consultorio.id }}')"
+                            class="w-1/2 rounded-full border border-gray-200 px-3 py-2 text-[13px] text-[#66869F] hover:bg-gray-100"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="w-1/2 rounded-full bg-[#073B57] px-3 py-2 text-[13px] font-medium text-white hover:bg-[#0B4D70]"
+                        >
+                            Guardar cambios
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </div>
+
+
+
+        <!-- =====================================
+             MODAL: ELIMINAR CONSULTORIO
+        ====================================== -->
+
+        <div
+            id="modal-eliminar-consultorio-{{ consultorio.id }}"
+            class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4 py-6"
+            onclick="cerrarSiFondo(event, 'modal-eliminar-consultorio-{{ consultorio.id }}')"
+        >
+
+            <section
+                role="dialog"
+                aria-modal="true"
+                class="w-full max-w-[400px] rounded-xl bg-white p-5 shadow-xl"
+                onclick="event.stopPropagation()"
+            >
+
+                <div class="flex items-center justify-between">
+
+                    <h2 class="font-serif text-xl font-bold text-[#073B57]">
+                        Eliminar consultorio
+                    </h2>
+                </div>
+
+
+                <div class="mt-4 rounded-lg bg-[#F7E1E1] p-4">
+
+                    <p class="text-xs font-semibold text-red-700">
+                        ¿Eliminar el Consultorio {{ consultorio.numero }}?
+                    </p>
+
+                    <p class="mt-1 text-[10px] leading-5 text-red-500">
+                        Esta acción eliminará el consultorio del listado.
+                    </p>
+
+                </div>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('rutas_admin_consultorio.eliminar_consultorio', consultorio_id=consultorio.id) }}"
+                    class="mt-5 flex justify-center gap-2"
+                >
+
+                    <button
+                        type="button"
+                        onclick="cerrarModal('modal-eliminar-consultorio-{{ consultorio.id }}')"
+                        class="w-1/2 rounded-full border border-gray-200 px-3 py-2 text-[13px] text-[#66869F] hover:bg-gray-100"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="w-1/2 rounded-full bg-red-600 px-3 py-2 text-[13px] text-white hover:bg-red-700"
+                    >
+                        Confirmar
+                    </button>
+
+                </form>
+
+            </section>
+
+        </div>
+
+>>>>>>> 02f50ac9d2c4fed305375a11693b231b636f1b95
         {% endfor %}
 
 

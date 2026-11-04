@@ -25,96 +25,77 @@
     </div>
 
     <!-- Panel de filtros -->
-    <div id="filtros" class="mb-6 hidden rounded-2xl bg-white p-5 shadow-sm">
+    <div
+        id="panel-filtros"
+        class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+    >
 
-        <form
-            method="GET"
-            action="#turnos"
-            class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        >
+        <h2 class="mb-4 font-lexend text-base font-semibold">
+            Filtrar turnos
+        </h2>
 
-            <!-- Fecha -->
-            <div>
-                <label class="mb-1 block text-sm font-semibold text-acento">
-                    Fecha
-                </label>
 
-                <input
-                    type="date"
-                    name="fecha"
-                    value="{{ request.args.get('fecha', '') }}"
-                    class="w-full rounded-lg border border-gray-300 p-2 text-sm text-acento outline-none focus:border-acento"
-                >
-            </div>
+        <!-- Filtro por cobertura -->
+        <div class="mb-4">
 
-            <!-- Especialidad -->
-            <div>
-                <label class="mb-1 block text-sm font-semibold text-acento">
-                    Especialidad
-                </label>
+            <label for="filtro-cobertura" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
+                COBERTURA
+            </label>
 
-                <select
-                    name="especialidad"
-                    class="w-full rounded-lg border border-gray-300 p-2 text-sm text-acento outline-none focus:border-acento"
-                >
-                    <option value="">Todas</option>
+            <select
+                id="filtro-cobertura"
+                class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+            >
+                <option value="">Todas las coberturas</option>
+                <option value="osde">OSDE</option>
+                <option value="galeno">Galeno</option>
+                <option value="swiss medical">Swiss Medical</option>
+                <option value="medifé">Medifé</option>
+            </select>
 
-                    {% for especialidad in especialidades %}
-                    <option
-                        value="{{ especialidad }}"
-                        {% if request.args.get('especialidad') == especialidad %}selected{% endif %}
-                    >
-                        {{ especialidad }}
-                    </option>
-                    {% endfor %}
+        </div>
 
-                </select>
-            </div>
 
-            <!-- Cobertura -->
-            <div>
-                <label class="mb-1 block text-sm font-semibold text-acento">
-                    Cobertura
-                </label>
+        <!-- Filtro por médico -->
+        <div class="mb-5">
 
-                <select
-                    name="cobertura"
-                    class="w-full rounded-lg border border-gray-300 p-2 text-sm text-acento outline-none focus:border-acento"
-                >
-                    <option value="">Todas</option>
+            <label for="filtro-medico" class="mb-2 block font-lexend text-xs font-medium text-slate-500">
+                ESPECIALIDAD / MÉDICO
+            </label>
 
-                    {% for cobertura in coberturas %}
-                    <option
-                        value="{{ cobertura }}"
-                        {% if request.args.get('cobertura') == cobertura %}selected{% endif %}
-                    >
-                        {{ cobertura }}
-                    </option>
-                    {% endfor %}
+            <select
+                id="filtro-medico"
+                class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+            >
+                <option value="">Todos los médicos</option>
+                <option value="dr. juan pérez">Dr. Juan Pérez</option>
+                <option value="dra. ana martínez">Dra. Ana Martínez</option>
+                <option value="dr. carlos gómez">Dr. Carlos Gómez</option>
+            </select>
 
-                </select>
-            </div>
+        </div>
 
-            <!-- Botones -->
-            <div class="flex items-end gap-2">
 
-                <button
-                    type="submit"
-                    class="flex-1 rounded-lg bg-acento px-4 py-2 font-semibold text-white transition hover:opacity-90"
-                >
-                    Aplicar
-                </button>
+        <!-- Botones -->
+        <div class="flex items-center justify-between gap-3">
 
-                <a
-                    href="{{ url_for(request.endpoint) }}"
-                    class="rounded-lg bg-dominante px-4 py-2 font-semibold text-acento transition hover:bg-gray-300"
-                >
-                    Limpiar
-                </a>
+            <button
+                type="button"
+                id="limpiar-filtros"
+                class="rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+            >
+                Limpiar
+            </button>
 
-            </div>
+            <button
+                type="button"
+                id="aplicar-filtros"
+                class="rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+            >
+                Aplicar filtros
+            </button>
 
-        </form>
+        </div>
 
     </div>
 
