@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="min-h-screen bg-[#E7EBF0] px-4 py-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-[#E7EBF0]">
     <div class="mx-auto max-w-[1100px]">
 
         <!-- PANEL DE DETALLE -->
@@ -14,7 +14,7 @@
             <div class="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
-                    <h1 class="font-serif text-xl text-[#073B57]">
+                    <h1 class="font-serif text-3xl text-[#073B57]">
                         {{ cobertura.nombre }}
                     </h1>
 
@@ -353,15 +353,9 @@
              onclick="event.stopPropagation()">
 
         <div class="flex items-center justify-between">
-            <h2 class="font-serif text-base font-bold text-[#073B57]">
+            <h2 class="font-serif text-xl font-bold text-[#073B57]">
                 Eliminar cobertura
             </h2>
-
-            <button type="button"
-                    onclick="cerrarModal('modal-eliminar-cobertura')"
-                    aria-label="Cerrar">
-                <i data-lucide="x" class="h-5 w-5 text-[#66869F]"></i>
-            </button>
         </div>
 
         <div class="mt-4 rounded-lg bg-[#F7E1E1] p-4">
@@ -375,16 +369,16 @@
 
         <form method="DELETE"
               action="{{ url_for('rutas_admin_cobertura.eliminar_cobertura', cobertura_id=cobertura.id) }}"
-              class="mt-5 flex justify-end gap-2">
+              class="mt-5 flex justify-between gap-2">
 
             <button type="button"
                     onclick="cerrarModal('modal-eliminar-cobertura')"
-                    class="rounded-full border border-gray-200 px-4 py-2 text-[10px] text-[#66869F]">
+                    class="rounded-full w-1/2 border border-gray-200 px-4 py-2 text-[13px] text-[#66869F]">
                 Cancelar
             </button>
 
             <button type="submit"
-                    class="rounded-full bg-red-600 px-4 py-2 text-[10px] text-white hover:bg-red-700">
+                    class="rounded-full w-1/2 bg-red-600 px-4 py-2 text-[13px] text-white hover:bg-red-700">
                 Confirmar eliminación
             </button>
         </form>

@@ -42,17 +42,17 @@
 
         <div class="border-b border-[#cbd5df] pb-2 sm:border-b-0 sm:border-r sm:pb-0">
             <p class="mb-1 text-[9px] uppercase text-[#7190a5]">Email</p>
-            <p class="text-[10px] font-medium underline">{{ medico.email }}</p>
+            <p class="text-[10px] font-medium text-acento underline">{{ medico.email }}</p>
         </div>
 
         <div class="border-b border-[#cbd5df] pb-2 sm:border-b-0 sm:border-r sm:px-5 sm:pb-0">
             <p class="mb-1 text-[9px] uppercase text-[#7190a5]">Documento</p>
-            <p class="text-[10px] font-medium">{{ medico.documento }}</p>
+            <p class="text-[10px] text-acento font-medium">{{ medico.documento }}</p>
         </div>
 
         <div class="sm:px-5">
             <p class="mb-1 text-[9px] uppercase text-[#7190a5]">Fecha de nacimiento</p>
-            <p class="text-[10px] font-medium">{{ medico.fecha_nacimiento }}</p>
+            <p class="text-[10px] text-acento font-medium">{{ medico.fecha_nacimiento }}</p>
         </div>
     </section>
 
@@ -118,12 +118,12 @@
                 class="fila-cobertura flex min-h-[52px] items-center justify-between rounded-xl bg-white px-5 py-3"
                 data-busqueda="{{ cobertura.nombre | lower }}"
             >
-                <span class="font-gelasio text-lg text-[#073B57]">
+                <span class="font-gelasio text-xl text-[#073B57]">
                     {{ cobertura.nombre }}
                 </span>
 
                 <a href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
-                   class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1 text-[9px] text-white hover:bg-[#073B57]">
+                   class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1 text-[11px] text-white hover:bg-[#073B57]">
                     Detalles
                     <i data-lucide="chevron-right" class="h-3 w-3"></i>
                 </a>
@@ -312,7 +312,7 @@
 
         <div class="flex justify-end gap-3">
             <button type="button" id="cancelarEliminarMedico"
-                    class="rounded-full border border-[#B8C9D3] px-4 py-2 text-xs text-[#66869F]">
+                    class="rounded-full border border-[#B8C9D3] px-4 py-2 text-xs text-[#66869F] hover:bg-gray-100">
                 Cancelar
             </button>
 

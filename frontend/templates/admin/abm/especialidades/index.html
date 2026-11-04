@@ -38,7 +38,7 @@
             >
 
                 <!-- Nombre -->
-                <span class="font-serif text-base text-[#073B57]">
+                <span class="font-serif text-xl text-[#073B57]">
                     {{ especialidad.nombre }}
                 </span>
 
@@ -237,13 +237,13 @@
                 <i data-lucide="x" class="h-4 w-4"></i>
             </button>
 
-            <h2 class="mb-5 font-serif text-xl font-bold">
+            <h2 class="mb-5 font-serif text-xl text-acento font-bold">
                 Editar especialidad
             </h2>
 
             <form action="#editar especialidad" method="POST">
 
-                <label class="mb-1 block text-[9px] text-[#7190a5]">
+                <label class="mb-1 block text-[9px] text-acento">
                     NOMBRE
                 </label>
 
@@ -252,10 +252,10 @@
                     name="nombre"
                     value="{{ especialidad.nombre }}"
                     required
-                    class="mb-4 w-full rounded-full border border-[#cbd5df] px-3 py-2 text-xs outline-none focus:border-[#073B57]"
+                    class="mb-4 w-full rounded-full text-acento border border-[#cbd5df] px-3 py-2 text-xs outline-none focus:border-[#073B57]"
                 >
 
-                <label class="mb-1 block text-[9px] text-[#7190a5]">
+                <label class="mb-1 block text-[9px] text-acento">
                     MÉDICOS DE ESA ESPECIALIDAD
                 </label>
 
@@ -268,9 +268,9 @@
                             name="medicos"
                             value="{{ medico.id }}"
                             {% if medico.id in especialidad.medicos_ids %}checked{% endif %}
-                            class="h-3 w-3 accent-[#073B57]"
+                            class="h-3 w-3  accent-[#073B57]"
                         >
-                        <span class="text-xs">{{ medico.nombre_completo }}</span>
+                        <span class="text-xs text-acento">{{ medico.nombre_completo }}</span>
                     </label>
                     {% endfor %}
 
