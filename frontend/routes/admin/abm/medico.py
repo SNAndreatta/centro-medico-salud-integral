@@ -17,7 +17,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     },
     {
         "id": 2,
@@ -28,7 +29,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     },
     {
         "id": 3,
@@ -39,7 +41,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     },
     {
         "id": 4,
@@ -50,7 +53,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     },
     {
         "id": 5,
@@ -61,7 +65,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     },
     {
         "id": 6,
@@ -72,7 +77,8 @@ medicos = [
         "matricula": "987654321",
         "email": "ejemplo.usuario@gmail.com",
         "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA"
+        "fecha_nacimiento": "DD/MM/AAAA",
+        "fecha_registro": "DD/MM/AAAA"
     }
 ]
 

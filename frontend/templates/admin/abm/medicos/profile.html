@@ -25,7 +25,7 @@
 
                 <div class="mt-2 flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8">
                     <p class="font-lexend text-xs text-[#66869F] sm:text-sm">
-                        Médico{% if medico.fecha_registro %} desde {{ medico.fecha_registro }}{% endif %}
+                        Médico {% if medico.fecha_registro %} desde {{ medico.fecha_registro }}{% endif %}
                     </p>
 
                     <button type="button"
@@ -41,7 +41,7 @@
 
             <!-- DATOS PERSONALES -->
             <section class="rounded-[18px] bg-white p-5 sm:p-7">
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="flex flex-col gap-1">
                         <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Email</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ medico.email }}</p>
@@ -61,37 +61,53 @@
                 </div>
             </section>
 
-
-            <!-- ACCESOS -->
-            <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
+        <!-- Turnos del día -->
+        <section class="mb-7">
+            
+            <!-- Accesos principales -->
+            <section class="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+                <!-- Mis turno -->
                 <a href="{{ url_for('rutas_admin_medico.turnos', id_medico=medico.id) }}"
-                   class="flex min-h-[84px] items-center justify-between gap-4 rounded-[18px] bg-white p-5 transition hover:bg-[#f8fafb] sm:p-6">
-                    <div>
-                        <h3 class="font-lexend text-base font-semibold uppercase text-acento">Ver turnos</h3>
+                class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
+                
+                <div>
+                    <h2 class="text-xl font-bold text-acento">
+                            VER TURNOS
+                        </h2>
                         <p class="mt-1 font-lexend text-xs text-[#66869F]">
                             Podés ver el historial de turnos del médico.
                         </p>
                     </div>
-                    <i data-lucide="chevron-right" class="h-6 w-6 shrink-0 text-acento"></i>
+                    
+                    <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
+                        <i data-lucide="plus" class="h-10 w-10" stroke-width="1.5"></i>
+                    </div>
+                    
                 </a>
-
+                
+                <!-- Mi agenda -->
                 <a href="{{ url_for('rutas_admin_medico.agenda', id_medico=medico.id) }}"
-                   class="flex min-h-[84px] items-center justify-between gap-4 rounded-[18px] bg-white p-5 transition hover:bg-[#f8fafb] sm:p-6">
+                    class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm ">
+                    
                     <div>
-                        <h3 class="font-lexend text-base font-semibold uppercase text-acento">Ver agenda</h3>
+                        <h2 class="text-xl font-bold text-acento">
+                            VER AGENDA
+                        </h2>
                         <p class="mt-1 font-lexend text-xs text-[#66869F]">
                             Podés ver su disponibilidad semanal.
                         </p>
                     </div>
-                    <i data-lucide="calendar-days" class="h-7 w-7 shrink-0 text-acento"></i>
+                    
+                    <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
+                        <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
+                    </div>
+                    
                 </a>
-
             </section>
 
 
             <!-- CREAR AGENDA -->
-            <div class="-mt-3 flex justify-end">
+            <div class="mb-5 flex justify-end">
                 <button type="button"
                         id="abrirModalCrearAgenda"
                         data-abrir-modal="modalCrearAgenda"
