@@ -1,23 +1,19 @@
-
 from flask import Blueprint, render_template
 
+sala_espera_admin_routes = Blueprint(
+    'rutas_admin_sala_espera',
+    __name__
+)
 
-sala_espera_admin_routes = Blueprint('rutas_admin_sala_espera',__name__)
-
-
-# =========================================
-# SALA DE ESPERA
-# =========================================
 
 @sala_espera_admin_routes.route('/admin/sala-espera')
 def sala_espera():
 
-    # =====================================
-    # PACIENTES EN ESPERA
-    # =====================================
+    # ==========================================
+    # PACIENTES EN ESPERA (DATOS SIMULADOS)
+    # ==========================================
 
     pacientes_en_espera = [
-
         {
             "iniciales": "NC",
             "nombre_completo": "Nombre Completo",
@@ -27,7 +23,6 @@ def sala_espera():
             "especialidad": "Cardiología",
             "color_avatar": "bg-pink-500/30 text-pink-500"
         },
-
         {
             "iniciales": "NC",
             "nombre_completo": "Nombre Completo",
@@ -37,7 +32,6 @@ def sala_espera():
             "especialidad": "Pediatría",
             "color_avatar": "bg-purple-500/30 text-purple-500"
         },
-
         {
             "iniciales": "JP",
             "nombre_completo": "Juan Pérez",
@@ -47,7 +41,6 @@ def sala_espera():
             "especialidad": "Clínica Médica",
             "color_avatar": "bg-blue-500/30 text-blue-500"
         },
-
         {
             "iniciales": "MG",
             "nombre_completo": "María González",
@@ -57,7 +50,6 @@ def sala_espera():
             "especialidad": "Dermatología",
             "color_avatar": "bg-green-500/30 text-green-500"
         },
-
         {
             "iniciales": "LR",
             "nombre_completo": "Laura Rodríguez",
@@ -67,7 +59,6 @@ def sala_espera():
             "especialidad": "Oftalmología",
             "color_avatar": "bg-orange-500/30 text-orange-500"
         },
-
         {
             "iniciales": "CM",
             "nombre_completo": "Carlos Martínez",
@@ -77,34 +68,20 @@ def sala_espera():
             "especialidad": "Traumatología",
             "color_avatar": "bg-indigo-500/30 text-indigo-500"
         }
-
     ]
 
-
-    # =====================================
-    # ESPECIALIDADES
-    # =====================================
+    # ==========================================
+    # ESPECIALIDADES DISPONIBLES
+    # ==========================================
 
     especialidades = [
-
         {"nombre": "Cardiología"},
-
         {"nombre": "Clínica Médica"},
-
         {"nombre": "Dermatología"},
-
         {"nombre": "Oftalmología"},
-
         {"nombre": "Pediatría"},
-
         {"nombre": "Traumatología"}
-
     ]
-
-
-    # =====================================
-    # RENDERIZAR PLANTILLA
-    # =====================================
 
     return render_template(
         'admin/dashboards/sala_espera.html',

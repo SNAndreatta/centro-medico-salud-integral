@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Sala de espera | Salud Integral{% endblock %}
@@ -8,38 +7,91 @@
 <div class="w-full">
 
     <!-- ENCABEZADO Y FILTRO -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+    <div class="relative mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
 
         <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
             SALA DE ESPERA
         </h2>
 
-        <!-- FILTRO POR ESPECIALIDAD -->
         <div class="relative">
 
-            <select
-                id="filtroRol"
-                class="w-48 appearance-none rounded-full border border-[#d5dfe5] bg-white px-3 py-2 pr-8 text-xs text-[#7190a5] outline-none transition focus:border-acento focus:ring-1 focus:ring-acento/20"
+            <!-- BOTÓN FILTROS -->
+            <button
+                id="boton-filtros"
+                type="button"
+                aria-expanded="false"
+                class="flex items-center gap-3 rounded-full bg-[#66869F] px-5 py-2 text-sm font-semibold text-white transition hover:bg-acento"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+
+            <!-- PANEL DE FILTROS -->
+            <div
+                id="panel-filtros"
+                class="absolute right-0 top-12 z-30 hidden w-full min-w-[280px] max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
             >
 
-                <option value="">
-                    Todas las especialidades
-                </option>
+                <h3 class="mb-4 font-lexend text-base font-semibold text-acento">
+                    Filtrar pacientes
+                </h3>
 
-                {% for especialidad in especialidades %}
 
-                    <option value="{{ especialidad.nombre | lower }}">
-                        {{ especialidad.nombre }}
-                    </option>
+                <!-- ESPECIALIDAD -->
+                <div class="mb-5">
 
-                {% endfor %}
+                    <label
+                        for="filtro-especialidad"
+                        class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                    >
+                        ESPECIALIDAD
+                    </label>
 
-            </select>
+                    <select
+                        id="filtro-especialidad"
+                        class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                    >
 
-            <i
-                data-lucide="sliders-horizontal"
-                class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7190a5]"
-            ></i>
+                        <option value="">
+                            Todas las especialidades
+                        </option>
+
+                        {% for especialidad in especialidades %}
+
+                            <option value="{{ especialidad.nombre | lower }}">
+                                {{ especialidad.nombre }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- BOTONES -->
+                <div class="flex items-center justify-between gap-3">
+
+                    <button
+                        type="button"
+                        id="limpiar-filtros"
+                        class="w-1/2 rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                    >
+                        Limpiar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="aplicar-filtros"
+                        class="w-1/2 rounded-full bg-acento px-4 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                    >
+                        Aplicar filtros
+                    </button>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -110,99 +162,11 @@
 
 </div>
 
-
-<!-- =========================================
-     FILTRO DE PACIENTES POR ESPECIALIDAD
-========================================= -->
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const filtro = document.getElementById("filtroRol");
-
-    const tarjetas = document.querySelectorAll(".tarjeta-paciente");
-
-    const sinResultados = document.getElementById("sinResultados");
-
-    if (!filtro) return;
+{% endblock %}
 
 
-    // Normalizar texto para evitar problemas con tildes
-    // y diferencias entre mayúsculas y minúsculas.
-    function normalizarTexto(texto) {
+{% block extra_scripts %}
 
-        return texto
-            .toLowerCase()
-            .trim()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-
-    }
-
-
-    // Aplicar filtro.
-    function filtrarPacientes() {
-
-        const especialidadSeleccionada = normalizarTexto(
-            filtro.value
-        );
-
-        let pacientesVisibles = 0;
-
-
-        tarjetas.forEach(function (tarjeta) {
-
-            const especialidadPaciente = normalizarTexto(
-                tarjeta.dataset.especialidad || ""
-            );
-
-            // Si no hay especialidad seleccionada,
-            // mostrar todos los pacientes.
-            const coincide =
-                especialidadSeleccionada === "" ||
-                especialidadPaciente === especialidadSeleccionada;
-
-            tarjeta.style.display = coincide ? "" : "none";
-
-            if (coincide) {
-                pacientesVisibles++;
-            }
-
-        });
-
-
-        // Mostrar mensaje si no hay coincidencias.
-        if (sinResultados) {
-
-            if (tarjetas.length > 0 && pacientesVisibles === 0) {
-
-                sinResultados.classList.remove("hidden");
-                sinResultados.classList.add("flex");
-
-            } else {
-
-                sinResultados.classList.add("hidden");
-                sinResultados.classList.remove("flex");
-
-            }
-
-        }
-
-    }
-
-
-    // Escuchar cambios en el selector.
-    filtro.addEventListener("change", filtrarPacientes);
-
-
-    // Inicializar iconos.
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
-
-});
-
-</script>
+<script src="{{ url_for('static', filename='js/admin/dashboards/sala_espera.js') }}"></script>
 
 {% endblock %}

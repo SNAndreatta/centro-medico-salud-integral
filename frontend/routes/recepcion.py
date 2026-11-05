@@ -2,6 +2,11 @@ from flask import Blueprint, render_template
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
 
+
+# ==========================================
+# SALA DE ESPERA
+# ==========================================
+
 @recepcion_routes.route('/recepcion/sala-espera')
 def sala_espera():
 
@@ -12,6 +17,7 @@ def sala_espera():
             "hora_turno": "15:45",
             "hora_llegada": "15:40",
             "modalidad": "CAR",
+            "especialidad": "Cardiología",
             "color_avatar": "bg-pink-500/30 text-pink-500"
         },
         {
@@ -20,14 +26,30 @@ def sala_espera():
             "hora_turno": "15:50",
             "hora_llegada": "15:45",
             "modalidad": "PED",
+            "especialidad": "Pediatría",
             "color_avatar": "bg-purple-500/30 text-purple-500"
         }
     ]
 
+    especialidades = [
+        {"nombre": "Cardiología"},
+        {"nombre": "Clínica Médica"},
+        {"nombre": "Dermatología"},
+        {"nombre": "Oftalmología"},
+        {"nombre": "Pediatría"},
+        {"nombre": "Traumatología"}
+    ]
+
     return render_template(
         'recepcion/sala_espera.html',
-        pacientes_en_espera=pacientes_en_espera
+        pacientes_en_espera=pacientes_en_espera,
+        especialidades=especialidades
     )
+
+
+# ==========================================
+# USUARIOS
+# ==========================================
 
 @recepcion_routes.route("/recepcion/usuarios")
 def ver_usuarios():
@@ -76,6 +98,11 @@ def ver_usuarios():
         usuarios=usuarios
     )
 
+
+# ==========================================
+# PERFIL
+# ==========================================
+
 @recepcion_routes.route("/recepcion/profile")
 def perfil():
 
@@ -93,6 +120,11 @@ def perfil():
         "/recepcion/profile.html",
         usuario=usuario
     )
+
+
+# ==========================================
+# TURNOS
+# ==========================================
 
 @recepcion_routes.route("/recepcion/turnos")
 def ver_turnos():
@@ -164,6 +196,11 @@ def ver_turnos():
         "recepcion/ver_turnos.html",
         turnos=turnos
     )
+
+
+# ==========================================
+# PERFIL DE USUARIO
+# ==========================================
 
 @recepcion_routes.route("/recepcion/profile/<int:id_usuario>")
 def perfil_usuario(id_usuario):

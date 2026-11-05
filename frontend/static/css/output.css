@@ -33,6 +33,7 @@
     --color-pink-100: oklch(94.8% 0.028 342.258);
     --color-pink-400: oklch(71.8% 0.202 349.761);
     --color-pink-500: oklch(65.6% 0.241 354.308);
+    --color-slate-50: oklch(98.4% 0.003 247.858);
     --color-slate-100: oklch(96.8% 0.007 247.896);
     --color-slate-200: oklch(92.9% 0.013 255.508);
     --color-slate-300: oklch(86.9% 0.022 252.894);
@@ -632,9 +633,6 @@
   .min-h-\[84px\] {
     min-height: 84px;
   }
-  .min-h-\[250px\] {
-    min-height: 250px;
-  }
   .min-h-\[300px\] {
     min-height: 300px;
   }
@@ -790,6 +788,9 @@
   }
   .min-w-\[170px\] {
     min-width: 170px;
+  }
+  .min-w-\[280px\] {
+    min-width: 280px;
   }
   .flex-1 {
     flex: 1;
@@ -1101,20 +1102,11 @@
   .border-\[\#66869F\]\/40 {
     border-color: color-mix(in oklab, #66869F 40%, transparent);
   }
-  .border-\[\#B5C5D1\] {
-    border-color: #B5C5D1;
-  }
   .border-\[\#B8C9D3\] {
     border-color: #B8C9D3;
   }
   .border-\[\#C4D0D9\] {
     border-color: #C4D0D9;
-  }
-  .border-\[\#C9D4DC\] {
-    border-color: #C9D4DC;
-  }
-  .border-\[\#CBD5DD\] {
-    border-color: #CBD5DD;
   }
   .border-\[\#D9A3A5\] {
     border-color: #D9A3A5;
@@ -1262,6 +1254,12 @@
   }
   .bg-acento {
     background-color: var(--color-acento);
+  }
+  .bg-acento\/60 {
+    background-color: color-mix(in srgb, #003559 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-acento) 60%, transparent);
+    }
   }
   .bg-amber-500 {
     background-color: var(--color-amber-500);
@@ -1948,12 +1946,6 @@
       --tw-scale-z: 110%;
       scale: var(--tw-scale-x) var(--tw-scale-y);
     }
-    .group-hover\:bg-acento:is(:where(.group):hover *) {
-      background-color: var(--color-acento);
-    }
-    .group-hover\:text-white:is(:where(.group):hover *) {
-      color: var(--color-white);
-    }
   }
   .peer-checked\:border-\[\#66869F\]:is(:where(.peer):checked ~ *) {
     border-color: #66869F;
@@ -2008,10 +2000,6 @@
     }
   }
   @media (hover: hover) {
-    .hover\:-translate-y-1:hover {
-      --tw-translate-y: calc(var(--spacing) * -1);
-      translate: var(--tw-translate-x) var(--tw-translate-y);
-    }
     .hover\:border-acento:hover {
       border-color: var(--color-acento);
     }
@@ -2063,8 +2051,8 @@
     .hover\:bg-red-50:hover {
       background-color: var(--color-red-50);
     }
-    .hover\:bg-red-700:hover {
-      background-color: var(--color-red-700);
+    .hover\:bg-slate-50:hover {
+      background-color: var(--color-slate-50);
     }
     .hover\:bg-slate-100:hover {
       background-color: var(--color-slate-100);
@@ -2350,6 +2338,9 @@
     }
     .sm\:py-1 {
       padding-block: var(--spacing);
+    }
+    .sm\:py-2 {
+      padding-block: calc(var(--spacing) * 2);
     }
     .sm\:py-3 {
       padding-block: calc(var(--spacing) * 3);
