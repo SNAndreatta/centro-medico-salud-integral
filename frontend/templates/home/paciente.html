@@ -1,4 +1,4 @@
-<div class="min-h-screen rounded-xl bg-dominante">
+<div class="rounded-xl bg-dominante">
 
     <!-- Información del paciente -->
     <section class="mb-8 rounded-2xl bg-acento p-6 text-white shadow-sm">
@@ -30,7 +30,7 @@
 
         <!-- Sacar turno -->
         <a href="{{ url_for('rutas_paciente.sacar_turno') }}"
-           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
 
             <div>
                 <h2 class="text-xl font-bold text-acento">
@@ -38,19 +38,19 @@
                 </h2>
 
                 <p class="mt-1 max-w-xs text-sm text-gray-500">
-                    Ahora podés sacar tus turnos de manera fácil y rápida.
+                    Ahora podés sacar tus turnos de manera fácil.
                 </p>
             </div>
 
-            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2 border-acento text-acento transition group-hover:bg-acento group-hover:text-white">
-                <i data-lucide="plus" class="h-8 w-8"></i>
+            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
+                <i data-lucide="plus" class="h-10 w-10" stroke-width="1.5"></i>
             </div>
 
         </a>
 
         <!-- Mis turnos -->
         <a href="{{ url_for('rutas_paciente.mis_turnos') }}"
-           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm ">
 
             <div>
                 <h2 class="text-xl font-bold text-acento">
@@ -63,7 +63,7 @@
             </div>
 
             <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                <i data-lucide="calendar-days" class="h-11 w-11"></i>
+                <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
             </div>
 
         </a>
