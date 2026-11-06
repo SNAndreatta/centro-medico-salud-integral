@@ -9,7 +9,7 @@
 
     <!-- SOLAPA -->
     <div class="absolute -top-7 left-0 rounded-t-xl bg-white px-4 pb-2 pt-2">
-        <h2 class="text-lg font-bold tracking-widest text-[#003b5c]">
+        <h2 class="text-lg font-bold tracking-widest text-acento">
             CONSULTORIOS
         </h2>
     </div>
@@ -17,23 +17,23 @@
 
     <!-- BUSCADOR -->
     <div class="mb-2 flex justify-end">
-        <div class="flex w-52 items-center rounded-full border border-[#cbd5df] px-3 py-1">
+        <div class="flex w-52 items-center rounded-full border border-acento/20 px-3 py-1">
 
             <input
                 id="buscadorConsultorio"
                 type="search"
                 placeholder="Buscar consultorio"
-                class="w-full bg-transparent text-xs text-[#003b5c] outline-none"
+                class="w-full bg-transparent text-xs text-acento outline-none"
             >
 
-            <i data-lucide="search" class="h-3 w-3 text-[#7190a5]"></i>
+            <i data-lucide="search" class="h-3 w-3 text-acento/50"></i>
 
         </div>
     </div>
 
 
     <!-- LISTADO DE CONSULTORIOS -->
-    <div class="rounded-xl bg-[#e7ecf1] px-3">
+    <div class="rounded-xl bg-acento/10 px-3">
 
         {% for consultorio in consultorios %}
 
@@ -44,11 +44,11 @@
 
             <!-- ID -->
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                <span class="text-[9px] font-medium uppercase text-acento/50">
                     ID CONSULTORIO
                 </span>
 
-                <span class="font-semibold text-[#003b5c]">
+                <span class="text-acento">
                     {{ consultorio.id }}
                 </span>
             </div>
@@ -56,11 +56,11 @@
 
             <!-- PISO -->
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                <span class="text-[9px] font-medium uppercase text-acento/50">
                     PISO
                 </span>
 
-                <span class="font-semibold text-[#003b5c]">
+                <span class="text-acento">
                     {{ consultorio.piso }}
                 </span>
             </div>
@@ -68,11 +68,11 @@
 
             <!-- NÚMERO -->
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-medium uppercase text-[#7190a5]">
+                <span class="text-[9px] font-medium uppercase text-acento/50">
                     NÚMERO
                 </span>
 
-                <span class="font-semibold text-[#003b5c]">
+                <span class="text-acento">
                     {{ consultorio.numero }}
                 </span>
             </div>
@@ -87,7 +87,7 @@
                     aria-expanded="false"
                     aria-controls="menu-consultorio-{{ consultorio.id }}"
                     onclick="alternarMenu('menu-consultorio-{{ consultorio.id }}', this)"
-                    class="boton-menu rounded-full p-1 text-[#66869F] transition hover:bg-white"
+                    class="boton-menu rounded-full p-1 text-acento/70 transition hover:bg-white"
                 >
                     <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
                 </button>
@@ -103,7 +103,7 @@
                         type="button"
                         onclick="cerrarMenus()"
                         data-abrir-modal="modal-editar-consultorio-{{ consultorio.id }}"
-                        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-[#073B57] transition hover:bg-[#E7EBF0]"
+                        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-acento transition hover:bg-gray-200"
                     >
                         <i data-lucide="pencil" class="h-3 w-3"></i>
                         Editar consultorio
@@ -148,7 +148,7 @@
             id="abrirModal"
             type="button"
             data-abrir-modal="modal-crear-consultorio"
-            class="flex items-center gap-1 rounded-full bg-[#003b5c] px-4 py-2 text-xs font-medium text-white transition hover:bg-[#005078]"
+            class="flex items-center gap-1 rounded-full bg-acento px-4 py-2 text-xs font-medium text-white transition hover:bg-acento/60"
         >
             Crear consultorio
             <i data-lucide="plus" class="h-4 w-4"></i>
@@ -173,7 +173,7 @@
         <div>
             <label
                 for="piso-editar-{{ consultorio.id }}"
-                class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]"
+                class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70"
             >
                 Piso
             </label>
@@ -182,7 +182,7 @@
                 id="piso-editar-{{ consultorio.id }}"
                 name="piso"
                 required
-                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]"
+                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70"
             >
                 {% for piso in pisos %}
                 <option value="{{ piso }}" {% if consultorio.piso == piso %}selected{% endif %}>
@@ -197,7 +197,7 @@
         <div>
             <label
                 for="numero-editar-{{ consultorio.id }}"
-                class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]"
+                class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70"
             >
                 Número de consultorio
             </label>
@@ -210,7 +210,7 @@
                 max="9999"
                 value="{{ consultorio.numero }}"
                 required
-                class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]"
+                class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70"
             >
         </div>
 
@@ -242,7 +242,7 @@
         <div>
             <label
                 for="piso"
-                class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]"
+                class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70"
             >
                 Piso
             </label>
@@ -251,7 +251,7 @@
                 id="piso"
                 name="piso"
                 required
-                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]"
+                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70"
             >
                 <option value="">Seleccionar piso</option>
 
@@ -266,7 +266,7 @@
         <div>
             <label
                 for="numero"
-                class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]"
+                class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70"
             >
                 Número de consultorio
             </label>
@@ -279,7 +279,7 @@
                 max="9999"
                 required
                 placeholder="Ingresar número"
-                class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]"
+                class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70"
             >
         </div>
 

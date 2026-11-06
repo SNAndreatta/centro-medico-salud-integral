@@ -7,16 +7,16 @@
 <div class="px-1 sm:px-2">
 
     <!-- ENCABEZADO -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
 
-        <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+        <h2 class="text-xl font-bold tracking-wide text-acento">
             AGENDA DE {{ medico.nombre_completo | default('Dr. Nombre Completo') }}
         </h2>
 
         <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
 
             <!-- CONSULTORIO -->
-            <p class="text-sm font-medium tracking-wide text-[#66869F] sm:text-base">
+            <p class="text-sm font-medium tracking-wide text-acento/70 sm:text-base">
                 CONSULTORIO:
                 <span class="font-semibold text-acento">
                     {{ consultorio.numero }}
@@ -65,14 +65,14 @@
 
     <section aria-label="Agenda semanal">
 
-        <div class="overflow-hidden rounded-2xl border border-[#66869F]/40 bg-white">
+        <div class="overflow-hidden rounded-2xl border border-acento/40 bg-white">
 
             <!-- CABECERA DE DÍAS -->
-            <div class="grid grid-cols-6 border-b border-[#66869F]/30 bg-dominante">
+            <div class="grid grid-cols-6 border-b border-acento/30 bg-dominante">
 
                 {% for dia in dias_semana %}
 
-                <div class="flex min-w-0 items-center justify-center border-r border-[#66869F]/30 px-1 py-3 last:border-r-0 sm:py-4">
+                <div class="flex min-w-0 items-center justify-center border-r border-acento/30 px-1 py-3 last:border-r-0 sm:py-4">
 
                     <span class="text-xs font-semibold tracking-wide text-acento sm:text-base md:text-lg">
                         {{ dia.nombre }}
@@ -134,7 +134,7 @@
                             <!-- HORARIO OCUPADO -->
 
                             <span
-                                class="text-[10px] font-medium text-[#8CA1AE] sm:text-xs md:text-sm"
+                                class="text-[10px] font-medium text-gray-200 sm:text-xs md:text-sm"
                             >
                                 {{ turno.hora }}
                             </span>
@@ -216,7 +216,7 @@
 
                     <p
                         id="coberturaPaciente"
-                        class="truncate text-xs font-medium tracking-wide text-[#66869F]"
+                        class="truncate text-xs font-medium tracking-wide text-acento/70"
                     >
                         {{ turno_seleccionado.cobertura }}
                     </p>
@@ -230,7 +230,7 @@
 
             <div class="border-t border-gray-200 pt-3 sm:pt-4 lg:w-[30%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5">
 
-                <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                <p class="text-xs font-medium tracking-wide text-acento/70">
                     FECHA Y HORA
                 </p>
 
@@ -255,7 +255,7 @@
 
             <div class="border-t border-gray-200 pt-3 sm:pt-4 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5">
 
-                <p class="text-xs font-medium tracking-wide text-[#66869F]">
+                <p class="text-xs font-medium tracking-wide text-acento/70">
                     CONSULTORIO
                 </p>
 

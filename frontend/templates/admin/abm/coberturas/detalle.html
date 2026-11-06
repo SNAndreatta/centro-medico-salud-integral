@@ -5,7 +5,7 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-<div class="bg-[#E7EBF0]">
+<div class="bg-dominante">
     <div class="mx-auto max-w-[1100px]">
 
         <!-- PANEL DE DETALLE -->
@@ -15,14 +15,14 @@
             <div class="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
-                    <h1 class="font-serif text-3xl text-[#073B57]">
+                    <h1 class="font-serif text-3xl text-acento">
                         {{ cobertura.nombre }}
                     </h1>
 
-                    <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[9px] text-[#66869F]">
+                    <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[9px] text-acento/60">
                         <span>
                             ID COBERTURA
-                            <strong class="ml-1 text-[#073B57]">{{ cobertura.id }}</strong>
+                            <strong class="ml-1 text-acento/80">{{ cobertura.id }}</strong>
                         </span>
 
                         <span>
@@ -37,7 +37,7 @@
 
                 <button type="button"
                         data-abrir-modal="modal-editar-cobertura"
-                        class="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#66869F] px-3 py-1.5 text-[10px] font-medium text-white hover:bg-[#073B57]">
+                        class="inline-flex items-center justify-center gap-1.5 rounded-full bg-acento/60 px-3 py-1.5 text-[10px] font-medium text-white hover:bg-acento">
                     <i data-lucide="pencil" class="h-3 w-3"></i>
                     Editar
                 </button>
@@ -46,14 +46,14 @@
 
             <!-- CABECERA DE PLANES -->
             <div class="mb-2 mt-4 flex flex-wrap items-center justify-between gap-2">
-                <h2 class="text-[10px] font-medium tracking-wide text-[#66869F]">
+                <h2 class="text-[10px] font-medium tracking-wide text-acento/70">
                     PLANES ({{ planes | length }})
                 </h2>
 
                 <div class="flex items-center gap-2">
                     <button type="button"
                             data-abrir-modal="modal-crear-plan"
-                            class="inline-flex items-center gap-1 rounded-full bg-[#073B57] px-3 py-1 text-[9px] font-medium text-white hover:bg-[#0B4D70]">
+                            class="inline-flex items-center gap-1 rounded-full bg-acento px-3 py-1 text-[9px] font-medium text-white hover:bg-acento/60">
                         Crear
                         <i data-lucide="plus" class="h-3 w-3"></i>
                     </button>
@@ -61,7 +61,7 @@
                     <input type="search"
                            id="buscar-plan"
                            placeholder="Buscar plan"
-                           class="w-28 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-[#073B57] outline-none focus:border-[#66869F] sm:w-40">
+                           class="w-28 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-acento outline-none focus:border-acento/70 sm:w-40">
                 </div>
             </div>
 
@@ -70,15 +70,15 @@
             <div id="lista-planes" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 
                 {% for plan in planes %}
-                <article class="fila-plan flex min-h-[42px] items-center justify-between gap-2 rounded-lg bg-[#F0F3F6] px-4 py-2"
+                <article class="fila-plan flex min-h-[42px] items-center justify-between gap-2 rounded-lg bg-blue-100/25 px-4 py-2"
                          data-nombre="{{ plan.nombre | lower }}">
 
                     <div class="flex min-w-0 items-center gap-3">
-                        <h3 class="truncate font-serif text-sm text-[#073B57]">
+                        <h3 class="truncate font-serif text-sm text-acento">
                             {{ plan.nombre }}
                         </h3>
 
-                        <span class="shrink-0 text-[8px] text-[#66869F]">
+                        <span class="shrink-0 text-[8px] text-acento/70">
                             ID PLAN {{ plan.id }}
                         </span>
                     </div>
@@ -87,7 +87,7 @@
                         <button type="button"
                                 aria-label="Opciones de {{ plan.nombre }}"
                                 data-alternar-menu="menu-plan-{{ plan.id }}"
-                                class="rounded-full p-1 text-[#66869F] hover:bg-white">
+                                class="rounded-full p-1 text-acento/70 hover:bg-white">
                             <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
                         </button>
 
@@ -97,7 +97,7 @@
 
                             <button type="button"
                                     data-abrir-modal="modal-editar-plan-{{ plan.id }}"
-                                    class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-[#073B57] hover:bg-[#E7EBF0]">
+                                    class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-acento hover:bg-gray-200">
                                 <i data-lucide="pencil" class="h-3 w-3"></i>
                                 Editar plan
                             </button>
@@ -120,7 +120,7 @@
                           class="mt-5">
 
                         <label for="nombre-plan-{{ plan.id }}"
-                               class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                             Nombre
                         </label>
 
@@ -129,7 +129,7 @@
                                value="{{ plan.nombre }}"
                                required
                                maxlength="100"
-                               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
 
                         {{ botones_modal("modal-editar-plan-" ~ plan.id, "Guardar") }}
                     </form>
@@ -149,45 +149,45 @@
             </div>
 
             <p id="sin-planes"
-               class="hidden py-5 text-center text-[10px] text-[#66869F]">
+               class="hidden py-5 text-center text-[10px] text-acento/70">
                 No se encontraron planes.
             </p>
 
 
             <!-- MÉDICOS -->
             <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2">
-                <h2 class="text-[10px] font-medium tracking-wide text-[#66869F]">
+                <h2 class="text-[10px] font-medium tracking-wide text-acento/70">
                     MÉDICOS ({{ medicos | length }})
                 </h2>
 
                 <input type="search"
                        id="buscar-medico"
                        placeholder="Buscar médicos"
-                       class="w-32 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-[#073B57] outline-none focus:border-[#66869F] sm:w-40">
+                       class="w-32 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-acento outline-none focus:border-acento/70 sm:w-40">
             </div>
 
             <div id="lista-medicos" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 
                 {% for medico in medicos %}
-                <article class="fila-medico flex min-w-0 items-center justify-between gap-2 rounded-lg bg-[#F0F3F6] px-3 py-2"
+                <article class="fila-medico flex min-w-0 items-center justify-between gap-2 rounded-lg bg-blue-100/25 px-3 py-2"
                          data-nombre="{{ medico.nombre | lower }}">
 
                     <div class="flex min-w-0 items-center gap-2">
-                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#D7E9E7] font-serif text-[9px] text-[#66869F]">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 font-serif text-[9px] text-emerald-700">
                             {{ medico.iniciales }}
                         </div>
 
                         <div class="min-w-0">
-                            <h3 class="truncate text-[9px] font-medium text-[#073B57]">
+                            <h3 class="truncate text-[9px] font-medium text-acento">
                                 {{ medico.nombre }}
                             </h3>
-                            <p class="text-[7px] text-[#66869F]">
+                            <p class="text-[7px] text-acento/70">
                                 ID MÉDICO {{ medico.id }}
                             </p>
                         </div>
                     </div>
 
-                    <a class="shrink-0 rounded-full bg-[#66869F] px-2 py-1 text-[7px] text-white" href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id)}}">
+                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[7px] hover:bg-acento text-white" href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id)}}">
                         Ir al perfil
                     </a>
                 </article>
@@ -196,13 +196,13 @@
             </div>
 
             <p id="sin-medicos"
-               class="hidden py-5 text-center text-[10px] text-[#66869F]">
+               class="hidden py-5 text-center text-[10px] text-acento/70">
                 No se encontraron médicos.
             </p>
 
             <div class="mt-5 border-t border-gray-200 pt-3">
                 <a href="{{ url_for('rutas_admin_cobertura.obtener_coberturas') }}"
-                   class="inline-flex items-center gap-1 text-[10px] text-[#66869F] hover:text-[#073B57]">
+                   class="inline-flex items-center gap-1 text-[10px] text-acento/70 hover:text-acento">
                     <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
                     Volver a coberturas
                 </a>
@@ -220,7 +220,7 @@
           class="mt-5">
 
         <label for="nombre-cobertura"
-               class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
             Nombre
         </label>
 
@@ -229,7 +229,7 @@
                value="{{ cobertura.nombre }}"
                required
                maxlength="100"
-               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
 
         {{ botones_modal("modal-editar-cobertura", "Guardar") }}
     </form>
@@ -261,7 +261,7 @@
           class="mt-5">
 
         <label for="nombre-nuevo-plan"
-               class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
             Nombre del plan
         </label>
 
@@ -270,7 +270,7 @@
                required
                maxlength="100"
                placeholder="Ej. Plan 220"
-               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
 
         {{ botones_modal("modal-crear-plan", "Crear") }}
     </form>

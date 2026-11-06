@@ -13,7 +13,7 @@
             Elegí fecha y hora
         </h2>
 
-        <p class="flex items-center gap-1 text-[10px] text-[#66869F]">
+        <p class="flex items-center gap-1 text-[10px] text-acento/70">
             <i data-lucide="clock" class="h-3 w-3"></i>
             Duración del turno: 15 min aprox.
         </p>
@@ -43,9 +43,9 @@
                     {% endif %}
                 >
 
-                <div class="rounded-lg border border-gray-200 px-2 py-3 text-center transition hover:border-acento peer-checked:border-[#66869F] peer-checked:bg-[#E4EBEF]">
+                <div class="rounded-lg border border-gray-200 px-2 py-3 text-center transition hover:border-acento peer-checked:border-acento/70 peer-checked:bg-acento/5">
 
-                    <p class="text-xs font-semibold uppercase text-[#66869F]">
+                    <p class="text-xs font-semibold uppercase text-acento/70">
                         {{ fecha.dia_semana }}
                     </p>
 
@@ -53,7 +53,7 @@
                         {{ fecha.dia }}
                     </p>
 
-                    <p class="text-[9px] uppercase text-[#66869F]">
+                    <p class="text-[9px] uppercase text-acento/70">
                         {{ fecha.mes }}
                     </p>
 
@@ -63,7 +63,7 @@
 
             {% else %}
 
-            <p class="col-span-full py-6 text-center text-sm text-[#66869F]">
+            <p class="col-span-full py-6 text-center text-sm text-acento/70">
                 No hay fechas disponibles.
             </p>
 
@@ -96,7 +96,7 @@
                         {% endif %}
                     >
 
-                    <span class="inline-flex rounded-full border border-gray-200 px-3 py-1 text-[11px] font-medium text-acento transition hover:border-acento peer-checked:border-[#66869F] peer-checked:bg-[#E4EBEF]">
+                    <span class="inline-flex rounded-full border border-gray-200 px-3 py-1 text-[11px] font-medium text-acento transition hover:border-acento peer-checked:border-acento/70 peer-checked:bg-acento/5">
                         {{ horario }}
                     </span>
 
@@ -104,7 +104,7 @@
 
                 {% else %}
 
-                <p class="text-xs text-[#66869F]">
+                <p class="text-xs text-acento/70">
                     Seleccioná una fecha para consultar los horarios.
                 </p>
 
@@ -131,7 +131,7 @@
                 type="submit"
                 name="accion"
                 value="anterior"
-                class="inline-flex items-center gap-2 rounded-full border border-acento px-5 py-2 text-xs font-medium text-acento transition hover:bg-[#EDF3F7]"
+                class="inline-flex items-center gap-2 rounded-full border border-acento px-5 py-2 text-xs font-medium text-acento transition hover:bg-acento/5"
             >
                 <i data-lucide="arrow-left" class="h-4 w-4"></i>
                 Anterior

@@ -12,7 +12,7 @@
             </h1>
         </div>
         <div class="flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8 mt-2">
-            <p class="font-lexend text-xs text-[#66869F] sm:text-sm">
+            <p class="font-lexend text-xs text-acento/70 sm:text-sm">
                 {{ rol|capitalize }} desde {{ usuario.fecha_registro }}
             </p>
             <button type="button" id="configuracion-perfil" aria-label="Configuración del perfil"
@@ -25,36 +25,36 @@
     <section class="rounded-[18px] bg-white p-5 sm:p-7">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Email</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.email }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Documento</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.documento }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Nro. afiliado</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. afiliado</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.numero_afiliado | default('987654321') }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Fecha de nacimiento</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Cobertura</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Cobertura</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.cobertura | default('Nombre de cobertura') }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Plan</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Plan</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.plan | default('Nombre de plan') }}</p>
             </div>
         </div>
     </section>
     
 <section class="flex flex-col gap-4">
-    <div class="flex items-center justify-between gap-3 border-b border-[#C4D0D9] px-1 pb-3">
-        <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-[#8298A8] sm:text-base">Próximos turnos</h2>
-        <a href="{{ url_for('rutas_paciente.mis_turnos') }}" class="inline-flex items-center gap-2 font-lexend text-xs text-[#8298A8] transition hover:text-acento">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+    <div class="flex items-center justify-between gap-3 border-b border-acento/20px-1 pb-3">
+        <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">Próximos turnos</h2>
+        <a href="{{ url_for('rutas_paciente.mis_turnos') }}" class="inline-flex items-center gap-2 font-lexend text-xs text-acento/40 transition hover:text-acento">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
     </div>
     <div class="flex flex-col gap-4">
     {% if proximos_turnos is defined and proximos_turnos %}
@@ -62,30 +62,32 @@
         <article class="rounded-[18px] bg-white p-5 sm:p-6">
             <div class="grid grid-cols-1 items-center gap-5 md:grid-cols-[1.2fr_1fr_0.7fr_auto]">
                 <div class="flex items-center gap-4">
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#FAD9E0] font-lexend text-lg font-medium text-[#D77F91]">{{ turno.iniciales | default('NC') }}</div>
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-pink-500/30 font-lexend text-lg font-medium text-pink-500">{{ turno.iniciales | default('NC') }}</div>
                     <div class="flex min-w-0 flex-col gap-1">
-                        <p class="font-lexend text-xs uppercase tracking-wide text-[#66869F]">Estado del turno</p>
+                        <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Estado del turno</p>
                         <h3 class="break-words font-lexend text-lg font-medium text-acento">{{ turno.especialidad | default('Especialidad') }}</h3>
                         <p class="font-lexend text-sm text-acento">Dr. {{ turno.medico | default('Nombre completo') }}</p>
                     </div>
                 </div>
-                <div class="flex flex-col gap-1 md:border-l md:border-[#C4D0D9] md:pl-6">
-                    <p class="font-lexend text-xs uppercase tracking-wide text-[#66869F]">Fecha y hora</p>
+                <div class="flex flex-col gap-1 md:border-l md:border-acento/20md:pl-6">
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Fecha y hora</p>
                     <p class="font-lexend text-lg font-semibold text-acento">{{ turno.hora | default('15:00') }}</p>
                     <p class="font-lexend text-sm text-acento">{{ turno.fecha | default('Día - Mes - Año') }}</p>
                 </div>
-                <div class="flex flex-col gap-1 md:border-l md:border-[#C4D0D9] md:pl-6">
-                    <p class="font-lexend text-xs uppercase tracking-wide text-[#66869F]">Consultorio</p>
+                <div class="flex flex-col gap-1 md:border-l md:border-acento/20md:pl-6">
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Consultorio</p>
                     <p class="font-lexend text-3xl font-semibold text-acento">{{ turno.consultorio | default('123') }}</p>
                 </div>
                 <div class="flex md:justify-end">
-                    <button type="button" data-turno-id="{{ turno.id | default('') }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}" class="cancelar-turno rounded-full bg-[#F3DEDF] px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-[#A52A2A] transition hover:bg-[#EFCBCD]">Cancelar</button>
+                    <button type="button" data-turno-id="{{ turno.id | default('') }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}" class="cancelar-turno rounded-full bg-red-100 px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-200">
+                        Cancelar
+                    </button>
                 </div>
             </div>
         </article>
         {% endfor %}
     {% else %}
-        <p class="rounded-[18px] bg-white p-6 font-lexend text-sm text-[#66869F]">No tenés próximos turnos.</p>
+        <p class="rounded-[18px] bg-white p-6 font-lexend text-sm text-acento/70">No tenés próximos turnos.</p>
     {% endif %}
     </div>
 </section>

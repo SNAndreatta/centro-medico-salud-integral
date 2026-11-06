@@ -10,7 +10,7 @@
             </h1>
         </div>
         <div class="flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8 mt-2">
-            <p class="font-lexend text-xs text-[#66869F] sm:text-sm">
+            <p class="font-lexend text-xs text-acento/70 sm:text-sm">
                 {{ rol|capitalize }} desde {{ usuario.fecha_registro }}
             </p>
             <button type="button" id="configuracion-perfil" aria-label="Configuración del perfil"
@@ -23,15 +23,15 @@
     <section class="rounded-[18px] bg-white p-5 sm:p-7">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Email</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.email }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Fecha de nacimiento</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
             </div>
             <div class="flex flex-col gap-1">
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Documento</p>
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.documento }}</p>
             </div>
         </div>

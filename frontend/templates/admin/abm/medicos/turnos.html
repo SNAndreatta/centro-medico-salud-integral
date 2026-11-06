@@ -7,9 +7,9 @@
 <div id="turnos-medico" class="px-1 sm:px-2">
 
     <!-- Título y acciones -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
 
-        <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+        <h2 class="text-xl font-bold tracking-wide text-acento">
             TURNOS DE {{ medico.nombre_completo }}
         </h2>
 
@@ -18,7 +18,7 @@
             <!-- Ir al perfil -->
             <a
                 href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id) }}"
-                class="flex items-center gap-1 rounded-full bg-[#66869F] px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
+                class="flex items-center gap-1 rounded-full bg-acento/70 px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
             >
                 Ir al perfil
                 <i data-lucide="chevron-right" class="h-4 w-4"></i>
@@ -28,7 +28,7 @@
             <button
                 type="button"
                 id="botonFiltro"
-                class="flex items-center gap-2 rounded-full bg-[#66869F] px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
+                class="flex items-center gap-2 rounded-full bg-acento/70 px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
             >
                 Filtrar
                 <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="min-w-0">
-                    <p class="mb-1 text-xs font-medium tracking-wide text-[#66869F]">
+                    <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
                         ESTADO DEL TURNO
                     </p>
 
@@ -110,7 +110,7 @@
             <!-- Fecha y hora -->
             <div class="border-t border-gray-200 pt-3 sm:w-[32%] sm:border-l sm:border-t-0 sm:py-1 sm:pl-5">
 
-                <p class="mb-1 text-xs font-medium tracking-wide text-[#66869F]">
+                <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
                     FECHA Y HORA
                 </p>
 
@@ -128,7 +128,7 @@
             <!-- Consultorio -->
             <div class="border-t border-gray-200 pt-3 sm:w-[30%] sm:border-l sm:border-t-0 sm:py-1 sm:pl-5">
 
-                <p class="mb-1 text-xs font-medium tracking-wide text-[#66869F]">
+                <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
                     CONSULTORIO
                 </p>
 

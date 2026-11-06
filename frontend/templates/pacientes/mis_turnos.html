@@ -8,9 +8,9 @@
     <!-- TÍTULO Y FILTRO -->
     <section class="relative mb-[18px]">
 
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
 
-            <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+            <h2 class="text-xl font-bold tracking-wide text-acento">
                 MIS TURNOS
             </h2>
 
@@ -18,7 +18,7 @@
                 id="boton-filtros"
                 type="button"
                 aria-expanded="false"
-                class="flex items-center gap-3 rounded-full bg-[#66869F] px-5 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
+                class="flex items-center gap-3 rounded-full bg-acento/70 px-5 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
             >
                 <span>Filtrar</span>
                 <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
@@ -153,13 +153,13 @@
                         <!-- ESTADO, ESPECIALIDAD Y MÉDICO -->
                         <div class="flex min-w-0 items-center gap-4 md:pr-5">
 
-                            <div class="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-full bg-[#D8F1F0] text-2xl font-medium text-[#36B0B0]">
+                            <div class="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-full bg-purple-500/30 text-2xl font-medium text-purple-500">
                                 {{ turno.iniciales | default('NC') }}
                             </div>
 
                             <div class="min-w-0">
 
-                                <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                                <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                                     Estado del turno
                                 </p>
 
@@ -177,9 +177,9 @@
 
 
                         <!-- FECHA Y HORA -->
-                        <div class="border-t border-[#C4D0D9] pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5 md:pr-4">
+                        <div class="border-t border-acento/20pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5 md:pr-4">
 
-                            <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                            <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                                 Fecha y hora
                             </p>
 
@@ -195,9 +195,9 @@
 
 
                         <!-- CONSULTORIO -->
-                        <div class="border-t border-[#C4D0D9] pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5">
+                        <div class="border-t border-acento/20pt-4 md:border-l md:border-t-0 md:py-1 md:pl-5">
 
-                            <p class="text-sm font-medium uppercase tracking-wide text-[#66869F]">
+                            <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                                 Consultorio
                             </p>
 
@@ -209,12 +209,12 @@
 
 
                         <!-- BOTÓN CANCELAR (abre el popup de confirmación) -->
-                        <div class="flex justify-start border-t border-[#C4D0D9] pt-4 md:justify-end md:border-0 md:pt-0">
+                        <div class="flex justify-start border-t border-acento/20pt-4 md:justify-end md:border-0 md:pt-0">
 
                             <button
                                 type="button"
                                 data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}"
-                                class="w-full rounded-full border border-[#D9A3A5] bg-[#F4DEDF] px-6 py-[5px] text-xs font-semibold tracking-[0.15em] text-[#A51E27] transition hover:bg-[#EFCBCD] md:w-[180px]"
+                                class="w-full rounded-full border border-red-500 bg-red-500/20 px-6 py-[5px] text-xs font-semibold tracking-[0.15em] text-red-600 transition hover:bg-red-500/30 md:w-[180px]"
                             >
                                 CANCELAR
                             </button>
@@ -236,7 +236,7 @@
             class="hidden rounded-[18px] bg-white px-6 py-12 text-center"
         >
 
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#D8F1F0] text-[#36B0B0]">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-acento/20 text-acento">
                 <i data-lucide="calendar-days" class="h-8 w-8"></i>
             </div>
 
@@ -244,7 +244,7 @@
                 No tenés turnos para mostrar
             </h2>
 
-            <p class="mt-2 text-sm text-[#66869F]">
+            <p class="mt-2 text-sm text-acento/70">
                 No encontramos turnos que coincidan con los filtros seleccionados.
             </p>
 

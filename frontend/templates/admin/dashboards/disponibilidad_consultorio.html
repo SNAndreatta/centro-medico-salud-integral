@@ -5,12 +5,12 @@
 
 {% block content %}
 
-<div class="w-full rounded-xl bg-[#E7EBF0] p-4 sm:p-6">
+<div class="w-full rounded-xl bg-dominante p-4 sm:p-6">
 
     <!-- ENCABEZADO -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
 
-        <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+        <h2 class="text-xl font-bold tracking-wide text-acento">
             DISPONIBILIDAD DE CONSULTORIOS
         </h2>
 
@@ -20,20 +20,12 @@
             action="{{ url_for('rutas_admin_disponibilidad_consultorios.disponibilidad_consultorios') }}"
             class="flex items-center gap-2"
         >
-            <label
-                for="fecha"
-                class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#66869F] transition hover:text-[#123E59] sm:text-base"
-            >
-                <i data-lucide="calendar-days" class="h-5 w-5"></i>
-                Elegir fecha
-            </label>
-
             <input
                 type="date"
                 id="fecha"
                 name="fecha"
                 value="{{ fecha }}"
-                class="max-w-[150px] rounded-lg border border-[#66869F]/40 bg-white px-2 py-1 text-xs text-[#123E59] outline-none focus:border-[#123E59]"
+                class="max-w-[150px] rounded-lg border border-acento/40 bg-white px-2 py-1 text-xs text-acento outline-none focus:border-acento"
                 onchange="this.form.submit()"
             >
         </form>
@@ -49,7 +41,7 @@
             <section>
 
                 <!-- NOMBRE DEL PISO -->
-                <h3 class="mb-2 font-lexend text-lg font-semibold tracking-wide text-[#66869F]">
+                <h3 class="mb-2 font-lexend text-lg font-semibold tracking-wide text-acento/70">
                     PISO {{ piso.numero }}
                 </h3>
 
@@ -71,13 +63,13 @@
                                 aria-controls="detalle-{{ consultorio.id }}"
                             >
 
-                                <span class="font-lexend text-lg text-[#123E59]">
+                                <span class="font-lexend text-lg text-acento">
                                     Consultorio {{ consultorio.numero }}
                                 </span>
 
                                 <i
                                     data-lucide="chevron-down"
-                                    class="icono-consultorio h-5 w-5 shrink-0 text-[#45677D] transition-transform duration-200"
+                                    class="icono-consultorio h-5 w-5 shrink-0 text-acento transition-transform duration-200"
                                 ></i>
 
                             </button>
@@ -90,7 +82,7 @@
                                 style="display: none;"
                             >
 
-                                <h4 class="mb-3 font-semibold text-[#123E59]">
+                                <h4 class="mb-3 font-semibold text-acento">
                                     Horarios del consultorio
                                 </h4>
 
@@ -125,7 +117,7 @@
 
                                 {% else %}
 
-                                    <p class="text-sm text-[#66869F]">
+                                    <p class="text-sm text-acento/70">
                                         No hay horarios cargados para este consultorio.
                                     </p>
 

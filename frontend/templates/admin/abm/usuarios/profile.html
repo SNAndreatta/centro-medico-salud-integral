@@ -5,7 +5,7 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-<div class="bg-[#e9eef2] px-4 sm:px-6">
+<div class="bg-dominante px-4 sm:px-6">
     <div class="mx-auto max-w-5xl">
         <div class="flex flex-col gap-7">
 
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="mt-2 flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8">
-                    <p class="font-lexend text-xs text-[#66869F] sm:text-sm">
+                    <p class="font-lexend text-xs text-acento/70 sm:text-sm">
                         {% if usuario.id_rol == 1 %}Recepcionista{% elif usuario.id_rol == 2 %}Administrador{% endif %}
                         desde {{ usuario.fecha_registro }}
                     </p>
@@ -44,15 +44,15 @@
             <section class="rounded-[18px] bg-white p-5 sm:p-7">
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Email</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.mail }}</p>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Fecha de nacimiento</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Documento</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.dni }}</p>
                     </div>
                 </div>
@@ -70,33 +70,33 @@
           class="mt-5 space-y-4">
 
         <div>
-            <label for="editarNombreUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarNombreUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Nombre
             </label>
             <input id="editarNombreUsuario" name="nombre" type="text" required
                    value="{{ usuario.nombre }}"
                    placeholder="Nombre"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarApellidoUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarApellidoUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Apellido
             </label>
             <input id="editarApellidoUsuario" name="apellido" type="text" required
                    value="{{ usuario.apellido }}"
                    placeholder="Apellido"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarMailUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarMailUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Mail
             </label>
             <input id="editarMailUsuario" name="mail" type="email" required
                    value="{{ usuario.mail }}"
                    placeholder="Mail"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         {{ botones_modal("modalEditarUsuario", "Guardar") }}
