@@ -4,14 +4,14 @@
 
 {% block content %}
 
-<div class="bg-[#E7EBF0] px-4 sm:px-6">
+<div class="bg-dominante px-4 sm:px-6">
 
     <div class="mx-auto max-w-[1100px]">
         <!-- TÍTULO -->
         <section class="mt-3">
 
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
-                <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+                <h2 class="text-xl font-bold tracking-wide text-acento">
                     SACAR TURNO
                 </h2>
             </div>
@@ -32,9 +32,9 @@
                         {% if paso == 1 %}
                             bg-acento text-white
                         {% elif paso > 1 %}
-                            bg-[#66869F] text-white
+                            bg-acento/70 text-white
                         {% else %}
-                            bg-[#D1DDE4] text-white
+                            bg-acento/10 text-white
                         {% endif %}"
                     >
                         {% if paso > 1 %}
@@ -48,7 +48,7 @@
                         {% if paso == 1 %}
                             font-semibold text-acento
                         {% else %}
-                            text-[#66869F]
+                            text-acento/70
                         {% endif %}">
                         Especialidad
                     </span>
@@ -64,9 +64,9 @@
                         {% if paso == 2 %}
                             bg-acento text-white
                         {% elif paso > 2 %}
-                            bg-[#66869F] text-white
+                            bg-acento/70 text-white
                         {% else %}
-                            bg-[#D1DDE4] text-white
+                            bg-acento/10 text-white
                         {% endif %}"
                     >
                         {% if paso > 2 %}
@@ -80,7 +80,7 @@
                         {% if paso == 2 %}
                             font-semibold text-acento
                         {% else %}
-                            text-[#66869F]
+                            text-acento/70
                         {% endif %}">
                         Médico
                     </span>
@@ -96,9 +96,9 @@
                         {% if paso == 3 %}
                             bg-acento text-white
                         {% elif paso > 3 %}
-                            bg-[#66869F] text-white
+                            bg-acento/70 text-white
                         {% else %}
-                            bg-[#D1DDE4] text-white
+                            bg-acento/10 text-white
                         {% endif %}"
                     >
                         {% if paso > 3 %}
@@ -112,7 +112,7 @@
                         {% if paso == 3 %}
                             font-semibold text-acento
                         {% else %}
-                            text-[#66869F]
+                            text-acento/70
                         {% endif %}">
                         Día y horario
                     </span>
@@ -128,7 +128,7 @@
                         {% if paso == 4 %}
                             bg-acento text-white
                         {% else %}
-                            bg-[#D1DDE4] text-white
+                            bg-acento/10 text-white
                         {% endif %}"
                     >
                         4
@@ -138,7 +138,7 @@
                         {% if paso == 4 %}
                             font-semibold text-acento
                         {% else %}
-                            text-[#66869F]
+                            text-acento/70
                         {% endif %}">
                         Confirmación
                     </span>

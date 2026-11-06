@@ -7,22 +7,22 @@
         <!-- Título y buscador -->
         <section>
 
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
 
-                <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
+                <h2 class="text-xl font-bold tracking-wide text-acento">
                     MÉDICOS
                 </h2>
 
                 <!-- Buscador -->
-                <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
+                <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
                     <input
                         id="buscadorMedico"
                         type="text"
                         placeholder="Buscar médico"
-                        class="w-full bg-transparent text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
+                        class="w-full bg-transparent text-xs tracking-wide outline-none placeholder:text-acento/50"
                     >
 
-                    <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
+                    <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
                 </div>
 
             </div>
@@ -45,13 +45,13 @@
 
 
                     <!-- Nombre del médico -->
-                    <span class="truncate font-serif text-lg text-[#073B57] sm:text-2xl">
+                    <span class="truncate font-serif text-lg text-acento sm:text-2xl">
                         {{ medico.nombre_completo }}
                     </span>
 
 
                     <!-- Especialidad -->
-                    <span class="text-[10px] font-medium uppercase tracking-wide text-[#7190a5] sm:text-xs">
+                    <span class="text-[10px] font-medium uppercase tracking-wide text-acento/50 sm:text-xs">
                         {{ medico.especialidad }}
                     </span>
 
@@ -59,7 +59,7 @@
                     <!-- Ir al perfil -->
                     <a
                         href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id) }}"
-                        class="flex items-center gap-1 whitespace-nowrap rounded-full bg-[#6B8FA4] px-3 py-1.5 text-[10px] text-white hover:bg-[#073B57] sm:text-xs"
+                        class="flex items-center gap-1 whitespace-nowrap rounded-full bg-acento/60 px-3 py-1.5 text-[10px] text-white hover:bg-acento sm:text-xs"
                     >
                         Ir al perfil
                         <i data-lucide="chevron-right" class="h-4 w-4"></i>
@@ -86,7 +86,7 @@
                 <button
                     id="abrirModal"
                     type="button"
-                    class="flex items-center gap-1 rounded-full bg-[#003b5c] px-4 py-2 text-xs font-medium text-white hover:bg-[#005078]"
+                    class="flex items-center gap-1 rounded-full bg-acento px-4 py-2 text-xs font-medium text-white hover:bg-acento/60"
                 >
                     Crear médico
                     <i data-lucide="plus" class="h-4 w-4"></i>

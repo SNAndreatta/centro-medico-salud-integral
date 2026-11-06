@@ -5,7 +5,7 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-<div class="bg-[#e9eef2] px-4 sm:px-6">
+<div class="bg-dominante px-4 sm:px-6">
     <div class="mx-auto max-w-5xl">
         <div class="flex flex-col gap-7">
 
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="mt-2 flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8">
-                    <p class="font-lexend text-xs text-[#66869F] sm:text-sm">
+                    <p class="font-lexend text-xs text-acento/70 sm:text-sm">
                         Médico {% if medico.fecha_registro %} desde {{ medico.fecha_registro }}{% endif %}
                     </p>
 
@@ -43,19 +43,19 @@
             <section class="rounded-[18px] bg-white p-5 sm:p-7">
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Email</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ medico.email }}</p>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Fecha de nacimiento</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ medico.fecha_nacimiento }}</p>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Nro. matrícula</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. matrícula</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ medico.matricula }}</p>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-[#66869F]">Documento</p>
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ medico.documento }}</p>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                     <h2 class="text-xl font-bold text-acento">
                             VER TURNOS
                         </h2>
-                        <p class="mt-1 font-lexend text-xs text-[#66869F]">
+                        <p class="mt-1 font-lexend text-xs text-acento/70">
                             Podés ver el historial de turnos del médico.
                         </p>
                     </div>
@@ -93,7 +93,7 @@
                         <h2 class="text-xl font-bold text-acento">
                             VER AGENDA
                         </h2>
-                        <p class="mt-1 font-lexend text-xs text-[#66869F]">
+                        <p class="mt-1 font-lexend text-xs text-acento/70">
                             Podés ver su disponibilidad semanal.
                         </p>
                     </div>
@@ -120,19 +120,19 @@
             <!-- COBERTURAS -->
             <section class="flex flex-col gap-4">
 
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#C4D0D9] px-1 pb-3">
-                    <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-[#8298A8] sm:text-base">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
+                    <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
                         Coberturas ({{ coberturas | length }})
                     </h2>
 
-                    <div class="flex w-48 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1.5">
+                    <div class="flex w-48 items-center rounded-full border border-acento/20 bg-white px-3 py-1.5">
                         <input
                             id="buscadorCobertura"
                             type="text"
                             placeholder="Buscar cobertura"
-                            class="w-full bg-transparent font-lexend text-xs outline-none placeholder:text-[#7190a5]"
+                            class="w-full bg-transparent font-lexend text-xs outline-none placeholder:text-acento/50"
                         >
-                        <i data-lucide="search" class="h-3.5 w-3.5 text-[#7190a5]"></i>
+                        <i data-lucide="search" class="h-3.5 w-3.5 text-acento/50"></i>
                     </div>
                 </div>
 
@@ -153,14 +153,14 @@
                         </a>
                     </article>
                     {% else %}
-                    <p class="col-span-full rounded-[18px] bg-white p-6 font-lexend text-sm text-[#66869F]">
+                    <p class="col-span-full rounded-[18px] bg-white p-6 font-lexend text-sm text-acento/70">
                         Este médico todavía no tiene coberturas asociadas.
                     </p>
                     {% endfor %}
                 </div>
 
                 <p id="sinResultadosCobertura"
-                   class="hidden rounded-[18px] bg-white p-6 text-center font-lexend text-sm text-[#66869F]">
+                   class="hidden rounded-[18px] bg-white p-6 text-center font-lexend text-sm text-acento/70">
                     No se encontraron coberturas.
                 </p>
 
@@ -178,59 +178,59 @@
           class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
 
         <div>
-            <label for="editarNombre" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarNombre" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Nombre
             </label>
             <input id="editarNombre" name="nombre" type="text" required
                    value="{{ medico.nombre | default('') }}"
                    placeholder="Nombre"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarApellido" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarApellido" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Apellido
             </label>
             <input id="editarApellido" name="apellido" type="text" required
                    value="{{ medico.apellido | default('') }}"
                    placeholder="Apellido"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarDni" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarDni" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 DNI
             </label>
             <input id="editarDni" name="documento" type="text" required
                    value="{{ medico.documento | default('') }}"
                    placeholder="DNI"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarFechaNacimiento" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarFechaNacimiento" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Fecha de nacimiento
             </label>
             <input id="editarFechaNacimiento" name="fecha_nacimiento" type="text" required
                    value="{{ medico.fecha_nacimiento | default('') }}"
                    placeholder="DD/MM/AAAA"
                    pattern="(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <div>
-            <label for="editarMail" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="editarMail" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Mail
             </label>
             <input id="editarMail" name="email" type="email" required
                    value="{{ medico.email | default('') }}"
                    placeholder="Mail"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
 
         <!-- Seleccionar cobertura -->
         <div>
-            <label class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Seleccionar cobertura
             </label>
 
@@ -239,7 +239,7 @@
                     type="button"
                     id="botonSelectorCoberturas"
                     onclick="alternarSelector('selector-coberturas')"
-                    class="flex h-11 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-4 text-left text-sm text-[#66869F]"
+                    class="flex h-11 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-4 text-left text-sm text-acento/70"
                 >
                     <span id="texto-coberturas">Coberturas</span>
                     <i data-lucide="chevron-down" class="h-4 w-4"></i>
@@ -249,20 +249,20 @@
                     id="selector-coberturas"
                     class="selector-coberturas absolute left-0 top-12 z-30 hidden max-h-48 w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-lg"
                 >
-                    <p class="border-b border-gray-200 px-2 py-2 text-[10px] uppercase text-[#66869F]">
+                    <p class="border-b border-gray-200 px-2 py-2 text-[10px] uppercase text-acento/70">
                         Coberturas
                     </p>
 
                     {% for cobertura in coberturas %}
-                    <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-[#E7EBF0]">
+                    <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-gray-200">
                         <input
                             type="checkbox"
                             name="coberturas"
                             value="{{ cobertura.id }}"
-                            class="h-3 w-3 accent-[#073B57]"
+                            class="h-3 w-3 accent-acento"
                             data-selector="crear"
                         >
-                        <span class="text-xs text-[#073B57]">{{ cobertura.nombre }}</span>
+                        <span class="text-xs text-acento">{{ cobertura.nombre }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -297,7 +297,7 @@
 
 <!-- POPUP: CREAR AGENDA -->
 {% call modal("modalCrearAgenda", "Crear agenda", "max-w-[480px]") %}
-    <p class="mt-3 text-center text-xs text-[#66869F]">
+    <p class="mt-3 text-center text-xs text-acento/70">
         Configurá la disponibilidad del médico.
     </p>
 
@@ -306,11 +306,11 @@
           class="mt-5 space-y-4">
 
         <div>
-            <label for="consultorioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="consultorioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Consultorio
             </label>
             <select id="consultorioAgenda" name="consultorio" required
-                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
                 <option value="">Seleccionar consultorio</option>
                 {% for consultorio in consultorios %}
                 <option value="{{ consultorio.id }}">Consultorio {{ consultorio.numero }}</option>
@@ -319,11 +319,11 @@
         </div>
 
         <div>
-            <label for="duracionTurno" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+            <label for="duracionTurno" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Duración del turno
             </label>
             <select id="duracionTurno" name="duracion_turno" required
-                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
                 <option value="">Seleccionar duración</option>
                 <option value="15">15 minutos</option>
                 <option value="20">20 minutos</option>
@@ -335,19 +335,19 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-                <label for="fechaInicioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                <label for="fechaInicioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                     Fecha de inicio
                 </label>
                 <input id="fechaInicioAgenda" name="fecha_inicio" type="date" required
-                       class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                       class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
             </div>
 
             <div>
-                <label for="fechaHastaAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-[#66869F]">
+                <label for="fechaHastaAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                     Fecha hasta
                 </label>
                 <input id="fechaHastaAgenda" name="fecha_hasta" type="date" required
-                       class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-[#073B57] outline-none focus:border-[#66869F]">
+                       class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
             </div>
         </div>
 

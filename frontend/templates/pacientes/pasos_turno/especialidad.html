@@ -12,7 +12,7 @@
             ¿Qué especialidad necesitás?
         </h2>
 
-        <p class="mt-1 text-xs text-[#66869F]">
+        <p class="mt-1 text-xs text-acento/70">
             Seleccioná la especialidad para encontrar el profesional indicado.
         </p>
     </div>
@@ -20,7 +20,7 @@
     <!-- Buscador -->
     <div class="relative">
         <i data-lucide="search"
-           class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#66869F]">
+           class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-acento/70">
         </i>
 
         <input
@@ -54,10 +54,10 @@
                     required
                 >
 
-                <div class="flex min-h-[76px] items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 transition hover:border-acento hover:bg-[#F7F9FB] peer-checked:border-acento peer-checked:bg-[#EDF3F7]">
+                <div class="flex min-h-[76px] items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 transition hover:border-acento hover:bg-acento/5 peer-checked:border-acento peer-checked:bg-acento/5">
 
                     <!-- Icono -->
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E7EEF3] text-acento">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-acento/10 text-acento">
                         {% if especialidad.nombre == "Cardiología" %}
                             <i data-lucide="scan-heart" class="h-5 w-5"></i>
                         {% elif especialidad.nombre == "Clínica Médica" %}
@@ -81,7 +81,7 @@
                             {{ especialidad.nombre }}
                         </p>
 
-                        <p class="mt-1 text-[10px] text-[#66869F]">
+                        <p class="mt-1 text-[10px] text-acento/70">
                             Consultar profesionales
                         </p>
                     </div>
@@ -95,7 +95,7 @@
 
         <!-- Mensaje si no hay resultados -->
         <p id="sin-resultados"
-           class="hidden py-6 text-center text-sm text-[#66869F]">
+           class="hidden py-6 text-center text-sm text-acento/70">
             No se encontraron especialidades.
         </p>
 
