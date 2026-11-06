@@ -1108,6 +1108,9 @@
   .border-\[\#C4D0D9\] {
     border-color: #C4D0D9;
   }
+  .border-\[\#CBD5DD\] {
+    border-color: #CBD5DD;
+  }
   .border-\[\#D9A3A5\] {
     border-color: #D9A3A5;
   }
@@ -1552,6 +1555,9 @@
   .pr-8 {
     padding-right: calc(var(--spacing) * 8);
   }
+  .pr-9 {
+    padding-right: calc(var(--spacing) * 9);
+  }
   .pr-11 {
     padding-right: calc(var(--spacing) * 11);
   }
@@ -1813,6 +1819,9 @@
   .text-cyan-500 {
     color: var(--color-cyan-500);
   }
+  .text-dominante {
+    color: var(--color-dominante);
+  }
   .text-emerald-500 {
     color: var(--color-emerald-500);
   }
@@ -2000,6 +2009,10 @@
     }
   }
   @media (hover: hover) {
+    .hover\:-translate-y-0\.5:hover {
+      --tw-translate-y: calc(var(--spacing) * -0.5);
+      translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
     .hover\:border-acento:hover {
       border-color: var(--color-acento);
     }
@@ -2119,6 +2132,9 @@
   .focus\:ring-2:focus {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .focus\:ring-\[\#66869F\]:focus {
+    --tw-ring-color: #66869F;
   }
   .focus\:ring-acento:focus {
     --tw-ring-color: var(--color-acento);
@@ -2588,6 +2604,11 @@
     }
     .lg\:text-\[26px\] {
       font-size: 26px;
+    }
+  }
+  @media (width >= 80rem) {
+    .xl\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
   input[type=text] ~ button .\[input\[type\=text\]\~button_\&\]\:block {

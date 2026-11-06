@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Ausentismo | Salud Integral{% endblock %}
@@ -16,30 +17,19 @@
                 AUSENTISMO POR MÉDICO
             </h2>
 
-            <button
-                type="button"
-                id="botonFiltrarMedicos"
-                class="flex items-center gap-2 text-sm font-semibold text-[#66869F] transition hover:text-acento sm:text-base"
-            >
-                Filtrar
-                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
-            </button>
+            <!-- Buscador -->
+            <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
+                <input
+                    id="buscarMedico"
+                    type="text"
+                    placeholder="Buscar médico"
+                    class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
+                >
+
+                <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
+            </div>
 
         </div>
-
-
-        <!-- Buscador de médicos -->
-        <div id="filtroMedicos" class="mb-3 hidden">
-
-            <input
-                type="text"
-                id="buscarMedico"
-                placeholder="Buscar médico..."
-                class="w-full rounded-full border border-[#66869F]/40 bg-white px-4 py-2 text-sm text-acento outline-none placeholder:text-[#66869F] focus:border-acento"
-            >
-
-        </div>
-
 
         <!-- Tarjetas de médicos -->
         <div id="listaMedicos" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -83,34 +73,24 @@
     <!-- AUSENTISMO POR ESPECIALIDAD -->
     <section>
 
-        <!-- Título y filtro -->
+        <!-- Título y buscador -->
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#B8C9D3] pb-2">
 
             <h2 class="text-xl font-bold tracking-wide text-[#073B57]">
                 AUSENTISMO POR ESPECIALIDAD
             </h2>
 
-            <button
-                type="button"
-                id="botonFiltrarEspecialidades"
-                class="flex items-center gap-2 text-sm font-semibold text-[#66869F] transition hover:text-acento sm:text-base"
-            >
-                Filtrar
-                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
-            </button>
+            <!-- Buscador -->
+            <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
+                <input
+                    id="buscarEspecialidad"
+                    type="text"
+                    placeholder="Buscar especialidad"
+                    class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
+                >
 
-        </div>
-
-
-        <!-- Buscador de especialidades -->
-        <div id="filtroEspecialidades" class="mb-3 hidden">
-
-            <input
-                type="text"
-                id="buscarEspecialidad"
-                placeholder="Buscar especialidad..."
-                class="w-full rounded-full border border-[#66869F]/40 bg-white px-4 py-2 text-sm text-acento outline-none placeholder:text-[#66869F] focus:border-acento"
-            >
+                <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
+            </div>
 
         </div>
 

@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Tiempo de espera | Salud Integral{% endblock %}
@@ -22,20 +23,15 @@
                 </h2>
 
                 <!-- Buscador -->
-                <div class="relative flex items-center">
-
+                <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
                     <input
-                        type="search"
-                        id="buscar-medico"
-                        placeholder="Buscar"
-                        class="w-24 border-0 bg-transparent pr-7 text-sm font-semibold text-[#66869F] outline-none placeholder:text-[#66869F] focus:ring-0 sm:w-32"
+                        id="buscarMedico"
+                        type="text"
+                        placeholder="Buscar médico"
+                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
                     >
 
-                    <i
-                        data-lucide="search"
-                        class="pointer-events-none absolute right-1 h-5 w-5 text-[#66869F]"
-                    ></i>
-
+                    <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
                 </div>
 
             </div>
@@ -105,20 +101,15 @@
                 </h2>
 
                 <!-- Buscador -->
-                <div class="relative flex items-center">
-
+                <div class="flex w-52 items-center rounded-full border border-[#9BB1C0] bg-white px-3 py-1">
                     <input
-                        type="search"
-                        id="buscar-especialidad"
-                        placeholder="Buscar"
-                        class="w-24 border-0 bg-transparent pr-7 text-sm font-semibold text-[#66869F] outline-none placeholder:text-[#66869F] focus:ring-0 sm:w-32"
+                        id="buscarEspecialidad"
+                        type="text"
+                        placeholder="Buscar especialidad"
+                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-[#7190a5]"
                     >
 
-                    <i
-                        data-lucide="search"
-                        class="pointer-events-none absolute right-1 h-5 w-5 text-[#66869F]"
-                    ></i>
-
+                    <i data-lucide="search" class="h-4 w-4 text-[#7190a5]"></i>
                 </div>
 
             </div>
@@ -165,10 +156,8 @@
 
     </div>
 
+    <script src="{{ url_for('static', filename='js/admin/dashboards/tiempo_espera.js') }}"></script>
+
 </div>
-
-
-<!-- JavaScript -->
-<script src="{{ url_for('static', filename='js/admin/dashboards/tiempo_espera.js') }}"></script>
 
 {% endblock %}

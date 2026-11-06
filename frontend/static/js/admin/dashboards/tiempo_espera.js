@@ -1,64 +1,90 @@
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // ==========================================
+    // NORMALIZAR TEXTO
+    // ==========================================
+
+    function normalizarTexto(texto) {
+        return texto
+            .toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
 
     // ==========================================
     // BUSCADOR DE MÉDICOS
     // ==========================================
 
-    const buscarMedico = document.getElementById('buscar-medico');
+    const buscarMedico = document.getElementById('buscarMedico');
     const medicos = document.querySelectorAll('.medico-card');
     const sinMedicos = document.getElementById('sin-medicos');
 
-    buscarMedico.addEventListener('input', () => {
+    if (buscarMedico) {
 
-        const busqueda = buscarMedico.value.toLowerCase().trim();
-        let encontrados = 0;
+        buscarMedico.addEventListener('input', () => {
 
-        medicos.forEach(medico => {
+            const busqueda = normalizarTexto(buscarMedico.value);
+            let encontrados = 0;
 
-            const nombre = medico.dataset.search;
-            const coincide = nombre.includes(busqueda);
+            medicos.forEach(medico => {
 
-            medico.classList.toggle('hidden', !coincide);
+                const nombre = normalizarTexto(medico.dataset.search || "");
+                const coincide = nombre.includes(busqueda);
 
-            if (coincide) {
-                encontrados++;
+                medico.classList.toggle('hidden', !coincide);
+
+                if (coincide) {
+                    encontrados++;
+                }
+
+            });
+
+            if (sinMedicos) {
+                sinMedicos.classList.toggle('hidden', encontrados > 0);
             }
 
         });
 
-        sinMedicos.classList.toggle('hidden', encontrados > 0);
-
-    });
+    }
 
 
     // ==========================================
     // BUSCADOR DE ESPECIALIDADES
     // ==========================================
 
-    const buscarEspecialidad = document.getElementById('buscar-especialidad');
+    const buscarEspecialidad = document.getElementById('buscarEspecialidad');
     const especialidades = document.querySelectorAll('.especialidad-card');
     const sinEspecialidades = document.getElementById('sin-especialidades');
 
-    buscarEspecialidad.addEventListener('input', () => {
+    if (buscarEspecialidad) {
 
-        const busqueda = buscarEspecialidad.value.toLowerCase().trim();
-        let encontrados = 0;
+        buscarEspecialidad.addEventListener('input', () => {
 
-        especialidades.forEach(especialidad => {
+            const busqueda = normalizarTexto(buscarEspecialidad.value);
+            let encontrados = 0;
 
-            const nombre = especialidad.dataset.search;
-            const coincide = nombre.includes(busqueda);
+            especialidades.forEach(especialidad => {
 
-            especialidad.classList.toggle('hidden', !coincide);
+                const nombre = normalizarTexto(especialidad.dataset.search || "");
+                const coincide = nombre.includes(busqueda);
 
-            if (coincide) {
-                encontrados++;
+                especialidad.classList.toggle('hidden', !coincide);
+
+                if (coincide) {
+                    encontrados++;
+                }
+
+            });
+
+            if (sinEspecialidades) {
+                sinEspecialidades.classList.toggle('hidden', encontrados > 0);
             }
 
         });
 
-        sinEspecialidades.classList.toggle('hidden', encontrados > 0);
-
-    });
+    }
 
 });

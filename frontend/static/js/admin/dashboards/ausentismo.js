@@ -1,93 +1,107 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Elementos del filtro de médicos
-    const botonFiltrarMedicos = document.getElementById("botonFiltrarMedicos");
-    const filtroMedicos = document.getElementById("filtroMedicos");
+    // ==========================================
+    // ELEMENTOS DEL BUSCADOR DE MÉDICOS
+    // ==========================================
+
     const buscarMedico = document.getElementById("buscarMedico");
+    const sinMedicos = document.getElementById("sinMedicos");
 
-    // Elementos del filtro de especialidades
-    const botonFiltrarEspecialidades = document.getElementById("botonFiltrarEspecialidades");
-    const filtroEspecialidades = document.getElementById("filtroEspecialidades");
+
+    // ==========================================
+    // ELEMENTOS DEL BUSCADOR DE ESPECIALIDADES
+    // ==========================================
+
     const buscarEspecialidad = document.getElementById("buscarEspecialidad");
+    const sinEspecialidades = document.getElementById("sinEspecialidades");
 
 
-    // Mostrar u ocultar filtros
-    botonFiltrarMedicos.addEventListener("click", function () {
-        filtroMedicos.classList.toggle("hidden");
+    // ==========================================
+    // NORMALIZAR TEXTO
+    // ==========================================
 
-        if (!filtroMedicos.classList.contains("hidden")) {
-            buscarMedico.focus();
-        }
-    });
+    function normalizarTexto(texto) {
 
-    botonFiltrarEspecialidades.addEventListener("click", function () {
-        filtroEspecialidades.classList.toggle("hidden");
+        return texto
+            .toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
-        if (!filtroEspecialidades.classList.contains("hidden")) {
-            buscarEspecialidad.focus();
-        }
-    });
+    }
 
 
-    // Buscar médicos
-    buscarMedico.addEventListener("input", function () {
+    // ==========================================
+    // BUSCAR MÉDICOS
+    // ==========================================
 
-        const busqueda = buscarMedico.value.trim().toLowerCase();
-        const tarjetas = document.querySelectorAll("[data-filtro-medico]");
-        let encontrados = 0;
+    if (buscarMedico) {
 
-        tarjetas.forEach(function (tarjeta) {
+        buscarMedico.addEventListener("input", function () {
 
-            const nombre = tarjeta.dataset.texto;
-            const coincide = nombre.includes(busqueda);
+            const busqueda = normalizarTexto(buscarMedico.value);
 
-            tarjeta.classList.toggle("hidden", !coincide);
+            const tarjetas = document.querySelectorAll("[data-filtro-medico]");
 
-            if (coincide) {
-                encontrados++;
+            let encontrados = 0;
+
+            tarjetas.forEach(function (tarjeta) {
+
+                const nombre = normalizarTexto(tarjeta.dataset.texto || "");
+
+                const coincide = nombre.includes(busqueda);
+
+                tarjeta.classList.toggle("hidden", !coincide);
+
+                if (coincide) {
+                    encontrados++;
+                }
+
+            });
+
+            if (sinMedicos) {
+                sinMedicos.classList.toggle("hidden", encontrados > 0);
             }
 
         });
 
-        document.getElementById("sinMedicos").classList.toggle(
-            "hidden",
-            encontrados > 0
-        );
-
-    });
+    }
 
 
-    // Buscar especialidades
-    buscarEspecialidad.addEventListener("input", function () {
+    // ==========================================
+    // BUSCAR ESPECIALIDADES
+    // ==========================================
 
-        const busqueda = buscarEspecialidad.value.trim().toLowerCase();
-        const tarjetas = document.querySelectorAll("[data-filtro-especialidad]");
-        let encontrados = 0;
+    if (buscarEspecialidad) {
 
-        tarjetas.forEach(function (tarjeta) {
+        buscarEspecialidad.addEventListener("input", function () {
 
-            const nombre = tarjeta.dataset.texto;
-            const coincide = nombre.includes(busqueda);
+            const busqueda = normalizarTexto(buscarEspecialidad.value);
 
-            tarjeta.classList.toggle("hidden", !coincide);
+            const tarjetas = document.querySelectorAll("[data-filtro-especialidad]");
 
-            if (coincide) {
-                encontrados++;
+            let encontrados = 0;
+
+            tarjetas.forEach(function (tarjeta) {
+
+                const nombre = normalizarTexto(tarjeta.dataset.texto || "");
+
+                const coincide = nombre.includes(busqueda);
+
+                tarjeta.classList.toggle("hidden", !coincide);
+
+                if (coincide) {
+                    encontrados++;
+                }
+
+            });
+
+            if (sinEspecialidades) {
+                sinEspecialidades.classList.toggle("hidden", encontrados > 0);
             }
 
         });
 
-        document.getElementById("sinEspecialidades").classList.toggle(
-            "hidden",
-            encontrados > 0
-        );
-
-    });
-
-
-    // Inicializar iconos
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
     }
 
 });
