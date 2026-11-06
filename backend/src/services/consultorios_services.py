@@ -13,6 +13,7 @@ def listar_consultorios():
 
 def crear_consultorio(datos):
     datos_validados, error = validar_datos_consultorio(datos)
+
     if error:
         return error, 400
 
@@ -37,28 +38,29 @@ def crear_consultorio(datos):
 
 def modificar_consultorio(id_consultorio, datos):
     datos_validados, error = validar_datos_consultorio(datos)
+
     if error:
         return error, 400
 
-    resultado, error = actualizar_consultorio(
+    resultado, error_codigo = actualizar_consultorio(
         id_consultorio,
         datos_validados['numero'],
         datos_validados['piso'],
     )
 
-    if error == 'NO_EXISTE':
+    if error_codigo == 'NO_EXISTE':
         return error_respuesta(
             'El consultorio indicado no existe.', 
             'CONSULTORIO_INEXISTENTE'
         ), 404
 
-    if error == 'YA_EXISTE':
+    if error_codigo == 'YA_EXISTE':
         return error_respuesta(
             'Ya existe otro consultorio con ese numero y piso.', 
             'CONSULTORIO_DUPLICADO'
         ), 409
 
-    if error:
+    if error_codigo:
         return error_respuesta(
             'Ocurrio un error al actualizar el consultorio.', 
             'ERROR_INTERNO'
@@ -67,17 +69,24 @@ def modificar_consultorio(id_consultorio, datos):
     return {'consultorio': resultado}, 200
 
 def eliminar_consultorio(id_consultorio):
-    _, error = borrar_consultorio(id_consultorio)
-    if error == 'NO_EXISTE':
+    _, error_codigo = borrar_consultorio(id_consultorio)
+
+    if error_codigo == 'NO_EXISTE':
         return error_respuesta(
             'El consultorio inidicado no existe', 
             'CONSULTORIO_INEXISTENTE'
         ), 404
 
-    if error == 'EN_USO':
+    if error_codigo == 'EN_USO':
         return error_respuesta(
             'No se puede eliminar: el consultorio tiene agendas asociadas.', 
             'CONSULTORIO_EN_USO'
         ), 409
+
+    if error_codigo:
+            return error_respuesta(
+                'Ocurrio un error al eliminar el consultorio.', 
+                'ERROR_INTERNO'
+            ), 500
 
     return {'mensaje': 'Consultorio eliminado exitosamente.'}, 200
