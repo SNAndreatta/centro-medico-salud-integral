@@ -1,7 +1,11 @@
 from werkzeug.security import generate_password_hash
 
 from src.errores import error_respuesta
-from src.repositories.medicos_repositories import buscar_medicos, guardar_medico
+from src.repositories.medicos_repositories import (
+    buscar_medicos,
+    guardar_medico,
+    obtener_medico_por_id,
+)
 from src.validators.medicos_validators import (
     validar_datos_medico,
     validar_filtros_medicos,
@@ -50,3 +54,14 @@ def filtrar_medicos(parametros):
         return error, 400
 
     return {'medicos': buscar_medicos(**filtros)}, 200
+
+
+def obtener_medico(id_medico):
+    medico = obtener_medico_por_id(id_medico)
+    if medico is None:
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+
+    return {'medico': medico}, 200
