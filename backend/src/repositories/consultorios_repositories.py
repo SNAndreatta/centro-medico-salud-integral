@@ -15,7 +15,6 @@ def obtener_consultorios():
         cursor.close()
         conexion.close()
 
-
 def guardar_consultorio(numero, piso):
     conexion, cursor = obtener_cursor()
     try:
@@ -64,9 +63,20 @@ def actualizar_consultorio(id_consultorio, numero, piso):
             SELECT id_consultorio FROM consultorio WHERE id_consultorio = %s
             """, (id_consultorio,),
         )
-
         if cursor.fetchone() is None:
             return None, 'NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT id_consultorio 
+            FROM consultorio 
+            WHERE numero = %s AND piso = %s AND id_consultorio != %s
+            LIMIT 1
+            """,
+            (numero, piso, id_consultorio),
+        )
+        if cursor.fetchone() is not None:
+            return None, 'YA_EXISTE'
 
         consulta = """
             UPDATE consultorio SET numero = %s, piso = %s
@@ -82,6 +92,9 @@ def actualizar_consultorio(id_consultorio, numero, piso):
         conexion.commit()
         return consultorio_actualizado, None
 
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return None, 'YA_EXISTE'
     except Exception:
         conexion.rollback()
         raise
@@ -125,4 +138,3 @@ def borrar_consultorio(id_consultorio):
     finally:
         cursor.close()
         conexion.close()
-
