@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Backend - Centro Médico Salud Integral
-  description: "Documentación completa y definitiva de la API REST interna (Flask) para el Hito 2.\nIncluye todos los módulos ABM, Agendas, Turnos (con restricciones de negocio y QR), \nrelación Médico-Cobertura y Exportación a PDF.\n"
+  description: "Documentación completa y definitiva de la API REST interna (Flask) para el Hito 2.\nIncluye todos los módulos ABM, Agendas, Turnos (con restricciones de negocio y QR) y \nrelación Médico-Cobertura-\n"
   version: 1.0.0
 servers:
 - url: https://virtserver.swaggerhub.com/myself-0fe/Centro-Medico/1.0.0
@@ -26,7 +26,7 @@ tags:
 - name: Turnos (Reserva y Recepción)
   description: "Motor principal de generación, búsqueda, reserva, cancelación y check-in QR."
 - name: Dashboards e Informes
-  description: Estadísticas agregadas y exportación de reportes PDF obligatorios.
+  description: Estadísticas agregadas e indicadores clave de atención en formato JSON.
 security:
 - bearerAuth: []
 paths:
@@ -1045,37 +1045,6 @@ paths:
       responses:
         "200":
           description: Métricas de utilización de infraestructura devueltas con éxito.
-  /api/estadisticas/exportar_pdf:
-    get:
-      tags:
-      - Dashboards e Informes
-      summary: Generar y exportar reporte de turnos en formato PDF (Cumple requisito obligatorio)
-      description: "Endpoint especial que, en lugar de devolver JSON, procesa datos estadísticos \ny renderiza un documento binario mediante una librería como ReportLab o pdfkit, \nestableciendo el Content-Type adecuado (`application/pdf`) para descarga en el navegador.\n"
-      parameters:
-      - name: fecha_desde
-        in: query
-        description: Inicio del periodo a reportar en el documento.
-        required: true
-        schema:
-          type: string
-          format: date
-      - name: fecha_hasta
-        in: query
-        description: Fin del periodo.
-        required: true
-        schema:
-          type: string
-          format: date
-      responses:
-        "200":
-          description: Archivo PDF generado y listo para visualización o descarga.
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        "500":
-          description: Error interno al renderizar el documento PDF.
 components:
   securitySchemes:
     bearerAuth:
