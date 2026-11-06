@@ -16,10 +16,23 @@ def crear_consultorio(datos):
     if error:
         return error, 400
 
-    consultorio, _ = guardar_consultorio(
+    consultorio, error_codigo = guardar_consultorio(
         datos_validados['numero'],
         datos_validados['piso'],
     )
+
+    if error_codigo == 'CONSULTORIO_DUPLICADO':
+        return error_respuesta(
+            'Ya existe un consultorio con el mismo numero y piso.', 
+            'CONSULTORIO_DUPLICADO'
+        ), 409
+    
+    if error_codigo:
+        return error_respuesta(
+            'Ocurrio un error al guardar el consultorio.', 
+            'ERROR_INTERNO'
+        ), 500
+
     return {'consultorio': consultorio}, 201
 
 def modificar_consultorio(id_consultorio, datos):
@@ -32,17 +45,39 @@ def modificar_consultorio(id_consultorio, datos):
         datos_validados['numero'],
         datos_validados['piso'],
     )
+
     if error == 'NO_EXISTE':
-        return error_respuesta('El consultorio indicado no esxiste', 'CONSULTORIO_INEXISTENTE'), 404
+        return error_respuesta(
+            'El consultorio indicado no existe.', 
+            'CONSULTORIO_INEXISTENTE'
+        ), 404
+
+    if error == 'YA_EXISTE':
+        return error_respuesta(
+            'Ya existe otro consultorio con ese numero y piso.', 
+            'CONSULTORIO_DUPLICADO'
+        ), 409
+
+    if error:
+        return error_respuesta(
+            'Ocurrio un error al actualizar el consultorio.', 
+            'ERROR_INTERNO'
+        ), 500
 
     return {'consultorio': resultado}, 200
 
 def eliminar_consultorio(id_consultorio):
     _, error = borrar_consultorio(id_consultorio)
     if error == 'NO_EXISTE':
-        return error_respuesta('El consultorio inidicado no existe', 'CONSULTORIO_INEXISTENTE'), 404
+        return error_respuesta(
+            'El consultorio inidicado no existe', 
+            'CONSULTORIO_INEXISTENTE'
+        ), 404
 
     if error == 'EN_USO':
-        return error_respuesta('No se puede eliminar: el consultorio tiene agendas asociadas', 'CONSULTORIO_EN_USO'), 409
+        return error_respuesta(
+            'No se puede eliminar: el consultorio tiene agendas asociadas.', 
+            'CONSULTORIO_EN_USO'
+        ), 409
 
-    return {'mensaje': 'Consultorio eliminado'}, 200
+    return {'mensaje': 'Consultorio eliminado exitosamente.'}, 200
