@@ -1,5 +1,73 @@
 from src.errores import error_respuesta
-from src.utils.utils import validar_id_positivo
+from src.utils.utils import (
+    texto_obligatorio,
+    validar_correo_electronico,
+    validar_id_positivo,
+)
+
+
+CAMPOS_MEDICO = {
+    'nombre',
+    'apellido',
+    'dni',
+    'correo_electronico',
+    'password',
+    'id_especialidad',
+    'matricula',
+}
+
+
+def validar_datos_medico(datos):
+    if not isinstance(datos, dict) or set(datos) != CAMPOS_MEDICO:
+        return None, error_respuesta(
+            'El cuerpo debe incluir nombre, apellido, dni, correo_electronico, password, id_especialidad y matricula',
+            'CUERPO_INVALIDO',
+        )
+
+    campos_texto = ('nombre', 'apellido', 'dni', 'password', 'matricula')
+    if any(not texto_obligatorio(datos[campo]) for campo in campos_texto):
+        return None, error_respuesta(
+            'Todos los campos de texto son obligatorios',
+            'DATOS_INVALIDOS',
+        )
+
+    limites = {
+        'nombre': 100,
+        'apellido': 100,
+        'dni': 20,
+        'password': 256,
+        'matricula': 50,
+    }
+    if any(len(datos[campo].strip()) > limite for campo, limite in limites.items()):
+        return None, error_respuesta(
+            'Uno o más campos exceden la longitud permitida',
+            'DATOS_INVALIDOS',
+        )
+
+    correo, error = validar_correo_electronico(datos['correo_electronico'])
+    if error:
+        return None, error
+
+    id_especialidad = datos['id_especialidad']
+    if (
+        isinstance(id_especialidad, bool)
+        or not isinstance(id_especialidad, int)
+        or id_especialidad <= 0
+    ):
+        return None, error_respuesta(
+            'id_especialidad debe ser un entero positivo',
+            'ESPECIALIDAD_INVALIDA',
+        )
+
+    return {
+        'nombre': datos['nombre'].strip(),
+        'apellido': datos['apellido'].strip(),
+        'dni': datos['dni'].strip(),
+        'correo_electronico': correo,
+        'password': datos['password'],
+        'id_especialidad': id_especialidad,
+        'matricula': datos['matricula'].strip(),
+    }, None
 
 
 def validar_filtros_medicos(parametros):

@@ -535,7 +535,9 @@ paths:
         "201":
           description: Perfil médico creado exitosamente.
         "400":
-          description: "Error (correo duplicado, etc)."
+          description: Error de validación, especialidad inexistente o correo o matrícula duplicados.
+        "403":
+          description: Acceso denegado (requiere rol administrador).
   /api/medicos/{id_medico}:
     get:
       tags:
@@ -1244,6 +1246,7 @@ components:
       - correo_electronico
       - dni
       - id_especialidad
+      - matricula
       - nombre
       - password
       type: object
@@ -1267,6 +1270,10 @@ components:
         id_especialidad:
           type: integer
           example: 3
+        matricula:
+          type: string
+          maxLength: 50
+          example: MN-123456
       description: Creación de usuario y perfil médico en la misma transacción.
     MedicoUpdate:
       required:
