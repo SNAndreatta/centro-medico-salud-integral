@@ -121,6 +121,146 @@ def obtener_medico_por_id(id_medico):
         cursor.close()
         conexion.close()
 
+
+def obtener_coberturas_de_medico(id_medico):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id_medico
+            FROM medico
+            WHERE id_medico = %s
+            LIMIT 1
+            """,
+            (id_medico,),
+        )
+        if cursor.fetchone() is None:
+            return None, 'MEDICO_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT c.id_cobertura, c.nombre
+            FROM cobertura_medico cm
+            JOIN cobertura c ON c.id_cobertura = cm.id_cobertura
+            WHERE cm.id_medico = %s
+            ORDER BY c.nombre
+            """,
+            (id_medico,),
+        )
+        return cursor.fetchall(), None
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def vincular_cobertura_medico(id_medico, id_cobertura):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id_medico
+            FROM medico
+            WHERE id_medico = %s
+            LIMIT 1
+            """,
+            (id_medico,),
+        )
+        if cursor.fetchone() is None:
+            return None, 'MEDICO_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT id_cobertura, nombre
+            FROM cobertura
+            WHERE id_cobertura = %s
+            LIMIT 1
+            """,
+            (id_cobertura,),
+        )
+        cobertura = cursor.fetchone()
+        if cobertura is None:
+            return None, 'COBERTURA_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT id_cobertura_medico
+            FROM cobertura_medico
+            WHERE id_medico = %s AND id_cobertura = %s
+            LIMIT 1
+            """,
+            (id_medico, id_cobertura),
+        )
+        if cursor.fetchone() is not None:
+            return None, 'VINCULO_EXISTENTE'
+
+        cursor.execute(
+            """
+            INSERT INTO cobertura_medico (id_medico, id_cobertura)
+            VALUES (%s, %s)
+            """,
+            (id_medico, id_cobertura),
+        )
+        conexion.commit()
+        return {
+            'id_medico': id_medico,
+            'id_cobertura': id_cobertura,
+            'nombre': cobertura['nombre'],
+        }, None
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def desvincular_cobertura_medico(id_medico, id_cobertura):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id_medico
+            FROM medico
+            WHERE id_medico = %s
+            LIMIT 1
+            """,
+            (id_medico,),
+        )
+        if cursor.fetchone() is None:
+            return 'MEDICO_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT id_cobertura
+            FROM cobertura
+            WHERE id_cobertura = %s
+            LIMIT 1
+            """,
+            (id_cobertura,),
+        )
+        if cursor.fetchone() is None:
+            return 'COBERTURA_NO_EXISTE'
+
+        cursor.execute(
+            """
+            DELETE FROM cobertura_medico
+            WHERE id_medico = %s AND id_cobertura = %s
+            """,
+            (id_medico, id_cobertura),
+        )
+        if cursor.rowcount == 0:
+            return 'VINCULO_NO_EXISTE'
+
+        conexion.commit()
+        return None
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def buscar_medicos(id_especialidad=None, id_cobertura=None, nombre=None):
     condiciones = []
     parametros = []

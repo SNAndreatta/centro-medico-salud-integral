@@ -3,8 +3,11 @@ from werkzeug.security import generate_password_hash
 from src.errores import error_respuesta
 from src.repositories.medicos_repositories import (
     buscar_medicos,
+    desvincular_cobertura_medico,
     guardar_medico,
+    obtener_coberturas_de_medico,
     obtener_medico_por_id,
+    vincular_cobertura_medico,
 )
 from src.validators.medicos_validators import (
     validar_datos_medico,
@@ -65,3 +68,66 @@ def obtener_medico(id_medico):
         ), 404
 
     return {'medico': medico}, 200
+
+
+def listar_coberturas_medico(id_medico):
+    coberturas, error = obtener_coberturas_de_medico(id_medico)
+    if error == 'MEDICO_NO_EXISTE':
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+
+    return {'coberturas': coberturas}, 200
+
+
+def agregar_cobertura_medico(id_medico, id_cobertura):
+    vinculo, error = vincular_cobertura_medico(id_medico, id_cobertura)
+    if error == 'MEDICO_NO_EXISTE':
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+    if error == 'COBERTURA_NO_EXISTE':
+        return error_respuesta(
+            'La cobertura indicada no existe',
+            'COBERTURA_INEXISTENTE',
+        ), 404
+    if error == 'VINCULO_EXISTENTE':
+        return error_respuesta(
+            'El médico ya está vinculado a esta cobertura',
+            'COBERTURA_MEDICO_DUPLICADA',
+        ), 409
+    if error is not None:
+        return error_respuesta(
+            'No se pudo vincular la cobertura al médico',
+            'ERROR_VINCULACION_COBERTURA',
+        ), 500
+
+    return {'vinculo': vinculo}, 201
+
+
+def quitar_cobertura_medico(id_medico, id_cobertura):
+    error = desvincular_cobertura_medico(id_medico, id_cobertura)
+    if error == 'MEDICO_NO_EXISTE':
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+    if error == 'COBERTURA_NO_EXISTE':
+        return error_respuesta(
+            'La cobertura indicada no existe',
+            'COBERTURA_INEXISTENTE',
+        ), 404
+    if error == 'VINCULO_NO_EXISTE':
+        return error_respuesta(
+            'El médico no está vinculado a esta cobertura',
+            'COBERTURA_MEDICO_INEXISTENTE',
+        ), 404
+    if error is not None:
+        return error_respuesta(
+            'No se pudo desvincular la cobertura del médico',
+            'ERROR_DESVINCULACION_COBERTURA',
+        ), 500
+
+    return {'mensaje': 'Cobertura desvinculada del médico'}, 200

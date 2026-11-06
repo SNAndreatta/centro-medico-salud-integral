@@ -86,3 +86,24 @@ def validar_filtros_medicos(parametros):
         return None, error_respuesta('nombre no puede superar 100 caracteres', 'FILTRO_INVALIDO')
     filtros['nombre'] = nombre or None
     return filtros, None
+
+
+def validar_datos_cobertura_medico(datos):
+    if not isinstance(datos, dict) or set(datos) != {'id_cobertura'}:
+        return None, error_respuesta(
+            'El cuerpo debe incluir únicamente id_cobertura',
+            'CUERPO_INVALIDO',
+        )
+
+    id_cobertura = datos['id_cobertura']
+    if (
+        isinstance(id_cobertura, bool)
+        or not isinstance(id_cobertura, int)
+        or id_cobertura <= 0
+    ):
+        return None, error_respuesta(
+            'id_cobertura debe ser un entero positivo',
+            'COBERTURA_INVALIDA',
+        )
+
+    return id_cobertura, None
