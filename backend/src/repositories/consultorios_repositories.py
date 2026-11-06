@@ -5,8 +5,9 @@ def obtener_consultorios():
     conexion, cursor = obtener_cursor()
     try:
         consulta = """
-            SELECT id_consultorio, numero, piso FROM consultorio
-            ORDER BY numero, piso, id_consultorio
+            SELECT id_consultorio, numero, piso 
+            FROM consultorio
+            ORDER BY id_consultorio
         """
         cursor.execute(consulta)
         return cursor.fetchall()
@@ -18,6 +19,19 @@ def obtener_consultorios():
 def guardar_consultorio(numero, piso):
     conexion, cursor = obtener_cursor()
     try:
+
+        cursor.execute(
+            """
+            SELECT id_consultorio
+            FROM consultorio
+            WHERE numero = %s AND piso = %s
+            LIMIT 1
+            """,
+            (numero, piso),
+        )
+        if cursor.fetchone() is not None:
+            return None, 'CONSULTORIO_DUPLICADO'
+
         consulta = """
             INSERT INTO consultorio (numero, piso) VALUES (%s, %s)    
         """
@@ -32,6 +46,9 @@ def guardar_consultorio(numero, piso):
         conexion.commit()
         return consultorio_guardado, None
 
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return None, 'CONSULTORIO_DUPLICADO'
     except Exception:
         conexion.rollback()
         raise
