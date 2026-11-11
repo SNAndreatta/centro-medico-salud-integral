@@ -23,6 +23,42 @@ def obtener_usuarios_staff(id_rol=None):
         conexion.close()
 
 
+def obtener_usuario_para_cambio_password(id_usuario):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario, id_rol, contrasenia FROM usuario WHERE id_usuario = %s',
+            (id_usuario,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def actualizar_hash_password(usuario, nuevo_hash):
+    conexion, cursor = obtener_cursor()
+    try:
+        # El hash y el rol deben seguir siendo los que se verificaron antes del cambio.
+        cursor.execute(
+            """
+            UPDATE usuario
+            SET contrasenia = %s
+            WHERE id_usuario = %s AND id_rol = %s
+              AND CAST(contrasenia AS BINARY) = CAST(%s AS BINARY)
+            """,
+            (nuevo_hash, usuario['id_usuario'], usuario['id_rol'], usuario['contrasenia']),
+        )
+        conexion.commit()
+        return cursor.rowcount == 1
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def guardar_usuario_staff(usuario):
     conexion, cursor = obtener_cursor()
     try:

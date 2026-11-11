@@ -2,6 +2,7 @@ from flask import Blueprint, g, request
 
 from src.errores import error_respuesta
 from src.services.usuarios_services import (
+    actualizar_password_usuario,
     crear_usuario_staff,
     listar_usuarios_staff,
     obtener_usuario_actual,
@@ -61,3 +62,11 @@ def crear_usuario():
 
     resultado, status_code = crear_usuario_staff(datos)
     return resultado, status_code
+
+
+@usuarios_bp.put('/usuarios/<int:id_usuario>/password')
+@handle_unexpected_errors
+@token_required
+@roles_required(*ROLES_VALIDOS)
+def cambiar_password(id_usuario):
+    return actualizar_password_usuario(id_usuario, request.get_json(silent=True), g.current_user)

@@ -1,6 +1,6 @@
 from src.errores import error_respuesta
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
-from src.validators.common import texto_obligatorio, validar_correo_electronico
+from src.validators.common import texto_obligatorio, validar_correo_electronico, validar_objeto_json
 
 
 CAMPOS_USUARIO_STAFF = {
@@ -19,6 +19,32 @@ def validar_filtro_rol(rol):
             'El filtro rol debe ser admin o recepcionista',
             'FILTRO_INVALIDO',
         )
+    return None
+
+
+def validar_cambio_password(datos, es_cambio_propio):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
+
+    if set(datos) - {'nueva_password', 'password_actual'}:
+        return error_respuesta(
+            'El cuerpo solo admite nueva_password y password_actual',
+            'CUERPO_INVALIDO',
+        ), 400
+
+    nueva_password = datos.get('nueva_password')
+    if not texto_obligatorio(nueva_password) or not 8 <= len(nueva_password) <= 128:
+        return error_respuesta(
+            'nueva_password debe tener entre 8 y 128 caracteres',
+            'PASSWORD_INVALIDA',
+        ), 400
+
+    if (es_cambio_propio or 'password_actual' in datos) and not texto_obligatorio(datos.get('password_actual')):
+        return error_respuesta(
+            'password_actual debe ser texto y es obligatoria para un cambio propio',
+            'PASSWORD_ACTUAL_REQUERIDA',
+        ), 400
     return None
 
 
