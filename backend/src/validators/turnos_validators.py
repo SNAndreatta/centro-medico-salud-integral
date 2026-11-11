@@ -97,6 +97,20 @@ def validar_checkin_turno(datos):
     return token.strip(), None
 
 
+def validar_estado_turno(datos):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return None, error_json
+
+    id_estado = datos.get('id_estado')
+    if type(id_estado) is not int or not 1 <= id_estado <= 2147483647:
+        return None, (
+            error_respuesta('id_estado debe ser un entero positivo válido', 'ESTADO_TURNO_INVALIDO'),
+            400,
+        )
+    return id_estado, None
+
+
 def validar_reserva_turno(datos, requiere_id_paciente):
     error_json = validar_objeto_json(datos)
     if error_json:

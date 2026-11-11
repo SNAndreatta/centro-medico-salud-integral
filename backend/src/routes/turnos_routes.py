@@ -2,6 +2,7 @@ from flask import Blueprint, g, request
 
 from src.errores import error_respuesta
 from src.services.turnos_services import (
+    actualizar_estado_turno,
     cancelar_turno,
     cancelar_turno_por_token,
     filtrar_turnos,
@@ -16,6 +17,7 @@ from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA, PACIENTE, MEDICO
 from src.validators.turnos_validators import (
     validar_cancelacion_turno,
     validar_checkin_turno,
+    validar_estado_turno,
 )
 
 turnos_bp = Blueprint('turnos_bp', __name__)
@@ -46,6 +48,18 @@ def listar_turnos():
 def generar_turnos():
     respuesta, status_code = generar_disponibilidad()
     return respuesta, status_code
+
+
+@turnos_bp.put('/turnos/<int:id_turno>/estado')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR, RECEPCIONISTA)
+def modificar_estado_turno(id_turno):
+    id_estado, error = validar_estado_turno(request.get_json(silent=True))
+    if error:
+        return error
+
+    return actualizar_estado_turno(id_turno, id_estado)
 
 
 @turnos_bp.post('/turnos/<int:id_turno>/reservar')
