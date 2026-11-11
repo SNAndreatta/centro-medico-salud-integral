@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API Backend - Centro Médico Salud Integral
-  description: "Documentación completa y definitiva de la API REST interna (Flask) para el Hito 2.\nIncluye todos los módulos ABM, Agendas, Turnos (con restricciones de negocio y QR) y \nrelación Médico-Cobertura-\n"
+  description: "Documentación completa y definitiva de la API REST interna (Flask) para el Hito 2.\nIncluye todos los módulos ABM, Agendas, Turnos (con restricciones de negocio y QR) y \nrelación Médico-Cobertura.\n"
   version: 1.0.0
 servers:
 - url: https://virtserver.swaggerhub.com/myself-0fe/Centro-Medico/1.0.0
@@ -11,8 +11,8 @@ servers:
 tags:
 - name: Autenticación y Usuarios
   description: "Autenticación JWT y gestión de perfiles del personal."
-- name: Coberturas y Planes
-  description: "Gestión de Obras Sociales, Prepagas y sus respectivos planes."
+- name: Coberturas
+  description: "Gestión de Obras Sociales y Prepagas."
 - name: Pacientes
   description: ABM y búsqueda de pacientes (particulares o con cobertura).
 - name: Especialidades
@@ -133,7 +133,7 @@ paths:
   /api/coberturas:
     get:
       tags:
-      - Coberturas y Planes
+      - Coberturas
       summary: Listar todas las Obras Sociales / Prepagas
       description: "Retorna el catálogo completo de coberturas disponibles en la clínica (ej. OSDE, Swiss Medical)."
       responses:
@@ -141,7 +141,7 @@ paths:
           description: Lista de coberturas.
     post:
       tags:
-      - Coberturas y Planes
+      - Coberturas
       summary: Crear nueva cobertura
       description: Alta de una nueva obra social o prepaga en el sistema.
       requestBody:
@@ -158,7 +158,7 @@ paths:
   /api/coberturas/{id_cobertura}:
     put:
       tags:
-      - Coberturas y Planes
+      - Coberturas
       summary: Modificar cobertura
       description: Actualiza el nombre o los detalles comerciales de una cobertura existente.
       parameters:
@@ -180,7 +180,7 @@ paths:
           description: La cobertura indicada no existe.
     delete:
       tags:
-      - Coberturas y Planes
+      - Coberturas
       summary: Eliminar cobertura
       description: Borra lógicamente o físicamente una cobertura (solo si no tiene pacientes ni médicos asociados).
       parameters:
@@ -194,82 +194,6 @@ paths:
           description: Cobertura eliminada.
         "409":
           description: Conflicto. No se puede eliminar porque hay pacientes/médicos que la utilizan.
-  /api/coberturas/{id_cobertura}/planes:
-    get:
-      tags:
-      - Coberturas y Planes
-      summary: Listar los planes asociados a una cobertura
-      description: "Retorna los planes jerárquicos de una obra social (ej. 210, 310, 410 para OSDE). Útil para cargar combos dependientes en el Frontend."
-      parameters:
-      - name: id_cobertura
-        in: path
-        required: true
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: Lista de planes obtenida.
-        "404":
-          description: Cobertura no encontrada.
-    post:
-      tags:
-      - Coberturas y Planes
-      summary: Agregar plan a una cobertura
-      description: Crea un nuevo plan jerárquico bajo el paraguas de una cobertura específica.
-      parameters:
-      - name: id_cobertura
-        in: path
-        required: true
-        schema:
-          type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NombreRequest"
-        required: true
-      responses:
-        "201":
-          description: Plan creado exitosamente.
-  /api/planes/{id_plan}:
-    put:
-      tags:
-      - Coberturas y Planes
-      summary: Modificar nombre de un plan
-      description: Actualiza la denominación de un plan de obra social existente.
-      parameters:
-      - name: id_plan
-        in: path
-        required: true
-        schema:
-          type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NombreRequest"
-        required: true
-      responses:
-        "200":
-          description: Plan modificado.
-        "404":
-          description: Plan no encontrado.
-    delete:
-      tags:
-      - Coberturas y Planes
-      summary: Eliminar plan
-      description: Elimina un plan si no hay pacientes asignados al mismo.
-      parameters:
-      - name: id_plan
-        in: path
-        required: true
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: Plan eliminado con éxito.
-        "409":
-          description: Existen pacientes usando este plan. No se puede borrar.
   /api/pacientes/registro:
     post:
       security: []
@@ -278,7 +202,7 @@ paths:
       summary: Alta de paciente (Autogestión o Recepción)
       description: |
         Endpoint público o de recepción. Crea un registro en la tabla `usuario` y su perfil en `paciente`.
-        Soporta pacientes particulares (enviando `id_plan` y `nro_afiliado` nulos).
+        Soporta pacientes particulares (enviando `id_cobertura` y `nro_afiliado` nulos).
       requestBody:
         content:
           application/json:
@@ -317,7 +241,7 @@ paths:
       tags:
       - Pacientes
       summary: Obtener perfil completo del paciente
-      description: "Trae todos los datos personales, de contacto y de su cobertura/plan actual cruzando las tablas correspondientes."
+      description: "Trae todos los datos personales, de contacto y de su cobertura actual cruzando las tablas correspondientes."
       parameters:
       - name: id_paciente
         in: path
@@ -332,8 +256,8 @@ paths:
     put:
       tags:
       - Pacientes
-      summary: "Actualizar datos, plan o número de afiliado"
-      description: Permite al paciente o recepcionista actualizar su plan de salud (ej. cambió de prepaga) o datos de contacto.
+      summary: "Actualizar datos, cobertura o número de afiliado"
+      description: Permite al paciente o recepcionista actualizar su cobertura de salud (ej. cambió de prepaga) o datos de contacto.
       parameters:
       - name: id_paciente
         in: path
@@ -1100,7 +1024,7 @@ components:
         nombre:
           type: string
           example: Cardiología
-      description: "Schema genérico para enviar nombres (especialidades, coberturas, planes)."
+      description: "Schema genérico para enviar nombres (especialidades, coberturas)."
     UsuarioStaffRegistro:
       required:
       - apellido
@@ -1163,9 +1087,9 @@ components:
         password:
           type: string
           format: password
-        id_plan:
+        id_cobertura:
           type: integer
-          description: Nulo si es paciente particular (sin prepaga).
+          description: Nulo si es paciente particular (sin cobertura).
           nullable: true
           example: 12
         nro_afiliado:
@@ -1180,7 +1104,7 @@ components:
         correo_electronico:
           type: string
           format: email
-        id_plan:
+        id_cobertura:
           type: integer
           nullable: true
         nro_afiliado:

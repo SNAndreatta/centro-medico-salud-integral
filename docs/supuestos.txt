@@ -2,7 +2,7 @@ Supuestos acordados — Hito 1
 
     Los médicos utilizarán una cuenta con correo institucional para trabajar. Si también desean atenderse como pacientes, utilizarán otra cuenta con correo personal. (Si se implementara el rol de medico)
 
-    Se atenderán pacientes con o sin cobertura médica. Los particulares no tendrán plan ni número de afiliado.
+    Se atenderán pacientes con o sin cobertura médica. Los particulares no tendrán cobertura ni número de afiliado.
 
     Las agendas podrán ser semanales o mensuales. Las semanales repetirán sus horarios cada semana durante su vigencia.
 
@@ -18,7 +18,7 @@ Supuestos acordados — Hito 1
 
     Recepción marcará el turno como atendido cuando el médico confirme la finalización de la consulta.(Lo mismo que el supuesto 1)
 
-    La vinculación comercial se realiza a nivel de Cobertura. Si un médico acepta una Cobertura, el sistema asume que atiende todos los planes asociados a la misma."
+    La vinculación comercial se realiza directamente a nivel de Cobertura. Si un médico acepta una Cobertura, el sistema asume que atiende a todos los pacientes de esa cobertura.
 
     La administración trabaja con "apertura de agendas". El día 15 de cada mes, un administrador entra al sistema y aprieta un botón que dice "Abrir agenda de Noviembre". El sistema ejecuta el proceso masivo y genera todos los turnos en la base de datos solo para ese mes.
 
@@ -26,7 +26,7 @@ Observaciones de compatibilidad con el esquema
 
     Permitir el mismo DNI en las cuentas profesional y personal, manteniendo correos únicos.
 
-    Permitir plan y número de afiliado nulos para pacientes particulares.
+    Permitir cobertura y número de afiliado nulos para pacientes particulares.
 
     Aclarar cómo Agenda–Días representa los horarios semanales recurrentes.
 
