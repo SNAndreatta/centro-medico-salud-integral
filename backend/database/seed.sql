@@ -44,11 +44,8 @@ VALUES
     (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$062a597c05329416$b748f7b1e42f6724b17c56349e104212ae689121da2706f75ad11c65b90970d4'),
     (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$054686320dec1783$fa475b38eec857f31ff9b9bb50285ead56191be995941d0bc4a2af738cd3813b');
 
-INSERT IGNORE INTO plan (id_plan, id_cobertura, nombre)
-VALUES (1, 1, 'OSDE 210'), (2, 1, 'OSDE 310'), (3, 2, 'SMG 20'), (4, 3, 'Galeno Azul');
-
-INSERT IGNORE INTO paciente (id_paciente, id_plan, id_usuario, nro_afiliado)
-VALUES (1, 1, 3, 'OSDE-TEST-001'), (2, 4, 4, 'GAL-TEST-002'), (3, NULL, 5, NULL);
+INSERT IGNORE INTO paciente (id_paciente, id_cobertura, id_usuario, nro_afiliado)
+VALUES (1, 1, 3, 'OSDE-TEST-001'), (2, 3, 4, 'GAL-TEST-002'), (3, NULL, 5, NULL);
 
 INSERT IGNORE INTO medico (id_medico, id_especialidad, id_usuario, matricula)
 VALUES (1, 3, 6, 'MN-TEST-1001'), (2, 4, 7, 'MN-TEST-1002'), (3, 2, 8, 'MN-TEST-1003');

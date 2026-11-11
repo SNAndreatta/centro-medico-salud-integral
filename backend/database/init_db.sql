@@ -37,19 +37,19 @@ CREATE TABLE IF NOT EXISTS usuario(
     FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
 );
 
-CREATE TABLE IF NOT EXISTS plan(
-    id_plan INT PRIMARY KEY AUTO_INCREMENT,
-    id_cobertura INT NOT NULL,
-    nombre VARCHAR(100) NOT NULL,
-    FOREIGN KEY (id_cobertura) REFERENCES cobertura(id_cobertura)
-);
+-- CREATE TABLE IF NOT EXISTS plan(
+--     id_plan INT PRIMARY KEY AUTO_INCREMENT,
+--     id_cobertura INT NOT NULL,
+--     nombre VARCHAR(100) NOT NULL,
+--     FOREIGN KEY (id_cobertura) REFERENCES cobertura(id_cobertura)
+-- );
 
 CREATE TABLE IF NOT EXISTS paciente(
     id_paciente INT PRIMARY KEY AUTO_INCREMENT,
-    id_plan INT,
+    id_cobertura INT,
     id_usuario INT NOT NULL,
     nro_afiliado VARCHAR(50),
-    FOREIGN KEY (id_plan) REFERENCES plan(id_plan),
+    FOREIGN KEY (id_cobertura) REFERENCES cobertura(id_cobertura),
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
