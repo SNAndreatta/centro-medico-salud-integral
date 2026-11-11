@@ -778,7 +778,11 @@ paths:
       tags:
       - Turnos (Reserva y Recepción)
       summary: Obtener el detalle completo de un turno específico
-      description: "Devuelve toda la información del turno, con datos cruzados del Paciente, Médico, Consultorio, Cobertura y Código QR asignado."
+      description: >-
+        Devuelve el turno con su estado, fechas, paciente, médico, consultorio,
+        cobertura del paciente y código QR asignado. Administración y recepción
+        pueden consultar cualquier turno. Los pacientes consultan sus turnos y
+        los médicos los que pertenecen a sus agendas.
       parameters:
       - name: id_turno
         in: path
@@ -787,9 +791,13 @@ paths:
           type: integer
       responses:
         "200":
-          description: JSON con toda la información relacional del turno.
+          description: Objeto turno con los datos del detalle. Paciente, cobertura y código QR pueden ser nulos.
+        "401":
+          description: Token ausente, inválido o expirado.
+        "403":
+          description: Rol sin acceso a los turnos.
         "404":
-          description: Turno no encontrado.
+          description: El turno no existe o no es visible para el usuario.
   /api/turnos/checkin:
     post:
       tags:
