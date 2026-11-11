@@ -56,7 +56,10 @@
                     </h1>
                 </div>
 
-                <form id="login-form" class="space-y-5">
+                <form id="login-form"
+                    method="POST"
+                    action="{{ url_for('rutas_auth.login') }}"
+                    class="space-y-5">
 
                     <div>
                         <label
@@ -133,12 +136,12 @@
                     </div>
 
                     <!-- Mensaje del formulario -->
-                    <p
-                        id="login-message"
-                        role="status"
-                        aria-live="polite"
-                        class="hidden rounded-lg bg-dominante p-3 text-sm text-acento"
-                    ></p>
+                    {% if mensaje %}
+                        <p role="alert"
+                        class="rounded-lg bg-dominante p-3 text-sm text-acento">
+                            {{ mensaje }}
+                        </p>
+                    {% endif %}
 
                     <!-- Botón de acceso -->
                     <button
@@ -175,47 +178,7 @@
 
         </section>
     </main>
-
-    <script>
-        lucide.createIcons();
-
-        // Mostrar u ocultar contraseña
-        const password = document.querySelector("#password");
-        const togglePassword = document.querySelector("#toggle-password");
-
-        togglePassword.addEventListener("click", () => {
-            const mostrar = password.type === "password";
-
-            password.type = mostrar ? "text" : "password";
-
-            togglePassword.innerHTML = `
-                <i data-lucide="${mostrar ? "eye-off" : "eye"}"
-                   class="h-[18px] w-[18px]"></i>
-            `;
-
-            togglePassword.setAttribute(
-                "aria-label",
-                mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
-            );
-
-            togglePassword.setAttribute("aria-pressed", String(mostrar));
-
-            lucide.createIcons();
-        });
-
-        // Comportamiento provisional del formulario
-        const form = document.querySelector("#login-form");
-        const message = document.querySelector("#login-message");
-
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-
-            message.textContent =
-                "La interfaz funciona, pero todavía falta conectar el inicio de sesión con el backend.";
-
-            message.classList.remove("hidden");
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/auth/login.js') }}"></script>
 
 </body>
 </html>

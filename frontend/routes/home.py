@@ -1,23 +1,61 @@
-from flask import Blueprint, render_template, session
+
+from flask import Blueprint, render_template, session, redirect, url_for
+
 
 home_routes = Blueprint('rutas_home', __name__)
+
+
+ROLES = {
+    1: 'administrador',
+    2: 'recepcionista',
+    3: 'paciente',
+    4: 'medico',
+}
+
 
 @home_routes.route("/home")
 def home():
 
-    # ROL TEMPORAL PARA PROBAR LAS PANTALLAS
-    rol = "admin"
+    # Si no hay una sesión iniciada, vuelve al login.
+    usuario_sesion = session.get('usuario')
 
-    session["rol"] = rol
+    if not usuario_sesion:
+        return redirect(url_for('rutas_auth.login'))
+
+    # Recupera el rol del usuario autenticado.
+    id_rol = session.get('id_rol')
+
+    if id_rol is None:
+        id_rol = usuario_sesion.get('id_rol')
+
+    try:
+        id_rol = int(id_rol)
+    except (TypeError, ValueError):
+        session.clear()
+        return redirect(url_for('rutas_auth.login'))
+
+    rol = ROLES.get(id_rol)
+
+    if rol is None:
+        session.clear()
+        return redirect(url_for('rutas_auth.login'))
+
+    session['rol'] = rol
+
     reserva_exitosa = session.pop('turno_reservado', False)
 
+    nombre = usuario_sesion.get('nombre', '')
+    apellido = usuario_sesion.get('apellido', '')
+
     usuario = {
-        "nombre_completo": "Juan Pérez"
+        'nombre': nombre,
+        'apellido': apellido,
+        'nombre_completo': f'{nombre} {apellido}'.strip()
     }
 
     datos = {}
 
-    if rol == "medico":
+    if rol == 'medico':
         datos = {
             "consultorio": "123",
             "fecha": "25/10",
@@ -51,10 +89,13 @@ def home():
             ]
         }
 
-    elif rol == "recepcion":
+    elif rol == 'recepcionista':
         datos = {}
 
-    elif rol == "paciente":
+    elif rol == 'paciente':
+        datos = {}
+
+    elif rol == 'administrador':
         datos = {}
 
     return render_template(

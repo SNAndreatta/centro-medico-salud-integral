@@ -19,6 +19,7 @@ from routes.admin.dashboards.tiempo_espera import tiempo_espera_admin_routes
 from src.config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
 app.secret_key = Config.SECRET_KEY
 app.json.ensure_ascii = False
 
