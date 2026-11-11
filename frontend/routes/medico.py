@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from routes.agenda_mensual import contexto_agenda_mensual
 
 medico_routes = Blueprint('rutas_medico', __name__)
 
@@ -255,9 +256,6 @@ def agenda():
     return render_template(
         'medico/agenda.html',
         medico=medico,
-        dias_semana=dias_semana,
-        turno_seleccionado=turno_seleccionado,
         consultorio=consultorio,
-        fecha_inicio=fecha_inicio,
-        rango_fechas="12 OCT - 17 OCT"
+        **contexto_agenda_mensual(request.args),
     )
