@@ -122,6 +122,87 @@ def obtener_medico_por_id(id_medico):
         conexion.close()
 
 
+def actualizar_especialidad_medico(id_medico, id_especialidad):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_medico FROM medico WHERE id_medico = %s LIMIT 1',
+            (id_medico,),
+        )
+        if cursor.fetchone() is None:
+            return 'MEDICO_NO_EXISTE'
+
+        cursor.execute(
+            'SELECT id_especialidad FROM especialidad WHERE id_especialidad = %s LIMIT 1',
+            (id_especialidad,),
+        )
+        if cursor.fetchone() is None:
+            return 'ESPECIALIDAD_NO_EXISTE'
+
+        cursor.execute(
+            'UPDATE medico SET id_especialidad = %s WHERE id_medico = %s',
+            (id_especialidad, id_medico),
+        )
+        conexion.commit()
+        return None
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def eliminar_medico(id_medico):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM medico WHERE id_medico = %s LIMIT 1',
+            (id_medico,),
+        )
+        medico = cursor.fetchone()
+        if medico is None:
+            return 'MEDICO_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM turno t
+            JOIN agenda a ON a.id_agenda = t.id_agenda
+            WHERE a.id_medico = %s
+            LIMIT 1
+            """,
+            (id_medico,),
+        )
+        if cursor.fetchone() is not None:
+            return 'MEDICO_CON_TURNOS'
+
+        cursor.execute('DELETE FROM cobertura_medico WHERE id_medico = %s', (id_medico,))
+        cursor.execute(
+            """
+            DELETE FROM agenda_dias
+            WHERE id_agenda IN (
+                SELECT id_agenda FROM agenda WHERE id_medico = %s
+            )
+            """,
+            (id_medico,),
+        )
+        cursor.execute('DELETE FROM agenda WHERE id_medico = %s', (id_medico,))
+        cursor.execute('DELETE FROM medico WHERE id_medico = %s', (id_medico,))
+        cursor.execute('DELETE FROM usuario WHERE id_usuario = %s', (medico['id_usuario'],))
+        conexion.commit()
+        return None
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return 'MEDICO_EN_USO'
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def obtener_coberturas_de_medico(id_medico):
     conexion, cursor = obtener_cursor()
     try:

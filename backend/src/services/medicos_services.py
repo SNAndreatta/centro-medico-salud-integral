@@ -1,7 +1,9 @@
 from src.errores import error_respuesta
 from src.repositories.medicos_repositories import (
+    actualizar_especialidad_medico,
     buscar_medicos,
     desvincular_cobertura_medico,
+    eliminar_medico as eliminar_medico_repositorio,
     guardar_medico,
     obtener_coberturas_de_medico,
     obtener_medico_por_id,
@@ -9,6 +11,7 @@ from src.repositories.medicos_repositories import (
 )
 from src.utils.security import hash_password
 from src.validators.medicos_validators import (
+    validar_datos_actualizacion_medico,
     validar_datos_medico,
     validar_filtros_medicos,
 )
@@ -67,6 +70,47 @@ def obtener_medico(id_medico):
         ), 404
 
     return {'medico': medico}, 200
+
+
+def modificar_medico(id_medico, datos):
+    id_especialidad, error = validar_datos_actualizacion_medico(datos)
+    if error:
+        return error, 400
+
+    error = actualizar_especialidad_medico(id_medico, id_especialidad)
+    if error == 'MEDICO_NO_EXISTE':
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+    if error == 'ESPECIALIDAD_NO_EXISTE':
+        return error_respuesta(
+            'La especialidad indicada no existe',
+            'ESPECIALIDAD_INEXISTENTE',
+        ), 400
+
+    return {'medico': obtener_medico_por_id(id_medico)}, 200
+
+
+def eliminar_medico(id_medico):
+    error = eliminar_medico_repositorio(id_medico)
+    if error == 'MEDICO_NO_EXISTE':
+        return error_respuesta(
+            'El médico indicado no existe',
+            'MEDICO_INEXISTENTE',
+        ), 404
+    if error == 'MEDICO_CON_TURNOS':
+        return error_respuesta(
+            'No se puede eliminar un médico que tiene turnos asociados',
+            'MEDICO_CON_TURNOS',
+        ), 409
+    if error == 'MEDICO_EN_USO':
+        return error_respuesta(
+            'No se puede eliminar el usuario del médico porque tiene otros datos asociados',
+            'MEDICO_EN_USO',
+        ), 409
+
+    return {'mensaje': 'Médico eliminado correctamente'}, 200
 
 
 def listar_coberturas_medico(id_medico):

@@ -70,6 +70,27 @@ def validar_datos_medico(datos):
     }, None
 
 
+def validar_datos_actualizacion_medico(datos):
+    if not isinstance(datos, dict) or set(datos) != {'id_especialidad'}:
+        return None, error_respuesta(
+            'El cuerpo debe incluir únicamente id_especialidad',
+            'CUERPO_INVALIDO',
+        )
+
+    id_especialidad = datos['id_especialidad']
+    if (
+        isinstance(id_especialidad, bool)
+        or not isinstance(id_especialidad, int)
+        or id_especialidad <= 0
+    ):
+        return None, error_respuesta(
+            'id_especialidad debe ser un entero positivo',
+            'ESPECIALIDAD_INVALIDA',
+        )
+
+    return id_especialidad, None
+
+
 def validar_filtros_medicos(parametros):
     filtros = {}
     for nombre in ('id_especialidad', 'id_cobertura'):

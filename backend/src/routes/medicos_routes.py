@@ -3,8 +3,10 @@ from flask import Blueprint, request
 from src.services.medicos_services import (
     agregar_cobertura_medico,
     crear_medico,
+    eliminar_medico,
     filtrar_medicos,
     listar_coberturas_medico,
+    modificar_medico,
     obtener_medico,
     quitar_cobertura_medico,
 )
@@ -46,6 +48,29 @@ def listar_medicos():
 @roles_required(ADMINISTRADOR, RECEPCIONISTA, PACIENTE)
 def consultar_medico(id_medico):
     respuesta, status_code = obtener_medico(id_medico)
+    return respuesta, status_code
+
+
+@medicos_bp.put('/medicos/<int:id_medico>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR)
+def editar_medico(id_medico):
+    datos = request.get_json(silent=True)
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
+
+    respuesta, status_code = modificar_medico(id_medico, datos)
+    return respuesta, status_code
+
+
+@medicos_bp.delete('/medicos/<int:id_medico>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR)
+def borrar_medico(id_medico):
+    respuesta, status_code = eliminar_medico(id_medico)
     return respuesta, status_code
 
 

@@ -482,8 +482,8 @@ paths:
     put:
       tags:
       - Médicos
-      summary: Modificar datos del médico
-      description: Actualiza la especialidad o datos de contacto del médico.
+      summary: Modificar la especialidad del médico
+      description: Actualiza la especialidad asignada al profesional.
       parameters:
       - name: id_medico
         in: path
@@ -498,14 +498,16 @@ paths:
         required: true
       responses:
         "200":
-          description: Datos actualizados.
+          description: Especialidad actualizada.
+        "400":
+          description: La especialidad indicada no existe o el cuerpo no es válido.
         "404":
           description: Médico no encontrado.
     delete:
       tags:
       - Médicos
       summary: Eliminar médico
-      description: Inactiva o elimina al profesional de la clínica.
+      description: Elimina al médico, sus vínculos de cobertura y agendas vacías. No se permite si tiene turnos asociados.
       parameters:
       - name: id_medico
         in: path
@@ -515,8 +517,10 @@ paths:
       responses:
         "200":
           description: Profesional eliminado.
+        "404":
+          description: Médico no encontrado.
         "409":
-          description: No se puede eliminar (tiene turnos asignados a futuro).
+          description: No se puede eliminar porque tiene turnos u otros datos asociados.
   /api/medicos/{id_medico}/coberturas:
     get:
       tags:
@@ -855,6 +859,7 @@ paths:
           description: Token inválido, expirado o inconsistente con el turno.
         "404":
           description: El turno o el paciente asociado ya no existen.
+  /api/turnos/cancelar:
     post:
       tags:
       - Turnos (Reserva y Recepción)
@@ -874,14 +879,14 @@ paths:
       responses:
         "200":
           description: Turno cancelado correctamente.
+        "400":
+          description: El identificador del turno es inválido.
         "403":
           description: El turno no pertenece al paciente autenticado.
         "404":
           description: Turno no encontrado.
         "409":
           description: El turno no se encuentra reservado o el paciente intenta cancelar fuera del plazo de 24 horas.
-        "400":
-          description: El identificador del turno es inválido.
   /api/turnos/{id_turno}/estado:
     put:
       tags:
