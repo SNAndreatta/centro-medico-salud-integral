@@ -22,12 +22,12 @@ Para probar las operaciones con MySQL:
 
 Las pruebas de integración usan la cuenta administradora de demostración del
 seed, comprueban las respuestas de Flask y consultan MySQL para verificar los
-cambios. Crean y limpian sus coberturas, planes y agendas. Deben ejecutarse sin
+cambios. Crean y limpian sus coberturas y agendas. Deben ejecutarse sin
 otros procesos modificando esa base desechable.
 
 ## Casos cubiertos
 
-- **#65:** borrado efectivo de cobertura y planes sin uso; desaparición del
+- **#65:** borrado efectivo de coberturas sin uso; desaparición del
   listado; segundo borrado con 404; rechazo con 409 y conservación de datos si
   hay pacientes o médicos asociados.
 - **#66:** rechazo de offsets positivos, negativos, UTC y `Z` tanto al inicio

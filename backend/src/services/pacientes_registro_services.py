@@ -13,7 +13,7 @@ def procesar_registro_paciente(datos):
     paciente_guardado, error = registrar_paciente(paciente)
     if error == 'EMAIL_DUPLICADO':
         return error_respuesta('Ya existe una cuenta con ese correo electrónico', 'EMAIL_DUPLICADO'), 400
-    if error == 'PLAN_INEXISTENTE':
-        return error_respuesta('El plan indicado no existe', 'PLAN_INEXISTENTE'), 400
+    if error == 'COBERTURA_INEXISTENTE':
+        return error_respuesta('La cobertura indicada no existe', 'COBERTURA_INEXISTENTE'), 400
 
     return {'mensaje': 'Paciente registrado exitosamente', 'paciente': paciente_guardado}, 201

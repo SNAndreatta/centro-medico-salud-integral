@@ -47,13 +47,13 @@ def registrar_paciente(paciente):
         if cursor.fetchone() is not None:
             return None, 'EMAIL_DUPLICADO'
 
-        if paciente['id_plan'] is not None:
+        if paciente['id_cobertura'] is not None:
             cursor.execute(
-                'SELECT id_plan FROM plan WHERE id_plan = %s',
-                (paciente['id_plan'],),
+                'SELECT id_cobertura FROM cobertura WHERE id_cobertura = %s',
+                (paciente['id_cobertura'],),
             )
             if cursor.fetchone() is None:
-                return None, 'PLAN_INEXISTENTE'
+                return None, 'COBERTURA_INEXISTENTE'
 
         cursor.execute(
             """
@@ -77,10 +77,10 @@ def registrar_paciente(paciente):
 
         cursor.execute(
             """
-            INSERT INTO paciente (id_plan, id_usuario, nro_afiliado)
+            INSERT INTO paciente (id_cobertura, id_usuario, nro_afiliado)
             VALUES (%s, %s, %s)
             """,
-            (paciente['id_plan'], id_usuario, paciente['nro_afiliado']),
+            (paciente['id_cobertura'], id_usuario, paciente['nro_afiliado']),
         )
         id_paciente = int(cursor.lastrowid)
         conexion.commit()
@@ -93,7 +93,7 @@ def registrar_paciente(paciente):
             'dni': paciente['dni'],
             'correo_electronico': paciente['correo_electronico'],
             'fecha_nacimiento': paciente['fecha_nacimiento'].isoformat(),
-            'id_plan': paciente['id_plan'],
+            'id_cobertura': paciente['id_cobertura'],
             'nro_afiliado': paciente['nro_afiliado'],
         }, None
     except mysql.connector.IntegrityError as exc:
@@ -123,12 +123,11 @@ def buscar_pacientes(dni=None, apellido=None):
     where = ' WHERE ' + ' AND '.join(condiciones) if condiciones else ''
     consulta = """
         SELECT p.id_paciente, u.id_usuario, u.nombre, u.apellido, u.dni,
-               u.correo_electronico, p.id_plan, pl.nombre AS plan,
+               u.correo_electronico, p.id_cobertura,
                c.nombre AS cobertura, p.nro_afiliado
         FROM paciente p
         JOIN usuario u ON u.id_usuario = p.id_usuario
-        LEFT JOIN plan pl ON pl.id_plan = p.id_plan
-        LEFT JOIN cobertura c ON c.id_cobertura = pl.id_cobertura
+        LEFT JOIN cobertura c ON c.id_cobertura = p.id_cobertura
     """ + where + ' ORDER BY u.apellido, u.nombre, p.id_paciente'
 
     conexion, cursor = obtener_cursor()

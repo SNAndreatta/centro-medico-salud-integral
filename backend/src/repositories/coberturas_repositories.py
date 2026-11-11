@@ -115,9 +115,8 @@ def borrar_cobertura(id_cobertura):
         cursor.execute(
             """
             SELECT 1
-            FROM paciente pa
-            INNER JOIN plan pl ON pl.id_plan = pa.id_plan
-            WHERE pl.id_cobertura = %s
+            FROM paciente
+            WHERE id_cobertura = %s
             LIMIT 1
             """,
             (id_cobertura,),
@@ -136,12 +135,6 @@ def borrar_cobertura(id_cobertura):
         )
         if cursor.fetchone() is not None:
             return None, 'EN_USO'
-
-        consulta_planes = """
-            DELETE FROM plan
-            WHERE id_cobertura = %s
-        """
-        cursor.execute(consulta_planes, (id_cobertura,))
 
         consulta_cobertura_medico = """
             DELETE FROM cobertura_medico

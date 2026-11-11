@@ -95,31 +95,25 @@ def _sql(conexion, consulta, parametros=()):
         cursor.close()
 
 
-def _crear_cobertura_y_plan(cliente, cabeceras):
+def _crear_cobertura(cliente, cabeceras):
     respuesta = cliente.post('/api/coberturas', headers=cabeceras,
                              json={'nombre': 'QA-regresion-' + uuid4().hex})
     assert respuesta.status_code == 201, respuesta.get_json()
-    cobertura = respuesta.get_json()['cobertura']['id_cobertura']
-    respuesta = cliente.post(f'/api/coberturas/{cobertura}/planes',
-                             headers=cabeceras, json={'nombre': 'Plan de prueba'})
-    assert respuesta.status_code == 201, respuesta.get_json()
-    return cobertura, respuesta.get_json()['plan']['id_plan']
+    return respuesta.get_json()['cobertura']['id_cobertura']
 
 
 def _limpiar_cobertura(conexion, cobertura):
     _sql(conexion, 'DELETE FROM cobertura_medico WHERE id_cobertura=%s', (cobertura,))
-    _sql(conexion, 'DELETE FROM plan WHERE id_cobertura=%s', (cobertura,))
     _sql(conexion, 'DELETE FROM cobertura WHERE id_cobertura=%s', (cobertura,))
 
 
-def test_api_borrado_persistente_de_cobertura_y_planes():
+def test_api_borrado_persistente_de_cobertura():
     with _entorno_api() as (cliente, cabeceras, conexion):
-        cobertura, plan = _crear_cobertura_y_plan(cliente, cabeceras)
+        cobertura = _crear_cobertura(cliente, cabeceras)
         try:
             respuesta = cliente.delete(f'/api/coberturas/{cobertura}', headers=cabeceras)
             assert respuesta.status_code == 200, respuesta.get_json()
             assert not _sql(conexion, 'SELECT 1 FROM cobertura WHERE id_cobertura=%s', (cobertura,))
-            assert not _sql(conexion, 'SELECT 1 FROM plan WHERE id_plan=%s', (plan,))
             listado = cliente.get('/api/coberturas', headers=cabeceras).get_json()['coberturas']
             assert all(fila['id_cobertura'] != cobertura for fila in listado)
             respuesta = cliente.delete(f'/api/coberturas/{cobertura}', headers=cabeceras)
@@ -132,22 +126,22 @@ def test_api_borrado_persistente_de_cobertura_y_planes():
 def test_api_cobertura_con_pacientes_conserva_dependencias():
     with _entorno_api() as (cliente, cabeceras, conexion):
         filas = _sql(conexion, '''
-            SELECT DISTINCT pl.id_cobertura FROM plan pl
-            JOIN paciente p ON p.id_plan=pl.id_plan ORDER BY pl.id_cobertura
+            SELECT DISTINCT id_cobertura FROM paciente
+            WHERE id_cobertura IS NOT NULL ORDER BY id_cobertura
         ''')
         assert filas, 'El seed debe incluir un paciente con cobertura'
         cobertura = filas[0][0]
-        planes = _sql(conexion, 'SELECT id_plan,nombre FROM plan WHERE id_cobertura=%s ORDER BY id_plan', (cobertura,))
+        pacientes = _sql(conexion, 'SELECT id_paciente FROM paciente WHERE id_cobertura=%s ORDER BY id_paciente', (cobertura,))
         respuesta = cliente.delete(f'/api/coberturas/{cobertura}', headers=cabeceras)
         assert respuesta.status_code == 409
         assert _codigo_error(respuesta.get_json()) == 'COBERTURA_EN_USO'
         assert _sql(conexion, 'SELECT 1 FROM cobertura WHERE id_cobertura=%s', (cobertura,))
-        assert _sql(conexion, 'SELECT id_plan,nombre FROM plan WHERE id_cobertura=%s ORDER BY id_plan', (cobertura,)) == planes
+        assert _sql(conexion, 'SELECT id_paciente FROM paciente WHERE id_cobertura=%s ORDER BY id_paciente', (cobertura,)) == pacientes
 
 
 def test_api_cobertura_con_medico_conserva_dependencias():
     with _entorno_api() as (cliente, cabeceras, conexion):
-        cobertura, plan = _crear_cobertura_y_plan(cliente, cabeceras)
+        cobertura = _crear_cobertura(cliente, cabeceras)
         try:
             medico = _sql(conexion, 'SELECT MIN(id_medico) FROM medico')[0][0]
             assert medico is not None, 'Cargar médicos del seed'
@@ -156,7 +150,6 @@ def test_api_cobertura_con_medico_conserva_dependencias():
             assert respuesta.status_code == 409
             assert _codigo_error(respuesta.get_json()) == 'COBERTURA_EN_USO'
             assert _sql(conexion, 'SELECT 1 FROM cobertura WHERE id_cobertura=%s', (cobertura,))
-            assert _sql(conexion, 'SELECT 1 FROM plan WHERE id_plan=%s', (plan,))
             assert _sql(conexion, 'SELECT 1 FROM cobertura_medico WHERE id_cobertura=%s AND id_medico=%s', (cobertura, medico))
         finally:
             _limpiar_cobertura(conexion, cobertura)
@@ -215,7 +208,7 @@ def load_tests(loader, tests, pattern):
         test_horarios_locales_validos,
         test_zonas_horarias_rechazadas,
         test_validaciones_existentes_de_jornada,
-        test_api_borrado_persistente_de_cobertura_y_planes,
+        test_api_borrado_persistente_de_cobertura,
         test_api_cobertura_con_pacientes_conserva_dependencias,
         test_api_cobertura_con_medico_conserva_dependencias,
         test_api_zonas_horarias_no_crean_agendas,

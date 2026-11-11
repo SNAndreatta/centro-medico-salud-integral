@@ -17,7 +17,7 @@ CAMPOS_REQUERIDOS = {
     'fecha_nacimiento',
     'password',
 }
-CAMPOS_OPCIONALES = {'id_plan', 'nro_afiliado'}
+CAMPOS_OPCIONALES = {'id_cobertura', 'nro_afiliado'}
 
 
 def validar_datos_registro_paciente(datos):
@@ -57,11 +57,11 @@ def validar_datos_registro_paciente(datos):
     if fecha_nacimiento > date.today():
         return None, error_respuesta('fecha_nacimiento no puede ser futura', 'FECHA_INVALIDA'), 400
 
-    id_plan = datos.get('id_plan')
-    if id_plan is not None and (
-        isinstance(id_plan, bool) or not isinstance(id_plan, int) or id_plan <= 0
+    id_cobertura = datos.get('id_cobertura')
+    if id_cobertura is not None and (
+        isinstance(id_cobertura, bool) or not isinstance(id_cobertura, int) or id_cobertura <= 0
     ):
-        return None, error_respuesta('id_plan debe ser un entero positivo o nulo', 'PLAN_INVALIDO'), 400
+        return None, error_respuesta('id_cobertura debe ser un entero positivo o nulo', 'COBERTURA_INVALIDA'), 400
 
     nro_afiliado = datos.get('nro_afiliado')
     if nro_afiliado is not None:
@@ -76,9 +76,9 @@ def validar_datos_registro_paciente(datos):
             ), 400
         nro_afiliado = nro_afiliado.strip()
 
-    if (id_plan is None) != (nro_afiliado is None):
+    if (id_cobertura is None) != (nro_afiliado is None):
         return None, error_respuesta(
-            'id_plan y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
+            'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
             'AFILIACION_INCOMPLETA',
         ), 400
 
@@ -89,7 +89,7 @@ def validar_datos_registro_paciente(datos):
         'correo_electronico': correo,
         'fecha_nacimiento': fecha_nacimiento,
         'password': password,
-        'id_plan': id_plan,
+        'id_cobertura': id_cobertura,
         'nro_afiliado': nro_afiliado,
     }, None, None
 
