@@ -1,14 +1,18 @@
-from werkzeug.security import generate_password_hash
-
+from src.repositories.auth_repository import obtener_usuario_por_id
 from src.repositories.usuarios_repositories import (
     guardar_usuario_staff,
     obtener_usuarios_staff,
 )
 from src.errores import error_respuesta
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
+from src.utils.security import hash_password
 from src.validators.usuarios_validators import validar_datos_usuario_staff
 
 ROLES_STAFF = {'admin': ADMINISTRADOR, 'recepcionista': RECEPCIONISTA}
+
+
+def obtener_usuario_actual(id_usuario):
+    return obtener_usuario_por_id(id_usuario)
 
 
 def listar_usuarios_staff(rol=None):
@@ -21,7 +25,7 @@ def crear_usuario_staff(datos):
     if error:
         return error, 400
 
-    usuario['contrasenia'] = generate_password_hash(usuario.pop('password'))
+    usuario['contrasenia'] = hash_password(usuario.pop('password'))
     usuario_guardado = guardar_usuario_staff(usuario)
     if usuario_guardado is None:
         return error_respuesta(

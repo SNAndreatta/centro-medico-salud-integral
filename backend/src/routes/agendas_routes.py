@@ -4,7 +4,7 @@ from src.services.agendas_services import filtrar_agendas, crear_agenda, obtener
 from src.utils.auth import token_required, roles_required
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA, MEDICO, PACIENTE
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 agendas_bp = Blueprint('agendas_bp', __name__)
 
 @agendas_bp.get('/agendas')

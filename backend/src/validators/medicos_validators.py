@@ -1,5 +1,5 @@
 from src.errores import error_respuesta
-from src.utils.utils import (
+from src.validators.common import (
     texto_obligatorio,
     validar_correo_electronico,
     validar_id_positivo,

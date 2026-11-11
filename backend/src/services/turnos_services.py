@@ -2,11 +2,12 @@ import base64
 from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
 
+from src.config import Config
 from src.errores import error_respuesta
 from src.repositories.agendas_repositories import buscar_agendas
-from src.repositories.pacientes_repositories import obtener_paciente_por_usuario
 from src.repositories.turnos_repositories import (
     buscar_datos_turno_comprobante,
+    buscar_turno_para_cancelar,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
     buscar_turnos,
@@ -16,13 +17,52 @@ from src.repositories.turnos_repositories import (
     reservar_turno as reservar_turno_repositorio,
     cancelar_turno as cancelar_turno_repositorio,
 )
-from src.services.smtp_service import enviar_comprobante_turno, validar_token_cancelacion_turno
+from src.services.pacientes_services import (
+    obtener_id_paciente_por_usuario,
+    obtener_id_usuario_por_paciente,
+)
+from src.services.smtp_service import enviar_comprobante_turno
 from src.utils.qr_utils import decodificar_payload_qr, generar_qr_para_turno
 from src.utils.roles import PACIENTE, MEDICO
+from src.utils.tokens import validar_token_cancelacion_turno
 from src.validators.turnos_validators import (
     validar_filtros_turnos,
     validar_filtros_turnos_disponibles,
+    validar_reserva_turno,
 )
+
+
+def _ahora_local():
+    return datetime.now(ZoneInfo(Config.TIMEZONE)).replace(tzinfo=None)
+
+
+def _respuesta_llegada_registrada(turno):
+    return {
+        'mensaje': 'Llegada ya registrada',
+        'id_turno': int(turno['id_turno']),
+        'estado': 'confirmado',
+        'fecha_horario_llegada': turno['fecha_horario_llegada'],
+    }, 200
+
+
+def reservar_turno_solicitado(id_turno, datos, usuario_actual):
+    if datos is None:
+        datos = {}
+
+    es_paciente = usuario_actual['id_rol'] == PACIENTE
+    id_paciente, error = validar_reserva_turno(
+        datos,
+        requiere_id_paciente=not es_paciente,
+    )
+    if error:
+        return error
+
+    if es_paciente:
+        id_paciente = obtener_id_paciente_por_usuario(usuario_actual['id_usuario'])
+        if id_paciente is None:
+            return error_respuesta('El paciente autenticado no existe', 'PACIENTE_INEXISTENTE'), 404
+
+    return reservar_turno(id_turno, id_paciente)
 
 
 def reservar_turno(id_turno, id_paciente):
@@ -110,23 +150,28 @@ def registrar_checkin_por_qr(token):
     turno = buscar_turno_por_codigo_qr(token)
     if turno is None:
         return error_respuesta('El código QR no pertenece a un turno válido', 'QR_INEXISTENTE'), 404
+    if turno['estado_turno'] == 'confirmado':
+        return _respuesta_llegada_registrada(turno)
     if turno['estado_turno'] != 'reservado':
         return error_respuesta('El turno ya no está en estado reservado', 'TURNO_NO_RESERVADO'), 409
 
+    id_turno = int(turno['id_turno'])
+    if int(payload.get('id_turno', -1)) != id_turno:
+        return error_respuesta('El QR no coincide con el turno asociado', 'QR_INVALIDO'), 400
+
     fecha_turno = datetime.fromisoformat(turno['fecha_horario_inicial'])
-    ahora = datetime.now().replace(tzinfo=None)
+    ahora = _ahora_local()
     inicio_valido = fecha_turno - timedelta(minutes=30)
     fin_valido = fecha_turno + timedelta(minutes=15)
 
     if not (inicio_valido <= ahora <= fin_valido):
         return error_respuesta('El check-in está fuera del rango permitido', 'QR_EXPIRADO'), 409
 
-    id_turno = int(turno['id_turno'])
-    if int(payload.get('id_turno', -1)) != id_turno:
-        return error_respuesta('El QR no coincide con el turno asociado', 'QR_INVALIDO'), 400
-
     actualizado = confirmar_checkin(id_turno, ahora.strftime('%Y-%m-%d %H:%M:%S'))
     if not actualizado:
+        turno_actual = buscar_turno_por_codigo_qr(token)
+        if turno_actual is not None and turno_actual['estado_turno'] == 'confirmado':
+            return _respuesta_llegada_registrada(turno_actual)
         return error_respuesta('No fue posible confirmar el check-in del turno', 'CHECKIN_NO_ACTUALIZADO'), 500
 
     return {
@@ -138,18 +183,31 @@ def registrar_checkin_por_qr(token):
 
 
 def cancelar_turno(id_turno, usuario_actual):
-    resultado = cancelar_turno_repositorio(
-        id_turno,
-        usuario_actual['id_usuario'],
-        usuario_actual['id_rol'],
-    )
-    if resultado is None:
+    turno = buscar_turno_para_cancelar(id_turno)
+    if turno is None:
         return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
-    if resultado['resultado'] == 'NO_AUTORIZADO':
+    if turno['estado_turno'] != 'reservado':
         return error_respuesta(
-            'El turno no pertenece al paciente autenticado',
-            'TURNO_NO_AUTORIZADO',
-        ), 403
+            'El turno no se encuentra reservado',
+            'TURNO_NO_CANCELABLE',
+        ), 409
+
+    if usuario_actual['id_rol'] == PACIENTE:
+        if turno['id_usuario_paciente'] != usuario_actual['id_usuario']:
+            return error_respuesta(
+                'El turno no pertenece al paciente autenticado',
+                'TURNO_NO_AUTORIZADO',
+            ), 403
+
+        fecha_turno = datetime.fromisoformat(turno['fecha_horario_inicial'])
+        limite_cancelacion = fecha_turno - timedelta(hours=24)
+        if _ahora_local() > limite_cancelacion:
+            return error_respuesta(
+                'La cancelación solo está disponible hasta 24 horas antes del turno; comuníquese con recepción',
+                'CANCELACION_FUERA_DE_PLAZO',
+            ), 409
+
+    resultado = cancelar_turno_repositorio(id_turno)
     if resultado['resultado'] == 'NO_CANCELABLE':
         return error_respuesta(
             'El turno no se encuentra reservado',
@@ -161,6 +219,24 @@ def cancelar_turno(id_turno, usuario_actual):
         'estado': 'cancelado',
         'disponible': True,
     }, 200
+
+
+def cancelar_turno_por_token(id_turno, token):
+    try:
+        payload = validar_token_cancelacion_turno(token)
+    except ValueError as exc:
+        return error_respuesta(str(exc), 'TOKEN_INVALIDO'), 400
+
+    if int(payload.get('id_turno')) != id_turno:
+        return error_respuesta('El token no corresponde a este turno', 'TOKEN_INVALIDO'), 400
+
+    id_paciente = int(payload.get('id_paciente'))
+    id_usuario = obtener_id_usuario_por_paciente(id_paciente)
+    if id_usuario is None:
+        return error_respuesta('El paciente asociado a este enlace ya no existe', 'PACIENTE_INEXISTENTE'), 404
+
+    return cancelar_turno(id_turno, {'id_usuario': id_usuario, 'id_rol': PACIENTE})
+
 
 def filtrar_turnos_disponibles(parametros):
     filtros, error = validar_filtros_turnos_disponibles(parametros)
@@ -188,8 +264,9 @@ def filtrar_turnos(parametros, usuario_actual):
     )
     return {'turnos': turnos}, 200
 
-def _obtener_periodo_proximo_mes():
-    hoy = datetime.now(ZoneInfo('America/Argentina/Buenos_Aires')).date()
+
+def _obtener_periodo_proximo_mes(hoy=None):
+    hoy = hoy or _ahora_local().date()
 
     fecha_desde = (hoy.replace(day=28) + timedelta(days=4)).replace(day=1)
     primer_dia_mes_siguiente = (fecha_desde.replace(day=28) + timedelta(days=4)).replace(day=1)
@@ -198,8 +275,16 @@ def _obtener_periodo_proximo_mes():
 
     return fecha_desde, fecha_hasta
 
+
 def generar_disponibilidad():
-    fecha_desde, fecha_hasta = _obtener_periodo_proximo_mes()
+    hoy = _ahora_local().date()
+    if hoy.day < 15:
+        return error_respuesta(
+            'La apertura de agendas se habilita a partir del día 15 de cada mes',
+            'APERTURA_AGENDA_NO_HABILITADA',
+        ), 409
+
+    fecha_desde, fecha_hasta = _obtener_periodo_proximo_mes(hoy)
 
     agendas = buscar_agendas()
     turnos_a_generar = []

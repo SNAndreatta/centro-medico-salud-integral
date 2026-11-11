@@ -1,12 +1,15 @@
 from flask import Blueprint, g, request
 
 from src.errores import error_respuesta
-from src.repositories.auth_repository import obtener_usuario_por_id
-from src.services.usuarios_services import crear_usuario_staff, listar_usuarios_staff
+from src.services.usuarios_services import (
+    crear_usuario_staff,
+    listar_usuarios_staff,
+    obtener_usuario_actual,
+)
 from src.utils.auth import roles_required, token_required
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 from src.validators.usuarios_validators import validar_filtro_rol
 
 usuarios_bp = Blueprint('usuarios_bp', __name__)
@@ -17,7 +20,7 @@ usuarios_bp = Blueprint('usuarios_bp', __name__)
 @token_required
 @roles_required(*ROLES_VALIDOS)
 def usuario_actual():
-    usuario = obtener_usuario_por_id(g.current_user['id_usuario'])
+    usuario = obtener_usuario_actual(g.current_user['id_usuario'])
     if usuario is None:
         return error_respuesta(
             'El usuario asociado al token ya no existe',

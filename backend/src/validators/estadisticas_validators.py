@@ -1,4 +1,4 @@
-from src.utils.utils import validar_fecha_iso_opcional, validar_rango_fechas
+from src.validators.common import validar_fecha_iso_opcional, validar_rango_fechas
 
 
 def validar_fechas_estadisticas(parametros):

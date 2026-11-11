@@ -1,18 +1,12 @@
-import re
-from datetime import date, time
+from datetime import time
 
 from src.errores import error_respuesta
-from src.utils.utils import validar_id_positivo
-
-def _booleano_opcional(valor, nombre):
-    if valor is None:
-        return None, None
-    normalizado = str(valor).strip().lower()
-    if normalizado == 'true':
-        return True, None
-    if normalizado == 'false':
-        return False, None
-    return None, error_respuesta(f'{nombre} debe ser true o false', 'FILTRO_INVALIDO')
+from src.validators.common import (
+    validar_booleano_opcional,
+    validar_fecha_obligatoria,
+    validar_hora_obligatoria,
+    validar_id_positivo,
+)
 
 
 def validar_filtros_agendas(parametros):
@@ -23,42 +17,11 @@ def validar_filtros_agendas(parametros):
             return None, error
         filtros[nombre] = valor
 
-    vigente, error = _booleano_opcional(parametros.get('vigente'), 'vigente')
+    vigente, error = validar_booleano_opcional(parametros.get('vigente'), 'vigente')
     if error:
         return None, error
     filtros['vigente'] = vigente
     return filtros, None
-
-def _fecha_obligatoria(valor, nombre):
-    if not isinstance(valor, str):
-        return None, error_respuesta(f'{nombre} debe tener formato YYYY-MM-DD', 'FECHA_INVALIDA')
-    try:
-        fecha = date.fromisoformat(valor)
-    except ValueError:
-        return None, error_respuesta(f'{nombre} debe tener formato YYYY-MM-DD', 'FECHA_INVALIDA')
-
-    if fecha.isoformat() != valor:
-        return None, error_respuesta(f'{nombre} debe tener formato YYYY-MM-DD', 'FECHA_INVALIDA')
-    return fecha, None
-
-
-def _hora_obligatoria(valor, nombre):
-    if not isinstance(valor, str):
-        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
-
-    hora_texto = valor.strip()
-    if not re.fullmatch(r'\d{2}:\d{2}(:\d{2})?$', hora_texto):
-        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
-
-    try:
-        hora = time.fromisoformat(hora_texto)
-    except ValueError:
-        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
-
-    if hora.tzinfo is not None:
-        return None, error_respuesta(f'{nombre} no debe incluir zona horaria', 'HORA_INVALIDA')
-
-    return hora.strftime('%H:%M:%S'), None
 
 
 def validar_datos_agenda(datos):
@@ -85,11 +48,11 @@ def validar_datos_agenda(datos):
     if isinstance(duracion, bool) or not isinstance(duracion, int) or duracion <= 0:
         return None, error_respuesta('duracion_turno debe ser un entero positivo en minutos', 'DATOS_INVALIDOS')
 
-    fecha_inicio, error = _fecha_obligatoria(datos['fecha_inicio'], 'fecha_inicio')
+    fecha_inicio, error = validar_fecha_obligatoria(datos['fecha_inicio'], 'fecha_inicio')
     if error:
         return None, error
 
-    fecha_hasta, error = _fecha_obligatoria(datos['fecha_hasta'], 'fecha_hasta')
+    fecha_hasta, error = validar_fecha_obligatoria(datos['fecha_hasta'], 'fecha_hasta')
     if error:
         return None, error
 
@@ -116,11 +79,11 @@ def validar_datos_agenda(datos):
         if(isinstance(dia_semana, bool) or not isinstance(dia_semana, int) or dia_semana < 1 or dia_semana > 7):
             return None, error_respuesta('dia_semana debe ser un entero entre 1 y 7', 'DIA_SEMANA_INVALIDO')
 
-        hora_inicio, error = _hora_obligatoria(dia['hora_inicio'], 'hora_inicio')
+        hora_inicio, error = validar_hora_obligatoria(dia['hora_inicio'], 'hora_inicio')
         if error:
             return None, error
 
-        hora_fin, error = _hora_obligatoria(dia['hora_fin'], 'hora_fin')
+        hora_fin, error = validar_hora_obligatoria(dia['hora_fin'], 'hora_fin')
         if error:
             return None, error
 
@@ -142,7 +105,7 @@ def validar_datos_agenda(datos):
 
         for inicio_existente, fin_existente in franjas:
             if inicio < fin_existente and fin > inicio_existente:
-                return None, error_respuesta('Har jornadas superpuestas para el mismo dia de la semana', 'JORNADAS_SUPERPUESTAS')
+                return None, error_respuesta('Hay jornadas superpuestas para el mismo dia de la semana', 'JORNADAS_SUPERPUESTAS')
 
         franjas.append((inicio, fin))
         dias_validados.append({
@@ -160,23 +123,15 @@ def validar_datos_agenda(datos):
         'dias': dias_validados,
     }, None
 
+
 def validar_datos_actualizacion_agenda(datos):
     campos_esperados = {'fecha_hasta'}
 
-    if set(datos.keys()) !=  campos_esperados:
+    if set(datos.keys()) != campos_esperados:
         return None, error_respuesta('El cuerpo debe contener unicamente el campo fecha_hasta', 'CUERPO_INVALIDO')
 
-    fecha_hasta = datos['fecha_hasta']
+    fecha_hasta, error = validar_fecha_obligatoria(datos['fecha_hasta'], 'fecha_hasta')
+    if error:
+        return None, error
 
-    if not isinstance(fecha_hasta, str):
-        return None, error_respuesta('La fecha_hasta debe ser un texto con formato YYYY-MM-DD', 'FECHA_INVALIDA')
-
-    try:
-        fecha_validada = date.fromisoformat(fecha_hasta)
-    except ValueError:
-        return None, error_respuesta('La fecha_hasta no tiene un formato valido', 'FECHA_INVALIDA')
-
-    if fecha_validada.isoformat() != fecha_hasta:
-        return None, error_respuesta('La fecha_hasta debe tener formato YYYY-MM-DD', 'FECHA_INVALIDA')
-
-    return {'fecha_hasta': fecha_hasta}, None
+    return {'fecha_hasta': fecha_hasta.isoformat()}, None

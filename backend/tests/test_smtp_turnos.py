@@ -1,12 +1,13 @@
 from src.services import smtp_service
+from src.utils import tokens
 
 
 def test_generar_token_cancelacion_turno_roundtrip(monkeypatch):
-    monkeypatch.setattr(smtp_service.Config, 'SECRET_KEY', 'secret-key-para-turnos-1234567890')
-    monkeypatch.setattr(smtp_service.Config, 'CANCELACION_TTL_MINUTES', 60)
+    monkeypatch.setattr(tokens.Config, 'SECRET_KEY', 'secret-key-para-turnos-1234567890')
+    monkeypatch.setattr(tokens.Config, 'CANCELACION_TTL_MINUTES', 60)
 
-    token = smtp_service.generar_token_cancelacion_turno(14, 9)
-    payload = smtp_service.validar_token_cancelacion_turno(token)
+    token = tokens.generar_token_cancelacion_turno(14, 9)
+    payload = tokens.validar_token_cancelacion_turno(token)
 
     assert payload['id_turno'] == 14
     assert payload['id_paciente'] == 9

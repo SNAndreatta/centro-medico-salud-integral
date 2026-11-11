@@ -752,24 +752,12 @@ paths:
       tags:
       - Turnos (Reserva y Recepción)
       summary: Generar turnos disponibles por bloque mensual/semanal
-      description: "Ejecuta la apertura manual de agendas para un rango de fechas. \nEl backend itera sobre los días configurados en la agenda, calcula las franjas \nhorarias sumando la duración, y realiza un INSERT masivo en la tabla `turno` \ncon estado `disponible` y el `id_paciente` en valor `NULL`.\n"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/turnos_generar_body"
-        required: true
+      description: "Ejecuta la apertura manual de agendas para el mes siguiente. Solo se permite a partir del día 15 del mes actual (hora local configurada).\nEl backend itera sobre los días configurados en la agenda, calcula las franjas \nhorarias sumando la duración, y realiza un INSERT masivo en la tabla `turno` \ncon estado `disponible` y el `id_paciente` en valor `NULL`.\n"
       responses:
-        "201":
+        "200":
           description: Turnos generados exitosamente en la base de datos.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/inline_response_201"
-        "400":
-          description: Error (fechas incongruentes o turnos ya generados en ese bloque).
-        "404":
-          description: Agenda inexistente.
+        "409":
+          description: La apertura de agendas todavía no está habilitada para el mes actual.
   /api/turnos/disponibles:
     get:
       tags:
@@ -888,11 +876,13 @@ paths:
         required: true
       responses:
         "200":
-          description: Check-in exitoso. Muestra mensaje de "Llegada Registrada".
+          description: Check-in exitoso o llegada ya registrada previamente; en ambos casos se conserva la hora original de llegada.
         "400":
-          description: "Error de negocio (Fuera del rango horario permitido, o llegada ya registrada)."
+          description: Token QR inválido o cuerpo de la solicitud inválido.
         "404":
-          description: QR inválido o expirado.
+          description: El QR no pertenece a un turno existente.
+        "409":
+          description: Turno fuera del rango horario permitido o que ya no está reservado.
   /api/turnos/{id_turno}/reservar:
     post:
       tags:
@@ -921,8 +911,7 @@ paths:
       tags:
       - Turnos (Reserva y Recepción)
       summary: Cancelar reserva desde el enlace del comprobante
-      description: "Endpoint usado por el correo del comprobante. Valida el token firmado del enlace y cancela la reserva asociada al turno y al paciente. Es público por diseño para permitir la cancelación desde el email sin autenticación.
-"
+      description: "Endpoint usado por el correo del comprobante. Valida el token firmado del enlace y cancela la reserva asociada al turno y al paciente. Es público por diseño para permitir la cancelación desde el email sin autenticación. El paciente solo puede cancelar hasta 24 horas antes del turno, inclusive.\n"
       parameters:
       - name: id_turno
         in: path
@@ -946,7 +935,7 @@ paths:
       tags:
       - Turnos (Reserva y Recepción)
       summary: Cancelar reserva y liberar disponibilidad
-      description: "Cancela un turno reservado desde el backoffice o sesión autenticada, conserva el estado \"cancelado\" para el historial, desvincula al paciente y libera inmediatamente el horario para que vuelva a estar disponible."
+      description: "Cancela un turno reservado desde el backoffice o sesión autenticada. Conserva la fila cancelada con los datos del paciente para el historial y crea una nueva fila disponible para el mismo horario. El paciente solo puede cancelar hasta 24 horas antes del turno, inclusive; el personal no tiene ese límite."
       requestBody:
         content:
           application/json:
@@ -966,7 +955,7 @@ paths:
         "404":
           description: Turno no encontrado.
         "409":
-          description: El turno no se encuentra reservado.
+          description: El turno no se encuentra reservado o el paciente intenta cancelar fuera del plazo de 24 horas.
         "400":
           description: El identificador del turno es inválido.
   /api/turnos/{id_turno}/estado:

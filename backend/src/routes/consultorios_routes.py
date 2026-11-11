@@ -9,7 +9,7 @@ from src.services.consultorios_services import (
 from src.utils.auth import roles_required, token_required
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 
 consultorios_bp = Blueprint('consultorios_bp', __name__)
 

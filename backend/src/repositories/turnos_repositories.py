@@ -1,5 +1,4 @@
 from src.db import obtener_cursor
-from src.utils.roles import PACIENTE
 
 
 def buscar_turno_por_id(id_turno):
@@ -139,6 +138,11 @@ def confirmar_checkin(id_turno, fecha_horario_llegada):
                 SET id_estado = (SELECT id_estado_turno FROM estado_turno WHERE LOWER(estado_turno) = 'confirmado'),
                     fecha_horario_llegada = %s
                 WHERE id_turno = %s
+                  AND id_estado = (
+                      SELECT id_estado_turno
+                      FROM estado_turno
+                      WHERE LOWER(estado_turno) = 'reservado'
+                  )
             """,
             (fecha_horario_llegada, id_turno),
         )
@@ -432,7 +436,7 @@ def insertar_turnos_disponibles(turnos):
         conexion.close()
 
 
-def cancelar_turno(id_turno, id_usuario, id_rol):
+def buscar_turno_para_cancelar(id_turno):
     conexion, cursor = obtener_cursor()
     try:
         cursor.execute(
@@ -442,7 +446,8 @@ def cancelar_turno(id_turno, id_usuario, id_rol):
                 t.id_paciente,
                 p.id_usuario AS id_usuario_paciente,
                 t.id_estado,
-                LOWER(et.estado_turno) AS estado_turno
+                LOWER(et.estado_turno) AS estado_turno,
+                DATE_FORMAT(t.fecha_horario_inicial, '%Y-%m-%d %H:%i:%S') AS fecha_horario_inicial
             FROM turno t
             JOIN estado_turno et ON et.id_estado_turno = t.id_estado
             LEFT JOIN paciente p ON p.id_paciente = t.id_paciente
@@ -450,16 +455,15 @@ def cancelar_turno(id_turno, id_usuario, id_rol):
             """,
             (id_turno,),
         )
-        turno = cursor.fetchone()
-        if turno is None:
-            return None
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
 
-        if turno['estado_turno'] != 'reservado':
-            return {'resultado': 'NO_CANCELABLE', 'estado': turno['estado_turno']}
 
-        if id_rol == PACIENTE and turno['id_usuario_paciente'] != id_usuario:
-            return {'resultado': 'NO_AUTORIZADO'}
-
+def cancelar_turno(id_turno):
+    conexion, cursor = obtener_cursor()
+    try:
         cursor.execute(
             """
             UPDATE turno
@@ -467,14 +471,62 @@ def cancelar_turno(id_turno, id_usuario, id_rol):
                 SELECT id_estado_turno
                 FROM estado_turno
                 WHERE LOWER(estado_turno) = 'cancelado'
-            ),
-                id_paciente = NULL,
-                codigo_qr = NULL,
-                fecha_horario_llegada = NULL
+            )
+            WHERE id_turno = %s
+              AND id_estado = (
+                  SELECT id_estado_turno
+                  FROM estado_turno
+                  WHERE LOWER(estado_turno) = 'reservado'
+              )
+            """,
+            (id_turno,),
+        )
+        if cursor.rowcount == 0:
+            conexion.rollback()
+            return {'resultado': 'NO_CANCELABLE'}
+
+        cursor.execute(
+            """
+            SELECT id_agenda, fecha_horario_inicial
+            FROM turno
             WHERE id_turno = %s
             """,
             (id_turno,),
         )
+        turno_cancelado = cursor.fetchone()
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM turno t
+            JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+            WHERE t.id_agenda = %s
+              AND t.fecha_horario_inicial = %s
+              AND LOWER(et.estado_turno) = 'disponible'
+            LIMIT 1
+            """,
+            (
+                turno_cancelado['id_agenda'],
+                turno_cancelado['fecha_horario_inicial'],
+            ),
+        )
+        if cursor.fetchone() is None:
+            cursor.execute(
+                """
+                INSERT INTO turno (id_agenda, id_paciente, id_estado, fecha_horario_inicial)
+                VALUES (
+                    %s,
+                    NULL,
+                    (SELECT id_estado_turno FROM estado_turno WHERE LOWER(estado_turno) = 'disponible'),
+                    %s
+                )
+                """,
+                (
+                    turno_cancelado['id_agenda'],
+                    turno_cancelado['fecha_horario_inicial'],
+                ),
+            )
+
         conexion.commit()
         return {'resultado': 'CANCELADO', 'id_turno': id_turno}
     except Exception:

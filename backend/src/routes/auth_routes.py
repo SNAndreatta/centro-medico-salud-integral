@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from src.errores import error_respuesta
 from src.services.auth_service import autenticar_usuario
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 from src.validators.auth_validators import validar_credenciales_login
 
 auth_bp = Blueprint('auth_bp', __name__)

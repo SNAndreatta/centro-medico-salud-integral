@@ -161,7 +161,7 @@ def obtener_ocupacion_consultorios(fecha_desde=None, fecha_hasta=None):
         for fila in filas:
             total_turnos = int(fila['total_turnos'] or 0)
             ocupados = int(fila['turnos_ocupados'] or 0)
-            disponibles = int(fila['turnos_disponibles' or 0])
+            disponibles = int(fila['turnos_disponibles'] or 0)
             cancelados = int(fila['turnos_cancelados'] or 0)
             considerados = int(fila['turnos_considerados'] or 0)
             porcentaje = round((ocupados * 100 / considerados), 2) if considerados else 0.0
@@ -175,7 +175,7 @@ def obtener_ocupacion_consultorios(fecha_desde=None, fecha_hasta=None):
                 'turnos_disponibles': disponibles,
                 'turnos_cancelados': cancelados,
                 'turnos_considerados': considerados,
-                'porcenataje_ocupacion': porcentaje,
+                'porcentaje_ocupacion': porcentaje,
             })
         return resultado
     finally:

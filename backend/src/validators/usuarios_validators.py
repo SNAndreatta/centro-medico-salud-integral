@@ -1,6 +1,6 @@
 from src.errores import error_respuesta
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
-from src.utils.utils import texto_obligatorio, validar_correo_electronico
+from src.validators.common import texto_obligatorio, validar_correo_electronico
 
 
 CAMPOS_USUARIO_STAFF = {

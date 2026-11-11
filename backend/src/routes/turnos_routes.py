@@ -1,23 +1,25 @@
 from flask import Blueprint, g, request
 
 from src.errores import error_respuesta
-from src.repositories.pacientes_repositories import obtener_paciente_por_usuario, obtener_usuario_por_paciente
-from src.services.smtp_service import validar_token_cancelacion_turno
 from src.services.turnos_services import (
     cancelar_turno,
+    cancelar_turno_por_token,
     filtrar_turnos,
     filtrar_turnos_disponibles,
     generar_disponibilidad,
     registrar_checkin_por_qr,
-    reservar_turno,
+    reservar_turno_solicitado,
 )
 from src.utils.auth import roles_required, token_required
 from src.utils.http_errors import handle_unexpected_errors
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA, PACIENTE, MEDICO
-from src.utils.utils import validar_id_positivo, validar_objeto_json
-from src.validators.turnos_validators import validar_cancelacion_turno
+from src.validators.turnos_validators import (
+    validar_cancelacion_turno,
+    validar_checkin_turno,
+)
 
 turnos_bp = Blueprint('turnos_bp', __name__)
+
 
 @turnos_bp.get('/turnos/disponibles')
 @handle_unexpected_errors
@@ -36,6 +38,7 @@ def listar_turnos():
     respuesta, status_code = filtrar_turnos(request.args, g.current_user)
     return respuesta, status_code
 
+
 @turnos_bp.post('/turnos/generar')
 @handle_unexpected_errors
 @token_required
@@ -51,25 +54,7 @@ def generar_turnos():
 @roles_required(ADMINISTRADOR, RECEPCIONISTA, PACIENTE)
 def reservar_turno_endpoint(id_turno):
     datos = request.get_json(silent=True)
-    if datos is None:
-        datos = {}
-    if not isinstance(datos, dict):
-        return error_respuesta('El cuerpo debe ser un objeto JSON', 'CUERPO_INVALIDO'), 400
-
-    id_paciente = datos.get('id_paciente')
-    if g.current_user['id_rol'] == PACIENTE:
-        id_paciente = obtener_paciente_por_usuario(g.current_user['id_usuario'])
-        if id_paciente is None:
-            return error_respuesta('El paciente autenticado no existe', 'PACIENTE_INEXISTENTE'), 404
-
-    if id_paciente is None:
-        return error_respuesta('id_paciente es obligatorio', 'ID_PACIENTE_REQUERIDO'), 400
-
-    id_paciente, error = validar_id_positivo(id_paciente, 'id_paciente')
-    if error:
-        return error, 400
-
-    respuesta, status_code = reservar_turno(id_turno, id_paciente)
+    respuesta, status_code = reservar_turno_solicitado(id_turno, datos, g.current_user)
     return respuesta, status_code
 
 
@@ -79,15 +64,11 @@ def reservar_turno_endpoint(id_turno):
 @roles_required(ADMINISTRADOR, RECEPCIONISTA)
 def checkin_turno_endpoint():
     datos = request.get_json(silent=True)
-    error_json = validar_objeto_json(datos)
-    if error_json:
-        return error_json
+    token, error = validar_checkin_turno(datos)
+    if error:
+        return error
 
-    token = datos.get('token')
-    if not isinstance(token, str) or not token.strip():
-        return error_respuesta('token es obligatorio', 'TOKEN_REQUERIDO'), 400
-
-    respuesta, status_code = registrar_checkin_por_qr(token.strip())
+    respuesta, status_code = registrar_checkin_por_qr(token)
     return respuesta, status_code
 
 
@@ -98,20 +79,7 @@ def cancelar_turno_por_email_endpoint(id_turno):
     if not token:
         return error_respuesta('El token de cancelación es obligatorio', 'TOKEN_REQUERIDO'), 400
 
-    try:
-        payload = validar_token_cancelacion_turno(token)
-    except ValueError as exc:
-        return error_respuesta(str(exc), 'TOKEN_INVALIDO'), 400
-
-    if int(payload.get('id_turno')) != id_turno:
-        return error_respuesta('El token no corresponde a este turno', 'TOKEN_INVALIDO'), 400
-
-    id_paciente = int(payload.get('id_paciente'))
-    id_usuario = obtener_usuario_por_paciente(id_paciente)
-    if id_usuario is None:
-        return error_respuesta('El paciente asociado a este enlace ya no existe', 'PACIENTE_INEXISTENTE'), 404
-
-    respuesta, status_code = cancelar_turno(id_turno, {'id_usuario': id_usuario, 'id_rol': PACIENTE})
+    respuesta, status_code = cancelar_turno_por_token(id_turno, token)
     return respuesta, status_code
 
 

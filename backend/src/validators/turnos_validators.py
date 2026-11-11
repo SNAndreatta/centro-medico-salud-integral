@@ -1,29 +1,11 @@
-import re
-from datetime import time
-
 from src.errores import error_respuesta
-from src.utils.utils import (
+from src.validators.common import (
     validar_fecha_iso_opcional,
+    validar_hora_opcional,
     validar_id_positivo,
-    validar_rango_fechas,
     validar_objeto_json,
+    validar_rango_fechas,
 )
-
-
-def validar_hora_opcional(valor, nombre):
-    if valor is None or not str(valor).strip():
-        return None, None
-
-    texto = str(valor).strip()
-    if not re.fullmatch(r'\d{2}:\d{2}(:\d{2})?$', texto):
-        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
-    try:
-        hora = time.fromisoformat(texto)
-    except ValueError:
-        return None, error_respuesta(f'{nombre} debe tener formato HH:MM o HH:MM:SS', 'HORA_INVALIDA')
-    if hora.tzinfo is not None:
-        return None, error_respuesta(f'{nombre} no debe incluir zona horaria', 'HORA_INVALIDA')
-    return hora.strftime('%H:%M:%S'), None
 
 
 def _validar_fechas_turnos(parametros):
@@ -99,3 +81,38 @@ def validar_cancelacion_turno(datos):
             400,
         )
     return id_turno, None
+
+
+def validar_checkin_turno(datos):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return None, error_json
+
+    token = datos.get('token')
+    if not isinstance(token, str) or not token.strip():
+        return None, (
+            error_respuesta('token es obligatorio', 'TOKEN_REQUERIDO'),
+            400,
+        )
+    return token.strip(), None
+
+
+def validar_reserva_turno(datos, requiere_id_paciente):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return None, error_json
+
+    if not requiere_id_paciente:
+        return None, None
+
+    id_paciente = datos.get('id_paciente')
+    if id_paciente is None:
+        return None, (
+            error_respuesta('id_paciente es obligatorio', 'ID_PACIENTE_REQUERIDO'),
+            400,
+        )
+
+    id_paciente, error = validar_id_positivo(id_paciente, 'id_paciente')
+    if error:
+        return None, (error, 400)
+    return id_paciente, None

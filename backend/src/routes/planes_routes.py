@@ -4,7 +4,7 @@ from src.services.planes_services import eliminar_plan, modificar_plan
 from src.utils.auth import roles_required, token_required
 from src.utils.http_errors import handle_unexpected_errors
 from src.utils.roles import ADMINISTRADOR
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 
 planes_bp = Blueprint('planes_bp', __name__)
 

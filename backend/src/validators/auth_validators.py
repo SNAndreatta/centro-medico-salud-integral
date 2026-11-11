@@ -1,5 +1,5 @@
 from src.errores import error_respuesta
-from src.utils.utils import texto_obligatorio
+from src.validators.common import texto_obligatorio
 
 
 def validar_credenciales_login(datos):

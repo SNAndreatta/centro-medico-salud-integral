@@ -3,40 +3,16 @@ import smtplib
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
-from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+from html import escape
 
 from src.config import Config
+from src.utils.tokens import (
+    generar_token_cancelacion_turno,
+    generar_url_cancelacion_turno,
+    validar_token_cancelacion_turno,
+)
 
 logger = logging.getLogger(__name__)
-
-
-def generar_token_cancelacion_turno(id_turno, id_paciente):
-    serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
-    return serializer.dumps({
-        'id_turno': int(id_turno),
-        'id_paciente': int(id_paciente),
-        'tipo': 'cancelacion_turno',
-    })
-
-
-def validar_token_cancelacion_turno(token):
-    if not token or not token.strip():
-        raise ValueError('Se requiere un token de cancelación válido')
-
-    serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
-    try:
-        payload = serializer.loads(token, max_age=Config.CANCELACION_TTL_MINUTES * 60)
-    except (BadSignature, SignatureExpired) as exc:
-        raise ValueError('El enlace de cancelación es inválido o expiró') from exc
-
-    if payload.get('tipo') != 'cancelacion_turno':
-        raise ValueError('El token no corresponde a una cancelación de turno')
-
-    if int(payload.get('id_turno', -1)) <= 0 or int(payload.get('id_paciente', -1)) <= 0:
-        raise ValueError('El token de cancelación es inválido')
-
-    return payload
 
 
 def _crear_servidor_smtp():
@@ -72,10 +48,10 @@ def _formatear_fecha(fecha_horario):
     return fecha_horario.strftime('%d/%m/%Y %H:%M hs')
 
 
-def generar_url_cancelacion_turno(id_turno, id_paciente):
-    token = generar_token_cancelacion_turno(id_turno, id_paciente)
-    base_url = Config.PUBLIC_BASE_URL.rstrip('/')
-    return f'{base_url}/api/turnos/{id_turno}/cancelar?token={token}'
+def _escapar_html(valor):
+    if valor is None:
+        return ''
+    return escape(str(valor))
 
 
 def enviar_comprobante_turno(turno, paciente, qr_bytes, mime_type='image/png'):
@@ -88,6 +64,10 @@ def enviar_comprobante_turno(turno, paciente, qr_bytes, mime_type='image/png'):
         return {'enviado': False, 'motivo': 'SMTP_DESHABILITADO'}
 
     email_destino = paciente['correo_electronico'].strip()
+    if '\r' in email_destino or '\n' in email_destino:
+        logger.warning('No se envía comprobante porque el correo del paciente es inválido')
+        return {'enviado': False, 'motivo': 'CORREO_INVALIDO'}
+
     try:
         mensaje = MIMEMultipart('related')
         mensaje['Subject'] = 'Comprobante de turno - Centro Médico Salud Integral'
@@ -95,15 +75,20 @@ def enviar_comprobante_turno(turno, paciente, qr_bytes, mime_type='image/png'):
         mensaje['To'] = email_destino
 
         nombre_paciente = (
-            f"{paciente.get('nombre', '').strip()} {paciente.get('apellido', '').strip()}"
+            f"{_escapar_html(paciente.get('nombre')).strip()} "
+            f"{_escapar_html(paciente.get('apellido')).strip()}"
         ).strip() or 'Paciente'
         nombre_medico = (
-            f"{turno.get('medico', {}).get('nombre', '').strip()} "
-            f"{turno.get('medico', {}).get('apellido', '').strip()}"
+            f"{_escapar_html(turno.get('medico', {}).get('nombre')).strip()} "
+            f"{_escapar_html(turno.get('medico', {}).get('apellido')).strip()}"
         ).strip() or 'Médico'
-        especialidad = turno.get('medico', {}).get('especialidad', 'Consulta')
-        fecha_turno = _formatear_fecha(turno.get('fecha_horario_inicial'))
-        cancel_url = generar_url_cancelacion_turno(turno['id_turno'], paciente['id_paciente'])
+        especialidad = _escapar_html(turno.get('medico', {}).get('especialidad')) or 'Consulta'
+        fecha_turno = _escapar_html(_formatear_fecha(turno.get('fecha_horario_inicial')))
+        cancel_url = _escapar_html(
+            generar_url_cancelacion_turno(turno['id_turno'], paciente['id_paciente']),
+        )
+        numero_consultorio = _escapar_html(turno.get('consultorio', {}).get('numero')) or 'N/D'
+        piso_consultorio = _escapar_html(turno.get('consultorio', {}).get('piso')) or 'N/D'
 
         html = f"""
         <html>
@@ -128,7 +113,7 @@ def enviar_comprobante_turno(turno, paciente, qr_bytes, mime_type='image/png'):
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #475569;">Consultorio</td>
-                  <td style="padding: 8px 0; font-weight: 600;">{turno.get('consultorio', {}).get('numero', 'N/D')} - Piso {turno.get('consultorio', {}).get('piso', 'N/D')}</td>
+                  <td style="padding: 8px 0; font-weight: 600;">{numero_consultorio} - Piso {piso_consultorio}</td>
                 </tr>
               </table>
 

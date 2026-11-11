@@ -17,6 +17,7 @@ class Config:
     FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
     FLASK_PORT = int(os.getenv('FLASK_PORT', '5000'))
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'true').lower() == 'true'
+    TIMEZONE = os.getenv('TIMEZONE', 'America/Argentina/Buenos_Aires')
 
     # Seguridad
     SECRET_KEY = os.getenv('SECRET_KEY')
@@ -43,4 +44,6 @@ class Config:
     SMTP_TIMEOUT = int(os.getenv('SMTP_TIMEOUT', '15'))
     SMTP_DEFAULT_SENDER = os.getenv('SMTP_DEFAULT_SENDER', 'no-reply@saludintegral.local')
     PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'http://localhost:5000')
-    CANCELACION_TTL_MINUTES = int(os.getenv('CANCELACION_TTL_MINUTES', '60'))
+    CANCELACION_TTL_MINUTES = int(os.getenv('CANCELACION_TTL_MINUTES', '86400'))
+    if CANCELACION_TTL_MINUTES <= 0:
+        raise ValueError('CANCELACION_TTL_MINUTES must be greater than zero')

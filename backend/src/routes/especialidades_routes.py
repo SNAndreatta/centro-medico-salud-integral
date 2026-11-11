@@ -3,14 +3,14 @@ from flask import Blueprint, request
 from src.utils.auth import roles_required, token_required
 from src.utils.http_errors import handle_unexpected_errors
 from src.errores import error_respuesta
-from src.services.especialiades_services import (
+from src.services.especialidades_services import (
     listar_especialidades,
     crear_especialidad,
     modificar_especialidad,
     eliminar_especialidad,
     )
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 
 especialidades_bp = Blueprint('especialidades_bp', __name__)
 

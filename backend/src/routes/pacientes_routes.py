@@ -5,7 +5,7 @@ from src.services.pacientes_registro_services import procesar_registro_paciente
 from src.utils.auth import roles_required, token_required
 from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.utils import validar_objeto_json
+from src.validators.common import validar_objeto_json
 
 pacientes_bp = Blueprint('pacientes_bp', __name__)
 

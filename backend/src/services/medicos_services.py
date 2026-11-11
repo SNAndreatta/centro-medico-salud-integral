@@ -1,5 +1,3 @@
-from werkzeug.security import generate_password_hash
-
 from src.errores import error_respuesta
 from src.repositories.medicos_repositories import (
     buscar_medicos,
@@ -9,6 +7,7 @@ from src.repositories.medicos_repositories import (
     obtener_medico_por_id,
     vincular_cobertura_medico,
 )
+from src.utils.security import hash_password
 from src.validators.medicos_validators import (
     validar_datos_medico,
     validar_filtros_medicos,
@@ -20,7 +19,7 @@ def crear_medico(datos):
     if error:
         return error, 400
 
-    medico['contrasenia'] = generate_password_hash(medico.pop('password'))
+    medico['contrasenia'] = hash_password(medico.pop('password'))
     medico_guardado, error = guardar_medico(medico)
     if error == 'ESPECIALIDAD_INEXISTENTE':
         return error_respuesta(

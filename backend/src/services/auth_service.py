@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from werkzeug.security import check_password_hash
 
 from src.config import Config
 from src.repositories.auth_repository import obtener_usuario_por_email
+from src.utils.security import verify_password
 
 
 def crear_access_token(usuario):
@@ -20,7 +20,7 @@ def crear_access_token(usuario):
 
 def autenticar_usuario(correo_electronico, password):
     usuario = obtener_usuario_por_email(correo_electronico.strip())
-    if usuario is None or not check_password_hash(usuario['contrasenia'], password):
+    if usuario is None or not verify_password(usuario['contrasenia'], password):
         return None
 
     perfil = {
