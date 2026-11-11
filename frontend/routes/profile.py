@@ -36,8 +36,7 @@ USUARIOS_DE_PRUEBA = {
         "documento": "35678901",
         "fecha_nacimiento": "21/11/1995",
         "numero_afiliado": "987654321",
-        "cobertura": "Nombre de cobertura",
-        "plan": "Nombre de plan"
+        "cobertura": "Nombre de cobertura"
     },
 
     "admin": {

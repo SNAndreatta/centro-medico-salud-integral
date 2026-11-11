@@ -6,11 +6,11 @@ cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
 # DATOS DE PRUEBA
 def listar_coberturas():
     return [
-        {"id": 1, "nombre": "Galeno", "cantidad_planes": 4},
-        {"id": 2, "nombre": "IOMA", "cantidad_planes": 12},
-        {"id": 3, "nombre": "OSDE", "cantidad_planes": 14},
-        {"id": 4, "nombre": "PAMI", "cantidad_planes": 28},
-        {"id": 5, "nombre": "Swiss Medical", "cantidad_planes": 22}
+        {"id": 1, "nombre": "Galeno", "cantidad_medicos": 4},
+        {"id": 2, "nombre": "IOMA", "cantidad_medicos": 12},
+        {"id": 3, "nombre": "OSDE", "cantidad_medicos": 14},
+        {"id": 4, "nombre": "PAMI", "cantidad_medicos": 28},
+        {"id": 5, "nombre": "Swiss Medical", "cantidad_medicos": 22}
     ]
 
 
@@ -40,44 +40,32 @@ def detalle_cobertura(cobertura_id):
     if cobertura is None:
         return "Cobertura no encontrada", 404
 
-    planes = [
-        {"id": 1, "nombre": "Plan 220"},
-        {"id": 2, "nombre": "Plan 330"},
-        {"id": 3, "nombre": "Plan 440"},
-        {"id": 4, "nombre": "Plan 550"}
-    ]
-
     medicos = [
         {
             "id": 1,
             "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC",
-            "planes_asociados": 1
+            "iniciales": "NC"
         },
         {
             "id": 2,
             "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC",
-            "planes_asociados": 2
+            "iniciales": "NC"
         },
         {
             "id": 3,
             "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC",
-            "planes_asociados": 2
+            "iniciales": "NC"
         },
         {
             "id": 4,
             "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC",
-            "planes_asociados": 1
+            "iniciales": "NC"
         }
     ]
 
     return render_template(
         'admin/abm/coberturas/detalle.html',
         cobertura=cobertura,
-        planes=planes,
         medicos=medicos
     )
 
@@ -87,7 +75,6 @@ def detalle_cobertura(cobertura_id):
 def crear_cobertura():
 
     nombre = request.form.get('nombre', '').strip()
-    cantidad_planes = request.form.get('cantidad_planes', '0')
 
     if not nombre:
         return "El nombre de la cobertura es obligatorio", 400
@@ -128,67 +115,5 @@ def editar_cobertura(cobertura_id):
 def eliminar_cobertura(cobertura_id):
 
     # TODO: eliminar la cobertura de la base de datos.
-    # Antes de eliminar, verificar si tiene planes o médicos asociados.
 
     return redirect(url_for('rutas_admin_cobertura.obtener_coberturas'))
-
-
-# CREAR PLAN
-@cobertura_routes.route(
-    '/admin/coberturas/<int:cobertura_id>/planes/crear',
-    methods=['POST']
-)
-def crear_plan(cobertura_id):
-
-    nombre = request.form.get('nombre', '').strip()
-
-    if not nombre:
-        return "El nombre del plan es obligatorio", 400
-
-    # TODO: guardar el plan asociado a la cobertura en la base de datos.
-
-    return redirect(
-        url_for(
-            'rutas_admin_cobertura.detalle_cobertura',
-            cobertura_id=cobertura_id
-        )
-    )
-
-
-# EDITAR PLAN
-@cobertura_routes.route(
-    '/admin/coberturas/<int:cobertura_id>/planes/<int:plan_id>/editar',
-    methods=['POST']
-)
-def editar_plan(cobertura_id, plan_id):
-
-    nombre = request.form.get('nombre', '').strip()
-
-    if not nombre:
-        return "El nombre del plan es obligatorio", 400
-
-    # TODO: actualizar el plan en la base de datos.
-
-    return redirect(
-        url_for(
-            'rutas_admin_cobertura.detalle_cobertura',
-            cobertura_id=cobertura_id
-        )
-    )
-
-
-# ELIMINAR PLAN
-@cobertura_routes.route(
-    '/admin/coberturas/<int:cobertura_id>/planes/<int:plan_id>/eliminar',
-    methods=['POST']
-)
-def eliminar_plan(cobertura_id, plan_id):
-
-    # TODO: eliminar el plan de la base de datos.
-
-    return redirect(
-        url_for(
-            'rutas_admin_cobertura.detalle_cobertura',
-            cobertura_id=cobertura_id
-        )
-    )

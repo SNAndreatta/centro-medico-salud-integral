@@ -28,10 +28,6 @@
                         <span>
                             {{ medicos | length }} MÉDICOS
                         </span>
-
-                        <span>
-                            {{ planes | length }} PLANES
-                        </span>
                     </div>
                 </div>
 
@@ -42,117 +38,6 @@
                     Editar
                 </button>
             </div>
-
-
-            <!-- CABECERA DE PLANES -->
-            <div class="mb-2 mt-4 flex flex-wrap items-center justify-between gap-2">
-                <h2 class="text-[10px] font-medium tracking-wide text-acento/70">
-                    PLANES ({{ planes | length }})
-                </h2>
-
-                <div class="flex items-center gap-2">
-                    <button type="button"
-                            data-abrir-modal="modal-crear-plan"
-                            class="inline-flex items-center gap-1 rounded-full bg-acento px-3 py-1 text-[9px] font-medium text-white hover:bg-acento/60">
-                        Crear
-                        <i data-lucide="plus" class="h-3 w-3"></i>
-                    </button>
-
-                    <input type="search"
-                           id="buscar-plan"
-                           placeholder="Buscar plan"
-                           class="w-28 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-acento outline-none focus:border-acento/70 sm:w-40">
-                </div>
-            </div>
-
-
-            <!-- PLANES -->
-            <div id="lista-planes" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-
-                {% for plan in planes %}
-                <article class="fila-plan flex min-h-[42px] items-center justify-between gap-2 rounded-lg bg-blue-100/25 px-4 py-2"
-                         data-nombre="{{ plan.nombre | lower }}">
-
-                    <div class="flex min-w-0 items-center gap-3">
-                        <h3 class="truncate font-serif text-sm text-acento">
-                            {{ plan.nombre }}
-                        </h3>
-
-                        <span class="shrink-0 text-[8px] text-acento/70">
-                            ID PLAN {{ plan.id }}
-                        </span>
-                    </div>
-
-                    <div class="relative shrink-0">
-                        <button type="button"
-                                aria-label="Opciones de {{ plan.nombre }}"
-                                data-alternar-menu="menu-plan-{{ plan.id }}"
-                                class="rounded-full p-1 text-acento/70 hover:bg-white">
-                            <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
-                        </button>
-
-                        <div id="menu-plan-{{ plan.id }}"
-                             data-menu
-                             class="absolute right-0 top-7 z-20 hidden w-36 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-
-                            <button type="button"
-                                    data-abrir-modal="modal-editar-plan-{{ plan.id }}"
-                                    class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-acento hover:bg-gray-200">
-                                <i data-lucide="pencil" class="h-3 w-3"></i>
-                                Editar plan
-                            </button>
-
-                            <button type="button"
-                                    data-abrir-modal="modal-eliminar-plan-{{ plan.id }}"
-                                    class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-red-600 hover:bg-red-50">
-                                <i data-lucide="trash-2" class="h-3 w-3"></i>
-                                Eliminar plan
-                            </button>
-                        </div>
-                    </div>
-                </article>
-
-
-                <!-- MODAL: EDITAR PLAN -->
-                {% call modal("modal-editar-plan-" ~ plan.id, "Editar plan") %}
-                    <form method="POST"
-                          action="{{ url_for('rutas_admin_cobertura.editar_plan', cobertura_id=cobertura.id, plan_id=plan.id) }}"
-                          class="mt-5">
-
-                        <label for="nombre-plan-{{ plan.id }}"
-                               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                            Nombre
-                        </label>
-
-                        <input id="nombre-plan-{{ plan.id }}"
-                               name="nombre"
-                               value="{{ plan.nombre }}"
-                               required
-                               maxlength="100"
-                               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
-
-                        {{ botones_modal("modal-editar-plan-" ~ plan.id, "Guardar") }}
-                    </form>
-                {% endcall %}
-
-
-                <!-- MODAL: ELIMINAR PLAN -->
-                {{ modal_confirmar(
-                    id="modal-eliminar-plan-" ~ plan.id,
-                    titulo="¿Está seguro que quiere eliminar el plan " ~ plan.nombre ~ "?",
-                    mensaje="Esta acción puede afectar los datos relacionados con este plan.",
-                    accion=url_for('rutas_admin_cobertura.eliminar_plan', cobertura_id=cobertura.id, plan_id=plan.id)
-                ) }}
-
-                {% endfor %}
-
-            </div>
-
-            <p id="sin-planes"
-               class="hidden py-5 text-center text-[10px] text-acento/70">
-                No se encontraron planes.
-            </p>
-
 
             <!-- MÉDICOS -->
             <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2">
@@ -249,33 +134,9 @@
 {{ modal_confirmar(
     id="modal-eliminar-cobertura",
     titulo="¿Está seguro que quiere eliminar la cobertura " ~ cobertura.nombre ~ "?",
-    mensaje="Esta acción puede afectar los planes y médicos relacionados con esta cobertura.",
+    mensaje="Esta acción puede afectar los médicos relacionados con esta cobertura.",
     accion=url_for('rutas_admin_cobertura.eliminar_cobertura', cobertura_id=cobertura.id)
 ) }}
-
-
-<!-- MODAL: CREAR PLAN -->
-{% call modal("modal-crear-plan", "Crear plan") %}
-    <form method="POST"
-          action="{{ url_for('rutas_admin_cobertura.crear_plan', cobertura_id=cobertura.id) }}"
-          class="mt-5">
-
-        <label for="nombre-nuevo-plan"
-               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-            Nombre del plan
-        </label>
-
-        <input id="nombre-nuevo-plan"
-               name="nombre"
-               required
-               maxlength="100"
-               placeholder="Ej. Plan 220"
-               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
-
-        {{ botones_modal("modal-crear-plan", "Crear") }}
-    </form>
-{% endcall %}
-
 
 <!-- SCRIPTS -->
 <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>

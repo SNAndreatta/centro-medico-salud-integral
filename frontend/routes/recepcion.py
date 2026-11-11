@@ -60,7 +60,6 @@ def ver_usuarios():
             "nombre": "Camila",
             "apellido": "Núñez",
             "cobertura": "OSDE",
-            "plan": "210",
             "iniciales": "CN",
             "color_fondo": "bg-pink-500/30 text-pink-500"
         },
@@ -69,7 +68,6 @@ def ver_usuarios():
             "nombre": "Martín",
             "apellido": "Pérez",
             "cobertura": "Swiss Medical",
-            "plan": "SMG20",
             "iniciales": "MP",
             "color_fondo": "bg-purple-500/30 text-purple-500"
         },
@@ -78,7 +76,6 @@ def ver_usuarios():
             "nombre": "Lucía",
             "apellido": "Fernández",
             "cobertura": "Galeno",
-            "plan": "Oro",
             "iniciales": "LF",
             "color_fondo": "bg-green-500/30 text-green-500"
         },
@@ -87,7 +84,6 @@ def ver_usuarios():
             "nombre": "Tomás",
             "apellido": "Gómez",
             "cobertura": "Medifé",
-            "plan": "Plata",
             "iniciales": "TG",
             "color_fondo": "bg-red-500/30 text-red-500"
         }

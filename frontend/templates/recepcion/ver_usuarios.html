@@ -47,7 +47,6 @@
                 class="usuario-card flex flex-col gap-4 rounded-2xl bg-white px-5 py-4 shadow-sm transition hover:shadow-md sm:flex-row sm:items-center sm:gap-5 sm:px-7"
                 data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}"
                 data-cobertura="{{ usuario.cobertura }}"
-                data-plan="{{ usuario.plan }}"
             >
 
                 <!-- Iniciales y nombre -->
@@ -68,7 +67,7 @@
                 </div>
 
 
-                <!-- Cobertura y plan -->
+                <!-- Cobertura -->
                 <div class="grid grid-cols-2 gap-3 sm:flex sm:flex-1 sm:items-center sm:justify-between sm:gap-4">
 
                     <!-- Cobertura -->
@@ -80,19 +79,6 @@
 
                         <span class="font-lexend text-xs font-semibold text-acento sm:text-sm">
                             {{ usuario.cobertura }}
-                        </span>
-
-                    </div>
-
-                    <!-- Plan -->
-                    <div class="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
-
-                        <span class="font-lexend text-[10px] font-medium tracking-wide text-acento/80 sm:text-xs">
-                            PLAN
-                        </span>
-
-                        <span class="font-lexend text-xs font-semibold text-acento sm:text-sm">
-                            {{ usuario.plan }}
                         </span>
 
                     </div>

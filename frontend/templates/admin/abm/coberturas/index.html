@@ -8,10 +8,10 @@
     <div class="mx-auto max-w-[1100px]">
 
         <!-- PANEL -->
-        <section class="relative mt-6 rounded-[11px] bg-acento/40 px-3 pb-3 pt-4 sm:px-4 sm:pb-4">
+        <section class="relative mt-6  rounded-b-xl rounded-tr-xl bg-acento/40 px-3 pb-3 pt-4 sm:px-4 sm:pb-4">
 
-            <div class="absolute -top-[30px] left-0 flex h-[39px] items-center rounded-t-[12px] bg-acento/40 px-5">
-                <h1 class="font-lexend text-sm font-bold tracking-[0.16em] text-white sm:text-base">
+            <div class="absolute -top-7 left-0 rounded-t-xl bg-acento/40 px-4 py-1">
+                <h2 class="text-sm font-bold tracking-[0.2em] text-white">
                     COBERTURAS
                 </h1>
             </div>
@@ -48,7 +48,7 @@
                     </div>
 
                     <span class="hidden text-[9px] text-acento/70 md:block">
-                        {{ cobertura.cantidad_planes }} PLANES
+                        {{ cobertura.cantidad_medicos }} MEDICOS
                     </span>
 
                     <div class="flex justify-end">
@@ -61,7 +61,7 @@
 
                     <div class="col-span-2 -mt-2 text-[9px] text-acento/70 md:hidden">
                         ID COBERTURA {{ cobertura.id }}
-                        <span class="ml-3">{{ cobertura.cantidad_planes }} PLANES</span>
+                        <span class="ml-3">{{ cobertura.cantidad_medicos }} MEDICOS</span>
                     </div>
                 </article>
                 {% endfor %}
