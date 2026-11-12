@@ -56,7 +56,10 @@
         <!-- COLUMNA IZQUIERDA: EDITAR DATOS -->
         <div class="order-1">
 
-            <form id="form-editar-perfil" action="#" method="post" class="space-y-4">
+            <form id="form-editar-perfil"
+                  action="{{ url_for('rutas_profile.actualizar_perfil') }}"
+                  method="post"
+                  class="space-y-4">
 
                 <!-- MAIL -->
                 <div>
@@ -121,6 +124,7 @@
                         <input
                             id="password-actual"
                             name="password_actual"
+                            form="form-cambiar-password"
                             type="password"
                             autocomplete="current-password"
                             class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
@@ -146,6 +150,7 @@
                         <input
                             id="nueva-password"
                             name="nueva_password"
+                            form="form-cambiar-password"
                             type="password"
                             autocomplete="new-password"
                             class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
@@ -171,6 +176,7 @@
                         <input
                             id="confirmar-password"
                             name="confirmar_password"
+                            form="form-cambiar-password"
                             type="password"
                             autocomplete="new-password"
                             class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
@@ -197,7 +203,10 @@
                 {{ botones_modal("configuracion-modal", "Guardar") }}
             </form>
 
-            <form id="form-cambiar-password" action="#" method="post" class="hidden"></form>
+            <form id="form-cambiar-password"
+                  action="{{ url_for('rutas_profile.actualizar_password') }}"
+                  method="post"
+                  class="hidden"></form>
 
         </div>
     </div>
@@ -209,11 +218,12 @@
 {{ modal_confirmar(
     id="modal-cerrar-sesion",
     titulo="¿Está seguro que quiere cerrar sesión?",
-    accion="#"
+    accion=url_for('rutas_auth.logout')
 ) }}
 
 
 <!-- POPUP: ELIMINAR CUENTA -->
+{# Sin endpoint en el swagger todavía: queda sin conectar #}
 {{ modal_confirmar(
     id="modal-eliminar-cuenta",
     titulo="¿Está seguro que quiere eliminar su cuenta?",

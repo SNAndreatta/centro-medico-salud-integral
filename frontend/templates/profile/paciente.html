@@ -48,7 +48,7 @@
     </section>
     
 <section class="flex flex-col gap-4">
-    <div class="flex items-center justify-between gap-3 border-b border-acento/20px-1 pb-3">
+    <div class="flex items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
         <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">Próximos turnos</h2>
         <a href="{{ url_for('rutas_paciente.mis_turnos') }}" class="inline-flex items-center gap-2 font-lexend text-xs text-acento/40 transition hover:text-acento">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
     </div>
@@ -65,12 +65,12 @@
                         <p class="font-lexend text-sm text-acento">Dr. {{ turno.medico | default('Nombre completo') }}</p>
                     </div>
                 </div>
-                <div class="flex flex-col gap-1 md:border-l md:border-acento/20md:pl-6">
+                <div class="flex flex-col gap-1 md:border-l md:border-acento/20 md:pl-6">
                     <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Fecha y hora</p>
                     <p class="font-lexend text-lg font-semibold text-acento">{{ turno.hora | default('15:00') }}</p>
                     <p class="font-lexend text-sm text-acento">{{ turno.fecha | default('Día - Mes - Año') }}</p>
                 </div>
-                <div class="flex flex-col gap-1 md:border-l md:border-acento/20md:pl-6">
+                <div class="flex flex-col gap-1 md:border-l md:border-acento/20 md:pl-6">
                     <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Consultorio</p>
                     <p class="font-lexend text-3xl font-semibold text-acento">{{ turno.consultorio | default('123') }}</p>
                 </div>
@@ -92,9 +92,9 @@
 {% if proximos_turnos is defined and proximos_turnos %}
     {% for turno in proximos_turnos %}
     {{ modal_confirmar(
-        id="modal-cancelar-turno-" ~ (turno.id | default(loop.index, true)),
+        id="modal-cancelar-turno-" ~ turno.id,
         titulo="¿Está seguro que quiere cancelar su turno?",
-        accion="#"
+        accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
     ) }}
     {% endfor %}
 {% endif %}

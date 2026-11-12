@@ -62,6 +62,7 @@ def login():
                 )
 
             usuario = datos.get('usuario')
+            print("LOGIN USUARIO:", usuario, flush=True)
             access_token = datos.get('access_token')
 
             if not usuario or not access_token:
@@ -177,7 +178,7 @@ def register():
 
 
 # LOGOUT
-@auth_routes.route('/logout')
+@auth_routes.route('/logout', methods=['GET', 'POST'])
 def logout():
 
     session.clear()

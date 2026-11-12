@@ -93,31 +93,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Validar cambio de contraseña
     passwordForm?.addEventListener("submit", (event) => {
-
-        event.preventDefault();
-
         const actual = document.getElementById("password-actual");
         const nueva = document.getElementById("nueva-password");
         const repetir = document.getElementById("confirmar-password");
 
         if (!actual?.value || !nueva?.value || !repetir?.value) {
-
+            event.preventDefault();
             alert("Completá todos los campos para cambiar la contraseña.");
             return;
         }
 
         if (nueva.value !== repetir.value) {
-
+            event.preventDefault();
             alert("La contraseña nueva y su confirmación no coinciden.");
             repetir.focus();
-
-            return;
         }
-
-        alert(
-            "Los datos son válidos. Falta conectar este formulario con la ruta del backend."
-        );
-
     });
 
     // Confirmar eliminación de cuenta

@@ -6,15 +6,13 @@
     <meta name="theme-color" content="#E7EBEF">
 
     <title>Crear cuenta | Salud Integral</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gelasio:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -22,16 +20,16 @@
 
 <body class="bg-dominante font-sans text-acento antialiased">
 
-    <main class="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
+    <main class="flex items-center justify-center px-4 py-4 sm:px-6 sm:py-10">
 
-        <section class="w-full max-w-[400px]">
+        <section class="w-1/2">
 
             <!-- Logo y nombre del centro -->
-            <header class="mb-7 flex justify-center sm:mb-8">
+            <header class="mb-4 flex justify-center sm:mb-8">
                 <div class="flex items-center gap-3">
 
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-acento text-white sm:h-16 sm:w-16">
-                        <i data-lucide="activity" class="h-9 w-9 sm:h-10 sm:w-10"></i>
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-acento text-white">
+                        <i data-lucide="activity" class="h-7 w-7 sm:h-8 sm:w-8"></i>
                     </div>
 
                     <div class="min-w-0">
@@ -39,7 +37,7 @@
                             CENTRO MÉDICO
                         </p>
 
-                        <h2 class="font-gelasio text-4xl font-bold leading-tight tracking-tight sm:text-3xl">
+                        <h2 class="font-gelasio text-2xl font-bold leading-tight tracking-tight">
                             Salud Integral
                         </h2>
                     </div>
@@ -48,39 +46,28 @@
             </header>
 
             <!-- Tarjeta de registro -->
-            <div class="rounded-xl bg-background px-5 py-7 shadow-sm sm:px-8 sm:py-9">
+            <div class="rounded-xl bg-background px-5 py-6 shadow-sm sm:px-8">
 
-                <div class="mb-7 text-center">
+                <div class="mb-4 text-center">
                     <h1 class="text-2xl font-bold font-lexend text-acento sm:text-[26px]">
                         Crear cuenta
                     </h1>
-
-                    <p class="mt-2 text-sm font-lexend text-slate-500">
-                        Completá tus datos para registrarte
-                    </p>
                 </div>
 
                 <form id="register-form"
                     method="POST"
                     action="{{ url_for('rutas_auth.register') }}"
-                    class="space-y-5">
+                    class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                     <!-- Nombre -->
                     <div>
-                        <label
-                            for="first-name"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700"
-                        >
+                        <label for="first-name"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Nombre
                         </label>
 
                         <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-
-                            <i
-                                data-lucide="user"
-                                class="h-[18px] w-[18px] shrink-0 text-slate-400"
-                            ></i>
-
+                            <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="first-name"
                                 name="first_name"
@@ -95,20 +82,13 @@
 
                     <!-- Apellido -->
                     <div>
-                        <label
-                            for="last-name"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700"
-                        >
+                        <label for="last-name"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Apellido
                         </label>
 
                         <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-
-                            <i
-                                data-lucide="user"
-                                class="h-[18px] w-[18px] shrink-0 text-slate-400"
-                            ></i>
-
+                            <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="last-name"
                                 name="last_name"
@@ -121,49 +101,56 @@
                         </div>
                     </div>
 
+                    <!-- Fecha de nacimiento -->
                     <div>
-                        <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                        <input
-                            type="date"
-                            id="fecha_nacimiento"
-                            name="fecha_nacimiento"
-                            required
-                        >
+                        <label for="fecha_nacimiento"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            Fecha de nacimiento
+                        </label>
+
+                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                            <i data-lucide="calendar" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                            <input
+                                id="fecha_nacimiento"
+                                name="fecha_nacimiento"
+                                type="date"
+                                autocomplete="bday"
+                                required
+                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none"
+                            >
+                        </div>
                     </div>
 
-
+                    <!-- DNI -->
                     <div>
                         <label for="dni"
                             class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             DNI
                         </label>
 
-                        <input
-                            id="dni"
-                            name="dni"
-                            type="text"
-                            placeholder="Ingresá tu DNI"
-                            required
-                            class="h-12 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-700 outline-none focus:border-acento"
-                        >
+                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                            <i data-lucide="id-card" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                            <input
+                                id="dni"
+                                name="dni"
+                                type="text"
+                                inputmode="numeric"
+                                placeholder="Ingresá tu DNI"
+                                required
+                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                            >
+                        </div>
                     </div>
 
-                    <!-- Correo electrónico -->
-                    <div>
-                        <label
-                            for="email"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700"
-                        >
+                    <!-- Correo electrónico (ancho completo) -->
+                    <div class="sm:col-span-2">
+                        <label for="email"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Correo electrónico
                         </label>
 
                         <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-
-                            <i
-                                data-lucide="mail"
-                                class="h-[18px] w-[18px] shrink-0 text-slate-400"
-                            ></i>
-
+                            <i data-lucide="mail" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="email"
                                 name="email"
@@ -178,20 +165,13 @@
 
                     <!-- Contraseña -->
                     <div>
-                        <label
-                            for="password"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700"
-                        >
+                        <label for="password"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Contraseña
                         </label>
 
                         <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-
-                            <i
-                                data-lucide="lock-keyhole"
-                                class="h-[18px] w-[18px] shrink-0 text-slate-400"
-                            ></i>
-
+                            <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="password"
                                 name="password"
@@ -202,7 +182,6 @@
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >
-
                             <button
                                 type="button"
                                 class="toggle-password flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30"
@@ -212,30 +191,18 @@
                             >
                                 <i data-lucide="eye" class="h-[18px] w-[18px]"></i>
                             </button>
-
                         </div>
-
-                        <p class="mt-2 text-xs font-lexend text-slate-400">
-                            La contraseña debe tener al menos 8 caracteres.
-                        </p>
                     </div>
 
                     <!-- Confirmar contraseña -->
                     <div>
-                        <label
-                            for="confirm-password"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700"
-                        >
+                        <label for="confirm-password"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Confirmar contraseña
                         </label>
 
                         <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-
-                            <i
-                                data-lucide="lock-keyhole"
-                                class="h-[18px] w-[18px] shrink-0 text-slate-400"
-                            ></i>
-
+                            <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="confirm-password"
                                 name="confirm_password"
@@ -246,7 +213,6 @@
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >
-
                             <button
                                 type="button"
                                 class="toggle-password flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30"
@@ -256,31 +222,30 @@
                             >
                                 <i data-lucide="eye" class="h-[18px] w-[18px]"></i>
                             </button>
-
                         </div>
                     </div>
 
+                    <p class="-mt-2 text-xs font-lexend text-slate-400 sm:col-span-2">
+                        La contraseña debe tener al menos 8 caracteres.
+                    </p>
+
                     <!-- Mensaje del formulario -->
                     {% if mensaje %}
-                        <p
-                            id="register-message"
-                            role="alert"
-                            class="rounded-lg bg-red-50 p-3 text-sm text-red-700"
-                        >
+                        <p id="register-message"
+                           role="alert"
+                           class="rounded-lg bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">
                             {{ mensaje }}
                         </p>
                     {% else %}
-                        <p
-                            id="register-message"
-                            role="alert"
-                            class="hidden rounded-lg bg-red-50 p-3 text-sm text-red-700"
-                        ></p>
+                        <p id="register-message"
+                           role="alert"
+                           class="hidden rounded-lg bg-red-50 p-3 text-sm text-red-700 sm:col-span-2"></p>
                     {% endif %}
 
                     <!-- Botón de registro -->
                     <button
                         type="submit"
-                        class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-acento px-4 text-sm font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2"
+                        class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-acento px-4 text-sm font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:col-span-2"
                     >
                         Crear cuenta
                         <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
@@ -288,17 +253,9 @@
 
                 </form>
 
-                <!-- Separador -->
-                <div class="my-6 flex items-center gap-3">
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                    <span class="text-xs text-slate-400">O</span>
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                </div>
-
                 <!-- Inicio de sesión -->
-                <p class="text-center text-sm leading-relaxed font-lexend text-slate-600">
+                <p class="text-center text-sm leading-relaxed font-lexend text-slate-600 mt-4">
                     ¿Ya tenés una cuenta?
-
                     <a
                         href="{{ url_for('rutas_auth.login') }}"
                         class="font-semibold font-lexend text-acento underline-offset-4 hover:underline"

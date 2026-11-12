@@ -1,4 +1,4 @@
-const rolUsuario = document.body.dataset.rol;
+const rolUsuario = document.querySelector("[data-rol]")?.dataset.rol;
 
 if (rolUsuario === "medico") {
     console.log("Home del médico");

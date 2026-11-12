@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#E7EBEF">
 
     <title>Iniciar sesión | Salud Integral</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
 
@@ -22,16 +23,16 @@
 
 <body class="bg-dominante font-sans text-acento antialiased">
 
-    <main class="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
+    <main class="flex items-center justify-center px-4 py-4 sm:px-6 sm:py-10">
 
         <section class="w-full max-w-[400px]">
 
             <!-- Logo y nombre del centro -->
-            <header class="mb-7 flex justify-center sm:mb-8">
+            <header class="mb-4 flex justify-center sm:mb-8">
                 <div class="flex items-center gap-3">
 
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-acento text-white sm:h-16 sm:w-16">
-                        <i data-lucide="activity" class="h-9 w-9 sm:h-10 sm:w-10"></i>
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-acento text-white">
+                        <i data-lucide="activity" class="h-7 w-7 sm:h-8 sm:w-8"></i>
                     </div>
 
                     <div class="min-w-0">
@@ -39,7 +40,7 @@
                             CENTRO MÉDICO
                         </p>
 
-                        <h2 class="font-gelasio text-4xl font-bold leading-tight tracking-tight sm:text-3xl">
+                        <h2 class="font-gelasio text-2xl font-bold leading-tight tracking-tight">
                             Salud Integral
                         </h2>
                     </div>
@@ -50,7 +51,7 @@
             <!-- Tarjeta de inicio de sesión -->
             <div class="rounded-xl bg-background px-5 py-7 shadow-sm sm:px-8 sm:py-9">
 
-                <div class="mb-7 text-center">
+                <div class="mb-4 text-center">
                     <h1 class="text-2xl font-bold font-lexend text-acento sm:text-[26px]">
                         Iniciar sesión
                     </h1>
@@ -154,15 +155,8 @@
 
                 </form>
 
-                <!-- Separador -->
-                <div class="my-6 flex items-center gap-3">
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                    <span class="text-xs text-slate-400">O</span>
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                </div>
-
                 <!-- Registro -->
-                <p class="text-center text-sm leading-relaxed font-lexend text-slate-600">
+                <p class="text-center text-sm leading-relaxed font-lexend text-slate-600 mt-4">
                     ¿No tenés una cuenta?
                     <a
                         href="{{ url_for('rutas_auth.register') }}"
