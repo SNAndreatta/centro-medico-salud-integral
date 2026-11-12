@@ -900,7 +900,10 @@ paths:
       tags:
       - Turnos (Reserva y Recepción)
       summary: "Modificar manualmente el estado de un turno (Atendido, Ausente)"
-      description: "Permite al recepcionista avanzar el flujo del negocio (Supuesto 9). Cuando el médico \ntermina la consulta, el recepcionista envía el estado \"Atendido\". Si el paciente \nnunca llegó, envía \"Ausente\".\n"
+      description: >-
+        Administración y recepción pueden marcar atendido un turno confirmado
+        y ausente un turno reservado sin llegada, una vez superados los 15
+        minutos de tolerancia. Repetir el estado final devuelve 200.
       parameters:
       - name: id_turno
         in: path
@@ -915,9 +918,17 @@ paths:
         required: true
       responses:
         "200":
-          description: Estado del turno modificado exitosamente.
+          description: Estado solicitado aplicado o ya vigente. Devuelve mensaje, id_turno, id_estado y estado.
         "400":
-          description: Transición de estado inválida.
+          description: Cuerpo inválido, estado no permitido o transición inválida.
+        "401":
+          description: Token ausente, inválido o expirado.
+        "403":
+          description: Requiere rol administrador o recepcionista.
+        "404":
+          description: Turno no encontrado.
+        "409":
+          description: El turno cambió mientras se procesaba la solicitud.
   /api/estadisticas/sala_espera:
     get:
       tags:
@@ -1229,9 +1240,11 @@ components:
       properties:
         id_estado:
           type: integer
+          minimum: 1
+          maximum: 2147483647
           description: "ID de la tabla Estado (Ej. 4 = Atendido, 6 = Ausente)"
           example: 4
-      description: Utilizado para forzar la máquina de estados manual de un turno.
+      description: Cambio manual a atendido o ausente según el estado actual y la tolerancia de llegada.
     id_medico_coberturas_body:
       required:
       - id_cobertura

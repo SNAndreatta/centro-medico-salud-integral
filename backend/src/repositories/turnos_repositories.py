@@ -26,6 +26,56 @@ def buscar_turno_por_id(id_turno):
         conexion.close()
 
 
+def buscar_turno_y_estado_destino(id_turno, id_estado):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT t.id_estado, t.id_paciente, t.fecha_horario_inicial,
+                   t.fecha_horario_llegada, LOWER(actual.estado_turno) AS estado_actual,
+                   LOWER(destino.estado_turno) AS estado_destino
+            FROM turno t
+            JOIN estado_turno actual ON actual.id_estado_turno = t.id_estado
+            LEFT JOIN estado_turno destino ON destino.id_estado_turno = %s
+            WHERE t.id_turno = %s
+            """,
+            (id_estado, id_turno),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def guardar_estado_turno(id_turno, id_estado, turno_actual):
+    conexion, cursor = obtener_cursor()
+    try:
+        # Se confirma el cambio solo si la reserva y su llegada siguen siendo las verificadas.
+        cursor.execute(
+            """
+            UPDATE turno
+            SET id_estado = %s
+            WHERE id_turno = %s
+              AND id_estado = %s
+              AND id_paciente = %s
+              AND fecha_horario_inicial = %s
+              AND fecha_horario_llegada <=> %s
+            """,
+            (
+                id_estado, id_turno, turno_actual['id_estado'], turno_actual['id_paciente'],
+                turno_actual['fecha_horario_inicial'], turno_actual['fecha_horario_llegada'],
+            ),
+        )
+        conexion.commit()
+        return cursor.rowcount == 1
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def reservar_turno(id_turno, id_paciente, codigo_qr):
     conexion, cursor = obtener_cursor()
     try:

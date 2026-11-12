@@ -10,9 +10,11 @@ from src.repositories.turnos_repositories import (
     buscar_turno_para_cancelar,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
+    buscar_turno_y_estado_destino,
     buscar_turnos,
     buscar_turnos_disponibles,
     confirmar_checkin,
+    guardar_estado_turno,
     insertar_turnos_disponibles,
     reservar_turno as reservar_turno_repositorio,
     cancelar_turno as cancelar_turno_repositorio,
@@ -43,6 +45,50 @@ def _respuesta_llegada_registrada(turno):
         'estado': 'confirmado',
         'fecha_horario_llegada': turno['fecha_horario_llegada'],
     }, 200
+
+
+def actualizar_estado_turno(id_turno, id_estado):
+    turno = buscar_turno_y_estado_destino(id_turno, id_estado)
+    if turno is None:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+
+    destino = turno['estado_destino']
+    if destino not in ('atendido', 'ausente'):
+        return error_respuesta(
+            'El estado solicitado debe ser atendido o ausente',
+            'ESTADO_TURNO_INVALIDO',
+        ), 400
+
+    estado_actualizado = {
+        'id_turno': id_turno,
+        'id_estado': id_estado,
+        'estado': destino,
+    }
+    if turno['id_estado'] == id_estado:
+        return {'mensaje': 'El turno ya tiene ese estado', **estado_actualizado}, 200
+
+    estado_requerido = 'confirmado' if destino == 'atendido' else 'reservado'
+    if turno['estado_actual'] != estado_requerido or turno['id_paciente'] is None:
+        return error_respuesta(
+            f'El turno debe estar {estado_requerido} y tener un paciente asignado',
+            'TRANSICION_ESTADO_INVALIDA',
+        ), 400
+
+    if destino == 'ausente':
+        fin_tolerancia = turno['fecha_horario_inicial'] + timedelta(minutes=15)
+        if turno['fecha_horario_llegada'] is not None or _ahora_local() <= fin_tolerancia:
+            return error_respuesta(
+                'Solo se puede marcar ausente a un paciente sin llegada registrada y fuera de la tolerancia',
+                'TRANSICION_ESTADO_INVALIDA',
+            ), 400
+
+    if not guardar_estado_turno(id_turno, id_estado, turno):
+        return error_respuesta(
+            'El turno cambió durante la operación. Volvé a consultar su estado',
+            'TURNO_MODIFICADO',
+        ), 409
+
+    return {'mensaje': 'Estado del turno actualizado correctamente', **estado_actualizado}, 200
 
 
 def reservar_turno_solicitado(id_turno, datos, usuario_actual):
