@@ -8,7 +8,6 @@ from src.validators.common import (
     validar_fecha_iso_opcional,
 )
 
-
 CAMPOS_REQUERIDOS = {
     'nombre',
     'apellido',
@@ -19,6 +18,15 @@ CAMPOS_REQUERIDOS = {
 }
 CAMPOS_OPCIONALES = {'id_cobertura', 'nro_afiliado'}
 
+CAMPOS_ACTUALIZACION_PACIENTE = {
+    'nombre',
+    'apellido',
+    'dni',
+    'correo_electronico',
+    'fecha_nacimiento',
+    'id_cobertura',
+    'nro_afiliado',
+}
 
 def validar_datos_registro_paciente(datos):
     if not CAMPOS_REQUERIDOS.issubset(datos) or set(datos) - CAMPOS_REQUERIDOS - CAMPOS_OPCIONALES:
@@ -93,6 +101,101 @@ def validar_datos_registro_paciente(datos):
         'nro_afiliado': nro_afiliado,
     }, None, None
 
+def validar_datos_actualizacion_paciente(datos):
+    if not isinstance(datos, dict) or not datos:
+        return None, error_respuesta(
+            'Debe enviar al menos un campo para actualizar',
+            'CUERPO_INVALIDO',
+        )
+
+    if set(datos) - CAMPOS_ACTUALIZACION_PACIENTE:
+        return None, error_respuesta(
+            'Se recibieron campos desconocidos o no permitidos',
+            'CUERPO_INVALIDO',
+        )
+
+    actualizados = {}
+
+    for campo in ('nombre', 'apellido'):
+        if campo in datos:
+            if not texto_obligatorio(datos[campo]):
+                return None, error_respuesta(f'{campo} es obligatorio', 'CAMPO_INVALIDO')
+            valor = datos[campo].strip()
+            if len(valor) > 100:
+                return None, error_respuesta(
+                    'Nombre y apellido no pueden superar 100 caracteres',
+                    'CAMPO_INVALIDO',
+                )
+            actualizados[campo] = valor
+
+    if 'dni' in datos:
+        if not texto_obligatorio(datos['dni']):
+            return None, error_respuesta('dni es obligatorio', 'CAMPO_INVALIDO')
+        dni = datos['dni'].strip()
+        if not re.fullmatch(r'\d{7,8}', dni):
+            return None, error_respuesta('El DNI debe contener 7 u 8 dígitos', 'DNI_INVALIDO')
+        actualizados['dni'] = dni
+
+    if 'correo_electronico' in datos:
+        if not texto_obligatorio(datos['correo_electronico']):
+            return None, error_respuesta('correo_electronico es obligatorio', 'CAMPO_INVALIDO')
+        correo, error = validar_correo_electronico(datos['correo_electronico'])
+        if error:
+            return None, error
+        actualizados['correo_electronico'] = correo
+
+    if 'fecha_nacimiento' in datos:
+        if not texto_obligatorio(datos['fecha_nacimiento']):
+            return None, error_respuesta('fecha_nacimiento es obligatorio', 'CAMPO_INVALIDO')
+        fecha_iso, error = validar_fecha_iso_opcional(datos['fecha_nacimiento'], 'fecha_nacimiento')
+        if error:
+            return None, error
+        fecha_nacimiento = date.fromisoformat(fecha_iso)
+        if fecha_nacimiento > date.today():
+            return None, error_respuesta('fecha_nacimiento no puede ser futura', 'FECHA_INVALIDA')
+        actualizados['fecha_nacimiento'] = fecha_nacimiento
+
+    if 'id_cobertura' in datos:
+        id_cobertura = datos['id_cobertura']
+        if id_cobertura is not None and (
+            isinstance(id_cobertura, bool) or not isinstance(id_cobertura, int) or id_cobertura <= 0
+        ):
+            return None, error_respuesta(
+                'id_cobertura debe ser un entero positivo o nulo',
+                'COBERTURA_INVALIDA',
+            )
+        actualizados['id_cobertura'] = id_cobertura
+
+    if 'nro_afiliado' in datos:
+        nro_afiliado = datos['nro_afiliado']
+        if nro_afiliado is not None:
+            if (
+                not isinstance(nro_afiliado, str)
+                or not nro_afiliado.strip()
+                or len(nro_afiliado.strip()) > 50
+            ):
+                return None, error_respuesta(
+                    'nro_afiliado debe ser texto de hasta 50 caracteres o nulo',
+                    'AFILIADO_INVALIDO',
+                )
+            nro_afiliado = nro_afiliado.strip()
+        actualizados['nro_afiliado'] = nro_afiliado
+
+    if ('id_cobertura' in actualizados) != ('nro_afiliado' in actualizados):
+        return None, error_respuesta(
+            'id_cobertura y nro_afiliado deben enviarse juntos',
+            'AFILIACION_INCOMPLETA',
+        )
+
+    if 'id_cobertura' in actualizados and (
+        (actualizados['id_cobertura'] is None) != (actualizados['nro_afiliado'] is None)
+    ):
+        return None, error_respuesta(
+            'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
+            'AFILIACION_INCOMPLETA',
+        )
+
+    return actualizados, None
 
 def validar_filtros_pacientes(parametros):
     dni = parametros.get('dni', '')

@@ -4,6 +4,93 @@ from mysql.connector import errorcode
 from src.db import obtener_cursor
 from src.utils.roles import PACIENTE
 
+def obtener_paciente_por_id(id_paciente):
+    conexion, cursor = obtener_cursor()
+    try:
+        query = """
+        SELECT p.id_paciente, p.nro_afiliado, u.id_usuario, u.nombre, u.apellido, 
+               u.correo_electronico, u.dni, u.fecha_nacimiento, u.fecha_creacion, 
+               r.id_rol, r.nombre AS nombre_rol, c.id_cobertura, c.nombre AS nombre_cobertura
+        FROM paciente p
+        INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+        LEFT JOIN rol r ON u.id_rol = r.id_rol
+        LEFT JOIN cobertura c ON p.id_cobertura = c.id_cobertura
+        WHERE p.id_paciente = %s 
+        LIMIT 1
+        """
+        cursor.execute(query, (id_paciente,))
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+def actualizar_datos_paciente(id_paciente, datos):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM paciente WHERE id_paciente = %s LIMIT 1',
+            (id_paciente,),
+        )
+        paciente = cursor.fetchone()
+        if paciente is None:
+            return 'PACIENTE_INEXISTENTE'
+
+        id_usuario = paciente['id_usuario']
+
+        if 'correo_electronico' in datos:
+            cursor.execute(
+                """
+                SELECT id_usuario
+                FROM usuario
+                WHERE correo_electronico = %s AND id_usuario <> %s
+                LIMIT 1
+                """,
+                (datos['correo_electronico'], id_usuario),
+            )
+            if cursor.fetchone() is not None:
+                return 'EMAIL_DUPLICADO'
+
+        if datos.get('id_cobertura') is not None:
+            cursor.execute(
+                'SELECT id_cobertura FROM cobertura WHERE id_cobertura = %s LIMIT 1',
+                (datos['id_cobertura'],),
+            )
+            if cursor.fetchone() is None:
+                return 'COBERTURA_INEXISTENTE'
+
+        campos_usuario = ('nombre', 'apellido', 'correo_electronico', 'dni', 'fecha_nacimiento')
+        set_usuario = [f'{campo} = %s' for campo in campos_usuario if campo in datos]
+        if set_usuario:
+            valores_usuario = [datos[campo] for campo in campos_usuario if campo in datos]
+            valores_usuario.append(id_usuario)
+            cursor.execute(
+                f"UPDATE usuario SET {', '.join(set_usuario)} WHERE id_usuario = %s",
+                valores_usuario,
+            )
+
+        campos_paciente = ('id_cobertura', 'nro_afiliado')
+        set_paciente = [f'{campo} = %s' for campo in campos_paciente if campo in datos]
+        if set_paciente:
+            valores_paciente = [datos[campo] for campo in campos_paciente if campo in datos]
+            valores_paciente.append(id_paciente)
+            cursor.execute(
+                f"UPDATE paciente SET {', '.join(set_paciente)} WHERE id_paciente = %s",
+                valores_paciente,
+            )
+
+        conexion.commit()
+        return {'paciente': obtener_paciente_por_id(id_paciente)} ,None
+    except mysql.connector.IntegrityError as exc:
+        conexion.rollback()
+        if exc.errno == errorcode.ER_DUP_ENTRY:
+            return 'EMAIL_DUPLICADO'
+        raise
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
 
 def obtener_paciente_por_usuario(id_usuario):
     conexion, cursor = obtener_cursor()
