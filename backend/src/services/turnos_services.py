@@ -245,24 +245,29 @@ def filtrar_turnos_disponibles(parametros):
     return {'turnos': buscar_turnos_disponibles(**filtros)}, 200
 
 
+def _filtros_visibilidad_turnos(usuario_actual):
+    if usuario_actual['id_rol'] == PACIENTE:
+        return {'id_usuario_paciente': usuario_actual['id_usuario']}
+    if usuario_actual['id_rol'] == MEDICO:
+        return {'id_usuario_medico': usuario_actual['id_usuario']}
+    return {}
+
+
 def filtrar_turnos(parametros, usuario_actual):
     filtros, error = validar_filtros_turnos(parametros)
     if error:
         return error, 400
 
-    id_usuario_paciente = None
-    id_usuario_medico = None
-    if usuario_actual['id_rol'] == PACIENTE:
-        id_usuario_paciente = usuario_actual['id_usuario']
-    elif usuario_actual['id_rol'] == MEDICO:
-        id_usuario_medico = usuario_actual['id_usuario']
-
-    turnos = buscar_turnos(
-        **filtros,
-        id_usuario_paciente=id_usuario_paciente,
-        id_usuario_medico=id_usuario_medico,
-    )
+    turnos = buscar_turnos(**filtros, **_filtros_visibilidad_turnos(usuario_actual))
     return {'turnos': turnos}, 200
+
+
+def obtener_detalle_turno(id_turno, usuario_actual):
+    turnos = buscar_turnos(id_turno=id_turno, **_filtros_visibilidad_turnos(usuario_actual))
+    if not turnos:
+        return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+
+    return {'turno': turnos[0]}, 200
 
 
 def _obtener_periodo_proximo_mes(hoy=None):

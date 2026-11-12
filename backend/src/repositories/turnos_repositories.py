@@ -263,9 +263,14 @@ def buscar_turnos(
     id_estado=None,
     id_usuario_paciente=None,
     id_usuario_medico=None,
+    id_turno=None,
 ):
     condiciones = []
     parametros = []
+
+    if id_turno is not None:
+        condiciones.append('t.id_turno = %s')
+        parametros.append(id_turno)
 
     if fecha_desde is not None:
         condiciones.append('DATE(t.fecha_horario_inicial) >= %s')
@@ -292,6 +297,11 @@ def buscar_turnos(
         parametros.append(id_usuario_medico)
 
     where = ' WHERE ' + ' AND '.join(condiciones) if condiciones else ''
+    campos_detalle = ''
+    join_cobertura = ''
+    if id_turno is not None:
+        campos_detalle = ', t.codigo_qr, co.id_cobertura, co.nombre AS nombre_cobertura'
+        join_cobertura = ' LEFT JOIN cobertura co ON co.id_cobertura = p.id_cobertura '
 
     consulta = """
         SELECT
@@ -316,6 +326,7 @@ def buscar_turnos(
             c.piso AS piso_consultorio,
             et.id_estado_turno,
             et.estado_turno
+    """ + campos_detalle + """
         FROM turno t
         JOIN agenda a ON a.id_agenda = t.id_agenda
         JOIN medico m ON m.id_medico = a.id_medico
@@ -325,7 +336,7 @@ def buscar_turnos(
         JOIN estado_turno et ON et.id_estado_turno = t.id_estado
         LEFT JOIN paciente p ON p.id_paciente = t.id_paciente
         LEFT JOIN usuario up ON up.id_usuario = p.id_usuario         
-    """ + where + ' ORDER BY t.fecha_horario_inicial, t.id_turno '
+    """ + join_cobertura + where + ' ORDER BY t.fecha_horario_inicial, t.id_turno '
 
     conexion, cursor = obtener_cursor()
     try:
@@ -344,7 +355,7 @@ def buscar_turnos(
                     'dni': fila['dni_paciente'],
                 }
 
-            turnos.append({
+            turno = {
                 'id_turno': int(fila['id_turno']),
                 'id_agenda': int(fila['id_agenda']),
                 'fecha_creacion_turno': fila['fecha_creacion_turno'],
@@ -368,7 +379,16 @@ def buscar_turnos(
                     'id_estado': int(fila['id_estado_turno']),
                     'nombre': fila['estado_turno'],
                 },
-            })
+            }
+            if id_turno is not None:
+                turno['codigo_qr'] = fila['codigo_qr']
+                turno['cobertura'] = None
+                if fila['id_cobertura'] is not None:
+                    turno['cobertura'] = {
+                        'id_cobertura': int(fila['id_cobertura']),
+                        'nombre': fila['nombre_cobertura'],
+                    }
+            turnos.append(turno)
 
         return turnos
     finally:

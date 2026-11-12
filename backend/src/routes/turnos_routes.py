@@ -7,6 +7,7 @@ from src.services.turnos_services import (
     filtrar_turnos,
     filtrar_turnos_disponibles,
     generar_disponibilidad,
+    obtener_detalle_turno,
     registrar_checkin_por_qr,
     reservar_turno_solicitado,
 )
@@ -37,6 +38,14 @@ def listar_turnos_disponibles():
 def listar_turnos():
     respuesta, status_code = filtrar_turnos(request.args, g.current_user)
     return respuesta, status_code
+
+
+@turnos_bp.get('/turnos/<int:id_turno>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR, RECEPCIONISTA, PACIENTE, MEDICO)
+def detalle_turno(id_turno):
+    return obtener_detalle_turno(id_turno, g.current_user)
 
 
 @turnos_bp.post('/turnos/generar')
