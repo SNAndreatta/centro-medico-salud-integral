@@ -110,8 +110,11 @@ paths:
     put:
       tags:
       - Autenticación y Usuarios
-      summary: Blanquear o actualizar contraseña (!! A CHEQUEAR A FUTURO !!)
-      description: "Permite al administrador forzar el blanqueo de clave de un empleado, o a un usuario cambiar su propia contraseña."
+      summary: Blanquear o actualizar contraseña
+      description: >-
+        Un usuario puede cambiar su propia contraseña acreditando password_actual.
+        Un administrador puede restablecer la contraseña de otra cuenta de administración
+        o recepción enviando solo nueva_password.
       parameters:
       - name: id_usuario
         in: path
@@ -124,12 +127,28 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/PasswordUpdate"
+            examples:
+              cambio_propio:
+                value:
+                  password_actual: ClaveAnterior2026!
+                  nueva_password: ClaveNueva2026!
+              restablecimiento_staff:
+                value:
+                  nueva_password: ClaveNueva2026!
         required: true
       responses:
         "200":
           description: Contraseña actualizada correctamente.
+        "400":
+          description: Cuerpo inválido, contraseña nueva inválida o falta la contraseña actual para un cambio propio.
+        "401":
+          description: Token ausente, inválido o expirado.
+        "403":
+          description: Permisos insuficientes o contraseña actual incorrecta.
         "404":
           description: Usuario no encontrado.
+        "409":
+          description: La cuenta cambió mientras se procesaba la solicitud.
   /api/coberturas:
     get:
       tags:
@@ -1035,11 +1054,18 @@ components:
       required:
       - nueva_password
       type: object
+      additionalProperties: false
       properties:
         nueva_password:
           type: string
           format: password
+          minLength: 8
+          maxLength: 128
           example: ClaveNueva2026!
+        password_actual:
+          type: string
+          format: password
+          description: Obligatoria cuando el usuario cambia su propia contraseña.
     NombreRequest:
       required:
       - nombre
