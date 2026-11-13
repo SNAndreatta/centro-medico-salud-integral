@@ -39,6 +39,11 @@ DATOS_DEMO = {
 }
 
 
+@home_routes.route("/")
+def root():
+    return redirect(url_for("rutas_home.home"))
+
+
 @home_routes.route("/home")
 def home():
     if "access_token" not in session:

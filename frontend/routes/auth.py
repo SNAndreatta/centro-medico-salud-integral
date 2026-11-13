@@ -138,7 +138,7 @@ def register():
 
         try:
             respuesta = requests.post(
-                f"{current_app.config['BACKEND_URL']}/pacientes/registro",
+                f"{current_app.config['BACKEND_URL']}/pacientes",
                 json=datos,
                 timeout=10
             )
