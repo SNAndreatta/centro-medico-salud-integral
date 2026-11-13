@@ -3,7 +3,7 @@ from flask import (
 )
 
 from src.api import ErrorAPI
-from src.api_paciente import proximos_turnos_paciente
+from src.api_paciente import perfil_paciente, proximos_turnos_paciente
 
 home_routes = Blueprint('rutas_home', __name__)
 
@@ -48,6 +48,9 @@ def home():
     rol_real = ALIAS_ROL.get(rol_sesion, rol_sesion)
     es_demo = rol_real != "paciente"
 
+    usuario = {
+        "nombre_completo": f"{session.get('nombre', '')} {session.get('apellido', '')}".strip()
+    }
     datos = {}
 
     if not es_demo:
@@ -55,6 +58,12 @@ def home():
         session.pop("rol_demo", None)   # un paciente nunca puede simular otro rol
         rol = "paciente"
         try:
+            perfil = perfil_paciente()
+            usuario.update({
+                "nombre_completo": f"{perfil['nombre']} {perfil['apellido']}".strip(),
+                "cobertura": perfil["cobertura"],
+                "numero_afiliado": perfil["numero_afiliado"],
+            })
             datos = {"proximos_turnos": proximos_turnos_paciente()}
         except ErrorAPI as e:
             if e.status == 401:
@@ -75,10 +84,6 @@ def home():
         datos = DATOS_DEMO[rol]
 
     reserva_exitosa = session.pop("turno_reservado", False)
-
-    usuario = {
-        "nombre_completo": f"{session.get('nombre', '')} {session.get('apellido', '')}".strip()
-    }
 
     return render_template(
         "home.html",

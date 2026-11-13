@@ -1,4 +1,9 @@
 from src.repositories.auth_repository import obtener_usuario_por_id
+from src.repositories.medicos_repositories import obtener_medico_por_usuario
+from src.repositories.pacientes_repositories import (
+    obtener_paciente_por_id,
+    obtener_paciente_por_usuario,
+)
 from src.repositories.usuarios_repositories import (
     actualizar_hash_password,
     guardar_usuario_staff,
@@ -6,15 +11,51 @@ from src.repositories.usuarios_repositories import (
     obtener_usuarios_staff,
 )
 from src.errores import error_respuesta
-from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
+from src.utils.roles import ADMINISTRADOR, MEDICO, PACIENTE, RECEPCIONISTA
 from src.utils.security import hash_password, verify_password
 from src.validators.usuarios_validators import validar_cambio_password, validar_datos_usuario_staff
 
 ROLES_STAFF = {'admin': ADMINISTRADOR, 'recepcionista': RECEPCIONISTA}
 
 
-def obtener_usuario_actual(id_usuario):
-    return obtener_usuario_por_id(id_usuario)
+def obtener_perfil_usuario(id_usuario):
+    usuario = obtener_usuario_por_id(id_usuario)
+    if usuario is None:
+        return None
+
+    perfil = {
+        'id_usuario': int(usuario['id_usuario']),
+        'nombre': usuario['nombre'],
+        'apellido': usuario['apellido'],
+        'id_rol': int(usuario['id_rol']),
+        'correo_electronico': usuario['correo_electronico'],
+        'dni': usuario['dni'],
+        'fecha_nacimiento': usuario['fecha_nacimiento'],
+        'fecha_creacion': usuario['fecha_creacion'],
+    }
+
+    if perfil['id_rol'] == PACIENTE:
+        id_paciente = obtener_paciente_por_usuario(id_usuario)
+        if id_paciente is not None:
+            paciente = obtener_paciente_por_id(id_paciente)
+            if paciente is not None:
+                perfil['paciente'] = {
+                    'id_paciente': int(paciente['id_paciente']),
+                    'id_cobertura': paciente['id_cobertura'],
+                    'nombre_cobertura': paciente['nombre_cobertura'],
+                    'nro_afiliado': paciente['nro_afiliado'],
+                }
+    elif perfil['id_rol'] == MEDICO:
+        medico = obtener_medico_por_usuario(id_usuario)
+        if medico is not None:
+            perfil['medico'] = {
+                'id_medico': int(medico['id_medico']),
+                'id_especialidad': int(medico['id_especialidad']),
+                'nombre_especialidad': medico['nombre_especialidad'],
+                'matricula': medico['matricula'],
+            }
+
+    return perfil
 
 
 def listar_usuarios_staff(rol=None):

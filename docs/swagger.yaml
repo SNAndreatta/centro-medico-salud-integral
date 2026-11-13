@@ -56,17 +56,24 @@ paths:
     get:
       tags:
       - Autenticación y Usuarios
-      summary: Obtener datos del usuario logueado actualmente
-      description: "Valida el JWT enviado como Bearer y devuelve el usuario asociado. El frontend \npuede usarlo al recargar la página para reconstruir el estado de la aplicación.\n"
+      summary: Obtener el perfil del usuario logueado actualmente
+      description: |
+        Valida el JWT enviado como Bearer y devuelve los datos de la cuenta con
+        los que el frontend reconstruye el estado de la aplicación. Además de los
+        campos comunes de `usuario`, agrega el perfil correspondiente al rol:
+
+        - Paciente (`id_rol = 3`): objeto `paciente` con cobertura y nro. de afiliado.
+        - Médico (`id_rol = 4`): objeto `medico` con especialidad y matrícula.
+        - Administrador (`id_rol = 1`) y Recepción (`id_rol = 2`): solo datos de cuenta.
       responses:
         "200":
-          description: Datos del usuario actual.
+          description: Perfil del usuario autenticado.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsuarioInfo"
         "401":
-          description: No autenticado.
+          description: No autenticado o usuario inexistente.
   /api/usuarios:
     get:
       tags:
@@ -1047,9 +1054,58 @@ components:
           example: Pérez
         id_rol:
           type: integer
-          description: "1 = Admin, 2 = Recepción, 3 = Paciente"
+          description: "1 = Admin, 2 = Recepción, 3 = Paciente, 4 = Médico"
           example: 3
-      description: "Representa los datos base de sesión, sin importar si es paciente o staff."
+        correo_electronico:
+          type: string
+          format: email
+          example: juan.perez@example.com
+        dni:
+          type: string
+          example: "30123456"
+        fecha_nacimiento:
+          type: string
+          format: date
+          example: "1990-05-12"
+        fecha_creacion:
+          type: string
+          format: date-time
+        paciente:
+          type: object
+          description: Presente solo cuando `id_rol = 3`.
+          properties:
+            id_paciente:
+              type: integer
+              example: 12
+            id_cobertura:
+              type: integer
+              nullable: true
+              example: 3
+            nombre_cobertura:
+              type: string
+              nullable: true
+              example: OSDE
+            nro_afiliado:
+              type: string
+              nullable: true
+              example: "123456"
+        medico:
+          type: object
+          description: Presente solo cuando `id_rol = 4`.
+          properties:
+            id_medico:
+              type: integer
+              example: 5
+            id_especialidad:
+              type: integer
+              example: 2
+            nombre_especialidad:
+              type: string
+              example: Cardiología
+            matricula:
+              type: string
+              example: "MP-1234"
+      description: "Datos de la cuenta más el perfil específico del rol del usuario."
     PasswordUpdate:
       required:
       - nueva_password

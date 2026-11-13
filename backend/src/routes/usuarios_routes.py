@@ -5,7 +5,7 @@ from src.services.usuarios_services import (
     actualizar_password_usuario,
     crear_usuario_staff,
     listar_usuarios_staff,
-    obtener_usuario_actual,
+    obtener_perfil_usuario,
 )
 from src.utils.auth import roles_required, token_required
 from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
@@ -21,19 +21,14 @@ usuarios_bp = Blueprint('usuarios_bp', __name__)
 @token_required
 @roles_required(*ROLES_VALIDOS)
 def usuario_actual():
-    usuario = obtener_usuario_actual(g.current_user['id_usuario'])
-    if usuario is None:
+    perfil = obtener_perfil_usuario(g.current_user['id_usuario'])
+    if perfil is None:
         return error_respuesta(
             'El usuario asociado al token ya no existe',
             'USUARIO_INEXISTENTE',
         ), 401
 
-    return {
-        'id_usuario': int(usuario['id_usuario']),
-        'nombre': usuario['nombre'],
-        'apellido': usuario['apellido'],
-        'id_rol': int(usuario['id_rol']),
-    }, 200
+    return perfil, 200
 
 
 @usuarios_bp.get('/usuarios')

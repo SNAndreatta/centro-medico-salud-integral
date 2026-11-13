@@ -20,9 +20,9 @@ def _g(d, *claves, default=None):
 
 
 def _buscar(p, *claves, default=None):
-    """Busca en la raíz y dentro de 'usuario' / 'paciente'."""
+    """Busca en la raíz y dentro de los perfiles anidados."""
     fuentes = [p]
-    for sub in ("usuario", "paciente"):
+    for sub in ("usuario", "paciente", "medico"):
         if isinstance(p.get(sub), dict):
             fuentes.append(p[sub])
     for f in fuentes:
@@ -57,23 +57,58 @@ def _iniciales(nombre):
     return "".join(p[0] for p in partes[:2]).upper() or "NC"
 
 
+def _texto(valor, default=""):
+    return valor if isinstance(valor, str) else default
+
+
+def _nombre_medico(t):
+    medico = _g(t, "medico")
+    if isinstance(medico, dict):
+        nombre = " ".join(
+            p for p in (medico.get("nombre"), medico.get("apellido")) if p
+        )
+        if nombre:
+            return nombre
+    elif isinstance(medico, str) and medico.strip():
+        return medico.strip()
+
+    nombre = _texto(_g(t, "medico_nombre", "nombre_medico_pila", "nombre_medico"))
+    apellido = _texto(_g(t, "medico_apellido"))
+    return f"{nombre} {apellido}".strip()
+
+
 def normalizar_turno(t):
     dt = _fecha(_g(t, "fecha_horario_inicial", "fecha_hora", "fecha"))
-    nombre_medico = _g(t, "medico", "nombre_medico", default="")
-    if not nombre_medico:
-        nombre_medico = (
-            f"{_g(t, 'medico_nombre', 'nombre_medico_pila', default='')} "
-            f"{_g(t, 'medico_apellido', default='')}"
-        ).strip()
+
+    medico = _g(t, "medico")
+    nombre_medico = _nombre_medico(t)
+    id_medico = (
+        medico.get("id_medico") if isinstance(medico, dict)
+        else _g(t, "id_medico")
+    )
+
+    especialidad = _texto(_g(t, "nombre_especialidad"))
+    if not especialidad and isinstance(medico, dict):
+        especialidad = _texto(medico.get("especialidad"))
+    if not especialidad:
+        especialidad = _texto(_g(t, "especialidad"))
+
+    consultorio = _g(t, "numero_consultorio", "consultorio", default="-")
+    if isinstance(consultorio, dict):
+        consultorio = consultorio.get("numero", "-")
+
+    estado = _g(t, "estado", "estado_turno", default="")
+    if isinstance(estado, dict):
+        estado = estado.get("nombre", "")
 
     return {
         "id": _g(t, "id_turno", "id"),
-        "id_medico": _g(t, "id_medico"),
+        "id_medico": id_medico,
         "medico": nombre_medico or "Sin asignar",
         "iniciales": _iniciales(nombre_medico),
-        "especialidad": _g(t, "nombre_especialidad", "especialidad", default=""),
-        "consultorio": _g(t, "numero_consultorio", "consultorio", default="-"),
-        "estado": str(_g(t, "estado", "estado_turno", default="")).lower(),
+        "especialidad": especialidad,
+        "consultorio": consultorio,
+        "estado": str(estado).lower(),
         "fecha_iso": dt.strftime("%Y-%m-%d"),
         "hora": dt.strftime("%H:%M"),
         "fecha": f"{dt.day} de {MESES[dt.month - 1].capitalize()} de {dt.year}",
@@ -86,9 +121,20 @@ def normalizar_turno(t):
 # ---------- paciente actual ----------
 
 def id_paciente_actual():
-    id_p = (session.get("usuario") or {}).get("id_paciente")
+    usuario = session.get("usuario") or {}
+    id_p = usuario.get("id_paciente")
+    if id_p:
+        return id_p
+
+    # El login no devuelve id_paciente: lo resolvemos con el perfil del usuario
+    # autenticado y lo guardamos en sesión para no repetir la llamada.
+    datos = api("GET", "/usuarios/me")
+    id_p = _buscar(datos, "id_paciente")
     if not id_p:
         raise ErrorAPI("No se pudo identificar al paciente.", 500)
+
+    usuario["id_paciente"] = id_p
+    session["usuario"] = usuario
     return id_p
 
 
@@ -124,9 +170,8 @@ def medicos_por_especialidad(id_especialidad):
 # ---------- turnos del paciente ----------
 
 def mis_turnos_paciente():
-    datos = como_lista(
-        api("GET", f"/pacientes/{id_paciente_actual()}/turnos"), "turnos"
-    )
+    # GET /turnos ya limita el resultado al paciente autenticado (JWT).
+    datos = como_lista(api("GET", "/turnos"), "turnos")
     return [normalizar_turno(t) for t in datos]
 
 
@@ -140,17 +185,17 @@ def proximos_turnos_paciente(limite=3):
 # ---------- perfil ----------
 
 def perfil_paciente():
-    p = api("GET", f"/pacientes/{id_paciente_actual()}")
+    p = api("GET", "/usuarios/me")
 
     nombre = _buscar(p, "nombre", default=session.get("nombre", ""))
     apellido = _buscar(p, "apellido", default=session.get("apellido", ""))
     fecha_nac = _buscar(p, "fecha_nacimiento")
     fecha_reg = _buscar(p, "fecha_creacion", "fecha_registro")
 
-    cobertura = p.get("cobertura")
+    cobertura = _buscar(p, "nombre_cobertura", "cobertura")
     if isinstance(cobertura, dict):
         cobertura = cobertura.get("nombre")
-    cobertura = cobertura or _buscar(p, "nombre_cobertura") or "Particular"
+    cobertura = cobertura or "Particular"
 
     return {
         "nombre": nombre,

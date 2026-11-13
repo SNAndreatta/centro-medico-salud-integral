@@ -101,6 +101,28 @@ def guardar_medico(medico):
         cursor.close()
         conexion.close()
 
+def obtener_medico_por_usuario(id_usuario):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT m.id_medico, u.id_usuario, u.nombre, u.apellido,
+                   u.correo_electronico, u.dni, m.matricula,
+                   e.id_especialidad, e.nombre_especialidad
+            FROM medico m
+            JOIN usuario u ON u.id_usuario = m.id_usuario
+            JOIN especialidad e ON e.id_especialidad = m.id_especialidad
+            WHERE m.id_usuario = %s
+            LIMIT 1
+            """,
+            (id_usuario,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def obtener_medico_por_id(id_medico):
     conexion, cursor = obtener_cursor()
     try:

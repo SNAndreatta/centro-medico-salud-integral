@@ -3,35 +3,26 @@ from src.api import ErrorAPI
 from src.api_paciente import (
     perfil_paciente, proximos_turnos_paciente, actualizar_email, cambiar_password,
 )
+from src.api_usuario import perfil_usuario
 
 profile_routes = Blueprint('rutas_profile', __name__)
-
-USUARIOS_DE_PRUEBA = {
-    "medico": {
-        "iniciales": "MG", "nombre": "María", "apellido": "González",
-        "fecha_registro": "15/03/2025", "email": "maria.gonzalez@example.com",
-        "documento": "30123456", "fecha_nacimiento": "12/05/1985",
-        "matricula": "123456",
-    },
-    "recepcion": {
-        "iniciales": "LC", "nombre": "Lucía", "apellido": "Castro",
-        "fecha_registro": "20/04/2025", "email": "lucia.castro@example.com",
-        "documento": "32456789", "fecha_nacimiento": "08/09/1990",
-    },
-    "admin": {
-        "iniciales": "AR", "nombre": "Ana", "apellido": "Rodríguez",
-        "fecha_registro": "01/02/2025", "email": "ana.rodriguez@example.com",
-        "documento": "28901234", "fecha_nacimiento": "17/07/1980",
-    },
-}
-
-ALIAS_ROL = {"administrador": "admin", "recepcionista": "recepcion"}
 
 
 def _sesion_vencida():
     session.clear()
     flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
     return redirect(url_for("rutas_auth.login"))
+
+
+def _usuario_fallback():
+    nombre = session.get("nombre", "")
+    apellido = session.get("apellido", "")
+    return {
+        "nombre": nombre, "apellido": apellido,
+        "iniciales": ((nombre[:1] + apellido[:1]).upper() or "NC"),
+        "email": "", "documento": "", "fecha_nacimiento": "-",
+        "fecha_registro": "-", "matricula": "-",
+    }
 
 
 @profile_routes.route("/profile")
@@ -50,25 +41,22 @@ def profile():
             if e.status == 401:
                 return _sesion_vencida()
             flash(e.mensaje, "error")
-            nombre = session.get("nombre", "")
-            apellido = session.get("apellido", "")
-            usuario = {
-                "nombre": nombre, "apellido": apellido,
-                "iniciales": ((nombre[:1] + apellido[:1]).upper() or "NC"),
-                "email": "", "documento": "", "fecha_nacimiento": "-",
-                "fecha_registro": "-", "numero_afiliado": "-", "cobertura": "-",
-            }
+            usuario = _usuario_fallback()
+            usuario.update({"numero_afiliado": "-", "cobertura": "-"})
             proximos = []
 
         return render_template("profile.html", rol=rol, usuario=usuario,
                                proximos_turnos=proximos)
 
-    clave = ALIAS_ROL.get(rol, rol)
-    if clave not in USUARIOS_DE_PRUEBA:
-        clave = "recepcion"
-    usuario = dict(USUARIOS_DE_PRUEBA[clave])
-    usuario["nombre"] = session.get("nombre") or usuario["nombre"]
-    usuario["apellido"] = session.get("apellido") or usuario["apellido"]
+    try:
+        usuario = perfil_usuario()
+    except ErrorAPI as e:
+        print("ERROR PERFIL:", e.status, e.mensaje, flush=True)
+        if e.status == 401:
+            return _sesion_vencida()
+        flash(e.mensaje, "error")
+        usuario = _usuario_fallback()
+
     return render_template("profile.html", rol=rol, usuario=usuario)
 
 
