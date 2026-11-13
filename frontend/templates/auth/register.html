@@ -57,6 +57,7 @@
                 <form id="register-form"
                     method="POST"
                     action="{{ url_for('rutas_auth.register') }}"
+                    novalidate
                     class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                     <!-- Nombre -->
@@ -136,6 +137,7 @@
                                 type="text"
                                 inputmode="numeric"
                                 placeholder="Ingresá tu DNI"
+                                maxlength="8"
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >
@@ -157,6 +159,7 @@
                                 type="email"
                                 placeholder="Ingresá tu correo"
                                 autocomplete="email"
+                                maxlength="150"
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >
@@ -179,6 +182,7 @@
                                 placeholder="Creá una contraseña"
                                 autocomplete="new-password"
                                 minlength="8"
+                                maxlength="256"
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >
@@ -210,6 +214,7 @@
                                 placeholder="Repetí tu contraseña"
                                 autocomplete="new-password"
                                 minlength="8"
+                                maxlength="256"
                                 required
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                             >

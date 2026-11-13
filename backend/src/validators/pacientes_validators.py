@@ -55,6 +55,8 @@ def validar_datos_registro_paciente(datos):
         return None, error, 400
 
     password = datos['password']
+    if len(password) < 8:
+        return None, error_respuesta('La contraseña debe tener al menos 8 caracteres', 'PASSWORD_INVALIDO'), 400
     if len(password) > 256:
         return None, error_respuesta('La contraseña excede la longitud permitida', 'PASSWORD_INVALIDO'), 400
 

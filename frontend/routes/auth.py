@@ -154,11 +154,24 @@ def register():
                 print("Estado:", respuesta.status_code)
                 print("Respuesta del backend:", respuesta.text)
 
+                errores = resultado.get('errors')
+                mensaje_backend = None
+
+                if isinstance(errores, list) and errores:
+                    primer_error = errores[0]
+
+                    if isinstance(primer_error, dict):
+                        mensaje_backend = (
+                            primer_error.get('message')
+                            or primer_error.get('description')
+                        )
+
                 mensaje = (
                     resultado.get('mensaje')
+                    or mensaje_backend
                     or resultado.get('error')
                     or resultado.get('detalle')
-                    or f"Error {respuesta.status_code}: {respuesta.text}"
+                    or 'No se pudo crear la cuenta. Revisá los datos e intentá nuevamente.'
                 )
 
                 return render_template(
