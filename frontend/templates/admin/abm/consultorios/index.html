@@ -141,21 +141,24 @@
     </div>
 
 
-    <!-- BOTÓN CREAR -->
-    <div class="mt-3 flex justify-end">
+    <!-- Volver y crear -->
+    <div class="mt-3 flex items-center justify-between">
 
+        <a href="{{ url_for('rutas_home.home') }}"
+            class="inline-flex items-center gap-1 text-[13px] text-acento hover:text-gray-200">
+            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+            Volver al menú
+        </a>
         <button
             id="abrirModal"
             type="button"
             data-abrir-modal="modal-crear-consultorio"
-            class="flex items-center gap-1 rounded-full bg-acento px-4 py-2 text-xs font-medium text-white transition hover:bg-acento/60"
+            class="inline-flex items-center gap-2 rounded-full bg-acento px-4 py-2 text-[13px] font-medium text-white transition hover:bg-acento/60"
         >
             Crear consultorio
             <i data-lucide="plus" class="h-4 w-4"></i>
         </button>
-
     </div>
-
 </main>
 
 
