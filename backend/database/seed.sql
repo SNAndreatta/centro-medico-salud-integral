@@ -44,14 +44,34 @@ VALUES
     (7, 4, 'Martin', 'Lopez', 'martin.lopez@saludintegral.test', '20000002', '1982-09-09', 'pbkdf2:sha256:600000$062a597c05329416$b748f7b1e42f6724b17c56349e104212ae689121da2706f75ad11c65b90970d4'),
     (8, 4, 'Lucia', 'Fernandez', 'lucia.fernandez@saludintegral.test', '20000003', '1986-01-25', 'pbkdf2:sha256:600000$054686320dec1783$fa475b38eec857f31ff9b9bb50285ead56191be995941d0bc4a2af738cd3813b');
 
+-- Cuentas demo (contraseña: 12345678)
+INSERT IGNORE INTO usuario (
+    id_usuario,
+    id_rol,
+    nombre,
+    apellido,
+    correo_electronico,
+    dni,
+    fecha_nacimiento,
+    contrasenia
+)
+VALUES
+    (101, 1, 'Admin', 'Demo', 'admin.demo@saludintegral.test', '39000001', '1985-01-15', 'pbkdf2:sha256:600000$DO5EUaODnAq4I0GN$3d8102d0356ee962095c657f924917feb8002688aff9953e12f6307a273444a7'),
+    (102, 2, 'Recepcion', 'Demo', 'recepcion.demo@saludintegral.test', '39000002', '1992-03-22', 'pbkdf2:sha256:600000$TUDkmZwqaVY8fXsg$e25d95ee122179969e31508e9bec8251477c70d010753e14fefd9a70722a0036'),
+    (103, 3, 'Paciente', 'Demo', 'paciente.demo@saludintegral.test', '49000001', '1995-05-20', 'pbkdf2:sha256:600000$n4lOZ9gTHmkrDxxm$0a95c295f46e3bb5b676b71957a6b7d990b7b1fb4705378c9f050483dddbfb6e'),
+    (104, 4, 'Medico', 'Demo', 'medico.demo@saludintegral.test', '29000001', '1980-08-10', 'pbkdf2:sha256:600000$zqsa36FSCzXby3bi$2fee86dbc83bb6b5edfdbd787e401d5d51161e6c385379b3a9316b6b42aa4196');
+
 INSERT IGNORE INTO paciente (id_paciente, id_cobertura, id_usuario, nro_afiliado)
-VALUES (1, 1, 3, 'OSDE-TEST-001'), (2, 3, 4, 'GAL-TEST-002'), (3, NULL, 5, NULL);
+VALUES (1, 1, 3, 'OSDE-TEST-001'), (2, 3, 4, 'GAL-TEST-002'), (3, NULL, 5, NULL),
+       (101, 1, 103, 'OSDE-DEMO-001');
 
 INSERT IGNORE INTO medico (id_medico, id_especialidad, id_usuario, matricula)
-VALUES (1, 3, 6, 'MN-TEST-1001'), (2, 4, 7, 'MN-TEST-1002'), (3, 2, 8, 'MN-TEST-1003');
+VALUES (1, 3, 6, 'MN-TEST-1001'), (2, 4, 7, 'MN-TEST-1002'), (3, 2, 8, 'MN-TEST-1003'),
+       (101, 1, 104, 'MN-DEMO-1001');
 
 INSERT IGNORE INTO cobertura_medico (id_cobertura_medico, id_cobertura, id_medico)
-VALUES (1, 1, 1), (2, 2, 1), (3, 3, 2), (4, 1, 3), (5, 2, 3);
+VALUES (1, 1, 1), (2, 2, 1), (3, 3, 2), (4, 1, 3), (5, 2, 3),
+       (101, 1, 101), (102, 2, 101);
 
 INSERT IGNORE INTO agenda (
     id_agenda,
@@ -64,7 +84,8 @@ INSERT IGNORE INTO agenda (
 VALUES
     (1, 1, 1, 30, '2026-11-01', '2026-12-31'),
     (2, 2, 2, 45, '2026-11-01', '2026-12-31'),
-    (3, 3, 3, 20, '2026-11-01', '2026-12-31');
+    (3, 3, 3, 20, '2026-11-01', '2026-12-31'),
+    (101, 101, 1, 30, '2026-11-01', '2026-12-31');
 
 INSERT IGNORE INTO agenda_dias (
     id_agenda_dias,
@@ -78,7 +99,9 @@ VALUES
     (2, 1, 3, '14:00:00', '18:00:00'),
     (3, 2, 2, '09:00:00', '13:00:00'),
     (4, 2, 4, '13:00:00', '17:00:00'),
-    (5, 3, 5, '08:00:00', '12:00:00');
+    (5, 3, 5, '08:00:00', '12:00:00'),
+    (101, 101, 1, '09:00:00', '13:00:00'),
+    (102, 101, 3, '14:00:00', '18:00:00');
 
 INSERT IGNORE INTO turno (
     id_turno,
