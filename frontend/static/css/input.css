@@ -9,6 +9,23 @@
     --color-acento: #003559;
     --color-dominante: #E7EBEF;
     --color-background: #ffffff;
+
+    /* Breakpoints escalados x1.5 para acompañar el zoom del 150%. */
+    --breakpoint-sm: 60rem;
+    --breakpoint-md: 72rem;
+    --breakpoint-lg: 96rem;
+    --breakpoint-xl: 120rem;
+    --breakpoint-2xl: 144rem;
+}
+
+/*
+ * La interfaz se muestra como si el navegador estuviera al 150%,
+ * pero el zoom real del navegador permanece al 100%.
+ * Los breakpoints de Tailwind se multiplicaron por 1.5 para que las
+ * variantes responsive se activen a los mismos anchos que con zoom real.
+ */
+html {
+    zoom: 1.5;
 }
 
 /* ===== Scrollbars ===== */

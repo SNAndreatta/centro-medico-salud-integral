@@ -109,3 +109,21 @@ def guardar_usuario_staff(usuario):
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_usuario_por_id(id_usuario):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id_usuario, id_rol, nombre, apellido, correo_electronico,
+                   dni, fecha_nacimiento, fecha_creacion
+            FROM usuario
+            WHERE id_usuario = %s
+            """,
+            (id_usuario,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()

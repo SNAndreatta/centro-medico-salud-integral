@@ -1,4 +1,4 @@
-from src.repositories.auth_repository import obtener_usuario_por_id
+from src.repositories.usuarios_repositories import obtener_usuario_por_id
 from src.repositories.medicos_repositories import obtener_medico_por_usuario
 from src.repositories.pacientes_repositories import (
     obtener_paciente_por_id,
