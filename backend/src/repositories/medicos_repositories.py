@@ -49,9 +49,10 @@ def guardar_medico(medico):
                 apellido,
                 correo_electronico,
                 dni,
+                fecha_nacimiento,
                 contrasenia
             )
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 MEDICO,
@@ -59,6 +60,7 @@ def guardar_medico(medico):
                 medico['apellido'],
                 medico['correo_electronico'],
                 medico['dni'],
+                medico.get('fecha_nacimiento'),
                 medico['contrasenia'],
             ),
         )

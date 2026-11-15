@@ -4,7 +4,7 @@ from src.errores import error_respuesta
 from src.services.usuarios_services import (
     actualizar_password_usuario,
     crear_usuario_staff,
-    listar_usuarios_staff,
+    listar_usuarios as listar_usuarios_service,
     obtener_perfil_usuario,
 )
 from src.utils.auth import roles_required, token_required
@@ -41,7 +41,7 @@ def listar_usuarios():
     if error:
         return error, 400
 
-    usuarios = listar_usuarios_staff(rol)
+    usuarios = listar_usuarios_service(rol)
     return {'usuarios': usuarios}, 200
 
 

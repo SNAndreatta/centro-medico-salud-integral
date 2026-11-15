@@ -86,19 +86,6 @@ medicos = [
 ]
 
 # =================================
-# MOSTRAR MÉDICOS
-# =================================
-
-@medico_admin_routes.route("/medicos/")
-def obtener_medicos():
-
-    return render_template(
-        "admin/abm/medicos/index.html",
-        medicos=medicos,
-        **contexto_agenda_mensual(request.args),
-    )
-
-# =================================
 # COBERTURAS SIMULADAS
 # =================================
 
@@ -401,7 +388,7 @@ def eliminar_medico(id_medico):
     medicos.remove(medico)
 
     return redirect(
-        url_for("rutas_admin_medico.obtener_medicos")
+        url_for("rutas_admin_usuario.obtener_usuarios")
     )
 
 

@@ -2,6 +2,7 @@ from src.errores import error_respuesta
 from src.validators.common import (
     texto_obligatorio,
     validar_correo_electronico,
+    validar_fecha_iso_opcional,
     validar_id_positivo,
 )
 
@@ -15,12 +16,18 @@ CAMPOS_MEDICO = {
     'id_especialidad',
     'matricula',
 }
+CAMPOS_MEDICO_OPCIONALES = {'fecha_nacimiento'}
 
 
 def validar_datos_medico(datos):
-    if not isinstance(datos, dict) or set(datos) != CAMPOS_MEDICO:
+    if (
+        not isinstance(datos, dict)
+        or not CAMPOS_MEDICO.issubset(datos)
+        or set(datos) - CAMPOS_MEDICO - CAMPOS_MEDICO_OPCIONALES
+    ):
         return None, error_respuesta(
-            'El cuerpo debe incluir nombre, apellido, dni, correo_electronico, password, id_especialidad y matricula',
+            'El cuerpo debe incluir nombre, apellido, dni, correo_electronico, password, '
+            'id_especialidad y matricula; fecha_nacimiento es opcional',
             'CUERPO_INVALIDO',
         )
 
@@ -48,6 +55,13 @@ def validar_datos_medico(datos):
     if error:
         return None, error
 
+    fecha_nacimiento, error = validar_fecha_iso_opcional(
+        datos.get('fecha_nacimiento'),
+        'fecha_nacimiento',
+    )
+    if error:
+        return None, error
+
     id_especialidad = datos['id_especialidad']
     if (
         isinstance(id_especialidad, bool)
@@ -64,6 +78,7 @@ def validar_datos_medico(datos):
         'apellido': datos['apellido'].strip(),
         'dni': datos['dni'].strip(),
         'correo_electronico': correo,
+        'fecha_nacimiento': fecha_nacimiento,
         'password': datos['password'],
         'id_especialidad': id_especialidad,
         'matricula': datos['matricula'].strip(),

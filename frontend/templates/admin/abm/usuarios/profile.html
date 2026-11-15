@@ -3,7 +3,6 @@
 {% block title %}Perfil usuario | Salud Integral{% endblock %}
 
 {% block content %}
-{% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
 <div class="bg-dominante px-4 sm:px-6">
     <div class="mx-auto max-w-5xl">
@@ -24,18 +23,15 @@
                 </div>
 
                 <div class="mt-2 flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8">
-                    <p class="font-lexend text-xs text-acento/70 sm:text-sm">
-                        {% if usuario.id_rol == 1 %}Recepcionista{% elif usuario.id_rol == 2 %}Administrador{% endif %}
-                        desde {{ usuario.fecha_registro }}
+                    <p class="font-lexend text-sm text-acento/70">
+                        {{ usuario.rol }} desde {{ usuario.fecha_registro }}
                     </p>
 
-                    <button type="button"
-                            id="abrirModalEditarUsuario"
-                            data-abrir-modal="modalEditarUsuario"
-                            aria-label="Editar datos del usuario"
-                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-acento text-white transition hover:opacity-80">
-                        <i data-lucide="settings" class="h-5 w-5"></i>
-                    </button>
+                    <a href="{{ url_for('rutas_admin_usuario.obtener_usuarios') }}"
+                       class="inline-flex shrink-0 items-center gap-1 rounded-full bg-acento px-4 py-2 font-lexend text-xs text-white transition hover:opacity-80">
+                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                        Volver
+                    </a>
                 </div>
             </section>
 
@@ -55,6 +51,24 @@
                         <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                         <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.dni }}</p>
                     </div>
+
+                    {% if usuario.id_rol == 4 %}
+                    <div class="flex flex-col gap-1">
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. matrícula</p>
+                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.matricula or '-' }}</p>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Especialidad</p>
+                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.especialidad or '-' }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if usuario.id_rol == 3 %}
+                    <div class="flex flex-col gap-1">
+                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Cobertura</p>
+                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.cobertura or 'Particular' }}</p>
+                    </div>
+                    {% endif %}
                 </div>
             </section>
 
@@ -62,70 +76,9 @@
     </div>
 </div>
 
-
-<!-- POPUP: EDITAR USUARIO -->
-{% call modal("modalEditarUsuario", "Editar datos de usuario") %}
-    <form method="POST"
-          action="{{ url_for('rutas_admin_usuario.crear_usuario', id_usuario=usuario.id) }}"
-          class="mt-5 space-y-4">
-
-        <div>
-            <label for="editarNombreUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                Nombre
-            </label>
-            <input id="editarNombreUsuario" name="nombre" type="text" required
-                   value="{{ usuario.nombre }}"
-                   placeholder="Nombre"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
-        </div>
-
-        <div>
-            <label for="editarApellidoUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                Apellido
-            </label>
-            <input id="editarApellidoUsuario" name="apellido" type="text" required
-                   value="{{ usuario.apellido }}"
-                   placeholder="Apellido"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
-        </div>
-
-        <div>
-            <label for="editarMailUsuario" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                Mail
-            </label>
-            <input id="editarMailUsuario" name="mail" type="email" required
-                   value="{{ usuario.mail }}"
-                   placeholder="Mail"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
-        </div>
-
-        {{ botones_modal("modalEditarUsuario", "Guardar") }}
-    </form>
-
-    <div class="mt-5 border-t border-gray-200 pt-4 text-center">
-        <button type="button"
-                id="abrirConfirmarEliminarUsuario"
-                data-abrir-modal="modalEliminarUsuario"
-                class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700">
-            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-            Eliminar usuario
-        </button>
-    </div>
-{% endcall %}
-
-
-<!-- POPUP: ELIMINAR USUARIO -->
-{{ modal_confirmar(
-    id="modalEliminarUsuario",
-    titulo="¿Está seguro que quiere eliminar a " ~ usuario.nombre ~ " " ~ usuario.apellido ~ "?",
-    mensaje="Esta acción eliminará al usuario del listado.",
-    accion=url_for('rutas_admin_usuario.crear_usuario', id_usuario=usuario.id)
-) }}
-
 {% endblock %}
 
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/admin/abm/usuario_profile.js') }}" defer></script>
 {% endblock %}

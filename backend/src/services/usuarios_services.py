@@ -8,12 +8,16 @@ from src.repositories.usuarios_repositories import (
     actualizar_hash_password,
     guardar_usuario_staff,
     obtener_usuario_para_cambio_password,
-    obtener_usuarios_staff,
+    obtener_usuarios,
 )
 from src.errores import error_respuesta
 from src.utils.roles import ADMINISTRADOR, MEDICO, PACIENTE, RECEPCIONISTA
 from src.utils.security import hash_password, verify_password
-from src.validators.usuarios_validators import validar_cambio_password, validar_datos_usuario_staff
+from src.validators.usuarios_validators import (
+    ROLES_FILTRO,
+    validar_cambio_password,
+    validar_datos_usuario_staff,
+)
 
 ROLES_STAFF = {'admin': ADMINISTRADOR, 'recepcionista': RECEPCIONISTA}
 
@@ -58,9 +62,9 @@ def obtener_perfil_usuario(id_usuario):
     return perfil
 
 
-def listar_usuarios_staff(rol=None):
-    id_rol = ROLES_STAFF.get(rol) if rol is not None else None
-    return obtener_usuarios_staff(id_rol)
+def listar_usuarios(rol=None):
+    id_rol = ROLES_FILTRO.get(rol) if rol is not None else None
+    return obtener_usuarios(id_rol)
 
 
 def crear_usuario_staff(datos):
