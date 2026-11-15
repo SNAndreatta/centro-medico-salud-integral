@@ -1,211 +1,151 @@
+"""
+Dashboard de disponibilidad de consultorios (administración).
+
+Cruza los consultorios reales con los turnos del día seleccionado para
+mostrar qué horarios están disponibles y cuáles están ocupados.
+"""
+
 from flask import Blueprint, render_template, request
-from datetime import date
 
-disponibilidad_consultorios_admin_routes = Blueprint('rutas_admin_disponibilidad_consultorios', __name__)
+from src.api import ErrorAPI, api
 
-# =========================================
-# DATOS DE CONSULTORIOS
-# =========================================
+from ._comun import fecha_iso, formatear_hora
 
-consultorios = [
-
-    # PISO 1
-    {"id": "987654321", "piso": 1, "numero": 111},
-    {"id": "987654322", "piso": 1, "numero": 112},
-    {"id": "987654323", "piso": 1, "numero": 113},
-    {"id": "987654324", "piso": 1, "numero": 114},
-
-    # PISO 2
-    {"id": "987654325", "piso": 2, "numero": 201},
-    {"id": "987654326", "piso": 2, "numero": 202},
-    {"id": "987654327", "piso": 2, "numero": 203},
-    {"id": "987654328", "piso": 2, "numero": 204},
-
-    # PISO 3
-    {"id": "987654329", "piso": 3, "numero": 301},
-    {"id": "987654330", "piso": 3, "numero": 302},
-    {"id": "987654331", "piso": 3, "numero": 303},
-    {"id": "987654332", "piso": 3, "numero": 304},
-
-]
+disponibilidad_consultorios_admin_routes = Blueprint(
+    'rutas_admin_disponibilidad_consultorios',
+    __name__
+)
 
 
-pisos_disponibles = [1, 2, 3]
+def _listar_consultorios():
+    """Devuelve los consultorios de la API."""
+    datos = api('GET', '/consultorios')
 
-# =========================================
-# HORARIOS SIMULADOS
-# =========================================
+    return datos.get('consultorios', [])
 
-def obtener_horarios_consultorio(consultorio_id):
 
-    """
-    Devuelve los horarios de un consultorio.
-
-    disponible = True  -> Horario disponible.
-    disponible = False -> Horario no disponible.
-    """
-
-    horarios = [
-        "08:00",
-        "08:30",
-        "09:00",
-        "09:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "12:00",
-        "12:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-    ]
-
-    # Patrones de disponibilidad de cada consultorio.
-    # True = Disponible.
-    # False = No disponible.
-
-    disponibilidad = {
-
-        111: [True, True, False, True, False, True, True, False,
-              True, True, False, True, True, False, True, True],
-
-        112: [False, True, True, False, True, True, False, True,
-              True, False, True, True, False, True, True, False],
-
-        113: [True, False, True, True, True, False, True, False,
-              True, True, True, False, True, False, True, True],
-
-        114: [True, True, True, False, False, True, True, True,
-              False, True, False, True, True, True, False, True],
-
-        201: [False, True, True, False, True, True, True, False,
-              True, False, True, True, False, True, True, True],
-
-        202: [True, False, True, True, False, True, False, True,
-              True, True, False, True, True, False, True, False],
-
-        203: [True, True, False, True, True, False, True, True,
-              False, True, True, False, True, True, False, True],
-
-        204: [False, True, False, True, True, True, False, True,
-              True, False, True, False, True, True, True, False],
-
-        301: [True, False, True, True, False, True, True, False,
-              True, True, False, True, False, True, True, True],
-
-        302: [True, True, False, True, True, False, True, True,
-              False, True, False, True, True, False, True, True],
-
-        303: [False, True, True, True, False, True, False, True,
-              True, True, False, True, True, False, True, False],
-
-        304: [True, False, True, False, True, True, True, False,
-              True, False, True, True, False, True, True, True],
-
-    }
-
-    # Buscamos el consultorio por su identificador.
-    consultorio = next(
-        (
-            c for c in consultorios
-            if c["id"] == str(consultorio_id)
-        ),
-        None
+def _listar_turnos_del_dia(fecha):
+    """Devuelve los turnos programados para la fecha indicada."""
+    datos = api(
+        'GET',
+        '/turnos',
+        params={'fecha_desde': fecha, 'fecha_hasta': fecha},
     )
 
-    if consultorio is None:
-        return []
+    return datos.get('turnos', [])
 
-    numero = consultorio["numero"]
 
-    # Obtenemos el patrón correspondiente.
-    patron = disponibilidad.get(numero)
+def _listar_ocupacion(fecha):
+    """Devuelve la ocupación de los consultorios para la fecha indicada."""
+    datos = api(
+        'GET',
+        '/estadisticas/ocupacion_consultorios',
+        params={'fecha_desde': fecha, 'fecha_hasta': fecha},
+    )
 
-    if patron is None:
-        patron = [True] * len(horarios)
+    return {
+        consultorio['id_consultorio']: consultorio
+        for consultorio in datos.get('consultorios', [])
+    }
 
-    # Construimos la lista de horarios.
-    resultado = []
 
-    for hora, disponible in zip(horarios, patron):
+def _horarios_por_consultorio(turnos):
+    """Agrupa los horarios de la fecha por consultorio."""
+    horarios = {}
 
-        resultado.append({
-            "hora": hora,
-            "disponible": disponible
+    for turno in turnos:
+        consultorio = turno.get('consultorio') or {}
+        id_consultorio = consultorio.get('id_consultorio')
+        estado = ((turno.get('estado') or {}).get('nombre') or '')
+
+        horarios.setdefault(id_consultorio, []).append({
+            'id_turno': turno.get('id_turno'),
+            'hora': formatear_hora(turno.get('fecha_horario_inicial')),
+            'estado': estado,
+            'disponible': estado.lower() == 'disponible',
         })
 
-    return resultado
+    for lista in horarios.values():
+        lista.sort(key=lambda horario: horario['hora'])
 
-# =========================================
-# DISPONIBILIDAD DE CONSULTORIOS
-# =========================================
+    return horarios
+
+
+def _armar_pisos(consultorios, horarios, ocupacion):
+    """Agrupa los consultorios por piso con su resumen de disponibilidad."""
+    pisos = {}
+
+    for consultorio in consultorios:
+        id_consultorio = int(consultorio['id_consultorio'])
+        piso = consultorio.get('piso')
+        clave = piso if piso is not None else 'sin-piso'
+
+        if clave not in pisos:
+            pisos[clave] = {
+                'numero': piso if piso is not None else '—',
+                'consultorios': [],
+            }
+
+        horarios_consultorio = horarios.get(id_consultorio, [])
+        datos_ocupacion = ocupacion.get(id_consultorio, {})
+
+        pisos[clave]['consultorios'].append({
+            'id': id_consultorio,
+            'numero': int(consultorio['numero']),
+            'piso': piso,
+            'horarios': horarios_consultorio,
+            'total_horarios': len(horarios_consultorio),
+            'disponibles': sum(
+                1 for horario in horarios_consultorio
+                if horario['disponible']
+            ),
+            'ocupados': sum(
+                1 for horario in horarios_consultorio
+                if not horario['disponible']
+            ),
+            'porcentaje_ocupacion': datos_ocupacion.get(
+                'porcentaje_ocupacion',
+                0,
+            ),
+        })
+
+    return list(pisos.values())
+
 
 @disponibilidad_consultorios_admin_routes.route("/disponibilidad-consultorios")
 def disponibilidad_consultorios():
 
-    # -------------------------------------
-    # FECHA SELECCIONADA
-    # -------------------------------------
+    fecha = fecha_iso(request.args.get("fecha"))
 
-    fecha = request.args.get("fecha")
+    error = None
+    consultorios = []
+    turnos = []
+    ocupacion = {}
 
-    if fecha:
+    try:
+        consultorios = _listar_consultorios()
+    except ErrorAPI as e:
+        error = e.mensaje
 
-        try:
-            date.fromisoformat(fecha)
+    try:
+        turnos = _listar_turnos_del_dia(fecha)
+    except ErrorAPI as e:
+        error = error or e.mensaje
 
-        except ValueError:
-            fecha = date.today().isoformat()
+    try:
+        ocupacion = _listar_ocupacion(fecha)
+    except ErrorAPI as e:
+        error = error or e.mensaje
 
-    else:
-        fecha = date.today().isoformat()
-
-
-    # -------------------------------------
-    # AGRUPAR CONSULTORIOS POR PISO
-    # -------------------------------------
-
-    pisos = []
-
-    for numero_piso in pisos_disponibles:
-
-        consultorios_del_piso = []
-
-        for consultorio in consultorios:
-
-            if consultorio["piso"] == numero_piso:
-
-                consultorio_con_horarios = {
-                    **consultorio,
-
-                    "horarios": obtener_horarios_consultorio(
-                        consultorio["id"]
-                    )
-                }
-
-                consultorios_del_piso.append(
-                    consultorio_con_horarios
-                )
-
-        # Agregamos únicamente los pisos que tienen consultorios.
-        if consultorios_del_piso:
-
-            pisos.append({
-                "numero": numero_piso,
-                "consultorios": consultorios_del_piso
-            })
-
-
-    # -------------------------------------
-    # ENVIAR INFORMACIÓN A LA PLANTILLA
-    # -------------------------------------
+    pisos = _armar_pisos(
+        consultorios,
+        _horarios_por_consultorio(turnos),
+        ocupacion,
+    )
 
     return render_template(
         "admin/dashboards/disponibilidad_consultorio.html",
         pisos=pisos,
-        fecha=fecha
+        fecha=fecha,
+        error=error,
     )

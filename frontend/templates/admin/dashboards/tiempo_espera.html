@@ -7,6 +7,78 @@
 
 <div class="px-1 sm:px-2">
 
+    <!-- FILTRO DE FECHAS -->
+    <form
+        method="GET"
+        action="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
+        class="mb-6 flex flex-wrap items-center gap-3 rounded-xl bg-white px-4 py-3"
+    >
+
+        <div>
+            <label
+                for="fecha_desde"
+                class="mb-1 block text-[9px] uppercase tracking-wide text-acento/70"
+            >
+                Desde
+            </label>
+
+            <input
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value="{{ fecha_desde }}"
+                class="max-w-[150px] rounded-lg border border-acento/40 bg-white px-2 py-1 text-xs text-acento outline-none focus:border-acento"
+            >
+        </div>
+
+        <div>
+            <label
+                for="fecha_hasta"
+                class="mb-1 block text-[9px] uppercase tracking-wide text-acento/70"
+            >
+                Hasta
+            </label>
+
+            <input
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value="{{ fecha_hasta }}"
+                class="max-w-[150px] rounded-lg border border-acento/40 bg-white px-2 py-1 text-xs text-acento outline-none focus:border-acento"
+            >
+        </div>
+
+        <button
+            type="submit"
+            class="rounded-full bg-acento px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+        >
+            Filtrar
+        </button>
+
+        {% if fecha_desde or fecha_hasta %}
+        <a
+            href="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
+            class="rounded-full border border-acento/40 px-4 py-2 text-xs font-semibold text-acento transition hover:bg-white"
+        >
+            Limpiar
+        </a>
+        {% endif %}
+
+        <p class="ml-auto text-xs text-acento/70">
+            {{ turnos_considerados }}
+            {{ 'turno con registro de llegada' if turnos_considerados == 1 else 'turnos con registro de llegada' }}
+        </p>
+
+    </form>
+
+    <!-- ERROR -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+
     <div class="space-y-7">
 
         <!-- ========================================== -->
@@ -57,9 +129,16 @@
                             {{ medico.iniciales }}
                         </div>
 
-                        <h3 class="truncate font-serif text-lg text-acento sm:text-xl">
-                            {{ medico.nombre }}
-                        </h3>
+                        <div class="min-w-0">
+                            <h3 class="truncate font-serif text-lg text-acento sm:text-xl">
+                                {{ medico.nombre }}
+                            </h3>
+
+                            <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                                {{ medico.turnos }}
+                                {{ 'turno' if medico.turnos == 1 else 'turnos' }}
+                            </p>
+                        </div>
 
                     </div>
 
@@ -70,17 +149,11 @@
 
                 </article>
 
-                {% else %}
-
-                <p class="col-span-full rounded-xl bg-white px-4 py-8 text-center text-sm text-gray-500">
-                    No hay información de médicos disponible.
-                </p>
-
                 {% endfor %}
 
             </div>
 
-            <p id="sin-medicos" class="hidden py-5 text-center text-sm text-gray-500">
+            <p id="sin-medicos" class="{{ 'hidden' if medicos else '' }} py-5 text-center text-sm text-gray-500">
                 No se encontraron médicos.
             </p>
 
@@ -128,9 +201,16 @@
                     data-search="{{ especialidad.nombre | lower }}"
                 >
 
-                    <h3 class="font-serif text-lg text-acento sm:text-xl">
-                        {{ especialidad.nombre }}
-                    </h3>
+                    <div class="min-w-0">
+                        <h3 class="font-serif text-lg text-acento sm:text-xl">
+                            {{ especialidad.nombre }}
+                        </h3>
+
+                        <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                            {{ especialidad.turnos }}
+                            {{ 'turno' if especialidad.turnos == 1 else 'turnos' }}
+                        </p>
+                    </div>
 
                     <p class="shrink-0 text-base font-semibold text-acento/70 sm:text-xl">
                         {{ especialidad.espera }} min
@@ -138,17 +218,11 @@
 
                 </article>
 
-                {% else %}
-
-                <p class="col-span-full rounded-xl bg-white px-4 py-8 text-center text-sm text-gray-500">
-                    No hay información de especialidades disponible.
-                </p>
-
                 {% endfor %}
 
             </div>
 
-            <p id="sin-especialidades" class="hidden py-5 text-center text-sm text-gray-500">
+            <p id="sin-especialidades" class="{{ 'hidden' if especialidades else '' }} py-5 text-center text-sm text-gray-500">
                 No se encontraron especialidades.
             </p>
 

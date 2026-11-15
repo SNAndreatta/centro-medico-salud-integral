@@ -1,67 +1,139 @@
-from flask import Blueprint, render_template
+"""
+Dashboard de tiempos de espera (administración).
 
-tiempo_espera_admin_routes = Blueprint('rutas_admin_tiempo_espera', __name__)
+Calcula el promedio de espera por médico y por especialidad usando el
+horario del turno y el horario de llegada (check-in) de cada turno.
+"""
+
+from flask import Blueprint, render_template, request
+
+from src.api import ErrorAPI, api
+
+from ._comun import (
+    color_avatar,
+    filtros_fechas,
+    iniciales,
+    minutos_espera,
+    nombre_completo,
+)
+
+tiempo_espera_admin_routes = Blueprint(
+    'rutas_admin_tiempo_espera',
+    __name__
+)
+
+
+def _calcular_tiempos(turnos):
+    """Calcula el promedio de espera por médico y por especialidad."""
+    medicos = {}
+    especialidades = {}
+
+    for turno in turnos:
+        minutos = minutos_espera(
+            turno.get('fecha_horario_inicial'),
+            turno.get('fecha_horario_llegada'),
+        )
+
+        if minutos is None:
+            continue
+
+        medico = turno.get('medico') or {}
+        id_medico = medico.get('id_medico')
+        nombre_especialidad = medico.get('especialidad') or 'Sin especialidad'
+
+        if id_medico not in medicos:
+            medicos[id_medico] = {
+                'id': id_medico,
+                'nombre': nombre_completo(
+                    medico.get('nombre'),
+                    medico.get('apellido'),
+                ),
+                'iniciales': iniciales(
+                    medico.get('nombre'),
+                    medico.get('apellido'),
+                ),
+                'minutos': 0,
+                'turnos': 0,
+            }
+
+        medicos[id_medico]['minutos'] += minutos
+        medicos[id_medico]['turnos'] += 1
+
+        if nombre_especialidad not in especialidades:
+            especialidades[nombre_especialidad] = {
+                'nombre': nombre_especialidad,
+                'minutos': 0,
+                'turnos': 0,
+            }
+
+        especialidades[nombre_especialidad]['minutos'] += minutos
+        especialidades[nombre_especialidad]['turnos'] += 1
+
+    lista_medicos = []
+    lista_especialidades = []
+
+    for indice, medico in enumerate(medicos.values()):
+        promedio = round(medico['minutos'] / medico['turnos'])
+
+        lista_medicos.append({
+            'id': medico['id'],
+            'nombre': medico['nombre'],
+            'iniciales': medico['iniciales'],
+            'espera': promedio,
+            'turnos': medico['turnos'],
+            'color_fondo': color_avatar(indice).split(' ')[0],
+            'color_texto': color_avatar(indice).split(' ')[1],
+        })
+
+    lista_medicos.sort(key=lambda medico: (-medico['espera'], medico['nombre']))
+
+    for especialidad in especialidades.values():
+        promedio = round(especialidad['minutos'] / especialidad['turnos'])
+
+        lista_especialidades.append({
+            'nombre': especialidad['nombre'],
+            'espera': promedio,
+            'turnos': especialidad['turnos'],
+        })
+
+    lista_especialidades.sort(
+        key=lambda especialidad: (-especialidad['espera'], especialidad['nombre'])
+    )
+
+    return lista_medicos, lista_especialidades
 
 
 @tiempo_espera_admin_routes.route('/admin/tiempo-espera')
 def tiempo_espera():
 
-    medicos = [
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 10,
-            'color_fondo': 'bg-[#FAD8E0]',
-            'color_texto': 'text-[#E47789]'
-        },
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 15,
-            'color_fondo': 'bg-[#DDF3F3]',
-            'color_texto': 'text-[#72BDBD]'
-        },
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 7,
-            'color_fondo': 'bg-[#E5D5E9]',
-            'color_texto': 'text-[#A16AA9]'
-        },
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 20,
-            'color_fondo': 'bg-[#EAB8B8]',
-            'color_texto': 'text-[#B91C1C]'
-        },
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 5,
-            'color_fondo': 'bg-[#B5C5D1]',
-            'color_texto': 'text-acento'
-        },
-        {
-            'nombre': 'Nombre Completo',
-            'iniciales': 'NC',
-            'espera': 13,
-            'color_fondo': 'bg-[#FAD8E0]',
-            'color_texto': 'text-[#E47789]'
-        }
-    ]
+    parametros = filtros_fechas(request.args)
 
-    especialidades = [
-        {'nombre': 'Cardiología', 'espera': 40},
-        {'nombre': 'Clínica Médica', 'espera': 15},
-        {'nombre': 'Dermatología', 'espera': 7},
-        {'nombre': 'Oftalmología', 'espera': 12},
-        {'nombre': 'Pediatría', 'espera': 6},
-        {'nombre': 'Traumatología', 'espera': 7}
-    ]
+    error = None
+    medicos = []
+    especialidades = []
+    turnos_considerados = 0
+
+    try:
+        datos = api(
+            'GET',
+            '/turnos',
+            params=parametros,
+        )
+
+        turnos = datos.get('turnos', [])
+
+        medicos, especialidades = _calcular_tiempos(turnos)
+        turnos_considerados = sum(medico['turnos'] for medico in medicos)
+
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
         'admin/dashboards/tiempo_espera.html',
         medicos=medicos,
-        especialidades=especialidades
+        especialidades=especialidades,
+        turnos_considerados=turnos_considerados,
+        fecha_desde=parametros.get('fecha_desde', ''),
+        fecha_hasta=parametros.get('fecha_hasta', ''),
+        error=error,
     )

@@ -22,12 +22,15 @@ def listar_sala_espera(id_usuario_medico=None):
             up.apellido AS apellido_paciente,
             up.dni AS dni_paciente,
             m.id_medico,
+            m.id_especialidad,
+            e.nombre_especialidad AS especialidad_medico,
             um.nombre AS nombre_medico,
             um.apellido AS apellido_medico,
             c.numero AS numero_consultorio
         FROM turno t
         JOIN agenda a ON a.id_agenda = t.id_agenda
         JOIN medico m ON m.id_medico = a.id_medico
+        JOIN especialidad e ON e.id_especialidad = m.id_especialidad
         JOIN usuario um ON um.id_usuario = m.id_usuario
         JOIN paciente p ON p.id_paciente = t.id_paciente
         JOIN usuario up ON up.id_usuario = p.id_usuario
@@ -53,6 +56,8 @@ def listar_sala_espera(id_usuario_medico=None):
                 },
                 'medico': {
                     'id_medico': int(fila['id_medico']),
+                    'id_especialidad': int(fila['id_especialidad']),
+                    'especialidad': fila['especialidad_medico'],
                     'nombre': fila['nombre_medico'],
                     'apellido': fila['apellido_medico'],
                 },

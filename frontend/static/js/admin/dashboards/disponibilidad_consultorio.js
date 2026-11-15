@@ -12,10 +12,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const estaAbierto = boton.getAttribute("aria-expanded") === "true";
 
-            detalle.classList.toggle("hidden");
+            // Cierra el consultorio que estuviera abierto.
+            botones.forEach(function (otroBoton) {
+
+                if (otroBoton === boton) {
+                    return;
+                }
+
+                const otroDetalle = document.getElementById(
+                    otroBoton.getAttribute("aria-controls")
+                );
+
+                if (otroDetalle) {
+                    otroDetalle.classList.add("hidden");
+                }
+
+                otroBoton.setAttribute("aria-expanded", "false");
+
+                const otroIcono = otroBoton.querySelector(".icono-consultorio");
+
+                if (otroIcono) {
+                    otroIcono.classList.remove("rotate-180");
+                }
+
+            });
+
+            // Abre o cierra el consultorio seleccionado.
+            if (detalle) {
+                detalle.classList.toggle("hidden", estaAbierto);
+            }
+
             boton.setAttribute("aria-expanded", String(!estaAbierto));
 
-            icono.classList.toggle("rotate-180");
+            if (icono) {
+                icono.classList.toggle("rotate-180", !estaAbierto);
+            }
 
         });
 

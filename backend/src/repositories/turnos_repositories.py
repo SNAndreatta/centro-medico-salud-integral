@@ -327,7 +327,7 @@ def buscar_turnos(
         parametros.append(fecha_desde)
 
     if fecha_hasta is not None:
-        condiciones.append('DATE(t.fecha_horario_hasta) <= %s')
+        condiciones.append('DATE(t.fecha_horario_inicial) <= %s')
         parametros.append(fecha_hasta)
 
     if id_medico is not None:
