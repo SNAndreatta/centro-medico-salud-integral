@@ -1,89 +1,120 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import (
+    Blueprint,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+
+from src.api import ErrorAPI, api
 
 cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
 
 
-# DATOS DE PRUEBA
-def listar_coberturas():
+# =================================
+# NORMALIZACIÓN DE DATOS
+# =================================
+
+def _iniciales(nombre, apellido):
+    return f"{(nombre or ' ')[0]}{(apellido or ' ')[0]}".upper().strip() or 'NC'
+
+
+def _normalizar_cobertura(cobertura):
+    return {
+        'id': int(cobertura['id_cobertura']),
+        'nombre': cobertura['nombre'],
+        'cantidad_medicos': int(cobertura.get('cantidad_medicos') or 0),
+    }
+
+
+def _listar_coberturas():
+    datos = api('GET', '/coberturas')
     return [
-        {"id": 1, "nombre": "Galeno", "cantidad_medicos": 4},
-        {"id": 2, "nombre": "IOMA", "cantidad_medicos": 12},
-        {"id": 3, "nombre": "OSDE", "cantidad_medicos": 14},
-        {"id": 4, "nombre": "PAMI", "cantidad_medicos": 28},
-        {"id": 5, "nombre": "Swiss Medical", "cantidad_medicos": 22}
+        _normalizar_cobertura(cobertura)
+        for cobertura in datos.get('coberturas', [])
     ]
+
+
+def _normalizar_medico(medico):
+    return {
+        'id': int(medico['id_medico']),
+        'id_usuario': int(medico['id_usuario']),
+        'nombre': f"{medico['nombre']} {medico['apellido']}".strip(),
+        'iniciales': _iniciales(medico['nombre'], medico['apellido']),
+        'especialidad': medico.get('nombre_especialidad'),
+        'matricula': medico.get('matricula'),
+    }
 
 
 # LISTADO DE COBERTURAS
 @cobertura_routes.route('/admin/coberturas')
 def obtener_coberturas():
+    coberturas = []
+    error = None
 
-    coberturas = listar_coberturas()
+    try:
+        coberturas = _listar_coberturas()
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
         'admin/abm/coberturas/index.html',
-        coberturas=coberturas
+        coberturas=coberturas,
+        error=error,
     )
 
 
 # DETALLE DE UNA COBERTURA
 @cobertura_routes.route('/admin/coberturas/<int:cobertura_id>')
 def detalle_cobertura(cobertura_id):
-
-    coberturas = listar_coberturas()
+    try:
+        coberturas = _listar_coberturas()
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return redirect(url_for('rutas_admin_cobertura.obtener_coberturas'))
 
     cobertura = next(
-        (c for c in coberturas if c["id"] == cobertura_id),
-        None
+        (c for c in coberturas if c['id'] == cobertura_id),
+        None,
     )
 
     if cobertura is None:
-        return "Cobertura no encontrada", 404
+        return 'Cobertura no encontrada', 404
 
-    medicos = [
-        {
-            "id": 1,
-            "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC"
-        },
-        {
-            "id": 2,
-            "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC"
-        },
-        {
-            "id": 3,
-            "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC"
-        },
-        {
-            "id": 4,
-            "nombre": "Dr. Nombre Completo",
-            "iniciales": "NC"
-        }
-    ]
+    medicos = []
+
+    try:
+        datos = api('GET', '/medicos', params={'id_cobertura': cobertura_id})
+        medicos = [
+            _normalizar_medico(medico)
+            for medico in datos.get('medicos', [])
+        ]
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
 
     return render_template(
         'admin/abm/coberturas/detalle.html',
         cobertura=cobertura,
-        medicos=medicos
+        medicos=medicos,
     )
 
 
 # CREAR COBERTURA
 @cobertura_routes.route('/admin/coberturas/crear', methods=['POST'])
 def crear_cobertura():
-
     nombre = request.form.get('nombre', '').strip()
 
-    if not nombre:
-        return "El nombre de la cobertura es obligatorio", 400
-
-    # TODO: guardar la cobertura en la base de datos.
+    try:
+        api('POST', '/coberturas', json={'nombre': nombre})
+        flash('Cobertura creada correctamente.', 'success')
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
 
     return redirect(
         url_for('rutas_admin_cobertura.obtener_coberturas')
     )
+
 
 # EDITAR COBERTURA
 @cobertura_routes.route(
@@ -91,18 +122,18 @@ def crear_cobertura():
     methods=['POST']
 )
 def editar_cobertura(cobertura_id):
-
     nombre = request.form.get('nombre', '').strip()
 
-    if not nombre:
-        return "El nombre de la cobertura es obligatorio", 400
-
-    # TODO: actualizar la cobertura en la base de datos.
+    try:
+        api('PUT', f'/coberturas/{cobertura_id}', json={'nombre': nombre})
+        flash('Cobertura actualizada correctamente.', 'success')
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
 
     return redirect(
         url_for(
             'rutas_admin_cobertura.detalle_cobertura',
-            cobertura_id=cobertura_id
+            cobertura_id=cobertura_id,
         )
     )
 
@@ -113,7 +144,17 @@ def editar_cobertura(cobertura_id):
     methods=['POST']
 )
 def eliminar_cobertura(cobertura_id):
-
-    # TODO: eliminar la cobertura de la base de datos.
-
-    return redirect(url_for('rutas_admin_cobertura.obtener_coberturas'))
+    try:
+        api('DELETE', f'/coberturas/{cobertura_id}')
+        flash('Cobertura eliminada correctamente.', 'success')
+        return redirect(
+            url_for('rutas_admin_cobertura.obtener_coberturas')
+        )
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return redirect(
+            url_for(
+                'rutas_admin_cobertura.detalle_cobertura',
+                cobertura_id=cobertura_id,
+            )
+        )

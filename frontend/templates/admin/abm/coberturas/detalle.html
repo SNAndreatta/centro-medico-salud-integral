@@ -11,6 +11,20 @@
         <!-- PANEL DE DETALLE -->
         <section class="rounded-xl bg-white p-4 shadow-sm sm:p-5">
 
+            <!-- Mensajes -->
+            {% with mensajes = get_flashed_messages(with_categories=true) %}
+                {% if mensajes %}
+                <div class="mb-4 space-y-2">
+                    {% for categoria, mensaje in mensajes %}
+                    <p class="rounded-lg px-4 py-2 text-sm font-medium
+                              {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ mensaje }}
+                    </p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
             <!-- RESUMEN DE COBERTURA -->
             <div class="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -26,7 +40,8 @@
                         </span>
 
                         <span>
-                            {{ medicos | length }} MÉDICOS
+                            {{ medicos | length }}
+                            {{ 'MÉDICO' if medicos | length == 1 else 'MÉDICOS' }}
                         </span>
                     </div>
                 </div>
@@ -68,11 +83,14 @@
                             </h3>
                             <p class="text-[7px] text-acento/70">
                                 ID MÉDICO {{ medico.id }}
+                                {% if medico.especialidad %}
+                                · {{ medico.especialidad }}
+                                {% endif %}
                             </p>
                         </div>
                     </div>
 
-                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[7px] hover:bg-acento text-white" href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id)}}">
+                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[7px] hover:bg-acento text-white" href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}">
                         Ir al perfil
                     </a>
                 </article>
@@ -81,8 +99,8 @@
             </div>
 
             <p id="sin-medicos"
-               class="hidden py-5 text-center text-[10px] text-acento/70">
-                No se encontraron médicos.
+               class="{{ 'hidden' if medicos else '' }} py-5 text-center text-[10px] text-acento/70">
+                No hay médicos asociados a esta cobertura.
             </p>
 
             <div class="mt-5 border-t border-gray-200 pt-3">

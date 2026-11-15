@@ -36,6 +36,11 @@ def api(metodo, ruta, **kwargs):
         mensaje = None
         if isinstance(datos, dict):
             mensaje = datos.get("mensaje") or datos.get("error")
+            errores = datos.get("errors")
+            if not mensaje and isinstance(errores, list) and errores:
+                primero = errores[0]
+                if isinstance(primero, dict):
+                    mensaje = primero.get("message") or primero.get("description")
         raise ErrorAPI(mensaje or "Ocurrió un error inesperado.", r.status_code)
 
     return datos

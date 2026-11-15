@@ -1,77 +1,53 @@
+from flask import (
+    Blueprint,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
-from flask import Blueprint, render_template, request, redirect, url_for
-
+from src.api import ErrorAPI, api
 
 consultorio_routes = Blueprint(
     'rutas_admin_consultorio',
     __name__
 )
 
-
-# =========================================
-# DATOS DE CONSULTORIOS
-# =========================================
-
-consultorios = [
-
-    # PISO 1
-    {"id": "987654321", "piso": 1, "numero": 111},
-    {"id": "987654322", "piso": 1, "numero": 112},
-    {"id": "987654323", "piso": 1, "numero": 113},
-    {"id": "987654324", "piso": 1, "numero": 114},
-
-    # PISO 2
-    {"id": "987654325", "piso": 2, "numero": 201},
-    {"id": "987654326", "piso": 2, "numero": 202},
-    {"id": "987654327", "piso": 2, "numero": 203},
-    {"id": "987654328", "piso": 2, "numero": 204},
-
-    # PISO 3
-    {"id": "987654329", "piso": 3, "numero": 301},
-    {"id": "987654330", "piso": 3, "numero": 302},
-    {"id": "987654331", "piso": 3, "numero": 303},
-    {"id": "987654332", "piso": 3, "numero": 304},
-
-]
-
-
-pisos_disponibles = [1, 2, 3]
+# Pisos que se ofrecen por defecto en los formularios.
+PISOS_BASE = [1, 2, 3]
 
 
 # =========================================
-# FUNCIONES AUXILIARES
+# NORMALIZACIÓN DE DATOS
 # =========================================
 
-def buscar_consultorio(consultorio_id):
+def _normalizar_consultorio(consultorio):
+    piso = consultorio.get('piso')
 
-    return next(
-        (
-            consultorio
-            for consultorio in consultorios
-            if consultorio["id"] == str(consultorio_id)
-        ),
-        None
-    )
+    return {
+        'id': int(consultorio['id_consultorio']),
+        'piso': int(piso) if piso is not None else None,
+        'numero': int(consultorio['numero']),
+    }
 
 
-def existe_consultorio(piso, numero, excluir_id=None):
+def _listar_consultorios():
+    datos = api('GET', '/consultorios')
+    return [
+        _normalizar_consultorio(consultorio)
+        for consultorio in datos.get('consultorios', [])
+    ]
 
-    return any(
-        consultorio["piso"] == piso
-        and consultorio["numero"] == numero
-        and consultorio["id"] != str(excluir_id)
+
+def _pisos_disponibles(consultorios):
+    pisos = {piso for piso in PISOS_BASE}
+    pisos.update(
+        consultorio['piso']
         for consultorio in consultorios
+        if consultorio['piso'] is not None
     )
-
-
-def generar_nuevo_id():
-
-    if not consultorios:
-        return "1"
-
-    return str(
-        max(int(c["id"]) for c in consultorios) + 1
-    )
+    return sorted(pisos)
 
 
 # =========================================
@@ -80,11 +56,19 @@ def generar_nuevo_id():
 
 @consultorio_routes.route("/consultorios")
 def obtener_consultorios():
+    consultorios = []
+    error = None
+
+    try:
+        consultorios = _listar_consultorios()
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
         "admin/abm/consultorios/index.html",
         consultorios=consultorios,
-        pisos=pisos_disponibles
+        pisos=_pisos_disponibles(consultorios),
+        error=error,
     )
 
 
@@ -94,36 +78,14 @@ def obtener_consultorios():
 
 @consultorio_routes.route("/consultorios/crear", methods=["POST"])
 def crear_consultorio():
-
     piso = request.form.get("piso", type=int)
-
     numero = request.form.get("numero", type=int)
 
-    # Validaciones.
-    if (
-        piso not in pisos_disponibles
-        or numero is None
-        or numero < 1
-    ):
-        return redirect(
-            url_for("rutas_admin_consultorio.obtener_consultorios")
-        )
-
-    # Evitar consultorios duplicados en el mismo piso.
-    if existe_consultorio(piso, numero):
-
-        return redirect(
-            url_for("rutas_admin_consultorio.obtener_consultorios")
-        )
-
-    # Crear consultorio.
-    nuevo_consultorio = {
-        "id": generar_nuevo_id(),
-        "piso": piso,
-        "numero": numero
-    }
-
-    consultorios.append(nuevo_consultorio)
+    try:
+        api("POST", "/consultorios", json={"numero": numero, "piso": piso})
+        flash("Consultorio creado correctamente.", "success")
+    except ErrorAPI as e:
+        flash(e.mensaje, "error")
 
     return redirect(
         url_for("rutas_admin_consultorio.obtener_consultorios")
@@ -135,47 +97,22 @@ def crear_consultorio():
 # =========================================
 
 @consultorio_routes.route(
-    "/consultorios/<consultorio_id>/editar",
+    "/consultorios/<int:consultorio_id>/editar",
     methods=["POST"]
 )
 def editar_consultorio(consultorio_id):
-
-    consultorio = buscar_consultorio(consultorio_id)
-
-    if consultorio is None:
-        return redirect(
-            url_for("rutas_admin_consultorio.obtener_consultorios")
-        )
-
     piso = request.form.get("piso", type=int)
-
     numero = request.form.get("numero", type=int)
 
-    # Validar datos.
-    if (
-        piso not in pisos_disponibles
-        or numero is None
-        or numero < 1
-    ):
-        return redirect(
-            url_for("rutas_admin_consultorio.obtener_consultorios")
+    try:
+        api(
+            "PUT",
+            f"/consultorios/{consultorio_id}",
+            json={"numero": numero, "piso": piso},
         )
-
-    # Evitar duplicados, excepto el propio consultorio.
-    if existe_consultorio(
-        piso,
-        numero,
-        excluir_id=consultorio_id
-    ):
-
-        return redirect(
-            url_for("rutas_admin_consultorio.obtener_consultorios")
-        )
-
-    # Actualizar datos.
-    consultorio["piso"] = piso
-
-    consultorio["numero"] = numero
+        flash("Consultorio actualizado correctamente.", "success")
+    except ErrorAPI as e:
+        flash(e.mensaje, "error")
 
     return redirect(
         url_for("rutas_admin_consultorio.obtener_consultorios")
@@ -187,16 +124,15 @@ def editar_consultorio(consultorio_id):
 # =========================================
 
 @consultorio_routes.route(
-    "/consultorios/<consultorio_id>/eliminar",
+    "/consultorios/<int:consultorio_id>/eliminar",
     methods=["POST"]
 )
 def eliminar_consultorio(consultorio_id):
-
-    consultorio = buscar_consultorio(consultorio_id)
-
-    if consultorio is not None:
-
-        consultorios.remove(consultorio)
+    try:
+        api("DELETE", f"/consultorios/{consultorio_id}")
+        flash("Consultorio eliminado correctamente.", "success")
+    except ErrorAPI as e:
+        flash(e.mensaje, "error")
 
     return redirect(
         url_for("rutas_admin_consultorio.obtener_consultorios")

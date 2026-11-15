@@ -15,6 +15,27 @@
     </div>
 
 
+    <!-- MENSAJES -->
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+        <div class="mb-3 space-y-2">
+            {% for categoria, mensaje in mensajes %}
+            <p class="rounded-lg px-4 py-2 text-sm font-medium
+                      {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ mensaje }}
+            </p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if error %}
+    <p class="mb-3 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+
     <!-- BUSCADOR -->
     <div class="mb-2 flex justify-end">
         <div class="flex w-52 items-center rounded-full border border-acento/20 px-3 py-1">
@@ -38,12 +59,12 @@
         {% for consultorio in consultorios %}
 
         <div
-            class="fila-consultorio grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-3 border-b border-white px-3 py-4 text-xs last:border-b-0"
+            class="fila-consultorio grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-b border-white px-3 py-4 text-xs last:border-b-0 sm:grid-cols-[1.5fr_1fr_1fr_auto]"
             data-busqueda="{{ consultorio.id }} {{ consultorio.piso }} {{ consultorio.numero }}"
         >
 
             <!-- ID -->
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex min-w-0 flex-wrap items-center gap-2">
                 <span class="text-[9px] font-medium uppercase text-acento/50">
                     ID CONSULTORIO
                 </span>
@@ -55,7 +76,7 @@
 
 
             <!-- PISO -->
-            <div class="flex items-center gap-2">
+            <div class="hidden items-center gap-2 sm:flex">
                 <span class="text-[9px] font-medium uppercase text-acento/50">
                     PISO
                 </span>
@@ -67,7 +88,7 @@
 
 
             <!-- NÚMERO -->
-            <div class="flex items-center gap-2">
+            <div class="hidden items-center gap-2 sm:flex">
                 <span class="text-[9px] font-medium uppercase text-acento/50">
                     NÚMERO
                 </span>
@@ -123,6 +144,12 @@
 
                 </div>
 
+            </div>
+
+            <!-- PISO Y NÚMERO EN MOBILE -->
+            <div class="col-span-2 text-[9px] uppercase text-acento/60 sm:hidden">
+                Piso {{ consultorio.piso }}
+                <span class="ml-3">Número {{ consultorio.numero }}</span>
             </div>
 
         </div>

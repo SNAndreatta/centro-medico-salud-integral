@@ -6,9 +6,13 @@ def obtener_especialidades():
     conexion, cursor = obtener_cursor()
     try:
         consulta = """
-            SELECT id_especialidad, nombre_especialidad
-            FROM especialidad
-            ORDER BY nombre_especialidad
+            SELECT e.id_especialidad, e.nombre_especialidad,
+                   COUNT(DISTINCT m.id_medico) AS cantidad_medicos
+            FROM especialidad e
+            LEFT JOIN medico m
+                ON m.id_especialidad = e.id_especialidad
+            GROUP BY e.id_especialidad, e.nombre_especialidad
+            ORDER BY e.nombre_especialidad
         """
         cursor.execute(consulta)
         return cursor.fetchall()

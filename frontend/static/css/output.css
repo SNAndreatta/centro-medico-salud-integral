@@ -34,6 +34,7 @@
     --color-cyan-500: oklch(71.5% 0.143 215.221);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-500: oklch(62.3% 0.214 259.815);
+    --color-indigo-100: oklch(93% 0.034 272.788);
     --color-indigo-500: oklch(58.5% 0.233 277.117);
     --color-indigo-600: oklch(51.1% 0.262 276.966);
     --color-purple-500: oklch(62.7% 0.265 303.9);
@@ -459,6 +460,9 @@
   .ml-3 {
     margin-left: calc(var(--spacing) * 3);
   }
+  .ml-auto {
+    margin-left: auto;
+  }
   .block {
     display: block;
   }
@@ -546,14 +550,11 @@
   .max-h-48 {
     max-height: calc(var(--spacing) * 48);
   }
-  .max-h-52 {
-    max-height: calc(var(--spacing) * 52);
-  }
   .max-h-\[90vh\] {
     max-height: 90vh;
   }
-  .max-h-\[92vh\] {
-    max-height: 92vh;
+  .min-h-0 {
+    min-height: 0px;
   }
   .min-h-12 {
     min-height: calc(var(--spacing) * 12);
@@ -763,12 +764,6 @@
   .grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
   }
-  .grid-cols-\[1\.2fr_1\.2fr_1fr_auto\] {
-    grid-template-columns: 1.2fr 1.2fr 1fr auto;
-  }
-  .grid-cols-\[1\.5fr_1fr_1fr_auto\] {
-    grid-template-columns: 1.5fr 1fr 1fr auto;
-  }
   .grid-cols-\[42px_minmax\(0\,1fr\)_auto\] {
     grid-template-columns: 42px minmax(0,1fr) auto;
   }
@@ -919,6 +914,9 @@
   }
   .overflow-y-auto {
     overflow-y: auto;
+  }
+  .overscroll-contain {
+    overscroll-behavior: contain;
   }
   .rounded-2xl {
     border-radius: var(--radius-2xl);
@@ -1071,12 +1069,6 @@
   .bg-acento {
     background-color: var(--color-acento);
   }
-  .bg-acento\/5 {
-    background-color: color-mix(in srgb, #003559 5%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-acento) 5%, transparent);
-    }
-  }
   .bg-acento\/10 {
     background-color: color-mix(in srgb, #003559 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1128,10 +1120,10 @@
   .bg-background {
     background-color: var(--color-background);
   }
-  .bg-black\/20 {
-    background-color: color-mix(in srgb, #000 20%, transparent);
+  .bg-black\/30 {
+    background-color: color-mix(in srgb, #000 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-black) 20%, transparent);
+      background-color: color-mix(in oklab, var(--color-black) 30%, transparent);
     }
   }
   .bg-black\/40 {
@@ -1208,6 +1200,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-green-600) 60%, transparent);
     }
+  }
+  .bg-indigo-100 {
+    background-color: var(--color-indigo-100);
   }
   .bg-indigo-500\/20 {
     background-color: color-mix(in srgb, oklch(58.5% 0.233 277.117) 20%, transparent);
@@ -2027,6 +2022,9 @@
     .sm\:flex {
       display: flex;
     }
+    .sm\:hidden {
+      display: none;
+    }
     .sm\:h-8 {
       height: calc(var(--spacing) * 8);
     }
@@ -2089,6 +2087,12 @@
     }
     .sm\:grid-cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .sm\:grid-cols-\[1\.2fr_1\.2fr_1fr_auto\] {
+      grid-template-columns: 1.2fr 1.2fr 1fr auto;
+    }
+    .sm\:grid-cols-\[1\.5fr_1fr_1fr_auto\] {
+      grid-template-columns: 1.5fr 1fr 1fr auto;
     }
     .sm\:grid-cols-\[minmax\(0\,2\.1fr\)_minmax\(0\,1fr\)_minmax\(0\,0\.8fr\)_auto\] {
       grid-template-columns: minmax(0,2.1fr) minmax(0,1fr) minmax(0,0.8fr) auto;

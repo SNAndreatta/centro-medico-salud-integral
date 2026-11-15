@@ -6,9 +6,13 @@ def obtener_coberturas():
     conexion, cursor = obtener_cursor()
     try:
         consulta = """
-            SELECT id_cobertura, nombre
-            FROM cobertura
-            ORDER BY nombre
+            SELECT c.id_cobertura, c.nombre,
+                   COUNT(DISTINCT cm.id_medico) AS cantidad_medicos
+            FROM cobertura c
+            LEFT JOIN cobertura_medico cm
+                ON cm.id_cobertura = c.id_cobertura
+            GROUP BY c.id_cobertura, c.nombre
+            ORDER BY c.nombre
         """
         cursor.execute(consulta)
         return cursor.fetchall()
