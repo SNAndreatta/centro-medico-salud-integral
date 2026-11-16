@@ -2,6 +2,7 @@
 
 @source "../../templates";
 @source "../js";
+@source "../../routes";
 
 @theme {
     --font-gelasio: "Gelasio", serif;
