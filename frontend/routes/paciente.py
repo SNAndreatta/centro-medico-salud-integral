@@ -4,8 +4,8 @@ from flask import (
 
 from src.api import ErrorAPI, api
 from src.api_paciente import (
-    id_paciente_actual, medicos_por_especialidad, mis_turnos_paciente,
-    obtener_especialidades, turnos_disponibles,
+    ESTADOS_TURNO, id_paciente_actual, medicos_por_especialidad,
+    mis_turnos_paciente, obtener_especialidades, turnos_disponibles,
 )
 
 paciente_routes = Blueprint('rutas_paciente', __name__)
@@ -44,6 +44,7 @@ def mis_turnos():
         'pacientes/mis_turnos.html',
         turnos=turnos,
         especialidades=especialidades,
+        estados=ESTADOS_TURNO,
     )
 
 
@@ -80,6 +81,10 @@ def sacar_turno():
     hora_sel = session.get('turno_hora')
 
     try:
+        # La especialidad elegida se resuelve una sola vez para todos los pasos.
+        especialidad = next(
+            (e for e in obtener_especialidades() if e['id'] == especialidad_id), None)
+
         # ---------- POST ----------
         if request.method == 'POST':
             paso = request.form.get('paso', 1, type=int)
@@ -142,25 +147,44 @@ def sacar_turno():
                         flash('Ese turno ya no está disponible. Elegí otro horario.', 'error')
                         return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
                     try:
-                        api('POST', f"/turnos/{turno['id']}/reservar",
-                            json={'id_paciente': id_paciente_actual()})
+                        respuesta = api(
+                            'POST',
+                            f"/turnos/{turno['id']}/reservar",
+                            json={'id_paciente': id_paciente_actual()},
+                        )
                     except ErrorAPI as e:
                         if e.status == 409:
                             flash('Alguien reservó ese turno antes. Elegí otro.', 'error')
                             return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
                         raise
+
                     _limpiar(*CLAVES_TURNO)
-                    flash('Turno reservado. Te enviamos el QR por correo.', 'success')
-                    return redirect(url_for('rutas_home.home'))
+                    session['turno_reservado'] = True
+
+                    qr = respuesta.get('qr') or {}
+                    email = respuesta.get('email') or {}
+
+                    return render_template(
+                        'pacientes/pasos_turno/reservado.html',
+                        especialidad=especialidad,
+                        medico=medico,
+                        fecha=fecha_sel,
+                        fecha_texto=turno.get('fecha', fecha_sel),
+                        hora=hora_sel,
+                        consultorio=turno.get('consultorio'),
+                        turno=respuesta.get('turno') or {},
+                        qr_imagen=qr.get('imagen_base64'),
+                        qr_mime=qr.get('mime_type') or 'image/png',
+                        email_enviado=bool(email.get('enviado')),
+                        email_destinatario=email.get('destinatario'),
+                        email_error=email.get('error') or email.get('motivo'),
+                    )
 
         # ---------- GET ----------
         if paso == 1:
             return render_template(
                 'pacientes/pasos_turno/especialidad.html',
                 paso=1, especialidades=obtener_especialidades())
-
-        especialidad = next(
-            (e for e in obtener_especialidades() if e['id'] == especialidad_id), None)
 
         if paso == 2:
             if especialidad is None:
@@ -183,11 +207,13 @@ def sacar_turno():
                                    'dia': t['dia'], 'mes': t['mes']})
                 por_fecha[t['fecha_iso']].append(t['hora'])
             horarios = sorted({h for hs in por_fecha.values() for h in hs})
+            duracion = next((t['duracion'] for t in libres if t.get('duracion')), None)
             return render_template(
                 'pacientes/pasos_turno/fecha.html',
                 paso=3, especialidad=especialidad, medico=medico,
                 fechas=fechas, horarios=horarios,
                 horarios_por_fecha=por_fecha,
+                duracion=duracion,
                 fecha_seleccionada=fecha_sel, hora_seleccionada=hora_sel)
 
         if paso == 4:

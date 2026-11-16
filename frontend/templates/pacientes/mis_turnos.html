@@ -3,7 +3,7 @@
 {% block title %}Mis turnos | Salud Integral{% endblock %}
 
 {% block content %}
-{% from "components/modales.html" import modal, botones_modal %}
+{% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
     <!-- TÍTULO Y FILTRO -->
     <section class="relative mb-[18px]">
@@ -72,9 +72,9 @@
                     class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
                 >
                     <option value="">Todos los estados</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="confirmado">Confirmado</option>
-                    <option value="cancelado">Cancelado</option>
+                    {% for estado in estados %}
+                        <option value="{{ estado }}">{{ estado | capitalize }}</option>
+                    {% endfor %}
                 </select>
 
             </div>
@@ -136,6 +136,8 @@
 
     <!-- LISTADO DE TURNOS -->
     <section class="space-y-[18px]">
+
+        {% include "components/mensajes.html" %}
 
         {% if turnos %}
 
@@ -211,13 +213,19 @@
                         <!-- BOTÓN CANCELAR (abre el popup de confirmación) -->
                         <div class="flex justify-start border-t border-acento/20 pt-4 md:justify-end md:border-0 md:pt-0">
 
+                            {% if turno.puede_cancelar %}
                             <button
                                 type="button"
-                                data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}"
+                                data-abrir-modal="modal-cancelar-turno-{{ turno.id }}"
                                 class="w-full rounded-full border border-red-500 bg-red-500/20 px-6 py-[5px] text-xs font-semibold tracking-[0.15em] text-red-600 transition hover:bg-red-500/30 md:w-[180px]"
                             >
                                 CANCELAR
                             </button>
+                            {% else %}
+                            <p class="text-right text-[9px] uppercase tracking-wide text-acento/50">
+                                {{ turno.estado_texto if turno.estado_texto else 'Sin acciones' }}
+                            </p>
+                            {% endif %}
 
                         </div>
 
@@ -257,18 +265,14 @@
     {% for turno in turnos %}
 
     <!-- POPUP: CANCELAR TURNO -->
-    {% call modal("modal-cancelar-turno-" ~ (turno.id | default(loop.index, true)), "¿Está seguro que quiere cancelar su turno?") %}
-        <form method="POST" action="#">
-
-            <input
-                type="hidden"
-                name="turno_id"
-                value="{{ turno.id | default('') }}"
-            >
-
-            {{ botones_modal("modal-cancelar-turno-" ~ (turno.id | default(loop.index, true)), "Aceptar", destructivo=True) }}
-        </form>
-    {% endcall %}
+    {% if turno.puede_cancelar %}
+    {{ modal_confirmar(
+        id="modal-cancelar-turno-" ~ turno.id,
+        titulo="¿Está seguro que quiere cancelar su turno?",
+        mensaje="Vas a liberar el horario y avisar a recepción.",
+        accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
+    ) }}
+    {% endif %}
 
     {% endfor %}
 {% endif %}

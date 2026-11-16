@@ -77,6 +77,53 @@
                         class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none placeholder:text-acento/30 focus:border-acento/70">
                 </div>
 
+                {% if rol == "paciente" %}
+
+                <!-- COBERTURA -->
+                <div>
+                    <label for="id-cobertura-perfil"
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Cobertura
+                    </label>
+
+                    <select
+                        id="id-cobertura-perfil"
+                        name="id_cobertura"
+                        class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70"
+                    >
+                        <option value="">Particular</option>
+                        {% for cobertura in coberturas %}
+                        <option value="{{ cobertura.id }}"
+                                {% if usuario.id_cobertura == cobertura.id %}selected{% endif %}>
+                            {{ cobertura.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- NÚMERO DE AFILIADO -->
+                <div>
+                    <label for="nro-afiliado-perfil"
+                           class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Nro. de afiliado
+                    </label>
+
+                    <input
+                        id="nro-afiliado-perfil"
+                        name="nro_afiliado"
+                        type="text"
+                        maxlength="50"
+                        value="{{ usuario.numero_afiliado if usuario.numero_afiliado and usuario.numero_afiliado != '-' else '' }}"
+                        placeholder="Sin número de afiliado"
+                        class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none placeholder:text-acento/30 focus:border-acento/70">
+
+                    <p class="mt-1 text-[10px] text-acento/60">
+                        Si elegís una cobertura, el número de afiliado es obligatorio.
+                    </p>
+                </div>
+
+                {% endif %}
+
                 <!-- CONTRASEÑA ACTUAL -->
                 <div>
                     <label for="password-visible"

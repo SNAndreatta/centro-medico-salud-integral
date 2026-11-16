@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from src.api import ErrorAPI
 from src.api_paciente import (
     perfil_paciente, proximos_turnos_paciente, actualizar_email, cambiar_password,
+    obtener_coberturas,
 )
 from src.api_usuario import perfil_usuario
 
@@ -42,11 +43,21 @@ def profile():
                 return _sesion_vencida()
             flash(e.mensaje, "error")
             usuario = _usuario_fallback()
-            usuario.update({"numero_afiliado": "-", "cobertura": "-"})
+            usuario.update({"numero_afiliado": "-", "cobertura": "-",
+                            "id_cobertura": None})
             proximos = []
 
+        # Catálogo de coberturas para el selector del modal de configuración.
+        try:
+            coberturas = obtener_coberturas()
+        except ErrorAPI as e:
+            print("ERROR COBERTURAS:", e.status, e.mensaje, flush=True)
+            if e.status == 401:
+                return _sesion_vencida()
+            coberturas = []
+
         return render_template("profile.html", rol=rol, usuario=usuario,
-                               proximos_turnos=proximos)
+                               proximos_turnos=proximos, coberturas=coberturas)
 
     try:
         usuario = perfil_usuario()
@@ -66,16 +77,35 @@ def actualizar_perfil():
         return redirect(url_for("rutas_auth.login"))
 
     email = request.form.get("email", "").strip().lower()
+    cobertura_raw = request.form.get("id_cobertura", "").strip()
+    nro_afiliado = request.form.get("nro_afiliado", "").strip()
+
     if not email:
         flash("Ingresá un correo electrónico.", "error")
-    else:
+        return redirect(url_for("rutas_profile.profile"))
+
+    # id_cobertura y nro_afiliado van juntos: ambos nulos = paciente particular.
+    if cobertura_raw:
         try:
-            actualizar_email(email)
-            flash("Datos actualizados.", "success")
-        except ErrorAPI as e:
-            if e.status == 401:
-                return _sesion_vencida()
-            flash(e.mensaje, "error")
+            id_cobertura = int(cobertura_raw)
+        except ValueError:
+            flash("La cobertura seleccionada no es válida.", "error")
+            return redirect(url_for("rutas_profile.profile"))
+
+        if not nro_afiliado:
+            flash("Ingresá el número de afiliado o elegí la opción Particular.", "error")
+            return redirect(url_for("rutas_profile.profile"))
+    else:
+        id_cobertura = None
+        nro_afiliado = None
+
+    try:
+        actualizar_email(email, id_cobertura, nro_afiliado)
+        flash("Datos actualizados.", "success")
+    except ErrorAPI as e:
+        if e.status == 401:
+            return _sesion_vencida()
+        flash(e.mensaje, "error")
 
     return redirect(url_for("rutas_profile.profile"))
 

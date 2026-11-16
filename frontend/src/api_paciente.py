@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 
 from flask import session
@@ -8,6 +8,16 @@ from src.api import api, ErrorAPI
 DIAS = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"]
 MESES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO",
          "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"]
+
+# Estados reales de un turno (tabla estado_turno del backend).
+ESTADOS_TURNO = ("reservado", "confirmado", "atendido", "cancelado", "ausente")
+
+# La cancelación del turno por parte del paciente sólo se permite
+# hasta 24 horas antes del horario del turno.
+LIMITE_CANCELACION_HORAS = 24
+
+# Marca para no enviar un campo opcional al backend.
+_SIN_ENVIAR = object()
 
 
 # ---------- helpers ----------
@@ -61,6 +71,14 @@ def _texto(valor, default=""):
     return valor if isinstance(valor, str) else default
 
 
+def _puede_cancelar(momento, estado):
+    """Indica si el paciente todavía puede cancelar ese turno."""
+    if estado != "reservado" or momento is None:
+        return False
+
+    return momento > datetime.now() + timedelta(hours=LIMITE_CANCELACION_HORAS)
+
+
 def _nombre_medico(t):
     medico = _g(t, "medico")
     if isinstance(medico, dict):
@@ -97,9 +115,13 @@ def normalizar_turno(t):
     if isinstance(consultorio, dict):
         consultorio = consultorio.get("numero", "-")
 
+    duracion = _g(t, "duracion_turno", "duracion")
+
     estado = _g(t, "estado", "estado_turno", default="")
     if isinstance(estado, dict):
         estado = estado.get("nombre", "")
+
+    estado = str(estado).lower()
 
     return {
         "id": _g(t, "id_turno", "id"),
@@ -108,13 +130,17 @@ def normalizar_turno(t):
         "iniciales": _iniciales(nombre_medico),
         "especialidad": especialidad,
         "consultorio": consultorio,
-        "estado": str(estado).lower(),
+        "duracion": int(duracion) if duracion else None,
+        "estado": estado,
+        "estado_texto": estado.capitalize() if estado else "",
         "fecha_iso": dt.strftime("%Y-%m-%d"),
         "hora": dt.strftime("%H:%M"),
         "fecha": f"{dt.day} de {MESES[dt.month - 1].capitalize()} de {dt.year}",
         "dia_semana": DIAS[dt.weekday()],
         "dia": dt.day,
         "mes": MESES[dt.month - 1],
+        "es_futuro": dt >= datetime.now(),
+        "puede_cancelar": _puede_cancelar(dt, estado),
     }
 
 
@@ -149,6 +175,16 @@ def obtener_especialidades():
     ]
 
 
+def obtener_coberturas():
+    """Catálogo de coberturas para el perfil del paciente."""
+    datos = como_lista(api("GET", "/coberturas"), "coberturas")
+    return [
+        {"id": _g(c, "id_cobertura", "id"),
+         "nombre": _g(c, "nombre")}
+        for c in datos
+    ]
+
+
 def turnos_disponibles(**filtros):
     params = {k: v for k, v in filtros.items() if v not in (None, "")}
     datos = como_lista(api("GET", "/turnos/disponibles", params=params), "turnos")
@@ -176,8 +212,11 @@ def mis_turnos_paciente():
 
 
 def proximos_turnos_paciente(limite=3):
-    activos = [t for t in mis_turnos_paciente()
-               if t["estado"] in ("reservado", "confirmado")]
+    """Turnos futuros (reservados o confirmados) del paciente."""
+    activos = [
+        t for t in mis_turnos_paciente()
+        if t["estado"] in ("reservado", "confirmado") and t["es_futuro"]
+    ]
     activos.sort(key=lambda t: (t["fecha_iso"], t["hora"]))
     return activos[:limite]
 
@@ -197,6 +236,8 @@ def perfil_paciente():
         cobertura = cobertura.get("nombre")
     cobertura = cobertura or "Particular"
 
+    id_cobertura = _buscar(p, "id_cobertura")
+
     return {
         "nombre": nombre,
         "apellido": apellido,
@@ -206,14 +247,31 @@ def perfil_paciente():
         "fecha_nacimiento": _fecha(fecha_nac).strftime("%d/%m/%Y") if fecha_nac else "No informada",
         "fecha_registro": _fecha(fecha_reg).strftime("%d/%m/%Y") if fecha_reg else "-",
         "numero_afiliado": _buscar(p, "nro_afiliado", "numero_afiliado", default="-") or "-",
+        "id_cobertura": int(id_cobertura) if id_cobertura else None,
         "cobertura": cobertura,
     }
 
 
-def actualizar_email(nuevo_email):
-    # PUT /pacientes/{id}: acepta correo_electronico, id_cobertura, nro_afiliado
-    api("PUT", f"/pacientes/{id_paciente_actual()}",
-        json={"correo_electronico": nuevo_email})
+def actualizar_email(nuevo_email, id_cobertura=_SIN_ENVIAR, nro_afiliado=_SIN_ENVIAR):
+    """
+    Actualiza los datos del paciente.
+
+    PUT /pacientes/{id}: acepta correo_electronico y, opcionalmente,
+    id_cobertura y nro_afiliado (ambos juntos; ambos nulos para particulares).
+    """
+    datos = {}
+
+    if nuevo_email:
+        datos["correo_electronico"] = nuevo_email
+
+    if id_cobertura is not _SIN_ENVIAR:
+        datos["id_cobertura"] = id_cobertura
+        datos["nro_afiliado"] = nro_afiliado
+
+    if not datos:
+        raise ErrorAPI("No hay datos para actualizar.", 400)
+
+    api("PUT", f"/pacientes/{id_paciente_actual()}", json=datos)
 
 
 def cambiar_password(nueva_password):

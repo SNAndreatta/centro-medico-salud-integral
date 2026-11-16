@@ -7,6 +7,9 @@
 <div class="bg-dominante px-4 sm:px-6">
 
     <div class="mx-auto max-w-[1100px]">
+
+        {% include "components/mensajes.html" %}
+
         <!-- TÍTULO -->
         <section class="mt-3">
 
@@ -127,11 +130,17 @@
                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
                         {% if paso == 4 %}
                             bg-acento text-white
+                        {% elif paso > 4 %}
+                            bg-acento/70 text-white
                         {% else %}
                             bg-acento/10 text-white
                         {% endif %}"
                     >
-                        4
+                        {% if paso > 4 %}
+                            <i data-lucide="check" class="h-3 w-3"></i>
+                        {% else %}
+                            4
+                        {% endif %}
                     </span>
 
                     <span class="truncate text-[9px] sm:text-xs

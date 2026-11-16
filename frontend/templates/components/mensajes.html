@@ -1,0 +1,19 @@
+{#
+  Mensajes de feedback (flash) de la aplicación.
+
+  Uso:
+    {% include "components/mensajes.html" %}
+#}
+
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+    <div class="mb-3 space-y-2">
+        {% for categoria, mensaje in mensajes %}
+        <p class="rounded-lg px-4 py-2 text-sm font-medium
+                  {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+            {{ mensaje }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}

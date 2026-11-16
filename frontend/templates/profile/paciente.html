@@ -1,6 +1,9 @@
 {% from "components/modales.html" import modal_confirmar %}
 
 <div class="flex flex-col gap-7">
+
+    {% include "components/mensajes.html" %}
+
     <section class="relative overflow-hidden rounded-[20px] bg-white">
         <div class="h-28 bg-acento"></div>
         <div class="absolute left-5 top-16 flex h-20 w-20 items-center justify-center rounded-full border-[6px] border-white bg-acento font-lexend text-xl font-semibold text-white sm:left-8">
@@ -75,9 +78,15 @@
                     <p class="font-lexend text-3xl font-semibold text-acento">{{ turno.consultorio | default('123') }}</p>
                 </div>
                 <div class="flex md:justify-end">
-                    <button type="button" data-turno-id="{{ turno.id | default('') }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id | default(loop.index, true) }}" class="cancelar-turno rounded-full bg-red-100 px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-200">
+                    {% if turno.puede_cancelar %}
+                    <button type="button" data-turno-id="{{ turno.id }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id }}" class="cancelar-turno rounded-full bg-red-100 px-5 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-200">
                         Cancelar
                     </button>
+                    {% else %}
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/50">
+                        {{ turno.estado_texto if turno.estado_texto else 'Sin acciones' }}
+                    </p>
+                    {% endif %}
                 </div>
             </div>
         </article>
@@ -91,11 +100,14 @@
 {# POPUPS: CANCELAR TURNO #}
 {% if proximos_turnos is defined and proximos_turnos %}
     {% for turno in proximos_turnos %}
+    {% if turno.puede_cancelar %}
     {{ modal_confirmar(
         id="modal-cancelar-turno-" ~ turno.id,
         titulo="¿Está seguro que quiere cancelar su turno?",
+        mensaje="Vas a liberar el horario y avisar a recepción.",
         accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
     ) }}
+    {% endif %}
     {% endfor %}
 {% endif %}
 
