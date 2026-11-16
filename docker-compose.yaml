@@ -9,8 +9,6 @@ services:
       MYSQL_DATABASE: ${DB_NAME:-centro_medico}
       MYSQL_USER: ${DB_USER:-app_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-app_password}
-      # Hora local del centro médico: NOW() y CURDATE() deben coincidir con
-      # los horarios de los turnos.
       TZ: ${TZ:-America/Argentina/Buenos_Aires}
     ports:
       - "${DB_PORT:-3306}:3306"
