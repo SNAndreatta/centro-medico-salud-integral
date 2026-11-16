@@ -9,6 +9,9 @@ services:
       MYSQL_DATABASE: ${DB_NAME:-centro_medico}
       MYSQL_USER: ${DB_USER:-app_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-app_password}
+      # Hora local del centro médico: NOW() y CURDATE() deben coincidir con
+      # los horarios de los turnos.
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
@@ -38,6 +41,8 @@ services:
       FLASK_HOST: 0.0.0.0
       FLASK_PORT: ${FLASK_PORT:-5000}
       FLASK_DEBUG: ${FLASK_DEBUG:-false}
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      TIMEZONE: ${TIMEZONE:-America/Argentina/Buenos_Aires}
     ports:
       - "${FLASK_PORT:-5000}:${FLASK_PORT:-5000}"
     healthcheck:
@@ -58,6 +63,8 @@ services:
       FLASK_HOST: 0.0.0.0
       FLASK_PORT: ${FLASK_FRONT_PORT:-8000}
       FLASK_DEBUG: true
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      TIMEZONE: ${TIMEZONE:-America/Argentina/Buenos_Aires}
     volumes:
       - ./frontend:/app
     ports:
