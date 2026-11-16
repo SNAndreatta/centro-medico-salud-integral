@@ -4,19 +4,6 @@
 
 {% block content %}
 
-    <!-- Selector de rol (solo modo prueba, para usuarios que no son pacientes) -->
-    {% if es_demo %}
-    <div class="mx-auto mb-4 flex w-full max-w-[1100px] flex-wrap items-center gap-2 rounded-lg bg-yellow-100 p-3 text-xs text-yellow-800 sm:px-10">
-        <span class="font-semibold">Modo prueba (datos de ejemplo):</span>
-        {% for r in roles_demo %}
-            <a href="{{ url_for('rutas_home.home', rol_demo=r) }}"
-               class="rounded-full px-3 py-1 {{ 'bg-yellow-800 text-white' if r == rol else 'bg-white hover:bg-yellow-200' }}">
-                {{ r }}
-            </a>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <!-- Contenido según el rol -->
     <div data-rol="{{ rol }}">
 

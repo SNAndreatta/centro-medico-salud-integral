@@ -1,7 +1,9 @@
+from datetime import date
+
 from flask import session
 
 from src.api import api, ErrorAPI
-from src.api_paciente import _buscar, _fecha, _iniciales
+from src.api_paciente import _buscar, _fecha, _iniciales, como_lista, normalizar_turno
 
 
 def perfil_usuario():
@@ -75,3 +77,35 @@ def agregar_coberturas_medico(id_medico, ids_cobertura):
             f"/medicos/{id_medico}/coberturas",
             json={"id_cobertura": int(id_cobertura)},
         )
+
+
+def turnos_del_dia_medico():
+    """Turnos del día del médico autenticado.
+
+    GET /turnos ya limita el resultado a los turnos del propio médico
+    cuando el usuario tiene rol médico.
+    """
+    hoy = date.today().isoformat()
+
+    datos = como_lista(
+        api("GET", "/turnos", params={"fecha_desde": hoy, "fecha_hasta": hoy}),
+        "turnos",
+    )
+
+    return [_turno_del_medico(t) for t in datos]
+
+
+def _turno_del_medico(turno):
+    """Adapta un turno del backend a la vista del home del médico."""
+    datos = normalizar_turno(turno)
+
+    paciente = turno.get("paciente") or {}
+    nombre = " ".join(
+        p for p in (paciente.get("nombre"), paciente.get("apellido")) if p
+    )
+
+    datos["nombre_paciente"] = nombre or "Paciente"
+    datos["iniciales"] = _iniciales(nombre)
+    datos["atendido"] = datos["estado"] == "atendido"
+
+    return datos
