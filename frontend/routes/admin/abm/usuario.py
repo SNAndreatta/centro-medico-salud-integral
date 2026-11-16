@@ -144,26 +144,6 @@ def _coberturas_medico(id_medico):
     ]
 
 
-def _consultorios():
-    """Consultorios para el popup de crear agenda.
-
-    GET /consultorios devuelve {'consultorios': [...]} y cada elemento trae
-    el id y el número (se aceptan varios nombres de campo).
-    """
-    try:
-        datos = api('GET', '/consultorios')
-    except ErrorAPI:
-        return []
-
-    return [
-        {
-            'id': c.get('id_consultorio', c.get('id')),
-            'numero': c.get('numero', c.get('numero_consultorio')),
-        }
-        for c in datos.get('consultorios', [])
-    ]
-
-
 # =================================
 # MOSTRAR USUARIOS
 # =================================
@@ -290,7 +270,6 @@ def usuario_perfil(id_usuario):
     especialidades = []
     coberturas_medico = []
     coberturas_disponibles = []
-    consultorios = []
 
     # Los datos extra solo se necesitan para los médicos.
     if usuario['id_rol'] == 4:
@@ -302,15 +281,12 @@ def usuario_perfil(id_usuario):
             c for c in catalogo_coberturas if c['id'] not in ids_asociadas
         ]
 
-        consultorios = _consultorios()
-
     return render_template(
         'admin/abm/usuarios/profile.html',
         usuario=usuario,
         especialidades=especialidades,
         coberturas_medico=coberturas_medico,
         coberturas_disponibles=coberturas_disponibles,
-        consultorios=consultorios,
     )
 
 
