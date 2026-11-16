@@ -12,6 +12,7 @@ from src.api_paciente import (
     turnos_disponibles,
 )
 from src.permisos import requiere_rol
+from src.tiempo import ahora_local, hoy_local
 
 paciente_routes = Blueprint('rutas_paciente', __name__)
 
@@ -32,8 +33,8 @@ def _limpiar(*claves):
 
 def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
     """Datos para la agenda mensual del paso 3."""
-    hoy = date.today()
-    ahora = datetime.now()
+    hoy = hoy_local()
+    ahora = ahora_local()
 
     agendas = api('GET', '/agendas', params={'id_medico': medico['id']}).get(
         'agendas', [])

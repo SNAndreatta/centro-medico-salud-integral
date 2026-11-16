@@ -1,5 +1,7 @@
 from datetime import date, datetime
 
+from src.tiempo import hoy_local
+
 
 # Paleta de avatares ya utilizada por los dashboards.
 COLORES_AVATAR = (
@@ -107,7 +109,7 @@ def fecha_iso(valor):
         except ValueError:
             pass
 
-    return date.today().isoformat()
+    return hoy_local().isoformat()
 
 
 def filtros_fechas(args):

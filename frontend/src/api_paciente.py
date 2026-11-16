@@ -4,6 +4,7 @@ from email.utils import parsedate_to_datetime
 from flask import session
 
 from src.api import api, ErrorAPI
+from src.tiempo import ahora_local
 
 DIAS = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"]
 MESES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO",
@@ -76,7 +77,7 @@ def _puede_cancelar(momento, estado):
     if estado != "reservado" or momento is None:
         return False
 
-    return momento > datetime.now() + timedelta(hours=LIMITE_CANCELACION_HORAS)
+    return momento > ahora_local() + timedelta(hours=LIMITE_CANCELACION_HORAS)
 
 
 def _nombre_medico(t):
@@ -139,7 +140,7 @@ def normalizar_turno(t):
         "dia_semana": DIAS[dt.weekday()],
         "dia": dt.day,
         "mes": MESES[dt.month - 1],
-        "es_futuro": dt >= datetime.now(),
+        "es_futuro": dt >= ahora_local(),
         "puede_cancelar": _puede_cancelar(dt, estado),
     }
 
