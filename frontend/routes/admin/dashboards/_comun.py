@@ -1,10 +1,3 @@
-"""
-Utilidades compartidas por los dashboards de administración.
-
-Centraliza el formato de fechas, horas, nombres e iniciales para que
-todos los dashboards muestren la información de la API con el mismo criterio.
-"""
-
 from datetime import date, datetime
 
 

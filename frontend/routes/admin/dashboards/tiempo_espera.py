@@ -1,10 +1,3 @@
-"""
-Dashboard de tiempos de espera (administración).
-
-Calcula el promedio de espera por médico y por especialidad usando el
-horario del turno y el horario de llegada (check-in) de cada turno.
-"""
-
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api

@@ -1,10 +1,3 @@
-"""
-Dashboard de sala de espera (administración).
-
-Consume la API de estadísticas para mostrar los pacientes que realizarse
-el check-in y están esperando ser atendidos.
-"""
-
 from flask import Blueprint, render_template
 
 from src.api import ErrorAPI, api

@@ -1,10 +1,3 @@
-"""
-Dashboard de estadísticas de ausentismo (administración).
-
-Calcula el porcentaje de ausentismo por médico y por especialidad a partir
-de los turnos de la API (atendidos y ausentes).
-"""
-
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api

@@ -70,7 +70,7 @@ def _listar_especialidades():
 
 
 # MOSTRAR ESPECIALIDADES
-@especialidad_routes.route("/especialidades")
+@especialidad_routes.route("/especialidades/")
 def obtener_especialidades():
     especialidades = []
     error = None

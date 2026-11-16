@@ -1,10 +1,3 @@
-"""
-Dashboard de disponibilidad de consultorios (administración).
-
-Cruza los consultorios reales con los turnos del día seleccionado para
-mostrar qué horarios están disponibles y cuáles están ocupados.
-"""
-
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api

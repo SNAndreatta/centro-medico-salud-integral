@@ -1,9 +1,3 @@
-"""
-Dashboard de turnos por especialidad (administración).
-
-Consume la API de turnos y agrupa los resultados por especialidad.
-"""
-
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api

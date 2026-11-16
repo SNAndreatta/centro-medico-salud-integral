@@ -48,7 +48,7 @@ def _normalizar_medico(medico):
 
 
 # LISTADO DE COBERTURAS
-@cobertura_routes.route('/admin/coberturas')
+@cobertura_routes.route('/coberturas')
 def obtener_coberturas():
     coberturas = []
     error = None
@@ -66,7 +66,7 @@ def obtener_coberturas():
 
 
 # DETALLE DE UNA COBERTURA
-@cobertura_routes.route('/admin/coberturas/<int:cobertura_id>')
+@cobertura_routes.route('/coberturas/<int:cobertura_id>')
 def detalle_cobertura(cobertura_id):
     try:
         coberturas = _listar_coberturas()
@@ -101,7 +101,7 @@ def detalle_cobertura(cobertura_id):
 
 
 # CREAR COBERTURA
-@cobertura_routes.route('/admin/coberturas/crear', methods=['POST'])
+@cobertura_routes.route('/coberturas/crear', methods=['POST'])
 def crear_cobertura():
     nombre = request.form.get('nombre', '').strip()
 
@@ -118,7 +118,7 @@ def crear_cobertura():
 
 # EDITAR COBERTURA
 @cobertura_routes.route(
-    '/admin/coberturas/<int:cobertura_id>/editar',
+    '/coberturas/<int:cobertura_id>/editar',
     methods=['POST']
 )
 def editar_cobertura(cobertura_id):
@@ -140,7 +140,7 @@ def editar_cobertura(cobertura_id):
 
 # ELIMINAR COBERTURA
 @cobertura_routes.route(
-    '/admin/coberturas/<int:cobertura_id>/eliminar',
+    '/coberturas/<int:cobertura_id>/eliminar',
     methods=['POST']
 )
 def eliminar_cobertura(cobertura_id):
