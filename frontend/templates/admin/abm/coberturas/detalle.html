@@ -6,7 +6,7 @@
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
 <div class="bg-dominante">
-    <div class="mx-auto max-w-[1100px]">
+    <div class="w-full">
 
         <!-- PANEL DE DETALLE -->
         <section class="rounded-xl bg-white p-4 shadow-sm sm:p-5">
@@ -26,7 +26,7 @@
             {% endwith %}
 
             <!-- RESUMEN DE COBERTURA -->
-            <div class="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
                     <h1 class="font-serif text-3xl text-acento">
@@ -55,8 +55,8 @@
             </div>
 
             <!-- MÉDICOS -->
-            <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2">
-                <h2 class="text-[10px] font-medium tracking-wide text-acento/70">
+            <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                <h2 class="text-[13px] font-medium tracking-wide text-acento/70">
                     MÉDICOS ({{ medicos | length }})
                 </h2>
 
@@ -66,22 +66,22 @@
                        class="w-32 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-acento outline-none focus:border-acento/70 sm:w-40">
             </div>
 
-            <div id="lista-medicos" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div id="lista-medicos" class="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-1">
 
                 {% for medico in medicos %}
                 <article class="fila-medico flex min-w-0 items-center justify-between gap-2 rounded-lg bg-blue-100/25 px-3 py-2"
                          data-nombre="{{ medico.nombre | lower }}">
 
                     <div class="flex min-w-0 items-center gap-2">
-                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 font-serif text-[9px] text-emerald-700">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 font-serif text-[13px] text-emerald-700">
                             {{ medico.iniciales }}
                         </div>
 
                         <div class="min-w-0">
-                            <h3 class="truncate text-[9px] font-medium text-acento">
+                            <h3 class="truncate text-[14px] font-medium text-acento">
                                 {{ medico.nombre }}
                             </h3>
-                            <p class="text-[7px] text-acento/70">
+                            <p class="text-[9px] text-acento/70">
                                 ID MÉDICO {{ medico.id }}
                                 {% if medico.especialidad %}
                                 · {{ medico.especialidad }}
@@ -90,8 +90,9 @@
                         </div>
                     </div>
 
-                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[7px] hover:bg-acento text-white" href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}">
+                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[11px] hover:bg-acento text-white flex gap-1 items-center justify-center" href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}">
                         Ir al perfil
+                        <i data-lucide="chevron-right" class="h-3 w-3"></i>
                     </a>
                 </article>
                 {% endfor %}
