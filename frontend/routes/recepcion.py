@@ -1,4 +1,6 @@
-from flask import Blueprint, jsonify, render_template, request
+from datetime import date, datetime
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
@@ -10,6 +12,21 @@ from routes.admin.dashboards._comun import (
 )
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
+
+
+def _formatear_fecha(valor):
+    if not valor:
+        return '-'
+    texto = str(valor)
+    for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S'):
+        try:
+            return datetime.strptime(texto[:19], fmt).strftime('%d/%m/%Y')
+        except ValueError:
+            continue
+    try:
+        return date.fromisoformat(texto[:10]).strftime('%d/%m/%Y')
+    except ValueError:
+        return texto
 
 
 def _listar_especialidades():
@@ -135,51 +152,33 @@ def registrar_ingreso():
 
 
 # ==========================================
-# USUARIOS
+# PACIENTES
 # ==========================================
 
-@recepcion_routes.route("/recepcion/usuarios")
+@recepcion_routes.route("/recepcion/pacientes")
 @requiere_rol("recepcion")
-def ver_usuarios():
+def ver_pacientes():
+    pacientes = []
+    error = None
 
-    usuarios = [
-        {
-            "id": 1,
-            "nombre": "Camila",
-            "apellido": "Núñez",
-            "cobertura": "OSDE",
-            "iniciales": "CN",
-            "color_fondo": "bg-pink-500/30 text-pink-500"
-        },
-        {
-            "id": 2,
-            "nombre": "Martín",
-            "apellido": "Pérez",
-            "cobertura": "Swiss Medical",
-            "iniciales": "MP",
-            "color_fondo": "bg-purple-500/30 text-purple-500"
-        },
-        {
-            "id": 3,
-            "nombre": "Lucía",
-            "apellido": "Fernández",
-            "cobertura": "Galeno",
-            "iniciales": "LF",
-            "color_fondo": "bg-green-500/30 text-green-500"
-        },
-        {
-            "id": 4,
-            "nombre": "Tomás",
-            "apellido": "Gómez",
-            "cobertura": "Medifé",
-            "iniciales": "TG",
-            "color_fondo": "bg-red-500/30 text-red-500"
-        }
-    ]
+    try:
+        datos = api('GET', '/pacientes')
+        for indice, paciente in enumerate(datos.get('pacientes', [])):
+            pacientes.append({
+                'id': paciente.get('id_paciente'),
+                'nombre': paciente.get('nombre') or '',
+                'apellido': paciente.get('apellido') or '',
+                'cobertura': paciente.get('cobertura') or paciente.get('nombre_cobertura') or 'Particular',
+                'iniciales': iniciales(paciente.get('nombre'), paciente.get('apellido')),
+                'color_fondo': color_avatar(indice),
+            })
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
-        "recepcion/ver_usuarios.html",
-        usuarios=usuarios
+        "recepcion/ver_pacientes.html",
+        pacientes=pacientes,
+        error=error,
     )
 
 
@@ -285,30 +284,36 @@ def ver_turnos():
 
 
 # ==========================================
-# PERFIL DE USUARIO
+# PERFIL DE PACIENTE
 # ==========================================
 
 @recepcion_routes.route("/recepcion/profile/<int:id_usuario>")
 @requiere_rol("recepcion")
 def perfil_usuario(id_usuario):
+    try:
+        datos = api('GET', f'/pacientes/{id_usuario}')
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return redirect(url_for('rutas_recepcion.ver_pacientes'))
 
-    usuarios = {
-        1: {
-            "id": 1,
-            "nombre": "Camila",
-            "apellido": "Núñez",
-            "iniciales": "CN",
-            "email": "ejemplo.usuario@gmail.com",
-            "documento": "44.444.444",
-            "fecha_nacimiento": "DD/MM/AAAA",
-            "fecha_registro": "DD/MM/AAAA"
-        }
+    paciente = datos.get('paciente')
+    if not paciente:
+        flash('Paciente no encontrado.', 'error')
+        return redirect(url_for('rutas_recepcion.ver_pacientes'))
+
+    usuario = {
+        'id': paciente.get('id_paciente'),
+        'nombre': paciente.get('nombre') or '',
+        'apellido': paciente.get('apellido') or '',
+        'iniciales': iniciales(paciente.get('nombre'), paciente.get('apellido')),
+        'email': paciente.get('correo_electronico') or '-',
+        'documento': paciente.get('dni') or '-',
+        'fecha_nacimiento': _formatear_fecha(paciente.get('fecha_nacimiento')),
+        'fecha_registro': _formatear_fecha(paciente.get('fecha_creacion')),
+        'cobertura': paciente.get('nombre_cobertura') or paciente.get('cobertura') or 'Particular',
+        'nro_afiliado': paciente.get('nro_afiliado') or '-',
+        'tipo_perfil': 'paciente',
     }
-
-    usuario = usuarios.get(id_usuario)
-
-    if not usuario:
-        return "Usuario no encontrado", 404
 
     return render_template(
         "recepcion/profile.html",
