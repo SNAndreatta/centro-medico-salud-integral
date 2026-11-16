@@ -1,12 +1,12 @@
 import base64
 from datetime import datetime, date, time, timedelta
-from zoneinfo import ZoneInfo
 
 from src.config import Config
 from src.errores import error_respuesta
 from src.repositories.agendas_repositories import buscar_agendas
 from src.repositories.turnos_repositories import (
     buscar_datos_turno_comprobante,
+    buscar_id_estado_turno,
     buscar_turno_para_cancelar,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
@@ -24,6 +24,7 @@ from src.services.pacientes_services import (
     obtener_id_usuario_por_paciente,
 )
 from src.services.smtp_service import enviar_comprobante_turno
+from src.utils.fechas import ahora_local as _ahora_local
 from src.utils.qr_utils import decodificar_payload_qr, generar_qr_para_turno
 from src.utils.roles import PACIENTE, MEDICO
 from src.utils.tokens import validar_token_cancelacion_turno
@@ -32,10 +33,6 @@ from src.validators.turnos_validators import (
     validar_filtros_turnos_disponibles,
     validar_reserva_turno,
 )
-
-
-def _ahora_local():
-    return datetime.now(ZoneInfo(Config.TIMEZONE)).replace(tzinfo=None)
 
 
 def _respuesta_llegada_registrada(turno):
@@ -47,10 +44,39 @@ def _respuesta_llegada_registrada(turno):
     }, 200
 
 
-def actualizar_estado_turno(id_turno, id_estado):
+def resolver_estado_turno(id_estado, nombre_estado):
+    """Devuelve el id del estado destino a partir del id o de su nombre."""
+    if id_estado is not None:
+        return id_estado, None
+
+    id_resuelto = buscar_id_estado_turno(nombre_estado)
+
+    if id_resuelto is None:
+        return None, (
+            error_respuesta(
+                'El estado indicado no existe',
+                'ESTADO_TURNO_INVALIDO',
+            ),
+            400,
+        )
+
+    return id_resuelto, None
+
+
+def actualizar_estado_turno(id_turno, id_estado, usuario_actual=None):
     turno = buscar_turno_y_estado_destino(id_turno, id_estado)
     if turno is None:
         return error_respuesta('El turno no existe', 'TURNO_INEXISTENTE'), 404
+
+    # Un médico sólo puede modificar los turnos de su propia agenda.
+    if usuario_actual is not None and usuario_actual['id_rol'] == MEDICO:
+        id_usuario_medico = turno.get('id_usuario_medico')
+
+        if id_usuario_medico is None or int(id_usuario_medico) != int(usuario_actual['id_usuario']):
+            return error_respuesta(
+                'El turno no pertenece al médico autenticado',
+                'TURNO_NO_AUTORIZADO',
+            ), 403
 
     destino = turno['estado_destino']
     if destino not in ('atendido', 'ausente'):

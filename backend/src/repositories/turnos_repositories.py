@@ -33,8 +33,11 @@ def buscar_turno_y_estado_destino(id_turno, id_estado):
             """
             SELECT t.id_estado, t.id_paciente, t.fecha_horario_inicial,
                    t.fecha_horario_llegada, LOWER(actual.estado_turno) AS estado_actual,
-                   LOWER(destino.estado_turno) AS estado_destino
+                   LOWER(destino.estado_turno) AS estado_destino,
+                   m.id_usuario AS id_usuario_medico
             FROM turno t
+            JOIN agenda a ON a.id_agenda = t.id_agenda
+            JOIN medico m ON m.id_medico = a.id_medico
             JOIN estado_turno actual ON actual.id_estado_turno = t.id_estado
             LEFT JOIN estado_turno destino ON destino.id_estado_turno = %s
             WHERE t.id_turno = %s
@@ -42,6 +45,26 @@ def buscar_turno_y_estado_destino(id_turno, id_estado):
             (id_estado, id_turno),
         )
         return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def buscar_id_estado_turno(nombre):
+    """Devuelve el id del estado de turno a partir de su nombre."""
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT id_estado_turno
+            FROM estado_turno
+            WHERE LOWER(estado_turno) = LOWER(%s)
+            LIMIT 1
+            """,
+            (nombre,),
+        )
+        fila = cursor.fetchone()
+        return int(fila['id_estado_turno']) if fila else None
     finally:
         cursor.close()
         conexion.close()
@@ -348,10 +371,12 @@ def buscar_turnos(
 
     where = ' WHERE ' + ' AND '.join(condiciones) if condiciones else ''
     campos_detalle = ''
-    join_cobertura = ''
     if id_turno is not None:
-        campos_detalle = ', t.codigo_qr, co.id_cobertura, co.nombre AS nombre_cobertura'
-        join_cobertura = ' LEFT JOIN cobertura co ON co.id_cobertura = p.id_cobertura '
+        campos_detalle = ', t.codigo_qr'
+
+    # La cobertura del paciente se devuelve siempre: se usa en el listado
+    # de turnos del médico y del administrador.
+    join_cobertura = ' LEFT JOIN cobertura co ON co.id_cobertura = p.id_cobertura '
 
     consulta = """
         SELECT
@@ -375,7 +400,9 @@ def buscar_turnos(
             c.numero AS numero_consultorio,
             c.piso AS piso_consultorio,
             et.id_estado_turno,
-            et.estado_turno
+            et.estado_turno,
+            co.id_cobertura,
+            co.nombre AS nombre_cobertura
     """ + campos_detalle + """
         FROM turno t
         JOIN agenda a ON a.id_agenda = t.id_agenda
@@ -429,15 +456,18 @@ def buscar_turnos(
                     'id_estado': int(fila['id_estado_turno']),
                     'nombre': fila['estado_turno'],
                 },
+                'cobertura': None,
             }
+
+            if fila['id_cobertura'] is not None:
+                turno['cobertura'] = {
+                    'id_cobertura': int(fila['id_cobertura']),
+                    'nombre': fila['nombre_cobertura'],
+                }
+
             if id_turno is not None:
                 turno['codigo_qr'] = fila['codigo_qr']
-                turno['cobertura'] = None
-                if fila['id_cobertura'] is not None:
-                    turno['cobertura'] = {
-                        'id_cobertura': int(fila['id_cobertura']),
-                        'nombre': fila['nombre_cobertura'],
-                    }
+
             turnos.append(turno)
 
         return turnos

@@ -10,6 +10,7 @@ from src.services.turnos_services import (
     generar_disponibilidad,
     obtener_detalle_turno,
     registrar_checkin_por_qr,
+    resolver_estado_turno,
     reservar_turno_solicitado,
 )
 from src.utils.auth import roles_required, token_required
@@ -62,13 +63,17 @@ def generar_turnos():
 @turnos_bp.put('/turnos/<int:id_turno>/estado')
 @handle_unexpected_errors
 @token_required
-@roles_required(ADMINISTRADOR, RECEPCIONISTA)
+@roles_required(ADMINISTRADOR, RECEPCIONISTA, MEDICO)
 def modificar_estado_turno(id_turno):
-    id_estado, error = validar_estado_turno(request.get_json(silent=True))
+    id_estado, nombre_estado, error = validar_estado_turno(request.get_json(silent=True))
     if error:
         return error
 
-    return actualizar_estado_turno(id_turno, id_estado)
+    id_estado, error = resolver_estado_turno(id_estado, nombre_estado)
+    if error:
+        return error
+
+    return actualizar_estado_turno(id_turno, id_estado, g.current_user)
 
 
 @turnos_bp.post('/turnos/<int:id_turno>/reservar')
