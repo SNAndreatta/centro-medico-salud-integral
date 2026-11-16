@@ -9,17 +9,13 @@
 
         <div class="space-y-1 text-sm">
             <p>
-                {{ usuario.telefono | default('Teléfono no registrado') }}
-            </p>
-
-            <p>
                 Cobertura:
-                {{ usuario.cobertura | default('-') }}
+                {{ usuario.cobertura }}
             </p>
 
             <p>
                 Nro. Afiliado:
-                {{ usuario.numero_afiliado | default('-') }}
+                {{ usuario.numero_afiliado }}
             </p>
         </div>
 

@@ -310,12 +310,12 @@ def perfil_paciente():
     }
 
 
-def actualizar_email(nuevo_email, id_cobertura=_SIN_ENVIAR, nro_afiliado=_SIN_ENVIAR):
+def actualizar_email(nuevo_email, id_cobertura=_SIN_ENVIAR):
     """
     Actualiza los datos del paciente.
 
     PUT /pacientes/{id}: acepta correo_electronico y, opcionalmente,
-    id_cobertura y nro_afiliado (ambos juntos; ambos nulos para particulares).
+    id_cobertura. El nro. de afiliado se genera automáticamente en el backend.
     """
     datos = {}
 
@@ -324,7 +324,6 @@ def actualizar_email(nuevo_email, id_cobertura=_SIN_ENVIAR, nro_afiliado=_SIN_EN
 
     if id_cobertura is not _SIN_ENVIAR:
         datos["id_cobertura"] = id_cobertura
-        datos["nro_afiliado"] = nro_afiliado
 
     if not datos:
         raise ErrorAPI("No hay datos para actualizar.", 400)

@@ -4,6 +4,12 @@ from mysql.connector import errorcode
 from src.db import obtener_cursor
 from src.utils.roles import PACIENTE
 
+
+def generar_nro_afiliado(id_paciente):
+    """Genera automáticamente el número de afiliado de un paciente."""
+    return f"AFI-{int(id_paciente):06d}"
+
+
 def obtener_paciente_por_id(id_paciente):
     conexion, cursor = obtener_cursor()
     try:
@@ -28,7 +34,7 @@ def actualizar_datos_paciente(id_paciente, datos):
     conexion, cursor = obtener_cursor()
     try:
         cursor.execute(
-            'SELECT id_usuario FROM paciente WHERE id_paciente = %s LIMIT 1',
+            'SELECT id_usuario, id_cobertura FROM paciente WHERE id_paciente = %s LIMIT 1',
             (id_paciente,),
         )
         paciente = cursor.fetchone()
@@ -57,6 +63,18 @@ def actualizar_datos_paciente(id_paciente, datos):
             )
             if cursor.fetchone() is None:
                 return 'COBERTURA_INEXISTENTE'
+
+        # El nro. de afiliado es automático: si el paciente cambia de cobertura
+        # se genera uno nuevo para la nueva cobertura (sin intervención manual).
+        if 'id_cobertura' in datos:
+            nueva_cobertura = datos['id_cobertura']
+            if nueva_cobertura != paciente['id_cobertura']:
+                datos = dict(datos)
+                datos['nro_afiliado'] = (
+                    generar_nro_afiliado(id_paciente)
+                    if nueva_cobertura is not None
+                    else None
+                )
 
         campos_usuario = ('nombre', 'apellido', 'correo_electronico', 'dni', 'fecha_nacimiento')
         set_usuario = [f'{campo} = %s' for campo in campos_usuario if campo in datos]
@@ -165,11 +183,22 @@ def registrar_paciente(paciente):
         cursor.execute(
             """
             INSERT INTO paciente (id_cobertura, id_usuario, nro_afiliado)
-            VALUES (%s, %s, %s)
+            VALUES (%s, %s, NULL)
             """,
-            (paciente['id_cobertura'], id_usuario, paciente['nro_afiliado']),
+            (paciente['id_cobertura'], id_usuario),
         )
         id_paciente = int(cursor.lastrowid)
+
+        # El nro. de afiliado se genera automáticamente.
+        # Los pacientes particulares (sin cobertura) se guardan sin nro. de afiliado.
+        nro_afiliado = None
+        if paciente['id_cobertura'] is not None:
+            nro_afiliado = generar_nro_afiliado(id_paciente)
+            cursor.execute(
+                'UPDATE paciente SET nro_afiliado = %s WHERE id_paciente = %s',
+                (nro_afiliado, id_paciente),
+            )
+
         conexion.commit()
 
         return {
@@ -181,7 +210,7 @@ def registrar_paciente(paciente):
             'correo_electronico': paciente['correo_electronico'],
             'fecha_nacimiento': paciente['fecha_nacimiento'].isoformat(),
             'id_cobertura': paciente['id_cobertura'],
-            'nro_afiliado': paciente['nro_afiliado'],
+            'nro_afiliado': nro_afiliado,
         }, None
     except mysql.connector.IntegrityError as exc:
         conexion.rollback()

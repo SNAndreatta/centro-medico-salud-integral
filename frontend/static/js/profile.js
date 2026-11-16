@@ -54,27 +54,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // Mostrar u ocultar campos para cambiar contraseña
     changeButton?.addEventListener("click", () => {
 
-        passwordSection?.classList.toggle("hidden");
+        if (!passwordSection) return;
 
-        const visible =
-            passwordSection &&
-            !passwordSection.classList.contains("hidden");
+        passwordSection.classList.toggle("hidden");
+
+        const visible = !passwordSection.classList.contains("hidden");
 
         changeButton.textContent = visible
             ? "Cancelar cambio"
             : "Cambiar contraseña";
 
         if (!visible) {
-            passwordSection?.querySelectorAll("input").forEach((input) => {
+            passwordSection.querySelectorAll("input").forEach((input) => {
                 input.value = "";
                 input.type = "password";
             });
         } else {
             document.getElementById("password-actual")?.focus();
+            passwordSection.scrollIntoView({ block: "nearest", behavior: "smooth" });
         }
     });
 
-    // Mostrar u ocultar contraseñas
+    // Mostrar u ocultar contraseñas (botón del ojo).
+    // El ícono se reemplaza en cada clic para que siempre coincida
+    // con el estado real del input (eye-off = oculta, eye = muestra).
     document.querySelectorAll(".toggle-password").forEach((button) => {
 
         button.addEventListener("click", () => {
@@ -83,16 +86,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!input) return;
 
-            const isPassword = input.type === "password";
-            input.type = isPassword ? "text" : "password";
+            const mostrar = input.type === "password";
 
-            // Toggle icons
-            const eyeOff = button.querySelector('[data-lucide="eye-off"]');
-            const eye = button.querySelector('[data-lucide="eye"]');
-            if (eyeOff && eye) {
-                eyeOff.classList.toggle("hidden", !isPassword);
-                eye.classList.toggle("hidden", isPassword);
+            input.type = mostrar ? "text" : "password";
+
+            button.innerHTML =
+                `<i data-lucide="${mostrar ? "eye-off" : "eye"}" class="h-4 w-4"></i>`;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
             }
+
+            button.setAttribute(
+                "aria-label",
+                mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
+            );
+
+            button.setAttribute("aria-pressed", String(mostrar));
 
         });
     });

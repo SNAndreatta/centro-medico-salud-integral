@@ -228,7 +228,8 @@ paths:
       summary: Alta de paciente (Autogestión o Recepción)
       description: |
         Endpoint público o de recepción. Crea un registro en la tabla `usuario` y su perfil en `paciente`.
-        Soporta pacientes particulares (enviando `id_cobertura` y `nro_afiliado` nulos).
+        Soporta pacientes particulares (enviando `id_cobertura` nulo).
+        El número de afiliado se genera automáticamente en el backend: no se recibe del cliente.
       requestBody:
         content:
           application/json:
@@ -1198,12 +1199,7 @@ components:
           description: Nulo si es paciente particular (sin cobertura).
           nullable: true
           example: 12
-        nro_afiliado:
-          type: string
-          description: Nulo si es paciente particular.
-          nullable: true
-          example: 12345678-01
-      description: Estructura para registrar pacientes (soporta nulos para particulares).
+      description: Estructura para registrar pacientes. El nro. de afiliado se genera automáticamente.
     PacienteUpdate:
       type: object
       properties:
@@ -1213,10 +1209,7 @@ components:
         id_cobertura:
           type: integer
           nullable: true
-        nro_afiliado:
-          type: string
-          nullable: true
-      description: Permite actualizar datos variables del paciente.
+      description: Permite actualizar datos variables del paciente. El nro. de afiliado se genera automáticamente al cambiar la cobertura.
     ConsultorioRequest:
       required:
       - numero

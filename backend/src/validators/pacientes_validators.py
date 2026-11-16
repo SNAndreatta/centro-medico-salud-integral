@@ -16,7 +16,7 @@ CAMPOS_REQUERIDOS = {
     'fecha_nacimiento',
     'password',
 }
-CAMPOS_OPCIONALES = {'id_cobertura', 'nro_afiliado'}
+CAMPOS_OPCIONALES = {'id_cobertura'}
 
 CAMPOS_ACTUALIZACION_PACIENTE = {
     'nombre',
@@ -25,7 +25,6 @@ CAMPOS_ACTUALIZACION_PACIENTE = {
     'correo_electronico',
     'fecha_nacimiento',
     'id_cobertura',
-    'nro_afiliado',
 }
 
 def validar_datos_registro_paciente(datos):
@@ -73,25 +72,7 @@ def validar_datos_registro_paciente(datos):
     ):
         return None, error_respuesta('id_cobertura debe ser un entero positivo o nulo', 'COBERTURA_INVALIDA'), 400
 
-    nro_afiliado = datos.get('nro_afiliado')
-    if nro_afiliado is not None:
-        if (
-            not isinstance(nro_afiliado, str)
-            or not nro_afiliado.strip()
-            or len(nro_afiliado.strip()) > 50
-        ):
-            return None, error_respuesta(
-                'nro_afiliado debe ser texto de hasta 50 caracteres o nulo',
-                'AFILIADO_INVALIDO',
-            ), 400
-        nro_afiliado = nro_afiliado.strip()
-
-    if (id_cobertura is None) != (nro_afiliado is None):
-        return None, error_respuesta(
-            'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
-            'AFILIACION_INCOMPLETA',
-        ), 400
-
+    # El nro. de afiliado NO se recibe del cliente: se genera automáticamente.
     return {
         'nombre': nombre,
         'apellido': apellido,
@@ -100,7 +81,6 @@ def validar_datos_registro_paciente(datos):
         'fecha_nacimiento': fecha_nacimiento,
         'password': password,
         'id_cobertura': id_cobertura,
-        'nro_afiliado': nro_afiliado,
     }, None, None
 
 def validar_datos_actualizacion_paciente(datos):
@@ -168,49 +148,8 @@ def validar_datos_actualizacion_paciente(datos):
             )
         actualizados['id_cobertura'] = id_cobertura
 
-    if 'nro_afiliado' in datos:
-        nro_afiliado = datos['nro_afiliado']
-        if nro_afiliado is not None:
-            if (
-                not isinstance(nro_afiliado, str)
-                or not nro_afiliado.strip()
-                or len(nro_afiliado.strip()) > 50
-            ):
-                return None, error_respuesta(
-                    'nro_afiliado debe ser texto de hasta 50 caracteres o nulo',
-                    'AFILIADO_INVALIDO',
-                )
-            nro_afiliado = nro_afiliado.strip()
-        actualizados['nro_afiliado'] = nro_afiliado
-
-    # Si viene id_cobertura SIN nro_afiliado, solo se actualiza la cobertura
-    # (el nro_afiliado se mantiene tal cual viene en la BD).
-    if 'id_cobertura' in actualizados and 'nro_afiliado' not in actualizados:
-        # Quitar nro_afiliado del actualizados para que no lo toquemos
-        actualizados.pop('nro_afiliado', None)
-
-    # Si viene nro_afiliado SIN id_cobertura, error (no tiene sentido separado)
-    if 'nro_afiliado' in actualizados and 'id_cobertura' not in actualizados:
-        return None, error_respuesta(
-            'Para actualizar el nro. de afiliado también se debe indicar la cobertura',
-            'AFILIACION_INCOMPLETA',
-        )
-
-    # Si vienen los dos, validarlos juntos (ambos nulos = particular)
-    if 'id_cobertura' in actualizados and 'nro_afiliado' in actualizados:
-        if ('id_cobertura' in actualizados) != ('nro_afiliado' in actualizados):
-            return None, error_respuesta(
-                'id_cobertura y nro_afiliado deben enviarse juntos',
-                'AFILIACION_INCOMPLETA',
-            )
-
-        if 'id_cobertura' in actualizados and (
-            (actualizados['id_cobertura'] is None) != (actualizados['nro_afiliado'] is None)
-        ):
-            return None, error_respuesta(
-                'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
-                'AFILIACION_INCOMPLETA',
-            )
+    # El nro. de afiliado no se actualiza manualmente:
+    # se genera automáticamente en el repositorio cuando cambia la cobertura.
 
     return actualizados, None
 

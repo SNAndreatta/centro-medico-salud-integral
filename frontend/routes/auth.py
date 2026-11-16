@@ -108,7 +108,6 @@ def register():
         confirmar_password = request.form.get('confirm_password', '')
         fecha_nacimiento = request.form.get('fecha_nacimiento', '').strip()
         id_cobertura = request.form.get('id_cobertura', '').strip()
-        nro_afiliado = request.form.get('nro_afiliado', '').strip()
 
         if not all([
             nombre,
@@ -123,8 +122,7 @@ def register():
                 'auth/register.html',
                 mensaje='Completá todos los campos.',
                 coberturas=[],
-                id_cobertura='',
-                nro_afiliado=''
+                id_cobertura=''
             )
 
         if password != confirmar_password:
@@ -132,9 +130,22 @@ def register():
                 'auth/register.html',
                 mensaje='Las contraseñas no coinciden.',
                 coberturas=[],
-                id_cobertura='',
-                nro_afiliado=''
+                id_cobertura=''
             )
+
+        # El nro. de afiliado NO se pide: el backend lo genera automáticamente
+        # cuando el paciente elige una cobertura.
+        cobertura_id = None
+        if id_cobertura:
+            try:
+                cobertura_id = int(id_cobertura)
+            except ValueError:
+                return render_template(
+                    'auth/register.html',
+                    mensaje='La cobertura seleccionada no es válida.',
+                    coberturas=[],
+                    id_cobertura=''
+                )
 
         datos = {
             'nombre': nombre,
@@ -143,28 +154,8 @@ def register():
             'correo_electronico': correo_electronico,
             'fecha_nacimiento': fecha_nacimiento,
             'password': password,
-            'id_cobertura': id_cobertura if id_cobertura else None,
-            'nro_afiliado': nro_afiliado if nro_afiliado else None
+            'id_cobertura': cobertura_id,
         }
-
-        # Validar que id_cobertura y nro_afiliado vayan juntos
-        if id_cobertura and not nro_afiliado:
-            return render_template(
-                'auth/register.html',
-                mensaje='Si seleccionás una cobertura, también ingresá el número de afiliado.',
-                coberturas=[],
-                id_cobertura='',
-                nro_afiliado=''
-            )
-
-        if nro_afiliado and not id_cobertura:
-            return render_template(
-                'auth/register.html',
-                mensaje='Para ingresar nro. de afiliado también debés seleccionar una cobertura.',
-                coberturas=[],
-                id_cobertura='',
-                nro_afiliado=''
-            )
 
         try:
             respuesta = requests.post(

@@ -185,26 +185,19 @@ def actualizar_perfil():
             return redirect(url_for("rutas_profile.profile"))
 
     # Paciente: además de los datos personales se guarda la cobertura.
+    # El nro. de afiliado NO se envía: lo genera el backend automáticamente.
     datos_paciente = dict(datos_usuario)
     if rol == "paciente":
         cobertura_raw = request.form.get("id_cobertura", "").strip()
-        nro_afiliado = request.form.get("nro_afiliado", "").strip()
 
-        # id_cobertura y nro_afiliado van juntos: ambos nulos = particular.
         if cobertura_raw:
             try:
                 datos_paciente["id_cobertura"] = int(cobertura_raw)
             except ValueError:
                 flash("La cobertura seleccionada no es válida.", "error")
                 return redirect(url_for("rutas_profile.profile"))
-
-            if not nro_afiliado:
-                flash("Ingresá el número de afiliado o elegí la opción Particular.", "error")
-                return redirect(url_for("rutas_profile.profile"))
-            datos_paciente["nro_afiliado"] = nro_afiliado
         else:
             datos_paciente["id_cobertura"] = None
-            datos_paciente["nro_afiliado"] = None
 
     try:
         if rol == "paciente":

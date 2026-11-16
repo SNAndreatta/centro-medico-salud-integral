@@ -86,35 +86,41 @@ def validar_datos_medico(datos):
 
 
 def validar_datos_actualizacion_medico(datos):
-    if (
-        not isinstance(datos, dict)
-        or 'id_especialidad' not in datos
-        or set(datos) - {'id_especialidad', 'matricula'}
-    ):
+    if not isinstance(datos, dict):
         return None, None, error_respuesta(
-            'El cuerpo debe incluir id_especialidad y, opcionalmente, matricula',
+            'El cuerpo debe ser un objeto JSON',
             'CUERPO_INVALIDO',
         )
 
-    id_especialidad = datos['id_especialidad']
-    if (
-        isinstance(id_especialidad, bool)
-        or not isinstance(id_especialidad, int)
-        or id_especialidad <= 0
-    ):
-        return None, None, error_respuesta(
-            'id_especialidad debe ser un entero positivo',
-            'ESPECIALIDAD_INVALIDA',
-        )
+    id_especialidad = None
+    matricula = None
 
-    matricula = datos.get('matricula')
-    if matricula is not None:
+    if 'id_especialidad' in datos:
+        id_especialidad = datos['id_especialidad']
+        if (
+            isinstance(id_especialidad, bool)
+            or not isinstance(id_especialidad, int)
+            or id_especialidad <= 0
+        ):
+            return None, None, error_respuesta(
+                'id_especialidad debe ser un entero positivo',
+                'ESPECIALIDAD_INVALIDA',
+            )
+
+    if 'matricula' in datos:
+        matricula = datos['matricula']
         if not texto_obligatorio(matricula) or len(matricula.strip()) > 50:
             return None, None, error_respuesta(
                 'matricula debe ser texto y no superar 50 caracteres',
                 'DATOS_INVALIDOS',
             )
         matricula = matricula.strip()
+
+    if id_especialidad is None and matricula is None:
+        return None, None, error_respuesta(
+            'Debe incluir id_especialidad o matricula',
+            'DATOS_INVALIDO',
+        )
 
     return id_especialidad, matricula, None
 
