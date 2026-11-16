@@ -236,9 +236,13 @@ def ver_turnos():
 
     try:
         datos = api('GET', '/turnos')
+        turnos_crudos = [
+            turno for turno in datos.get('turnos', [])
+            if (turno.get('estado') or {}).get('nombre', '').lower() != 'disponible'
+        ]
         turnos = [
             _normalizar_turno_grilla(turno, indice)
-            for indice, turno in enumerate(datos.get('turnos', []))
+            for indice, turno in enumerate(turnos_crudos)
         ]
         medicos = sorted({t['medico'] for t in turnos if t.get('medico')})
         especialidades = sorted({t['especialidad'] for t in turnos if t.get('especialidad')})
