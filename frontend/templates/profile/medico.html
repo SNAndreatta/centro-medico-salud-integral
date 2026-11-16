@@ -21,19 +21,22 @@
     </section>
 
     <section class="rounded-[18px] bg-white p-5 sm:p-7">
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="flex justify-between">
             <div class="flex flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.email }}</p>
             </div>
+            <div class="border-l border-acento/20"></div>
             <div class="flex flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
             </div>
+            <div class="border-l border-acento/20"></div>
             <div class="flex flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. matrícula</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.matricula | default('123456') }}</p>
             </div>
+            <div class="border-l border-acento/20"></div>
             <div class="flex flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
                 <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.documento | default('123456') }}</p>
