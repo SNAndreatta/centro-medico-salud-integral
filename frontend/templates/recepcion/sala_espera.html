@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/modales.html" import modal %}
 
 {% block title %}Sala de espera | Salud Integral{% endblock %}
 
@@ -31,14 +32,16 @@
             </button>
 
             <!-- BOTÓN INGRESAR PACIENTE -->
-            <a
-                href="#"
+            <button
+                type="button"
+                id="boton-ingresar-paciente"
+                data-url-checkin="{{ url_for('rutas_recepcion.registrar_ingreso') }}"
                 class="flex items-center gap-2 rounded-full bg-acento/80 px-3 py-2 text-xs font-medium font-lexend text-white transition hover:bg-acento sm:text-sm"
             >
                 Ingresar paciente
 
                 <i data-lucide="qr-code" class="h-5 w-5"></i>
-            </a>
+            </button>
 
         </div>
 
@@ -116,6 +119,16 @@
 
 
     <!-- =========================================
+         ERROR
+    ========================================== -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% else %}
+
+
+    <!-- =========================================
          LISTADO DE PACIENTES
     ========================================== -->
 
@@ -179,8 +192,94 @@
 
     </section>
 
+    {% endif %}
+
+
+    <!-- =========================================
+         MODAL ESCÁNER DE CÓDIGO QR
+    ========================================== -->
+    {% call modal("modal-escaner-qr", "Ingresar paciente", "max-w-[520px]") %}
+        <div class="flex flex-col items-center gap-4">
+
+            <p class="text-center text-sm font-lexend text-slate-500">
+                Apuntá la cámara al código QR del comprobante del turno.
+            </p>
+
+            <!-- Lector de QR -->
+            <div
+                id="lector-qr"
+                class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900"
+            ></div>
+
+            <!-- Cámara del dispositivo (lector alternativo) -->
+            <video
+                id="video-qr"
+                class="hidden w-full rounded-xl border border-slate-200 bg-slate-900"
+                playsinline
+                muted
+            ></video>
+
+            <p id="estado-lector" class="text-center text-xs font-lexend text-slate-500">
+                Iniciando la cámara...
+            </p>
+
+            <button
+                type="button"
+                data-cerrar-modal="modal-escaner-qr"
+                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-[13px] font-medium uppercase tracking-[0.2em] text-acento transition hover:bg-gray-50"
+            >
+                Cancelar
+            </button>
+
+        </div>
+    {% endcall %}
+
+
+    <!-- =========================================
+         POP-UP RESULTADO DEL INGRESO
+    ========================================== -->
+    {% call modal("modal-resultado-ingreso", "Ingreso de paciente", "max-w-[420px]") %}
+        <div class="flex flex-col items-center gap-4 text-center">
+
+            <i
+                id="icono-resultado-exito"
+                data-lucide="circle-check"
+                class="h-14 w-14 text-green-600"
+            ></i>
+
+            <i
+                id="icono-resultado-error"
+                data-lucide="circle-x"
+                class="hidden h-14 w-14 text-red-600"
+            ></i>
+
+            <p
+                id="mensaje-resultado-ingreso"
+                class="text-sm font-lexend text-slate-600"
+            ></p>
+
+            <button
+                type="button"
+                id="boton-cerrar-resultado-ingreso"
+                data-cerrar-modal="modal-resultado-ingreso"
+                class="h-11 w-full rounded-full bg-acento px-4 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition hover:opacity-90"
+            >
+                Cerrar
+            </button>
+
+        </div>
+    {% endcall %}
+
+
     <script src="{{ url_for('static', filename='js/recepcion/sala_espera.js') }}"></script>
 
 </div>
 
+{% endblock %}
+
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/recepcion/ingresar_paciente.js') }}" defer></script>
 {% endblock %}

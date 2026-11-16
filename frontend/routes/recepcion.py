@@ -1,8 +1,62 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, jsonify, render_template, request
 
+from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
+from routes.admin.dashboards._comun import (
+    color_avatar,
+    formatear_hora,
+    iniciales,
+    nombre_completo,
+)
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
+
+
+def _listar_especialidades():
+    """Devuelve las especialidades de la API para el filtro."""
+    try:
+        datos = api('GET', '/especialidades')
+    except ErrorAPI:
+        return []
+
+    return [
+        {
+            'id': especialidad.get('id_especialidad'),
+            'nombre': especialidad.get('nombre_especialidad'),
+        }
+        for especialidad in datos.get('especialidades', [])
+    ]
+
+
+def _normalizar_turno(turno, indice):
+    """Adapta un turno de la API al formato de la tarjeta de la sala."""
+    paciente = turno.get('paciente') or {}
+    medico = turno.get('medico') or {}
+
+    especialidad = medico.get('especialidad') or ''
+
+    return {
+        'id_turno': turno.get('id_turno'),
+        'iniciales': iniciales(
+            paciente.get('nombre'),
+            paciente.get('apellido'),
+        ),
+        'nombre_completo': nombre_completo(
+            paciente.get('nombre'),
+            paciente.get('apellido'),
+        ),
+        'dni': paciente.get('dni') or '',
+        'hora_turno': formatear_hora(turno.get('fecha_horario_inicial')),
+        'hora_llegada': formatear_hora(turno.get('fecha_horario_llegada')),
+        'modalidad': especialidad[:3].upper(),
+        'especialidad': especialidad,
+        'medico': nombre_completo(
+            medico.get('nombre'),
+            medico.get('apellido'),
+        ),
+        'consultorio': turno.get('numero_consultorio'),
+        'color_avatar': color_avatar(indice),
+    }
 
 
 # ==========================================
@@ -13,41 +67,71 @@ recepcion_routes = Blueprint('rutas_recepcion', __name__)
 @requiere_rol("recepcion")
 def sala_espera():
 
-    pacientes_en_espera = [
-        {
-            "iniciales": "NC",
-            "nombre_completo": "Nombre Completo",
-            "hora_turno": "15:45",
-            "hora_llegada": "15:40",
-            "modalidad": "CAR",
-            "especialidad": "Cardiología",
-            "color_avatar": "bg-pink-500/30 text-pink-500"
-        },
-        {
-            "iniciales": "NC",
-            "nombre_completo": "Nombre Completo",
-            "hora_turno": "15:50",
-            "hora_llegada": "15:45",
-            "modalidad": "PED",
-            "especialidad": "Pediatría",
-            "color_avatar": "bg-purple-500/30 text-purple-500"
-        }
-    ]
+    pacientes_en_espera = []
+    error = None
 
-    especialidades = [
-        {"nombre": "Cardiología"},
-        {"nombre": "Clínica Médica"},
-        {"nombre": "Dermatología"},
-        {"nombre": "Oftalmología"},
-        {"nombre": "Pediatría"},
-        {"nombre": "Traumatología"}
-    ]
+    try:
+        datos = api('GET', '/estadisticas/sala_espera')
+
+        pacientes_en_espera = [
+            _normalizar_turno(turno, indice)
+            for indice, turno in enumerate(datos.get('sala_espera', []))
+        ]
+
+    except ErrorAPI as e:
+        error = e.mensaje
+
+    especialidades = _listar_especialidades()
+
+    if not especialidades:
+        especialidades = [
+            {'id': None, 'nombre': especialidad}
+            for especialidad in sorted({
+                paciente['especialidad']
+                for paciente in pacientes_en_espera
+                if paciente['especialidad']
+            })
+        ]
 
     return render_template(
         'recepcion/sala_espera.html',
         pacientes_en_espera=pacientes_en_espera,
-        especialidades=especialidades
+        especialidades=especialidades,
+        error=error
     )
+
+
+# ==========================================
+# INGRESO DE PACIENTE (CHECK-IN POR QR)
+# ==========================================
+
+@recepcion_routes.route('/recepcion/checkin', methods=['POST'])
+@requiere_rol("recepcion")
+def registrar_ingreso():
+    """Registra el ingreso del paciente a partir del QR de su turno."""
+
+    datos = request.get_json(silent=True) or {}
+    token = str(datos.get('token') or '').strip()
+
+    if not token:
+        return jsonify({
+            'ok': False,
+            'mensaje': 'El código QR está vacío.',
+        })
+
+    try:
+        api('POST', '/turnos/checkin', json={'token': token})
+
+    except ErrorAPI as e:
+        return jsonify({
+            'ok': False,
+            'mensaje': e.mensaje or 'No se pudo registrar el ingreso.',
+        })
+
+    return jsonify({
+        'ok': True,
+        'mensaje': 'Ingreso registrado correctamente.',
+    })
 
 
 # ==========================================
