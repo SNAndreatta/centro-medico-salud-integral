@@ -1,4 +1,5 @@
 from src.db import obtener_cursor
+from src.utils.fechas import hoy_local
 
 def buscar_agendas(id_medico=None, id_consultorio=None, vigente=None, id_usuario_medico=None, id_agenda=None):
     condiciones = []
@@ -13,9 +14,13 @@ def buscar_agendas(id_medico=None, id_consultorio=None, vigente=None, id_usuario
         parametros.append(id_consultorio)
 
     if vigente is True:
-        condiciones.append('CURDATE() BETWEEN a.fecha_inicio AND a.fecha_hasta')
+        # La fecha se calcula en hora local: no depende de la zona horaria
+        # del contenedor de MySQL.
+        condiciones.append('%s BETWEEN a.fecha_inicio AND a.fecha_hasta')
+        parametros.append(hoy_local())
     elif vigente is False:
-        condiciones.append('(a.fecha_inicio > CURDATE() OR a.fecha_hasta < CURDATE())')
+        condiciones.append('(a.fecha_inicio > %s OR a.fecha_hasta < %s)')
+        parametros.extend([hoy_local(), hoy_local()])
 
     if id_usuario_medico is not None:
         condiciones.append('m.id_usuario = %s')
