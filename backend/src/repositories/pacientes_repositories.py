@@ -224,6 +224,44 @@ def registrar_paciente(paciente):
         cursor.close()
         conexion.close()
 
+def obtener_turnos_de_paciente(id_paciente):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_paciente FROM paciente WHERE id_paciente = %s LIMIT 1',
+            (id_paciente,),
+        )
+        if cursor.fetchone() is None:
+            return None, 'PACIENTE_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT t.id_turno,
+                   t.fecha,
+                   t.hora,
+                   t.estado,
+                   m.id_medico,
+                   u.nombre AS nombre_medico,
+                   u.apellido AS apellido_medico,
+                   e.id_especialidad,
+                   e.nombre_especialidad,
+                   c.id_cobertura,
+                   c.nombre AS nombre_cobertura
+            FROM turno t
+            JOIN agenda a ON a.id_agenda = t.id_agenda
+            JOIN medico m ON m.id_medico = a.id_medico
+            JOIN usuario u ON u.id_usuario = m.id_usuario
+            JOIN especialidad e ON e.id_especialidad = m.id_especialidad
+            LEFT JOIN cobertura c ON c.id_cobertura = t.id_cobertura
+            WHERE t.id_paciente = %s
+            ORDER BY t.fecha DESC, t.hora DESC
+            """,
+            (id_paciente,),
+        )
+        return cursor.fetchall(), None
+    finally:
+        cursor.close()
+        conexion.close()
 
 def buscar_pacientes(dni=None, apellido=None):
     condiciones = []
