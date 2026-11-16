@@ -6,16 +6,20 @@ from src.repositories.pacientes_repositories import (
 )
 from src.repositories.usuarios_repositories import (
     actualizar_hash_password,
+    actualizar_usuario as actualizar_usuario_repositorio,
+    eliminar_usuario_por_id,
     guardar_usuario_staff,
     obtener_usuario_para_cambio_password,
     obtener_usuarios,
 )
+from src.services.medicos_services import eliminar_medico
 from src.errores import error_respuesta
 from src.utils.roles import ADMINISTRADOR, MEDICO, PACIENTE, RECEPCIONISTA
 from src.utils.security import hash_password, verify_password
 from src.validators.usuarios_validators import (
     ROLES_FILTRO,
     validar_cambio_password,
+    validar_datos_actualizacion_usuario,
     validar_datos_usuario_staff,
 )
 
@@ -81,6 +85,57 @@ def crear_usuario_staff(datos):
         ), 400
 
     return {'usuario': usuario_guardado}, 201
+
+
+def actualizar_usuario(id_usuario, datos):
+    datos_validados, error = validar_datos_actualizacion_usuario(datos)
+    if error:
+        return error, 400
+
+    error = actualizar_usuario_repositorio(id_usuario, datos_validados)
+    if error == 'USUARIO_NO_EXISTE':
+        return error_respuesta('El usuario no existe', 'USUARIO_INEXISTENTE'), 404
+    if error == 'USUARIO_DUPLICADO':
+        return error_respuesta(
+            'Ya existe un usuario con ese correo electrónico o DNI',
+            'USUARIO_DUPLICADO',
+        ), 400
+
+    return {'mensaje': 'Datos actualizados correctamente'}, 200
+
+
+def eliminar_usuario(id_usuario, usuario_actual):
+    if id_usuario == usuario_actual['id_usuario']:
+        return error_respuesta(
+            'No podés eliminar tu propia cuenta',
+            'OPERACION_NO_PERMITIDA',
+        ), 400
+
+    usuario = obtener_usuario_por_id(id_usuario)
+    if usuario is None:
+        return error_respuesta('El usuario no existe', 'USUARIO_INEXISTENTE'), 404
+
+    # Los médicos tienen datos asociados (agendas, coberturas) y su baja
+    # ya está resuelta en su propio servicio.
+    if usuario['id_rol'] == MEDICO:
+        medico = obtener_medico_por_usuario(id_usuario)
+        if medico is None:
+            return error_respuesta(
+                'El usuario no tiene un perfil de médico asociado',
+                'MEDICO_INEXISTENTE',
+            ), 404
+        return eliminar_medico(int(medico['id_medico']))
+
+    error = eliminar_usuario_por_id(id_usuario)
+    if error == 'USUARIO_NO_EXISTE':
+        return error_respuesta('El usuario no existe', 'USUARIO_INEXISTENTE'), 404
+    if error == 'USUARIO_EN_USO':
+        return error_respuesta(
+            'No se puede eliminar el usuario porque tiene datos asociados',
+            'USUARIO_EN_USO',
+        ), 409
+
+    return {'mensaje': 'Usuario eliminado correctamente'}, 200
 
 
 def actualizar_password_usuario(id_usuario, datos, usuario_actual):

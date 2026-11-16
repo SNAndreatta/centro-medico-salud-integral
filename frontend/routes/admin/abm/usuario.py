@@ -126,7 +126,7 @@ def _catalogos():
 def _coberturas_medico(id_medico):
     """Coberturas ya asociadas a un médico.
 
-    SUPUESTO: GET /medicos/<id>/coberturas devuelve
+    GET /medicos/<id>/coberturas devuelve
     {'coberturas': [{'id_cobertura': ..., 'nombre': ...}]}.
     """
     if not id_medico:
@@ -146,8 +146,8 @@ def _coberturas_medico(id_medico):
 def _consultorios():
     """Consultorios para el popup de crear agenda.
 
-    SUPUESTO: GET /consultorios devuelve {'consultorios': [...]} y cada
-    elemento trae el id y el número (se aceptan varios nombres de campo).
+    GET /consultorios devuelve {'consultorios': [...]} y cada elemento trae
+    el id y el número (se aceptan varios nombres de campo).
     """
     try:
         datos = api('GET', '/consultorios')
@@ -349,7 +349,6 @@ def editar_usuario(id_usuario):
         datos['fecha_nacimiento'] = fecha_nacimiento
 
     try:
-        # SUPUESTO: PUT /usuarios/<id> actualiza los datos personales.
         api('PUT', f'/usuarios/{id_usuario}', json=datos)
 
         if usuario['id_rol'] == 4 and usuario['id_medico']:
@@ -360,7 +359,6 @@ def editar_usuario(id_usuario):
                 flash('Para un médico tenés que indicar especialidad y matrícula.', 'error')
                 return perfil
 
-            # SUPUESTO: PUT /medicos/<id_medico> actualiza especialidad y matrícula.
             api('PUT', f"/medicos/{usuario['id_medico']}", json={
                 'id_especialidad': id_especialidad,
                 'matricula': matricula,
@@ -401,7 +399,6 @@ def editar_usuario(id_usuario):
 @usuario_admin_routes.route('/usuario/<int:id_usuario>/eliminar', methods=['POST'])
 def eliminar_usuario(id_usuario):
     try:
-        # SUPUESTO: DELETE /usuarios/<id> da de baja al usuario.
         api('DELETE', f'/usuarios/{id_usuario}')
     except ErrorAPI as e:
         flash(e.mensaje, 'error')

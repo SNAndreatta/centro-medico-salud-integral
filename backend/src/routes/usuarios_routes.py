@@ -3,7 +3,9 @@ from flask import Blueprint, g, request
 from src.errores import error_respuesta
 from src.services.usuarios_services import (
     actualizar_password_usuario,
+    actualizar_usuario as actualizar_usuario_service,
     crear_usuario_staff,
+    eliminar_usuario as eliminar_usuario_service,
     listar_usuarios as listar_usuarios_service,
     obtener_perfil_usuario,
 )
@@ -56,6 +58,29 @@ def crear_usuario():
         return error_json
 
     resultado, status_code = crear_usuario_staff(datos)
+    return resultado, status_code
+
+
+@usuarios_bp.put('/usuarios/<int:id_usuario>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR)
+def actualizar_usuario(id_usuario):
+    datos = request.get_json(silent=True)
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
+
+    resultado, status_code = actualizar_usuario_service(id_usuario, datos)
+    return resultado, status_code
+
+
+@usuarios_bp.delete('/usuarios/<int:id_usuario>')
+@handle_unexpected_errors
+@token_required
+@roles_required(ADMINISTRADOR)
+def eliminar_usuario(id_usuario):
+    resultado, status_code = eliminar_usuario_service(id_usuario, g.current_user)
     return resultado, status_code
 
 

@@ -1,6 +1,7 @@
 import mysql.connector
 
 from src.db import obtener_cursor
+from src.utils.roles import PACIENTE
 
 
 def obtener_usuarios(id_rol=None):
@@ -140,6 +141,91 @@ def obtener_usuario_por_id(id_usuario):
             (id_usuario,),
         )
         return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def actualizar_usuario(id_usuario, datos):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_usuario FROM usuario WHERE id_usuario = %s LIMIT 1',
+            (id_usuario,),
+        )
+        if cursor.fetchone() is None:
+            return 'USUARIO_NO_EXISTE'
+
+        cursor.execute(
+            """
+            SELECT id_usuario
+            FROM usuario
+            WHERE (correo_electronico = %s OR dni = %s)
+              AND id_usuario != %s
+            LIMIT 1
+            """,
+            (datos['correo_electronico'], datos['dni'], id_usuario),
+        )
+        if cursor.fetchone() is not None:
+            return 'USUARIO_DUPLICADO'
+
+        cursor.execute(
+            """
+            UPDATE usuario
+            SET nombre = %s, apellido = %s, dni = %s,
+                correo_electronico = %s, fecha_nacimiento = %s
+            WHERE id_usuario = %s
+            """,
+            (
+                datos['nombre'],
+                datos['apellido'],
+                datos['dni'],
+                datos['correo_electronico'],
+                datos.get('fecha_nacimiento'),
+                id_usuario,
+            ),
+        )
+        conexion.commit()
+        return None
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return 'USUARIO_DUPLICADO'
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def eliminar_usuario_por_id(id_usuario):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            'SELECT id_rol FROM usuario WHERE id_usuario = %s LIMIT 1',
+            (id_usuario,),
+        )
+        usuario = cursor.fetchone()
+        if usuario is None:
+            return 'USUARIO_NO_EXISTE'
+
+        # Los pacientes tienen una fila propia que debe eliminarse antes
+        # que el usuario para respetar la clave foránea.
+        if int(usuario['id_rol']) == PACIENTE:
+            cursor.execute(
+                'DELETE FROM paciente WHERE id_usuario = %s',
+                (id_usuario,),
+            )
+
+        cursor.execute('DELETE FROM usuario WHERE id_usuario = %s', (id_usuario,))
+        conexion.commit()
+        return None
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return 'USUARIO_EN_USO'
+    except Exception:
+        conexion.rollback()
+        raise
     finally:
         cursor.close()
         conexion.close()

@@ -18,6 +18,14 @@ CAMPOS_USUARIO_STAFF = {
 }
 CAMPOS_USUARIO_STAFF_OPCIONALES = {'fecha_nacimiento'}
 
+CAMPOS_USUARIO_ACTUALIZACION = {
+    'nombre',
+    'apellido',
+    'dni',
+    'correo_electronico',
+}
+CAMPOS_USUARIO_ACTUALIZACION_OPCIONALES = {'fecha_nacimiento'}
+
 ROLES_FILTRO = {
     'admin': ADMINISTRADOR,
     'recepcionista': RECEPCIONISTA,
@@ -120,4 +128,54 @@ def validar_datos_usuario_staff(datos):
         'correo_electronico': correo,
         'fecha_nacimiento': fecha_nacimiento,
         'password': datos['password'],
+    }, None
+
+
+def validar_datos_actualizacion_usuario(datos):
+    if (
+        not isinstance(datos, dict)
+        or not CAMPOS_USUARIO_ACTUALIZACION.issubset(datos)
+        or set(datos) - CAMPOS_USUARIO_ACTUALIZACION - CAMPOS_USUARIO_ACTUALIZACION_OPCIONALES
+    ):
+        return None, error_respuesta(
+            'El cuerpo debe incluir nombre, apellido, dni y correo_electronico; '
+            'fecha_nacimiento es opcional',
+            'CUERPO_INVALIDO',
+        )
+
+    if any(not texto_obligatorio(datos[campo]) for campo in CAMPOS_USUARIO_ACTUALIZACION):
+        return None, error_respuesta(
+            'Todos los campos de texto son obligatorios',
+            'DATOS_INVALIDOS',
+        )
+
+    limites = {
+        'nombre': 100,
+        'apellido': 100,
+        'dni': 20,
+        'correo_electronico': 150,
+    }
+    if any(len(datos[campo].strip()) > limite for campo, limite in limites.items()):
+        return None, error_respuesta(
+            'Uno o más campos exceden la longitud permitida',
+            'DATOS_INVALIDOS',
+        )
+
+    correo, error = validar_correo_electronico(datos['correo_electronico'])
+    if error:
+        return None, error
+
+    fecha_nacimiento, error = validar_fecha_iso_opcional(
+        datos.get('fecha_nacimiento'),
+        'fecha_nacimiento',
+    )
+    if error:
+        return None, error
+
+    return {
+        'nombre': datos['nombre'].strip(),
+        'apellido': datos['apellido'].strip(),
+        'dni': datos['dni'].strip(),
+        'correo_electronico': correo,
+        'fecha_nacimiento': fecha_nacimiento,
     }, None

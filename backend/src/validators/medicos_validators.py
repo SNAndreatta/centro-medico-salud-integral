@@ -86,9 +86,13 @@ def validar_datos_medico(datos):
 
 
 def validar_datos_actualizacion_medico(datos):
-    if not isinstance(datos, dict) or set(datos) != {'id_especialidad'}:
-        return None, error_respuesta(
-            'El cuerpo debe incluir únicamente id_especialidad',
+    if (
+        not isinstance(datos, dict)
+        or 'id_especialidad' not in datos
+        or set(datos) - {'id_especialidad', 'matricula'}
+    ):
+        return None, None, error_respuesta(
+            'El cuerpo debe incluir id_especialidad y, opcionalmente, matricula',
             'CUERPO_INVALIDO',
         )
 
@@ -98,12 +102,21 @@ def validar_datos_actualizacion_medico(datos):
         or not isinstance(id_especialidad, int)
         or id_especialidad <= 0
     ):
-        return None, error_respuesta(
+        return None, None, error_respuesta(
             'id_especialidad debe ser un entero positivo',
             'ESPECIALIDAD_INVALIDA',
         )
 
-    return id_especialidad, None
+    matricula = datos.get('matricula')
+    if matricula is not None:
+        if not texto_obligatorio(matricula) or len(matricula.strip()) > 50:
+            return None, None, error_respuesta(
+                'matricula debe ser texto y no superar 50 caracteres',
+                'DATOS_INVALIDOS',
+            )
+        matricula = matricula.strip()
+
+    return id_especialidad, matricula, None
 
 
 def validar_filtros_medicos(parametros):

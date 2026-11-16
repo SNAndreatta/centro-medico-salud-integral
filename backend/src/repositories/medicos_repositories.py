@@ -146,7 +146,7 @@ def obtener_medico_por_id(id_medico):
         conexion.close()
 
 
-def actualizar_especialidad_medico(id_medico, id_especialidad):
+def actualizar_especialidad_medico(id_medico, id_especialidad, matricula=None):
     conexion, cursor = obtener_cursor()
     try:
         cursor.execute(
@@ -163,12 +163,38 @@ def actualizar_especialidad_medico(id_medico, id_especialidad):
         if cursor.fetchone() is None:
             return 'ESPECIALIDAD_NO_EXISTE'
 
-        cursor.execute(
-            'UPDATE medico SET id_especialidad = %s WHERE id_medico = %s',
-            (id_especialidad, id_medico),
-        )
+        if matricula is None:
+            cursor.execute(
+                'UPDATE medico SET id_especialidad = %s WHERE id_medico = %s',
+                (id_especialidad, id_medico),
+            )
+        else:
+            cursor.execute(
+                """
+                SELECT id_medico
+                FROM medico
+                WHERE matricula = %s AND id_medico != %s
+                LIMIT 1
+                """,
+                (matricula, id_medico),
+            )
+            if cursor.fetchone() is not None:
+                return 'MATRICULA_DUPLICADA'
+
+            cursor.execute(
+                """
+                UPDATE medico
+                SET id_especialidad = %s, matricula = %s
+                WHERE id_medico = %s
+                """,
+                (id_especialidad, matricula, id_medico),
+            )
+
         conexion.commit()
         return None
+    except mysql.connector.IntegrityError:
+        conexion.rollback()
+        return 'MATRICULA_DUPLICADA'
     except Exception:
         conexion.rollback()
         raise

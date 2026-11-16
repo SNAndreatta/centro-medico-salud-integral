@@ -73,11 +73,15 @@ def obtener_medico(id_medico):
 
 
 def modificar_medico(id_medico, datos):
-    id_especialidad, error = validar_datos_actualizacion_medico(datos)
+    id_especialidad, matricula, error = validar_datos_actualizacion_medico(datos)
     if error:
         return error, 400
 
-    error = actualizar_especialidad_medico(id_medico, id_especialidad)
+    if matricula is None:
+        error = actualizar_especialidad_medico(id_medico, id_especialidad)
+    else:
+        error = actualizar_especialidad_medico(id_medico, id_especialidad, matricula)
+
     if error == 'MEDICO_NO_EXISTE':
         return error_respuesta(
             'El médico indicado no existe',
@@ -88,6 +92,11 @@ def modificar_medico(id_medico, datos):
             'La especialidad indicada no existe',
             'ESPECIALIDAD_INEXISTENTE',
         ), 400
+    if error == 'MATRICULA_DUPLICADA':
+        return error_respuesta(
+            'Ya existe un médico con esa matrícula',
+            'MATRICULA_DUPLICADA',
+        ), 409
 
     return {'medico': obtener_medico_por_id(id_medico)}, 200
 
