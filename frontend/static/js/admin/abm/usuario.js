@@ -143,9 +143,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // El rol médico (4) es el único que muestra datos adicionales.
         const esMedico = selectRol.value === "4";
 
-        // Se usa display en línea para asegurar el grid (antes solo se
-        // quitaba "hidden" y el fieldset quedaba como block).
-        camposMedico.style.display = esMedico ? "grid" : "none";
+        camposMedico.classList.toggle("hidden", !esMedico);
+        camposMedico.classList.toggle("grid", esMedico);
         camposMedico.disabled = !esMedico;
 
         if (!esMedico) {
