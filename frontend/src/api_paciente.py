@@ -300,7 +300,9 @@ def perfil_paciente():
         "iniciales": _iniciales(f"{nombre} {apellido}"),
         "email": _buscar(p, "correo_electronico", "email", default=""),
         "documento": _buscar(p, "dni", "documento", default=""),
+        "dni": _buscar(p, "dni", "documento", default=""),
         "fecha_nacimiento": _fecha(fecha_nac).strftime("%d/%m/%Y") if fecha_nac else "No informada",
+        "fecha_nacimiento_iso": _fecha(fecha_nac).strftime("%Y-%m-%d") if fecha_nac else "",
         "fecha_registro": _fecha(fecha_reg).strftime("%d/%m/%Y") if fecha_reg else "-",
         "numero_afiliado": _buscar(p, "nro_afiliado", "numero_afiliado", default="-") or "-",
         "id_cobertura": int(id_cobertura) if id_cobertura else None,
@@ -330,8 +332,16 @@ def actualizar_email(nuevo_email, id_cobertura=_SIN_ENVIAR, nro_afiliado=_SIN_EN
     api("PUT", f"/pacientes/{id_paciente_actual()}", json=datos)
 
 
-def cambiar_password(nueva_password):
-    # PUT /usuarios/{id}/password: solo recibe nueva_password (no valida la anterior)
+def actualizar_datos_paciente(datos):
+    """Actualiza los datos personales y la cobertura del paciente actual."""
+    api("PUT", f"/pacientes/{id_paciente_actual()}", json=datos)
+
+
+def cambiar_password(nueva_password, password_actual):
+    # PUT /usuarios/{id}/password: valida la contraseña actual del usuario.
     id_usuario = session.get("id_usuario")
     api("PUT", f"/usuarios/{id_usuario}/password",
-        json={"nueva_password": nueva_password})
+        json={
+            "nueva_password": nueva_password,
+            "password_actual": password_actual,
+        })

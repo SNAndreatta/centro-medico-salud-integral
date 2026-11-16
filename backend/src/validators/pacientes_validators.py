@@ -183,19 +183,34 @@ def validar_datos_actualizacion_paciente(datos):
             nro_afiliado = nro_afiliado.strip()
         actualizados['nro_afiliado'] = nro_afiliado
 
-    if ('id_cobertura' in actualizados) != ('nro_afiliado' in actualizados):
+    # Si viene id_cobertura SIN nro_afiliado, solo se actualiza la cobertura
+    # (el nro_afiliado se mantiene tal cual viene en la BD).
+    if 'id_cobertura' in actualizados and 'nro_afiliado' not in actualizados:
+        # Quitar nro_afiliado del actualizados para que no lo toquemos
+        actualizados.pop('nro_afiliado', None)
+
+    # Si viene nro_afiliado SIN id_cobertura, error (no tiene sentido separado)
+    if 'nro_afiliado' in actualizados and 'id_cobertura' not in actualizados:
         return None, error_respuesta(
-            'id_cobertura y nro_afiliado deben enviarse juntos',
+            'Para actualizar el nro. de afiliado también se debe indicar la cobertura',
             'AFILIACION_INCOMPLETA',
         )
 
-    if 'id_cobertura' in actualizados and (
-        (actualizados['id_cobertura'] is None) != (actualizados['nro_afiliado'] is None)
-    ):
-        return None, error_respuesta(
-            'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
-            'AFILIACION_INCOMPLETA',
-        )
+    # Si vienen los dos, validarlos juntos (ambos nulos = particular)
+    if 'id_cobertura' in actualizados and 'nro_afiliado' in actualizados:
+        if ('id_cobertura' in actualizados) != ('nro_afiliado' in actualizados):
+            return None, error_respuesta(
+                'id_cobertura y nro_afiliado deben enviarse juntos',
+                'AFILIACION_INCOMPLETA',
+            )
+
+        if 'id_cobertura' in actualizados and (
+            (actualizados['id_cobertura'] is None) != (actualizados['nro_afiliado'] is None)
+        ):
+            return None, error_respuesta(
+                'id_cobertura y nro_afiliado deben enviarse juntos; ambos pueden ser nulos para particulares',
+                'AFILIACION_INCOMPLETA',
+            )
 
     return actualizados, None
 

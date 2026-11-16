@@ -144,6 +144,47 @@
                         </div>
                     </div>
 
+                    <!-- Cobertura -->
+                    <div>
+                        <label for="id_cobertura"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            Cobertura
+                        </label>
+
+                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                            <i data-lucide="building" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                            <select
+                                id="id_cobertura"
+                                name="id_cobertura"
+                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none">
+                                <option value="">Particular</option>
+                                {% for cobertura in coberturas %}
+                                <option value="{{ cobertura.id }}">{{ cobertura.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Nro. de afiliado -->
+                    <div>
+                        <label for="nro_afiliado"
+                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            Nro. de afiliado
+                        </label>
+
+                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                            <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                            <input
+                                id="nro_afiliado"
+                                name="nro_afiliado"
+                                type="text"
+                                inputmode="numeric"
+                                placeholder="Sin número de afiliado"
+                                maxlength="50"
+                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400">
+                        </div>
+                    </div>
+
                     <!-- Correo electrónico (ancho completo) -->
                     <div class="sm:col-span-2">
                         <label for="email"

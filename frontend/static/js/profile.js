@@ -83,10 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!input) return;
 
-            input.type =
-                input.type === "password"
-                    ? "text"
-                    : "password";
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+
+            // Toggle icons
+            const eyeOff = button.querySelector('[data-lucide="eye-off"]');
+            const eye = button.querySelector('[data-lucide="eye"]');
+            if (eyeOff && eye) {
+                eyeOff.classList.toggle("hidden", !isPassword);
+                eye.classList.toggle("hidden", isPassword);
+            }
 
         });
     });
@@ -110,17 +116,62 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Confirmar eliminación de cuenta
-    document.getElementById("eliminar-cuenta")
-        ?.addEventListener("click", (event) => {
+    // Selector de coberturas para médicos (agregar coberturas)
+    const botonSelectorCoberturas = document.getElementById("botonSelectorCoberturasPerfil");
+    const selectorCoberturas = document.getElementById("selector-coberturas-perfil");
+    const textoCoberturas = document.getElementById("texto-coberturas-perfil");
 
-            if (!confirm(
-                "¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer."
-            )) {
-                event.preventDefault();
-            }
+    window.alternarSelector = function (id) {
+        const panel = document.getElementById(id);
+        if (!panel) return;
 
+        panel.classList.toggle("hidden");
+    };
+
+    function actualizarTextoCoberturas() {
+        if (!selectorCoberturas || !textoCoberturas) return;
+
+        const seleccionadas = selectorCoberturas.querySelectorAll(
+            'input[name="coberturas"]:checked'
+        );
+
+        if (seleccionadas.length === 0) {
+            textoCoberturas.textContent = "Coberturas";
+        } else if (seleccionadas.length === 1) {
+            const nombre = seleccionadas[0]
+                .closest("label")
+                ?.querySelector("span")
+                ?.textContent.trim();
+
+            textoCoberturas.textContent = nombre || "1 cobertura seleccionada";
+        } else {
+            textoCoberturas.textContent =
+                seleccionadas.length + " coberturas seleccionadas";
+        }
+    }
+
+    selectorCoberturas
+        ?.querySelectorAll('input[name="coberturas"]')
+        .forEach((checkbox) => {
+            checkbox.addEventListener("change", actualizarTextoCoberturas);
         });
+
+    // Cerrar el desplegable al hacer clic fuera.
+    document.addEventListener("click", (event) => {
+        if (!selectorCoberturas || !botonSelectorCoberturas) return;
+
+        if (
+            !selectorCoberturas.contains(event.target) &&
+            !botonSelectorCoberturas.contains(event.target)
+        ) {
+            selectorCoberturas.classList.add("hidden");
+        }
+    });
+
+    // Cerrarlo también cuando se abre el modal.
+    document.addEventListener("modal:abierto", () => {
+        selectorCoberturas?.classList.add("hidden");
+    });
 
     // Confirmar cancelación de turnos
     document.querySelectorAll(".cancelar-turno").forEach((button) => {

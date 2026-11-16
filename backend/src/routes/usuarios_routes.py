@@ -64,8 +64,17 @@ def crear_usuario():
 @usuarios_bp.put('/usuarios/<int:id_usuario>')
 @handle_unexpected_errors
 @token_required
-@roles_required(ADMINISTRADOR)
+@roles_required(*ROLES_VALIDOS)
 def actualizar_usuario(id_usuario):
+    # Cada usuario puede editar sus propios datos personales; el
+    # administrador sigue pudiendo editar a cualquier otro usuario.
+    es_propio = id_usuario == g.current_user['id_usuario']
+    if not es_propio and g.current_user['id_rol'] != ADMINISTRADOR:
+        return error_respuesta(
+            'No tenés permiso para modificar otro usuario',
+            'PERMISOS_INSUFICIENTES',
+        ), 403
+
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:

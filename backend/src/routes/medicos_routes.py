@@ -1,5 +1,6 @@
-from flask import Blueprint, request
+from flask import Blueprint, g, request
 
+from src.repositories.medicos_repositories import obtener_medico_por_usuario
 from src.services.medicos_services import (
     agregar_cobertura_medico,
     crear_medico,
@@ -11,12 +12,18 @@ from src.services.medicos_services import (
     quitar_cobertura_medico,
 )
 from src.utils.auth import token_required, roles_required
-from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA, PACIENTE
+from src.utils.roles import ADMINISTRADOR, MEDICO, RECEPCIONISTA, PACIENTE
 from src.utils.http_errors import handle_unexpected_errors
 from src.validators.common import validar_objeto_json
 from src.validators.medicos_validators import validar_datos_cobertura_medico
 
 medicos_bp = Blueprint('medicos_bp', __name__)
+
+
+def _es_medico_propio(id_medico):
+    """Indica si el médico indicado pertenece al usuario autenticado."""
+    medico = obtener_medico_por_usuario(g.current_user['id_usuario'])
+    return medico is not None and int(medico['id_medico']) == id_medico
 
 
 @medicos_bp.post('/medicos')
@@ -54,8 +61,14 @@ def consultar_medico(id_medico):
 @medicos_bp.put('/medicos/<int:id_medico>')
 @handle_unexpected_errors
 @token_required
-@roles_required(ADMINISTRADOR)
+@roles_required(ADMINISTRADOR, MEDICO)
 def editar_medico(id_medico):
+    if g.current_user['id_rol'] != ADMINISTRADOR and not _es_medico_propio(id_medico):
+        return error_respuesta(
+            'No tenés permiso para modificar este médico',
+            'PERMISOS_INSUFICIENTES',
+        ), 403
+
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:
@@ -86,8 +99,14 @@ def consultar_coberturas_medico(id_medico):
 @medicos_bp.post('/medicos/<int:id_medico>/coberturas')
 @handle_unexpected_errors
 @token_required
-@roles_required(ADMINISTRADOR)
+@roles_required(ADMINISTRADOR, MEDICO)
 def agregar_cobertura_a_medico(id_medico):
+    if g.current_user['id_rol'] != ADMINISTRADOR and not _es_medico_propio(id_medico):
+        return error_respuesta(
+            'No tenés permiso para modificar este médico',
+            'PERMISOS_INSUFICIENTES',
+        ), 403
+
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:

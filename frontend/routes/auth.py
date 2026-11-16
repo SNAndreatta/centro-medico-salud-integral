@@ -8,7 +8,8 @@ from flask import (
     redirect,
     url_for,
     session,
-    current_app
+    current_app,
+    jsonify
 )
 
 auth_routes = Blueprint('rutas_auth', __name__)
@@ -106,6 +107,8 @@ def register():
         password = request.form.get('password', '')
         confirmar_password = request.form.get('confirm_password', '')
         fecha_nacimiento = request.form.get('fecha_nacimiento', '').strip()
+        id_cobertura = request.form.get('id_cobertura', '').strip()
+        nro_afiliado = request.form.get('nro_afiliado', '').strip()
 
         if not all([
             nombre,
@@ -118,13 +121,19 @@ def register():
         ]):
             return render_template(
                 'auth/register.html',
-                mensaje='Completá todos los campos.'
+                mensaje='Completá todos los campos.',
+                coberturas=[],
+                id_cobertura='',
+                nro_afiliado=''
             )
 
         if password != confirmar_password:
             return render_template(
                 'auth/register.html',
-                mensaje='Las contraseñas no coinciden.'
+                mensaje='Las contraseñas no coinciden.',
+                coberturas=[],
+                id_cobertura='',
+                nro_afiliado=''
             )
 
         datos = {
@@ -133,8 +142,29 @@ def register():
             'dni': dni,
             'correo_electronico': correo_electronico,
             'fecha_nacimiento': fecha_nacimiento,
-            'password': password
+            'password': password,
+            'id_cobertura': id_cobertura if id_cobertura else None,
+            'nro_afiliado': nro_afiliado if nro_afiliado else None
         }
+
+        # Validar que id_cobertura y nro_afiliado vayan juntos
+        if id_cobertura and not nro_afiliado:
+            return render_template(
+                'auth/register.html',
+                mensaje='Si seleccionás una cobertura, también ingresá el número de afiliado.',
+                coberturas=[],
+                id_cobertura='',
+                nro_afiliado=''
+            )
+
+        if nro_afiliado and not id_cobertura:
+            return render_template(
+                'auth/register.html',
+                mensaje='Para ingresar nro. de afiliado también debés seleccionar una cobertura.',
+                coberturas=[],
+                id_cobertura='',
+                nro_afiliado=''
+            )
 
         try:
             respuesta = requests.post(
@@ -187,7 +217,19 @@ def register():
                 mensaje='No se pudo conectar con el servidor.'
             )
 
-    return render_template('auth/register.html')
+    try:
+        coberturas_resp = requests.get(
+            f"{current_app.config['BACKEND_URL']}/coberturas",
+            timeout=10
+        ).json()
+        coberturas = coberturas_resp.get('coberturas', [])
+    except Exception:
+        coberturas = []
+
+    return render_template(
+        'auth/register.html',
+        coberturas=coberturas
+    )
 
 
 # LOGOUT
