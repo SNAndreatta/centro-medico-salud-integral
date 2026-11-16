@@ -8,6 +8,7 @@ from src.api_usuario import (
     perfil_usuario, actualizar_datos_usuario, actualizar_datos_medico,
     coberturas_medico, agregar_coberturas_medico,
 )
+from src.permisos import ROLES, requiere_rol
 
 profile_routes = Blueprint('rutas_profile', __name__)
 
@@ -72,6 +73,7 @@ def _catalogos_medico(usuario):
 
 
 @profile_routes.route("/profile")
+@requiere_rol(*ROLES)
 def profile():
     if "access_token" not in session:
         return redirect(url_for("rutas_auth.login"))
@@ -138,6 +140,7 @@ def profile():
 
 
 @profile_routes.route("/profile/actualizar", methods=["POST"])
+@requiere_rol(*ROLES)
 def actualizar_perfil():
     if "access_token" not in session:
         return redirect(url_for("rutas_auth.login"))
@@ -225,6 +228,7 @@ def actualizar_perfil():
 
 
 @profile_routes.route("/profile/password", methods=["POST"])
+@requiere_rol(*ROLES)
 def actualizar_password():
     if "access_token" not in session:
         return redirect(url_for("rutas_auth.login"))

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 from ._comun import (
     filtros_fechas,
@@ -66,6 +67,7 @@ def _agrupar_turnos(turnos):
 
 
 @turnos_especialidad_admin_routes.route("/admin/turnos-especialidad")
+@requiere_rol("admin")
 def turnos_especialidad():
 
     parametros = filtros_fechas(request.args)

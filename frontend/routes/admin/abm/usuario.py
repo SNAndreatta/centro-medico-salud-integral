@@ -10,6 +10,7 @@ from flask import (
 )
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 usuario_admin_routes = Blueprint('rutas_admin_usuario', __name__)
 
@@ -168,6 +169,7 @@ def _consultorios():
 # =================================
 
 @usuario_admin_routes.route('/usuarios')
+@requiere_rol("admin")
 def obtener_usuarios():
     usuarios = []
     error = None
@@ -199,6 +201,7 @@ def obtener_usuarios():
 # =================================
 
 @usuario_admin_routes.route('/usuarios/crear', methods=['POST'])
+@requiere_rol("admin")
 def crear_usuario():
     nombre = request.form.get('nombre', '').strip()
     apellido = request.form.get('apellido', '').strip()
@@ -273,6 +276,7 @@ def crear_usuario():
 # =================================
 
 @usuario_admin_routes.route('/usuario/<int:id_usuario>')
+@requiere_rol("admin")
 def usuario_perfil(id_usuario):
     try:
         usuario = _buscar_usuario(id_usuario)
@@ -315,6 +319,7 @@ def usuario_perfil(id_usuario):
 # =================================
 
 @usuario_admin_routes.route('/usuario/<int:id_usuario>/editar', methods=['POST'])
+@requiere_rol("admin")
 def editar_usuario(id_usuario):
     perfil = redirect(
         url_for('rutas_admin_usuario.usuario_perfil', id_usuario=id_usuario)
@@ -397,6 +402,7 @@ def editar_usuario(id_usuario):
 # =================================
 
 @usuario_admin_routes.route('/usuario/<int:id_usuario>/eliminar', methods=['POST'])
+@requiere_rol("admin")
 def eliminar_usuario(id_usuario):
     try:
         api('DELETE', f'/usuarios/{id_usuario}')

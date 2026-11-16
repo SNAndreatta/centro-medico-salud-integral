@@ -1,42 +1,15 @@
 from flask import (
-    Blueprint, render_template, session, request, redirect, url_for, flash
+    Blueprint, render_template, session, redirect, url_for, flash
 )
 
 from src.api import ErrorAPI
 from src.api_paciente import perfil_paciente, proximos_turnos_paciente
+from src.api_usuario import (
+    perfil_usuario, coberturas_medico, turnos_del_dia_medico,
+)
+from src.permisos import ROLES, requiere_rol, rol_actual
 
 home_routes = Blueprint('rutas_home', __name__)
-
-# session['rol'] (lo que guarda auth.py) -> nombre que usa home.html
-ALIAS_ROL = {"administrador": "admin", "recepcionista": "recepcion"}
-ROLES_DEMO = ("medico", "recepcion", "admin", "paciente")
-
-# Datos hardcodeados, solo para los roles todavía no conectados.
-DATOS_DEMO = {
-    "medico": {
-        "consultorio": "123",
-        "fecha": "25/10",
-        "turnos_del_dia": [
-            {
-                "id": 1, "nombre_paciente": "Camila Núñez", "iniciales": "CN",
-                "cobertura": "Galeno", "hora": "15:00 pm.", "fecha": "25 - 10 - 2026",
-                "consultorio": "123", "color_fondo": "bg-pink-500/30 text-pink-500",
-            },
-            {
-                "id": 2, "nombre_paciente": "Martín Pérez", "iniciales": "MP",
-                "cobertura": "OSDE", "hora": "15:00 pm.", "fecha": "25 - 10 - 2026",
-                "consultorio": "123", "color_fondo": "bg-green-500/30 text-green-500",
-            },
-        ],
-        "coberturas": [
-            {"nombre": "Galeno"}, {"nombre": "OSDE"},
-            {"nombre": "Swiss Medical"}, {"nombre": "PAMI"},
-        ],
-    },
-    "recepcion": {},
-    "admin": {},
-    "paciente": {},
-}
 
 
 @home_routes.route("/")
@@ -45,24 +18,18 @@ def root():
 
 
 @home_routes.route("/home")
+@requiere_rol(*ROLES)
 def home():
-    if "access_token" not in session:
-        return redirect(url_for("rutas_auth.login"))
-
-    rol_sesion = session.get("rol", "paciente")
-    rol_real = ALIAS_ROL.get(rol_sesion, rol_sesion)
-    es_demo = rol_real != "paciente"
+    rol = rol_actual()
 
     usuario = {
         "nombre_completo": f"{session.get('nombre', '')} {session.get('apellido', '')}".strip()
     }
     datos = {}
 
-    if not es_demo:
-        # ---------- PACIENTE REAL: datos del backend ----------
-        session.pop("rol_demo", None)   # un paciente nunca puede simular otro rol
-        rol = "paciente"
-        try:
+    try:
+        if rol == "paciente":
+            # ---------- PACIENTE ----------
             perfil = perfil_paciente()
             usuario.update({
                 "nombre_completo": f"{perfil['nombre']} {perfil['apellido']}".strip(),
@@ -70,23 +37,30 @@ def home():
                 "numero_afiliado": perfil["numero_afiliado"],
             })
             datos = {"proximos_turnos": proximos_turnos_paciente()}
-        except ErrorAPI as e:
-            if e.status == 401:
-                session.clear()
-                flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
-                return redirect(url_for("rutas_auth.login"))
-            flash(e.mensaje, "error")
-            datos = {"proximos_turnos": []}
-    else:
-        # ---------- NO PACIENTE: rol cambiable con datos de prueba ----------
-        pedido = request.args.get("rol_demo")
-        if pedido in ROLES_DEMO:
-            session["rol_demo"] = pedido
 
-        rol = session.get("rol_demo", rol_real)
-        if rol not in ROLES_DEMO:
-            rol = "recepcion"
-        datos = DATOS_DEMO[rol]
+        else:
+            # ---------- ADMIN, RECEPCIÓN Y MÉDICO ----------
+            perfil = perfil_usuario()
+            usuario["nombre_completo"] = f"{perfil['nombre']} {perfil['apellido']}".strip()
+
+            if rol == "medico":
+                datos = {
+                    "turnos_del_dia": turnos_del_dia_medico(),
+                    "coberturas": coberturas_medico(perfil.get("id_medico")),
+                }
+
+    except ErrorAPI as e:
+        if e.status == 401:
+            session.clear()
+            flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
+            return redirect(url_for("rutas_auth.login"))
+        flash(e.mensaje, "error")
+
+    if rol == "medico":
+        datos.setdefault("turnos_del_dia", [])
+        datos.setdefault("coberturas", [])
+    elif rol == "paciente":
+        datos.setdefault("proximos_turnos", [])
 
     reserva_exitosa = session.pop("turno_reservado", False)
 
@@ -96,6 +70,4 @@ def home():
         usuario=usuario,
         datos=datos,
         reserva_exitosa=reserva_exitosa,
-        es_demo=es_demo,
-        roles_demo=ROLES_DEMO,
     )

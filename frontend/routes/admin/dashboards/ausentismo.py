@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 from ._comun import (
     color_avatar,
@@ -136,6 +137,7 @@ def _resumen(turnos):
 
 
 @ausentismo_admin_routes.route("/admin/ausentismo")
+@requiere_rol("admin")
 def ausentismo():
 
     parametros = filtros_fechas(request.args)

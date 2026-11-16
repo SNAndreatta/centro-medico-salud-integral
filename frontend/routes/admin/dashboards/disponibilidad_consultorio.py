@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 from ._comun import fecha_iso, formatear_hora
 
@@ -106,6 +107,7 @@ def _armar_pisos(consultorios, horarios, ocupacion):
 
 
 @disponibilidad_consultorios_admin_routes.route("/disponibilidad-consultorios")
+@requiere_rol("admin")
 def disponibilidad_consultorios():
 
     fecha = fecha_iso(request.args.get("fecha"))

@@ -8,6 +8,7 @@ from flask import (
 )
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
 
@@ -49,6 +50,7 @@ def _normalizar_medico(medico):
 
 # LISTADO DE COBERTURAS
 @cobertura_routes.route('/coberturas')
+@requiere_rol("admin")
 def obtener_coberturas():
     coberturas = []
     error = None
@@ -67,6 +69,7 @@ def obtener_coberturas():
 
 # DETALLE DE UNA COBERTURA
 @cobertura_routes.route('/coberturas/<int:cobertura_id>')
+@requiere_rol("admin")
 def detalle_cobertura(cobertura_id):
     try:
         coberturas = _listar_coberturas()
@@ -102,6 +105,7 @@ def detalle_cobertura(cobertura_id):
 
 # CREAR COBERTURA
 @cobertura_routes.route('/coberturas/crear', methods=['POST'])
+@requiere_rol("admin")
 def crear_cobertura():
     nombre = request.form.get('nombre', '').strip()
 
@@ -121,6 +125,7 @@ def crear_cobertura():
     '/coberturas/<int:cobertura_id>/editar',
     methods=['POST']
 )
+@requiere_rol("admin")
 def editar_cobertura(cobertura_id):
     nombre = request.form.get('nombre', '').strip()
 
@@ -143,6 +148,7 @@ def editar_cobertura(cobertura_id):
     '/coberturas/<int:cobertura_id>/eliminar',
     methods=['POST']
 )
+@requiere_rol("admin")
 def eliminar_cobertura(cobertura_id):
     try:
         api('DELETE', f'/coberturas/{cobertura_id}')

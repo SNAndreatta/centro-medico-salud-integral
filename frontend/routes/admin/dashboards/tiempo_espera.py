@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 from ._comun import (
     color_avatar,
@@ -97,6 +98,7 @@ def _calcular_tiempos(turnos):
 
 
 @tiempo_espera_admin_routes.route('/admin/tiempo-espera')
+@requiere_rol("admin")
 def tiempo_espera():
 
     parametros = filtros_fechas(request.args)

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from datetime import date, timedelta
 from routes.agenda_mensual import contexto_agenda_mensual
+from src.permisos import requiere_rol
 
 
 
@@ -114,6 +115,7 @@ agendas_medicos = []
 
 
 @medico_admin_routes.route("/medicos/<int:id_medico>")
+@requiere_rol("admin")
 def medico_perfil(id_medico):
 
     medico_encontrado = next(
@@ -208,6 +210,7 @@ horarios_disponibles = [
 # =================================
 
 @medico_admin_routes.route("/turnos/<int:id_medico>")
+@requiere_rol("admin")
 def turnos(id_medico):
 
     medico_encontrado = next(
@@ -232,6 +235,7 @@ def turnos(id_medico):
 # =================================
 
 @medico_admin_routes.route("/agenda/<int:id_medico>")
+@requiere_rol("admin")
 def agenda(id_medico):
 
     medico_encontrado = next(
@@ -324,6 +328,7 @@ def agenda(id_medico):
     "/medicos/<int:id_medico>/editar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def editar_medico(id_medico):
 
     medico = next(
@@ -375,6 +380,7 @@ def editar_medico(id_medico):
     "/medicos/<int:id_medico>/eliminar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def eliminar_medico(id_medico):
 
     medico = next(
@@ -400,6 +406,7 @@ def eliminar_medico(id_medico):
     "/medicos/<int:id_medico>/agenda/crear",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def crear_agenda(id_medico):
 
     medico = next(

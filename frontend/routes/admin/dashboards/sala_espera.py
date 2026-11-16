@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 from ._comun import (
     color_avatar,
@@ -63,6 +64,7 @@ def _normalizar_turno(turno, indice):
 
 
 @sala_espera_admin_routes.route('/admin/sala-espera')
+@requiere_rol("admin")
 def sala_espera():
 
     pacientes_en_espera = []

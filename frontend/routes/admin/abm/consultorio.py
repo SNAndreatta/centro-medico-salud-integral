@@ -8,6 +8,7 @@ from flask import (
 )
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 consultorio_routes = Blueprint(
     'rutas_admin_consultorio',
@@ -55,6 +56,7 @@ def _pisos_disponibles(consultorios):
 # =========================================
 
 @consultorio_routes.route("/consultorios")
+@requiere_rol("admin")
 def obtener_consultorios():
     consultorios = []
     error = None
@@ -77,6 +79,7 @@ def obtener_consultorios():
 # =========================================
 
 @consultorio_routes.route("/consultorios/crear", methods=["POST"])
+@requiere_rol("admin")
 def crear_consultorio():
     piso = request.form.get("piso", type=int)
     numero = request.form.get("numero", type=int)
@@ -100,6 +103,7 @@ def crear_consultorio():
     "/consultorios/<int:consultorio_id>/editar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def editar_consultorio(consultorio_id):
     piso = request.form.get("piso", type=int)
     numero = request.form.get("numero", type=int)
@@ -127,6 +131,7 @@ def editar_consultorio(consultorio_id):
     "/consultorios/<int:consultorio_id>/eliminar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def eliminar_consultorio(consultorio_id):
     try:
         api("DELETE", f"/consultorios/{consultorio_id}")

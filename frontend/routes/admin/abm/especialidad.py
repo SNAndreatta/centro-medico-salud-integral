@@ -8,6 +8,7 @@ from flask import (
 )
 
 from src.api import ErrorAPI, api
+from src.permisos import requiere_rol
 
 especialidad_routes = Blueprint('rutas_admin_especialidad', __name__)
 
@@ -71,6 +72,7 @@ def _listar_especialidades():
 
 # MOSTRAR ESPECIALIDADES
 @especialidad_routes.route("/especialidades/")
+@requiere_rol("admin")
 def obtener_especialidades():
     especialidades = []
     error = None
@@ -89,6 +91,7 @@ def obtener_especialidades():
 
 # CREAR ESPECIALIDAD
 @especialidad_routes.route("/especialidades/crear", methods=["POST"])
+@requiere_rol("admin")
 def crear_especialidad():
     nombre = request.form.get("nombre", "").strip()
 
@@ -108,6 +111,7 @@ def crear_especialidad():
     "/especialidades/<int:especialidad_id>/editar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def editar_especialidad(especialidad_id):
     nombre = request.form.get("nombre", "").strip()
 
@@ -131,6 +135,7 @@ def editar_especialidad(especialidad_id):
     "/especialidades/<int:especialidad_id>/eliminar",
     methods=["POST"]
 )
+@requiere_rol("admin")
 def eliminar_especialidad(especialidad_id):
     try:
         api("DELETE", f"/especialidades/{especialidad_id}")

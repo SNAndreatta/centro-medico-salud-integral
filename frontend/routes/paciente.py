@@ -11,6 +11,7 @@ from src.api_paciente import (
     medicos_por_especialidad, mis_turnos_paciente, obtener_especialidades,
     turnos_disponibles,
 )
+from src.permisos import requiere_rol
 
 paciente_routes = Blueprint('rutas_paciente', __name__)
 
@@ -171,6 +172,7 @@ def _error_api(e):
 # ---------------- MIS TURNOS ----------------
 
 @paciente_routes.route('/turnos-paciente', methods=['GET'])
+@requiere_rol("paciente")
 def mis_turnos():
     if 'access_token' not in session:
         return redirect(url_for('rutas_auth.login'))
@@ -189,6 +191,7 @@ def mis_turnos():
 
 
 @paciente_routes.route('/turnos-paciente/<int:id_turno>/cancelar', methods=['POST'])
+@requiere_rol("paciente")
 def cancelar_turno(id_turno):
     if 'access_token' not in session:
         return redirect(url_for('rutas_auth.login'))
@@ -207,6 +210,7 @@ def cancelar_turno(id_turno):
 # ---------------- SACAR TURNO ----------------
 
 @paciente_routes.route('/sacar-turno', methods=['GET', 'POST'])
+@requiere_rol("paciente")
 def sacar_turno():
     if 'access_token' not in session:
         return redirect(url_for('rutas_auth.login'))

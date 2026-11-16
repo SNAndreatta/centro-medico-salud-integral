@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from routes.agenda_mensual import contexto_agenda_mensual
+from src.permisos import requiere_rol
 
 medico_routes = Blueprint('rutas_medico', __name__)
 
@@ -92,6 +93,7 @@ todos_los_turnos = [
 # ==========================================================
 
 @medico_routes.route('/turno/<int:id_turno>/atendido', methods=['POST'])
+@requiere_rol("medico")
 def marcar_turno_atendido(id_turno):
 
     for turno in todos_los_turnos:
@@ -111,6 +113,7 @@ def marcar_turno_atendido(id_turno):
 
 
 @medico_routes.route('/turnos', methods=['GET'])
+@requiere_rol("medico")
 def ver_turnos():
 
     # Todos los turnos disponibles
@@ -141,6 +144,7 @@ def ver_turnos():
 # ==========================================================
 
 @medico_routes.route('/agenda', methods=['GET'])
+@requiere_rol("medico")
 def agenda():
 
     # ------------------------------------------------------

@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template
 
+from src.permisos import requiere_rol
+
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
 
 
@@ -8,6 +10,7 @@ recepcion_routes = Blueprint('rutas_recepcion', __name__)
 # ==========================================
 
 @recepcion_routes.route('/recepcion/sala-espera')
+@requiere_rol("recepcion")
 def sala_espera():
 
     pacientes_en_espera = [
@@ -52,6 +55,7 @@ def sala_espera():
 # ==========================================
 
 @recepcion_routes.route("/recepcion/usuarios")
+@requiere_rol("recepcion")
 def ver_usuarios():
 
     usuarios = [
@@ -100,6 +104,7 @@ def ver_usuarios():
 # ==========================================
 
 @recepcion_routes.route("/recepcion/profile")
+@requiere_rol("recepcion")
 def perfil():
 
     usuario = {
@@ -123,6 +128,7 @@ def perfil():
 # ==========================================
 
 @recepcion_routes.route("/recepcion/turnos")
+@requiere_rol("recepcion")
 def ver_turnos():
 
     turnos = [
@@ -199,6 +205,7 @@ def ver_turnos():
 # ==========================================
 
 @recepcion_routes.route("/recepcion/profile/<int:id_usuario>")
+@requiere_rol("recepcion")
 def perfil_usuario(id_usuario):
 
     usuarios = {
