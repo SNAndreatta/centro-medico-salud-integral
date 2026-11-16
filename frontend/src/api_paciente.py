@@ -191,16 +191,72 @@ def turnos_disponibles(**filtros):
     return [normalizar_turno(t) for t in datos]
 
 
-def medicos_por_especialidad(id_especialidad):
-    vistos = {}
-    for t in turnos_disponibles(id_especialidad=id_especialidad):
-        if t["id_medico"] and t["id_medico"] not in vistos:
-            vistos[t["id_medico"]] = {
-                "id": t["id_medico"],
-                "nombre": t["medico"],
-                "iniciales": t["iniciales"],
-            }
-    return list(vistos.values())
+def cobertura_paciente():
+    """Cobertura del paciente autenticado (id y nombre)."""
+    p = api("GET", "/usuarios/me")
+
+    nombre = _buscar(p, "nombre_cobertura", "cobertura")
+    if isinstance(nombre, dict):
+        nombre = nombre.get("nombre")
+
+    id_cobertura = _buscar(p, "id_cobertura")
+
+    return {
+        "id": int(id_cobertura) if id_cobertura else None,
+        "nombre": nombre or "Particular",
+    }
+
+
+def medicos_por_especialidad(id_especialidad, id_cobertura=_SIN_ENVIAR):
+    """
+    Médicos reales de una especialidad (GET /medicos).
+
+    Si se recibe id_cobertura se marca cuáles atienden esa cobertura.
+    id_cobertura None (o vacío) representa a un paciente particular.
+    """
+    datos = como_lista(
+        api("GET", "/medicos", params={"id_especialidad": id_especialidad}),
+        "medicos",
+    )
+
+    aceptan = None
+    if id_cobertura is not _SIN_ENVIAR and id_cobertura:
+        aceptan = {
+            _g(m, "id_medico", "id")
+            for m in como_lista(
+                api("GET", "/medicos", params={
+                    "id_especialidad": id_especialidad,
+                    "id_cobertura": id_cobertura,
+                }),
+                "medicos",
+            )
+        }
+
+    es_particular = id_cobertura is not _SIN_ENVIAR and not id_cobertura
+
+    medicos = []
+    for m in datos:
+        id_medico = _g(m, "id_medico", "id")
+        nombre = " ".join(
+            p for p in (_g(m, "nombre"), _g(m, "apellido")) if p
+        )
+
+        if es_particular or aceptan is None:
+            acepta_cobertura = None
+        else:
+            acepta_cobertura = id_medico in aceptan
+
+        medicos.append({
+            "id": id_medico,
+            "nombre": nombre,
+            "iniciales": _iniciales(nombre),
+            "matricula": _g(m, "matricula"),
+            "especialidad": _g(m, "nombre_especialidad", "especialidad"),
+            "acepta_cobertura": acepta_cobertura,
+            "es_particular": es_particular,
+        })
+
+    return medicos
 
 
 # ---------- turnos del paciente ----------

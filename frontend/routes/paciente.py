@@ -1,21 +1,161 @@
+import calendar
+from datetime import date, datetime
+
 from flask import (
     Blueprint, render_template, request, session, redirect, url_for, flash
 )
 
 from src.api import ErrorAPI, api
 from src.api_paciente import (
-    ESTADOS_TURNO, id_paciente_actual, medicos_por_especialidad,
-    mis_turnos_paciente, obtener_especialidades, turnos_disponibles,
+    ESTADOS_TURNO, cobertura_paciente, id_paciente_actual,
+    medicos_por_especialidad, mis_turnos_paciente, obtener_especialidades,
+    turnos_disponibles,
 )
 
 paciente_routes = Blueprint('rutas_paciente', __name__)
 
 CLAVES_TURNO = ('turno_especialidad_id', 'turno_medico', 'turno_fecha', 'turno_hora')
 
+MESES_CALENDARIO = [
+    (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+    (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+    (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre'),
+]
+DIAS_SEMANA_CALENDARIO = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
 
 def _limpiar(*claves):
     for c in claves:
         session.pop(c, None)
+
+
+def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
+    """Datos para la agenda mensual del paso 3."""
+    hoy = date.today()
+    ahora = datetime.now()
+
+    agendas = api('GET', '/agendas', params={'id_medico': medico['id']}).get(
+        'agendas', [])
+
+    rangos = []
+    consultorio = None
+    duracion = None
+    for agenda in agendas:
+        try:
+            inicio = date.fromisoformat(agenda['fecha_inicio'])
+            fin = date.fromisoformat(agenda['fecha_hasta'])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        dias = {
+            d['dia_semana'] for d in agenda.get('dias', [])
+            if d.get('dia_semana')
+        }
+        rangos.append((inicio, fin, dias))
+
+        if consultorio is None:
+            c = agenda.get('consultorio') or {}
+            consultorio = c.get('numero') if isinstance(c, dict) else None
+        if duracion is None:
+            duracion = agenda.get('duracion_turno')
+
+    # Turnos libres futuros del médico.
+    libres = []
+    for t in turnos_disponibles(id_medico=medico['id']):
+        try:
+            momento = datetime.fromisoformat(f"{t['fecha_iso']}T{t['hora']}")
+        except (TypeError, ValueError):
+            continue
+        if momento > ahora:
+            libres.append(t)
+
+    por_fecha = {}
+    for t in libres:
+        por_fecha.setdefault(t['fecha_iso'], set()).add(t['hora'])
+
+    # Mes por defecto: el del primer turno libre; si no hay, el mes actual.
+    if anio is None or mes is None or not 1 <= mes <= 12:
+        referencia = (
+            date.fromisoformat(min(por_fecha)) if por_fecha else hoy
+        )
+        anio, mes = referencia.year, referencia.month
+
+    primer_dia = date(anio, mes, 1)
+    cantidad_dias = calendar.monthrange(anio, mes)[1]
+
+    dias_mes = []
+    for numero in range(1, cantidad_dias + 1):
+        fecha = date(anio, mes, numero)
+        iso = fecha.isoformat()
+        horas = sorted(por_fecha.get(iso, set()))
+
+        atiende = any(
+            inicio <= fecha <= fin and fecha.isoweekday() in dias_semana
+            for inicio, fin, dias_semana in rangos
+        )
+
+        if fecha < hoy:
+            estado = 'pasado'
+        elif horas:
+            estado = 'disponible'
+        elif atiende:
+            estado = 'sin_turnos'
+        else:
+            estado = 'cerrado'
+
+        dias_mes.append({
+            'fecha': iso,
+            'numero': numero,
+            'dia_semana': fecha.weekday(),
+            'libres': len(horas),
+            'estado': estado,
+        })
+
+    hay_disponibles = any(d['estado'] == 'disponible' for d in dias_mes)
+
+    # Sólo los horarios del mes visible viajan al navegador.
+    prefijo = f"{anio:04d}-{mes:02d}-"
+    horarios_mes = {
+        f: sorted(horas) for f, horas in por_fecha.items()
+        if f.startswith(prefijo)
+    }
+
+    if mes == 1:
+        anio_anterior, mes_anterior = anio - 1, 12
+    else:
+        anio_anterior, mes_anterior = anio, mes - 1
+
+    if mes == 12:
+        anio_siguiente, mes_siguiente = anio + 1, 1
+    else:
+        anio_siguiente, mes_siguiente = anio, mes + 1
+
+    anios = sorted({
+        hoy.year, anio,
+        *(inicio.year for inicio, _, _ in rangos),
+        *(fin.year for _, fin, _ in rangos),
+    })
+
+    return {
+        'dias': dias_mes,
+        'dias_semana': DIAS_SEMANA_CALENDARIO,
+        'offset_inicio': primer_dia.weekday(),
+        'mes': mes,
+        'anio': anio,
+        'nombre_mes': dict(MESES_CALENDARIO)[mes],
+        'meses': MESES_CALENDARIO,
+        'anios': anios,
+        'mes_anterior': mes_anterior,
+        'anio_anterior': anio_anterior,
+        'mes_siguiente': mes_siguiente,
+        'anio_siguiente': anio_siguiente,
+        'horarios_por_fecha': horarios_mes,
+        'hay_disponibles': hay_disponibles,
+        'duracion': duracion,
+        'consultorio': consultorio,
+        'fecha_seleccionada': fecha_sel,
+        'hora_seleccionada': hora_sel,
+    }
 
 
 def _error_api(e):
@@ -103,8 +243,10 @@ def sacar_turno():
                 if accion == 'anterior':
                     return redirect(url_for('rutas_paciente.sacar_turno', paso=1))
                 medico_id = request.form.get('medico_id', type=int)
+                cobertura = cobertura_paciente()
                 elegido = next(
-                    (m for m in medicos_por_especialidad(especialidad_id)
+                    (m for m in medicos_por_especialidad(
+                        especialidad_id, cobertura['id'])
                      if m['id'] == medico_id), None)
                 if elegido is None:
                     flash('Seleccioná un médico válido.', 'error')
@@ -118,11 +260,21 @@ def sacar_turno():
                     return redirect(url_for('rutas_paciente.sacar_turno', paso=2))
                 if not medico:
                     return redirect(url_for('rutas_paciente.sacar_turno'))
-                fecha = request.form.get('fecha')
-                hora = request.form.get('hora')
-                existe = any(
-                    t['fecha_iso'] == fecha and t['hora'] == hora
-                    for t in turnos_disponibles(id_medico=medico['id'])
+                fecha = (request.form.get('fecha') or '').strip()
+                hora = (request.form.get('hora') or '').strip()
+
+                try:
+                    date.fromisoformat(fecha)
+                except ValueError:
+                    fecha = None
+
+                existe = bool(fecha and hora) and any(
+                    t['hora'] == hora
+                    for t in turnos_disponibles(
+                        id_medico=medico['id'],
+                        fecha_desde=fecha,
+                        fecha_hasta=fecha,
+                    )
                 )
                 if not existe:
                     flash('Ese horario no está disponible para esa fecha.', 'error')
@@ -140,8 +292,12 @@ def sacar_turno():
                     # Se vuelve a buscar el turno: el id_turno no se guarda
                     # en sesión porque pudo ocuparse mientras el paciente elegía.
                     turno = next((
-                        t for t in turnos_disponibles(id_medico=medico['id'])
-                        if t['fecha_iso'] == fecha_sel and t['hora'] == hora_sel
+                        t for t in turnos_disponibles(
+                            id_medico=medico['id'],
+                            fecha_desde=fecha_sel,
+                            fecha_hasta=fecha_sel,
+                        )
+                        if t['hora'] == hora_sel
                     ), None)
                     if turno is None:
                         flash('Ese turno ya no está disponible. Elegí otro horario.', 'error')
@@ -189,38 +345,43 @@ def sacar_turno():
         if paso == 2:
             if especialidad is None:
                 return redirect(url_for('rutas_paciente.sacar_turno'))
+
+            cobertura = cobertura_paciente()
             return render_template(
                 'pacientes/pasos_turno/medico.html',
                 paso=2, especialidad=especialidad,
-                medicos=medicos_por_especialidad(especialidad_id),
+                medicos=medicos_por_especialidad(
+                    especialidad_id, cobertura['id']),
+                cobertura=cobertura,
                 medico_seleccionado=medico['id'] if medico else None)
 
         if paso == 3:
             if especialidad is None or medico is None:
                 return redirect(url_for('rutas_paciente.sacar_turno'))
-            libres = turnos_disponibles(id_medico=medico['id'])
-            fechas, por_fecha = [], {}
-            for t in libres:
-                if t['fecha_iso'] not in por_fecha:
-                    por_fecha[t['fecha_iso']] = []
-                    fechas.append({'valor': t['fecha_iso'], 'dia_semana': t['dia_semana'],
-                                   'dia': t['dia'], 'mes': t['mes']})
-                por_fecha[t['fecha_iso']].append(t['hora'])
-            horarios = sorted({h for hs in por_fecha.values() for h in hs})
-            duracion = next((t['duracion'] for t in libres if t.get('duracion')), None)
+
+            contexto = _contexto_calendario(
+                medico,
+                request.args.get('anio', type=int),
+                request.args.get('mes', type=int),
+                fecha_sel,
+                hora_sel,
+            )
             return render_template(
                 'pacientes/pasos_turno/fecha.html',
                 paso=3, especialidad=especialidad, medico=medico,
-                fechas=fechas, horarios=horarios,
-                horarios_por_fecha=por_fecha,
-                duracion=duracion,
-                fecha_seleccionada=fecha_sel, hora_seleccionada=hora_sel)
+                **contexto)
 
         if paso == 4:
             if not all([especialidad, medico, fecha_sel, hora_sel]):
                 return redirect(url_for('rutas_paciente.sacar_turno'))
-            f = next((t for t in turnos_disponibles(id_medico=medico['id'])
-                      if t['fecha_iso'] == fecha_sel), None)
+            f = next((
+                t for t in turnos_disponibles(
+                    id_medico=medico['id'],
+                    fecha_desde=fecha_sel,
+                    fecha_hasta=fecha_sel,
+                )
+                if t['hora'] == hora_sel
+            ), None)
             fecha_texto = f"{f['dia_semana']} {f['dia']} DE {f['mes']}" if f else fecha_sel
             return render_template(
                 'pacientes/pasos_turno/confirmacion.html',
