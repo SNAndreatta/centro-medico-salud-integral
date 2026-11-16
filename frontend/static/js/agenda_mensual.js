@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="border-t border-gray-200 pt-3 sm:pt-4 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5">
                 <p class="text-xs font-medium tracking-wide text-acento/70">CONSULTORIO</p>
-                <p class="text-3xl font-bold leading-tight text-acento">${consultorio}</p>
+                <p class="text-3xl font-bold leading-tight text-acento">${turno.consultorio || consultorio}</p>
             </div>`;
     }
 
