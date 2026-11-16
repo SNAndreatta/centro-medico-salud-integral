@@ -48,6 +48,16 @@ def _fecha(valor):
         return '-'
 
 
+def _fecha_iso(valor):
+    """Fecha en formato AAAA-MM-DD para precargar inputs type="date"."""
+    if not valor:
+        return ''
+    try:
+        return date.fromisoformat(str(valor)[:10]).isoformat()
+    except ValueError:
+        return ''
+
+
 def _normalizar_usuario(usuario):
     id_rol = int(usuario['id_rol'])
     clave, etiqueta = ROLES.get(id_rol, ('desconocido', 'SIN ROL'))
@@ -63,6 +73,7 @@ def _normalizar_usuario(usuario):
         'mail': usuario['correo_electronico'],
         'dni': usuario['dni'],
         'fecha_nacimiento': _fecha(usuario.get('fecha_nacimiento')),
+        'fecha_nacimiento_iso': _fecha_iso(usuario.get('fecha_nacimiento')),
         'fecha_registro': _fecha(usuario.get('fecha_creacion')),
         'id_medico': usuario.get('id_medico'),
         'matricula': usuario.get('matricula'),
@@ -70,6 +81,20 @@ def _normalizar_usuario(usuario):
         'id_paciente': usuario.get('id_paciente'),
         'cobertura': usuario.get('nombre_cobertura'),
     }
+
+
+def _buscar_usuario(id_usuario):
+    """Devuelve el usuario normalizado o None. Puede lanzar ErrorAPI."""
+    datos = api('GET', '/usuarios')
+
+    return next(
+        (
+            _normalizar_usuario(u)
+            for u in datos.get('usuarios', [])
+            if int(u['id_usuario']) == id_usuario
+        ),
+        None,
+    )
 
 
 def _catalogos():
@@ -96,6 +121,46 @@ def _catalogos():
         pass
 
     return especialidades, coberturas
+
+
+def _coberturas_medico(id_medico):
+    """Coberturas ya asociadas a un médico.
+
+    SUPUESTO: GET /medicos/<id>/coberturas devuelve
+    {'coberturas': [{'id_cobertura': ..., 'nombre': ...}]}.
+    """
+    if not id_medico:
+        return []
+
+    try:
+        datos = api('GET', f'/medicos/{id_medico}/coberturas')
+    except ErrorAPI:
+        return []
+
+    return [
+        {'id': c['id_cobertura'], 'nombre': c['nombre']}
+        for c in datos.get('coberturas', [])
+    ]
+
+
+def _consultorios():
+    """Consultorios para el popup de crear agenda.
+
+    SUPUESTO: GET /consultorios devuelve {'consultorios': [...]} y cada
+    elemento trae el id y el número (se aceptan varios nombres de campo).
+    """
+    try:
+        datos = api('GET', '/consultorios')
+    except ErrorAPI:
+        return []
+
+    return [
+        {
+            'id': c.get('id_consultorio', c.get('id')),
+            'numero': c.get('numero', c.get('numero_consultorio')),
+        }
+        for c in datos.get('consultorios', [])
+    ]
 
 
 # =================================
@@ -210,24 +275,139 @@ def crear_usuario():
 @usuario_admin_routes.route('/usuario/<int:id_usuario>')
 def usuario_perfil(id_usuario):
     try:
-        datos = api('GET', '/usuarios')
+        usuario = _buscar_usuario(id_usuario)
     except ErrorAPI as e:
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
-    usuario = next(
-        (
-            _normalizar_usuario(u)
-            for u in datos.get('usuarios', [])
-            if int(u['id_usuario']) == id_usuario
-        ),
-        None,
-    )
-
     if usuario is None:
         return 'Usuario no encontrado', 404
+
+    especialidades = []
+    coberturas_medico = []
+    coberturas_disponibles = []
+    consultorios = []
+
+    # Los datos extra solo se necesitan para los médicos.
+    if usuario['id_rol'] == 4:
+        especialidades, catalogo_coberturas = _catalogos()
+        coberturas_medico = _coberturas_medico(usuario['id_medico'])
+
+        ids_asociadas = {c['id'] for c in coberturas_medico}
+        coberturas_disponibles = [
+            c for c in catalogo_coberturas if c['id'] not in ids_asociadas
+        ]
+
+        consultorios = _consultorios()
 
     return render_template(
         'admin/abm/usuarios/profile.html',
         usuario=usuario,
+        especialidades=especialidades,
+        coberturas_medico=coberturas_medico,
+        coberturas_disponibles=coberturas_disponibles,
+        consultorios=consultorios,
     )
+
+
+# =================================
+# EDITAR USUARIO
+# =================================
+
+@usuario_admin_routes.route('/usuario/<int:id_usuario>/editar', methods=['POST'])
+def editar_usuario(id_usuario):
+    perfil = redirect(
+        url_for('rutas_admin_usuario.usuario_perfil', id_usuario=id_usuario)
+    )
+
+    try:
+        usuario = _buscar_usuario(id_usuario)
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return perfil
+
+    if usuario is None:
+        return 'Usuario no encontrado', 404
+
+    nombre = request.form.get('nombre', '').strip()
+    apellido = request.form.get('apellido', '').strip()
+    dni = request.form.get('dni', '').strip()
+    mail = request.form.get('mail', '').strip().lower()
+    fecha_nacimiento = request.form.get('fecha_nacimiento', '').strip()
+
+    if not all([nombre, apellido, dni, mail]):
+        flash('Completá todos los campos obligatorios.', 'error')
+        return perfil
+
+    datos = {
+        'nombre': nombre,
+        'apellido': apellido,
+        'dni': dni,
+        'correo_electronico': mail,
+    }
+    if fecha_nacimiento:
+        datos['fecha_nacimiento'] = fecha_nacimiento
+
+    try:
+        # SUPUESTO: PUT /usuarios/<id> actualiza los datos personales.
+        api('PUT', f'/usuarios/{id_usuario}', json=datos)
+
+        if usuario['id_rol'] == 4 and usuario['id_medico']:
+            id_especialidad = request.form.get('id_especialidad', type=int)
+            matricula = request.form.get('matricula', '').strip()
+
+            if not id_especialidad or not matricula:
+                flash('Para un médico tenés que indicar especialidad y matrícula.', 'error')
+                return perfil
+
+            # SUPUESTO: PUT /medicos/<id_medico> actualiza especialidad y matrícula.
+            api('PUT', f"/medicos/{usuario['id_medico']}", json={
+                'id_especialidad': id_especialidad,
+                'matricula': matricula,
+            })
+
+            # Solo se agregan coberturas nuevas (las que ya tenía no se tocan).
+            coberturas_error = False
+
+            for id_cobertura in request.form.getlist('coberturas'):
+                try:
+                    api(
+                        'POST',
+                        f"/medicos/{usuario['id_medico']}/coberturas",
+                        json={'id_cobertura': int(id_cobertura)},
+                    )
+                except (ErrorAPI, ValueError):
+                    coberturas_error = True
+
+            if coberturas_error:
+                flash(
+                    'Los datos se guardaron, pero no se pudieron agregar todas las coberturas.',
+                    'error',
+                )
+                return perfil
+
+        flash('Datos actualizados correctamente.', 'success')
+
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+
+    return perfil
+
+
+# =================================
+# ELIMINAR USUARIO
+# =================================
+
+@usuario_admin_routes.route('/usuario/<int:id_usuario>/eliminar', methods=['POST'])
+def eliminar_usuario(id_usuario):
+    try:
+        # SUPUESTO: DELETE /usuarios/<id> da de baja al usuario.
+        api('DELETE', f'/usuarios/{id_usuario}')
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return redirect(
+            url_for('rutas_admin_usuario.usuario_perfil', id_usuario=id_usuario)
+        )
+
+    flash('Usuario eliminado correctamente.', 'success')
+    return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))

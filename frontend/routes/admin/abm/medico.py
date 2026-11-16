@@ -12,7 +12,7 @@ medico_admin_routes = Blueprint('rutas_admin_medico', __name__)
 
 medicos = [
     {
-        "id": 1,
+        "id": 104,
         "nombre_completo": "Dr. Nombre Completo",
         "iniciales": "NC",
         "especialidad": "CARDIOLOGÍA",
@@ -24,7 +24,7 @@ medicos = [
         "fecha_registro": "DD/MM/AAAA"
     },
     {
-        "id": 2,
+        "id": 10,
         "nombre_completo": "Dr. Nombre Completo",
         "iniciales": "NC",
         "especialidad": "DERMATOLOGÍA",
@@ -36,7 +36,7 @@ medicos = [
         "fecha_registro": "DD/MM/AAAA"
     },
     {
-        "id": 3,
+        "id": 9,
         "nombre_completo": "Dr. Nombre Completo",
         "iniciales": "NC",
         "especialidad": "OFTALMOLOGÍA",
@@ -48,7 +48,7 @@ medicos = [
         "fecha_registro": "DD/MM/AAAA"
     },
     {
-        "id": 4,
+        "id": 8,
         "nombre_completo": "Dr. Nombre Completo",
         "iniciales": "NC",
         "especialidad": "CLÍNICA MÉDICA",
@@ -60,7 +60,7 @@ medicos = [
         "fecha_registro": "DD/MM/AAAA"
     },
     {
-        "id": 5,
+        "id": 7,
         "nombre_completo": "Dr. Nombre Completo",
         "iniciales": "NC",
         "especialidad": "PEDIATRÍA",
@@ -132,7 +132,7 @@ def medico_perfil(id_medico):
     medico_vista["apellido"] = partes_nombre[1] if len(partes_nombre) > 1 else ""
 
     return render_template(
-        "admin/abm/medicos/profile.html",
+        "admin/abm/usuarios/profile.html",
         medico=medico_vista,
         coberturas=coberturas,
         consultorios=consultorios

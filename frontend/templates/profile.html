@@ -5,8 +5,8 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-<div class="min-h-auto bg-dominante px-4 sm:px-6">
-    <div class="mx-auto max-w-5xl">
+<div class="min-h-auto bg-dominante ">
+    <div class="w-full">
         {% if rol == "medico" %}
             {% include "profile/medico.html" %}
         {% elif rol == "recepcion" or rol == "recepcionista" %}
