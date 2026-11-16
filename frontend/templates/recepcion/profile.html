@@ -29,15 +29,7 @@
             <!-- Fecha en el cuadro blanco -->
             <div class="min-h-[74px] pb-5 pl-[130px] pr-12 pt-2">
                 <p class="text-sm text-acento/70">
-                    {% if usuario.tipo_perfil == 'paciente' %}
-                        Paciente desde {{ usuario.fecha_registro }}
-                    {% elif usuario.id_rol == 1 %}
-                        Recepcionista desde {{ usuario.fecha_registro }}
-                    {% elif usuario.id_rol == 2 %}
-                        Administrador desde {{ usuario.fecha_registro }}
-                    {% else %}
-                        Desde {{ usuario.fecha_registro }}
-                    {% endif %}
+                    Paciente desde {{ usuario.fecha_registro }}
                 </p>
             </div>
         </section>
