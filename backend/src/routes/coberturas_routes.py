@@ -8,16 +8,19 @@ from src.services.coberturas_services import (
 )
 from src.utils.auth import roles_required, token_required
 from src.utils.http_errors import handle_unexpected_errors
-from src.utils.roles import ADMINISTRADOR, ROLES_VALIDOS
+from src.utils.roles import ADMINISTRADOR
 from src.validators.common import validar_objeto_json
 
 coberturas_bp = Blueprint('coberturas_bp', __name__)
 
 @coberturas_bp.get('/coberturas')
 @handle_unexpected_errors
-@token_required
-@roles_required(*ROLES_VALIDOS)
 def obtener_coberturas():
+    """Listado de coberturas.
+
+    Es público porque el formulario de registro necesita mostrar todas las
+    coberturas de la base de datos antes de que el paciente tenga cuenta.
+    """
     respuesta, status_code = listar_coberturas()
     return respuesta, status_code
 

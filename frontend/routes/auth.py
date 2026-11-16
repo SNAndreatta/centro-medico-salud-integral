@@ -23,6 +23,32 @@ ROLES = {
 }
 
 
+def _listar_coberturas():
+    """Coberturas de la base de datos para el selector del registro.
+
+    Devuelve una lista vacía si el backend no está disponible, para que el
+    registro siga funcionando con la opción "Particular".
+    """
+    try:
+        respuesta = requests.get(
+            f"{current_app.config['BACKEND_URL']}/coberturas",
+            timeout=10
+        )
+        respuesta.raise_for_status()
+        datos = respuesta.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    return [
+        {
+            'id': cobertura.get('id_cobertura'),
+            'nombre': cobertura.get('nombre'),
+        }
+        for cobertura in datos.get('coberturas', [])
+        if cobertura.get('id_cobertura') and cobertura.get('nombre')
+    ]
+
+
 # LOGIN
 @auth_routes.route('/login', methods=['GET', 'POST'])
 def login():
@@ -121,16 +147,16 @@ def register():
             return render_template(
                 'auth/register.html',
                 mensaje='Completá todos los campos.',
-                coberturas=[],
-                id_cobertura=''
+                coberturas=_listar_coberturas(),
+                id_cobertura=id_cobertura
             )
 
         if password != confirmar_password:
             return render_template(
                 'auth/register.html',
                 mensaje='Las contraseñas no coinciden.',
-                coberturas=[],
-                id_cobertura=''
+                coberturas=_listar_coberturas(),
+                id_cobertura=id_cobertura
             )
 
         # El nro. de afiliado NO se pide: el backend lo genera automáticamente
@@ -143,7 +169,7 @@ def register():
                 return render_template(
                     'auth/register.html',
                     mensaje='La cobertura seleccionada no es válida.',
-                    coberturas=[],
+                    coberturas=_listar_coberturas(),
                     id_cobertura=''
                 )
 
@@ -197,7 +223,9 @@ def register():
 
                 return render_template(
                     'auth/register.html',
-                    mensaje=mensaje
+                    mensaje=mensaje,
+                    coberturas=_listar_coberturas(),
+                    id_cobertura=id_cobertura
                 )
 
             return redirect(url_for('rutas_auth.login'))
@@ -205,21 +233,15 @@ def register():
         except requests.RequestException:
             return render_template(
                 'auth/register.html',
-                mensaje='No se pudo conectar con el servidor.'
+                mensaje='No se pudo conectar con el servidor.',
+                coberturas=_listar_coberturas(),
+                id_cobertura=id_cobertura
             )
-
-    try:
-        coberturas_resp = requests.get(
-            f"{current_app.config['BACKEND_URL']}/coberturas",
-            timeout=10
-        ).json()
-        coberturas = coberturas_resp.get('coberturas', [])
-    except Exception:
-        coberturas = []
 
     return render_template(
         'auth/register.html',
-        coberturas=coberturas
+        coberturas=_listar_coberturas(),
+        id_cobertura=''
     )
 
 

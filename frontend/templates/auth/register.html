@@ -46,7 +46,7 @@
             </header>
 
             <!-- Tarjeta de registro -->
-            <div class="rounded-xl bg-white px-5 py-6 shadow-sm sm:px-8">
+            <div class="rounded-2xl bg-white px-5 py-6 shadow-sm sm:px-8">
 
                 <div class="mb-4 text-center">
                     <h1 class="text-2xl font-bold font-lexend text-acento sm:text-[26px]">
@@ -67,7 +67,7 @@
                             Nombre
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="first-name"
@@ -88,7 +88,7 @@
                             Apellido
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="last-name"
@@ -109,7 +109,7 @@
                             Fecha de nacimiento
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="calendar" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="fecha_nacimiento"
@@ -129,7 +129,7 @@
                             DNI
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="id-card" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="dni"
@@ -145,13 +145,13 @@
                     </div>
 
                     <!-- Cobertura -->
-                    <div>
+                    <div class="sm:col-span-2">
                         <label for="id_cobertura"
                             class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
                             Cobertura
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="building" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <select
                                 id="id_cobertura"
@@ -159,7 +159,7 @@
                                 class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none">
                                 <option value="">Particular</option>
                                 {% for cobertura in coberturas %}
-                                <option value="{{ cobertura.id }}">{{ cobertura.nombre }}</option>
+                                <option value="{{ cobertura.id }}" {% if cobertura.id == id_cobertura|int %}selected{% endif %}>{{ cobertura.nombre }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -172,7 +172,7 @@
                             Correo electrónico
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="mail" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="email"
@@ -194,7 +194,7 @@
                             Contraseña
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="password"
@@ -226,7 +226,7 @@
                             Confirmar contraseña
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
+                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
                             <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
                             <input
                                 id="confirm-password"
@@ -259,19 +259,19 @@
                     {% if mensaje %}
                         <p id="register-message"
                            role="alert"
-                           class="rounded-lg bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">
+                           class="rounded-2xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">
                             {{ mensaje }}
                         </p>
                     {% else %}
                         <p id="register-message"
                            role="alert"
-                           class="hidden rounded-lg bg-red-50 p-3 text-sm text-red-700 sm:col-span-2"></p>
+                           class="hidden rounded-2xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2"></p>
                     {% endif %}
 
                     <!-- Botón de registro -->
                     <button
                         type="submit"
-                        class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-acento px-4 text-sm font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:col-span-2"
+                        class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-acento px-4 text-sm font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:col-span-2"
                     >
                         Crear cuenta
                         <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
