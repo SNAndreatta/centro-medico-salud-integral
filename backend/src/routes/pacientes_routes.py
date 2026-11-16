@@ -2,7 +2,7 @@ from flask import Blueprint, request
 
 from src.services.pacientes_services import (
     filtrar_pacientes,
-    obtener_paciente_por_id,
+    obtener_paciente,
     modificar_paciente,
     listar_turnos_paciente
 )
@@ -39,7 +39,7 @@ def listar_pacientes():
 @token_required
 @roles_required(ADMINISTRADOR, RECEPCIONISTA)
 def consultar_paciente(id_paciente):
-    respuesta, status_code = obtener_paciente_por_id(id_paciente)
+    respuesta, status_code = obtener_paciente(id_paciente)
     return respuesta, status_code
 
 @pacientes_bp.put('/pacientes/<int:id_paciente>')

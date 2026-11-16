@@ -1,4 +1,6 @@
-from flask import Blueprint, jsonify, render_template, request
+from datetime import date, datetime
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
@@ -10,6 +12,21 @@ from routes.admin.dashboards._comun import (
 )
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
+
+
+def _formatear_fecha(valor):
+    if not valor:
+        return '-'
+    texto = str(valor)
+    for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S'):
+        try:
+            return datetime.strptime(texto[:19], fmt).strftime('%d/%m/%Y')
+        except ValueError:
+            continue
+    try:
+        return date.fromisoformat(texto[:10]).strftime('%d/%m/%Y')
+    except ValueError:
+        return texto
 
 
 def _listar_especialidades():
@@ -135,180 +152,143 @@ def registrar_ingreso():
 
 
 # ==========================================
-# USUARIOS
+# PACIENTES
 # ==========================================
 
-@recepcion_routes.route("/recepcion/usuarios")
+@recepcion_routes.route("/recepcion/pacientes")
 @requiere_rol("recepcion")
-def ver_usuarios():
+def ver_pacientes():
+    pacientes = []
+    error = None
 
-    usuarios = [
-        {
-            "id": 1,
-            "nombre": "Camila",
-            "apellido": "Núñez",
-            "cobertura": "OSDE",
-            "iniciales": "CN",
-            "color_fondo": "bg-pink-500/30 text-pink-500"
-        },
-        {
-            "id": 2,
-            "nombre": "Martín",
-            "apellido": "Pérez",
-            "cobertura": "Swiss Medical",
-            "iniciales": "MP",
-            "color_fondo": "bg-purple-500/30 text-purple-500"
-        },
-        {
-            "id": 3,
-            "nombre": "Lucía",
-            "apellido": "Fernández",
-            "cobertura": "Galeno",
-            "iniciales": "LF",
-            "color_fondo": "bg-green-500/30 text-green-500"
-        },
-        {
-            "id": 4,
-            "nombre": "Tomás",
-            "apellido": "Gómez",
-            "cobertura": "Medifé",
-            "iniciales": "TG",
-            "color_fondo": "bg-red-500/30 text-red-500"
-        }
-    ]
+    try:
+        datos = api('GET', '/pacientes')
+        for indice, paciente in enumerate(datos.get('pacientes', [])):
+            pacientes.append({
+                'id': paciente.get('id_paciente'),
+                'nombre': paciente.get('nombre') or '',
+                'apellido': paciente.get('apellido') or '',
+                'cobertura': paciente.get('cobertura') or paciente.get('nombre_cobertura') or 'Particular',
+                'iniciales': iniciales(paciente.get('nombre'), paciente.get('apellido')),
+                'color_fondo': color_avatar(indice),
+            })
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
-        "recepcion/ver_usuarios.html",
-        usuarios=usuarios
+        "recepcion/ver_pacientes.html",
+        pacientes=pacientes,
+        error=error,
     )
 
 
-# ==========================================
-# PERFIL
-# ==========================================
 
-@recepcion_routes.route("/recepcion/profile")
-@requiere_rol("recepcion")
-def perfil():
-
-    usuario = {
-        "nombre": "Camila",
-        "apellido": "Núñez",
-        "iniciales": "CN",
-        "email": "ejemplo.usuario@gmail.com",
-        "documento": "44.444.444",
-        "fecha_nacimiento": "DD/MM/AAAA",
-        "fecha_registro": "DD/MM/AAAA"
-    }
-
-    return render_template(
-        "/recepcion/profile.html",
-        usuario=usuario
-    )
 
 
 # ==========================================
 # TURNOS
 # ==========================================
 
+def _normalizar_turno_grilla(turno, indice):
+    paciente = turno.get('paciente') or {}
+    medico = turno.get('medico') or {}
+    consultorio = turno.get('consultorio') or {}
+    estado = turno.get('estado') or {}
+
+    nombre_paciente = nombre_completo(paciente.get('nombre'), paciente.get('apellido'))
+    nombre_medico = nombre_completo(medico.get('nombre'), medico.get('apellido'))
+    especialidad = medico.get('especialidad') or ''
+
+    fecha_iso = ''
+    fecha = '-'
+    valor_fecha = turno.get('fecha_horario_inicial')
+    if valor_fecha:
+        texto = str(valor_fecha)
+        fecha_iso = texto[:10]
+        try:
+            fecha = datetime.strptime(texto[:19], '%Y-%m-%d %H:%M:%S').strftime('%d - %m - %Y')
+        except ValueError:
+            fecha = _formatear_fecha(texto)
+
+    return {
+        'id': turno.get('id_turno'),
+        'paciente': nombre_paciente or 'Sin paciente',
+        'iniciales': iniciales(paciente.get('nombre'), paciente.get('apellido')) if paciente else 'SP',
+        'cobertura': '-',
+        'hora': formatear_hora(turno.get('fecha_horario_inicial')),
+        'fecha': fecha,
+        'fecha_filtro': fecha_iso,
+        'consultorio': consultorio.get('numero') or '-',
+        'medico': nombre_medico,
+        'especialidad': especialidad or nombre_medico or '-',
+        'estado': estado.get('nombre') or '',
+        'color_fondo': color_avatar(indice),
+    }
+
+
 @recepcion_routes.route("/recepcion/turnos")
 @requiere_rol("recepcion")
 def ver_turnos():
+    turnos = []
+    medicos = []
+    especialidades = []
+    error = None
 
-    turnos = [
-        {
-            "id": 1,
-            "paciente": "Camila Núñez",
-            "iniciales": "CN",
-            "cobertura": "OSDE",
-            "hora": "10:30 am.",
-            "fecha": "11 - 10 - 2026",
-            "fecha_filtro": "2026-10-11",
-            "consultorio": "123",
-            "especialidad": "Dr. Juan Pérez",
-            "color_fondo": "bg-pink-500/30 text-pink-500"
-        },
-        {
-            "id": 2,
-            "paciente": "Lucía Fernández",
-            "iniciales": "LF",
-            "cobertura": "Galeno",
-            "hora": "10:30 am.",
-            "fecha": "11 - 10 - 2026",
-            "fecha_filtro": "2026-10-11",
-            "consultorio": "123",
-            "especialidad": "Dra. Ana Martínez",
-            "color_fondo": "bg-purple-500/30 text-purple-500"
-        },
-        {
-            "id": 3,
-            "paciente": "Martín Pérez",
-            "iniciales": "MP",
-            "cobertura": "Swiss Medical",
-            "hora": "10:30 am.",
-            "fecha": "11 - 10 - 2026",
-            "fecha_filtro": "2026-10-11",
-            "consultorio": "123",
-            "especialidad": "Dr. Carlos Gómez",
-            "color_fondo": "bg-green-500/30 text-green-500"
-        },
-        {
-            "id": 4,
-            "paciente": "Tomás Gómez",
-            "iniciales": "TG",
-            "cobertura": "Medifé",
-            "hora": "10:30 am.",
-            "fecha": "11 - 10 - 2026",
-            "fecha_filtro": "2026-10-11",
-            "consultorio": "123",
-            "especialidad": "Dr. Juan Pérez",
-            "color_fondo": "bg-red-500/30 text-red-500"
-        },
-        {
-            "id": 5,
-            "paciente": "Nicolás Castro",
-            "iniciales": "NC",
-            "cobertura": "OSDE",
-            "hora": "10:30 am.",
-            "fecha": "11 - 10 - 2026",
-            "fecha_filtro": "2026-10-11",
-            "consultorio": "123",
-            "especialidad": "Dra. Ana Martínez",
-            "color_fondo": "bg-cyan-500/30 text-cyan-500"
-        }
-    ]
+    try:
+        datos = api('GET', '/turnos')
+        turnos_crudos = [
+            turno for turno in datos.get('turnos', [])
+            if (turno.get('estado') or {}).get('nombre', '').lower() != 'disponible'
+        ]
+        turnos = [
+            _normalizar_turno_grilla(turno, indice)
+            for indice, turno in enumerate(turnos_crudos)
+        ]
+        medicos = sorted({t['medico'] for t in turnos if t.get('medico')})
+        especialidades = sorted({t['especialidad'] for t in turnos if t.get('especialidad')})
+    except ErrorAPI as e:
+        error = e.mensaje
 
     return render_template(
         "recepcion/ver_turnos.html",
-        turnos=turnos
+        turnos=turnos,
+        medicos=medicos,
+        especialidades=especialidades,
+        error=error,
     )
 
 
 # ==========================================
-# PERFIL DE USUARIO
+# PERFIL DE PACIENTE
 # ==========================================
 
 @recepcion_routes.route("/recepcion/profile/<int:id_usuario>")
 @requiere_rol("recepcion")
 def perfil_usuario(id_usuario):
+    try:
+        datos = api('GET', f'/pacientes/{id_usuario}')
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
+        return redirect(url_for('rutas_recepcion.ver_pacientes'))
 
-    usuarios = {
-        1: {
-            "id": 1,
-            "nombre": "Camila",
-            "apellido": "Núñez",
-            "iniciales": "CN",
-            "email": "ejemplo.usuario@gmail.com",
-            "documento": "44.444.444",
-            "fecha_nacimiento": "DD/MM/AAAA",
-            "fecha_registro": "DD/MM/AAAA"
-        }
+    paciente = datos.get('paciente')
+    if not paciente:
+        flash('Paciente no encontrado.', 'error')
+        return redirect(url_for('rutas_recepcion.ver_pacientes'))
+
+    usuario = {
+        'id': paciente.get('id_paciente'),
+        'nombre': paciente.get('nombre') or '',
+        'apellido': paciente.get('apellido') or '',
+        'iniciales': iniciales(paciente.get('nombre'), paciente.get('apellido')),
+        'email': paciente.get('correo_electronico') or '-',
+        'documento': paciente.get('dni') or '-',
+        'fecha_nacimiento': _formatear_fecha(paciente.get('fecha_nacimiento')),
+        'fecha_registro': _formatear_fecha(paciente.get('fecha_creacion')),
+        'cobertura': paciente.get('nombre_cobertura') or paciente.get('cobertura') or 'Particular',
+        'nro_afiliado': paciente.get('nro_afiliado') or '-',
+        'tipo_perfil': 'paciente',
     }
-
-    usuario = usuarios.get(id_usuario)
-
-    if not usuario:
-        return "Usuario no encontrado", 404
 
     return render_template(
         "recepcion/profile.html",

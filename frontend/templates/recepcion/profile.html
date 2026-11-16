@@ -29,12 +29,7 @@
             <!-- Fecha en el cuadro blanco -->
             <div class="min-h-[74px] pb-5 pl-[130px] pr-12 pt-2">
                 <p class="text-sm text-acento/70">
-                    {% if usuario.id_rol == 1 %}
-                        Recepcionista
-                    {% elif usuario.id_rol == 2 %}
-                        Administrador
-                    {% endif %}
-                    desde {{ usuario.fecha_registro }}
+                    Paciente desde {{ usuario.fecha_registro }}
                 </p>
             </div>
         </section>
@@ -46,18 +41,26 @@
 
                 <!-- Columna 1 -->
                 <div class="space-y-6">
-
                     <div>
                         <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                             Mail
                         </p>
-
                         <p class="mt-1 break-words text-sm font-medium text-acento underline">
                             {{ usuario.email }}
                         </p>
                     </div>
-                </div>
 
+                    {% if usuario.tipo_perfil == 'paciente' %}
+                    <div>
+                        <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
+                            Cobertura
+                        </p>
+                        <p class="mt-1 text-sm font-medium text-acento">
+                            {{ usuario.cobertura }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
 
                 <!-- Columna 2 -->
                 <div class="space-y-6">
@@ -65,11 +68,21 @@
                         <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                             Fecha de nacimiento
                         </p>
-
                         <p class="mt-1 text-sm font-medium text-acento">
                             {{ usuario.fecha_nacimiento }}
                         </p>
                     </div>
+
+                    {% if usuario.tipo_perfil == 'paciente' %}
+                    <div>
+                        <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
+                            Nro. de afiliado
+                        </p>
+                        <p class="mt-1 text-sm font-medium text-acento">
+                            {{ usuario.nro_afiliado }}
+                        </p>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Columna 3 -->
@@ -78,7 +91,6 @@
                         <p class="text-sm font-medium uppercase tracking-wide text-acento/70">
                             Documento
                         </p>
-
                         <p class="mt-1 text-sm font-medium text-acento">
                             {{ usuario.documento }}
                         </p>
