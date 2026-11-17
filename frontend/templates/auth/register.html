@@ -22,22 +22,22 @@
 
     <main class="flex items-center justify-center px-4 py-4 sm:px-6 sm:py-10">
 
-        <section class="w-1/2">
+        <section class="w-full max-w-[720px] sm:w-1/2 sm:max-w-none">
 
             <!-- Logo y nombre del centro -->
             <header class="mb-4 flex justify-center sm:mb-8">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5 sm:gap-3">
 
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-acento text-white">
-                        <i data-lucide="activity" class="h-7 w-7 sm:h-8 sm:w-8"></i>
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-acento text-white sm:h-12 sm:w-12">
+                        <i data-lucide="activity" class="h-6 w-6 sm:h-8 sm:w-8"></i>
                     </div>
 
                     <div class="min-w-0">
-                        <p class="mb-0.5 text-[10px] font-medium font-lexend tracking-[0.18em] text-slate-500 sm:text-xs">
+                        <p class="mb-0.5 text-[9px] font-medium font-lexend tracking-[0.18em] text-slate-500 sm:text-xs">
                             CENTRO MÉDICO
                         </p>
 
-                        <h2 class="font-gelasio text-2xl font-bold leading-tight tracking-tight">
+                        <h2 class="font-gelasio text-xl font-bold leading-tight tracking-tight sm:text-2xl">
                             Salud Integral
                         </h2>
                     </div>
@@ -46,10 +46,10 @@
             </header>
 
             <!-- Tarjeta de registro -->
-            <div class="rounded-2xl bg-white px-5 py-6 shadow-sm sm:px-8">
+            <div class="rounded-2xl bg-white px-4 py-5 shadow-sm sm:px-8 sm:py-6">
 
                 <div class="mb-4 text-center">
-                    <h1 class="text-2xl font-bold font-lexend text-acento sm:text-[26px]">
+                    <h1 class="text-xl font-bold font-lexend text-acento sm:text-[26px]">
                         Crear cuenta
                     </h1>
                 </div>
@@ -58,17 +58,17 @@
                     method="POST"
                     action="{{ url_for('rutas_auth.register') }}"
                     novalidate
-                    class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
 
                     <!-- Nombre -->
                     <div>
                         <label for="first-name"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Nombre
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="user" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="first-name"
                                 name="first_name"
@@ -76,7 +76,7 @@
                                 placeholder="Ingresá tu nombre"
                                 autocomplete="given-name"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                         </div>
                     </div>
@@ -84,12 +84,12 @@
                     <!-- Apellido -->
                     <div>
                         <label for="last-name"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Apellido
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="user" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="user" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="last-name"
                                 name="last_name"
@@ -97,7 +97,7 @@
                                 placeholder="Ingresá tu apellido"
                                 autocomplete="family-name"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                         </div>
                     </div>
@@ -105,19 +105,19 @@
                     <!-- Fecha de nacimiento -->
                     <div>
                         <label for="fecha_nacimiento"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Fecha de nacimiento
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="calendar" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="calendar" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="fecha_nacimiento"
                                 name="fecha_nacimiento"
                                 type="date"
                                 autocomplete="bday"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none sm:text-sm"
                             >
                         </div>
                     </div>
@@ -125,12 +125,12 @@
                     <!-- DNI -->
                     <div>
                         <label for="dni"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             DNI
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="id-card" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="id-card" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="dni"
                                 name="dni"
@@ -139,7 +139,7 @@
                                 placeholder="Ingresá tu DNI"
                                 maxlength="8"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                         </div>
                     </div>
@@ -147,16 +147,16 @@
                     <!-- Cobertura -->
                     <div class="sm:col-span-2">
                         <label for="id_cobertura"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Cobertura
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="building" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="building" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <select
                                 id="id_cobertura"
                                 name="id_cobertura"
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none">
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none sm:text-sm">
                                 <option value="">Particular</option>
                                 {% for cobertura in coberturas %}
                                 <option value="{{ cobertura.id }}" {% if cobertura.id == id_cobertura|int %}selected{% endif %}>{{ cobertura.nombre }}</option>
@@ -168,12 +168,12 @@
                     <!-- Correo electrónico (ancho completo) -->
                     <div class="sm:col-span-2">
                         <label for="email"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Correo electrónico
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="mail" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="mail" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="email"
                                 name="email"
@@ -182,7 +182,7 @@
                                 autocomplete="email"
                                 maxlength="150"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                         </div>
                     </div>
@@ -190,12 +190,12 @@
                     <!-- Contraseña -->
                     <div>
                         <label for="password"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Contraseña
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="lock-keyhole" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="password"
                                 name="password"
@@ -205,16 +205,16 @@
                                 minlength="8"
                                 maxlength="256"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                             <button
                                 type="button"
-                                class="toggle-password flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30"
+                                class="toggle-password flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30 sm:h-9 sm:w-9"
                                 data-target="password"
                                 aria-label="Mostrar contraseña"
                                 aria-pressed="false"
                             >
-                                <i data-lucide="eye" class="h-[18px] w-[18px]"></i>
+                                <i data-lucide="eye" class="h-4 w-4 sm:h-[18px] sm:w-[18px]"></i>
                             </button>
                         </div>
                     </div>
@@ -222,12 +222,12 @@
                     <!-- Confirmar contraseña -->
                     <div>
                         <label for="confirm-password"
-                            class="mb-2 block text-sm font-semibold font-lexend text-slate-700">
+                            class="mb-2 block text-xs font-semibold font-lexend text-slate-700 sm:text-sm">
                             Confirmar contraseña
                         </label>
 
-                        <div class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3.5 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20">
-                            <i data-lucide="lock-keyhole" class="h-[18px] w-[18px] shrink-0 text-slate-400"></i>
+                        <div class="flex h-11 items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-3 transition focus-within:border-acento focus-within:ring-2 focus-within:ring-acento/20 sm:h-12 sm:gap-3 sm:px-3.5">
+                            <i data-lucide="lock-keyhole" class="h-4 w-4 shrink-0 text-slate-400 sm:h-[18px] sm:w-[18px]"></i>
                             <input
                                 id="confirm-password"
                                 name="confirm_password"
@@ -237,21 +237,21 @@
                                 minlength="8"
                                 maxlength="256"
                                 required
-                                class="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                                class="h-full min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 sm:text-sm"
                             >
                             <button
                                 type="button"
-                                class="toggle-password flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30"
+                                class="toggle-password flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-acento focus:outline-none focus:ring-2 focus:ring-acento/30 sm:h-9 sm:w-9"
                                 data-target="confirm-password"
                                 aria-label="Mostrar contraseña"
                                 aria-pressed="false"
                             >
-                                <i data-lucide="eye" class="h-[18px] w-[18px]"></i>
+                                <i data-lucide="eye" class="h-4 w-4 sm:h-[18px] sm:w-[18px]"></i>
                             </button>
                         </div>
                     </div>
 
-                    <p class="-mt-2 text-xs font-lexend text-slate-400 sm:col-span-2">
+                    <p class="-mt-2 text-[11px] font-lexend text-slate-400 sm:col-span-2 sm:text-xs">
                         La contraseña debe tener al menos 8 caracteres.
                     </p>
 
@@ -259,28 +259,28 @@
                     {% if mensaje %}
                         <p id="register-message"
                            role="alert"
-                           class="rounded-2xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">
+                           class="rounded-2xl bg-red-50 p-2.5 text-xs text-red-700 sm:col-span-2 sm:p-3 sm:text-sm">
                             {{ mensaje }}
                         </p>
                     {% else %}
                         <p id="register-message"
                            role="alert"
-                           class="hidden rounded-2xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2"></p>
+                           class="hidden rounded-2xl bg-red-50 p-2.5 text-xs text-red-700 sm:col-span-2 sm:p-3 sm:text-sm"></p>
                     {% endif %}
 
                     <!-- Botón de registro -->
                     <button
                         type="submit"
-                        class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-acento px-4 text-sm font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:col-span-2"
+                        class="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-acento px-3 text-xs font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:col-span-2 sm:h-12 sm:px-4 sm:text-sm"
                     >
                         Crear cuenta
-                        <i data-lucide="arrow-right" class="h-[18px] w-[18px]"></i>
+                        <i data-lucide="arrow-right" class="h-4 w-4 sm:h-[18px] sm:w-[18px]"></i>
                     </button>
 
                 </form>
 
                 <!-- Inicio de sesión -->
-                <p class="text-center text-sm leading-relaxed font-lexend text-slate-600 mt-4">
+                <p class="text-center text-xs leading-relaxed font-lexend text-slate-600 mt-4 sm:text-sm">
                     ¿Ya tenés una cuenta?
                     <a
                         href="{{ url_for('rutas_auth.login') }}"
