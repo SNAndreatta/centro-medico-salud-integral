@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 
+from src import api_estadisticas
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
 
@@ -97,6 +98,28 @@ def _calcular_tiempos(turnos):
     return lista_medicos, lista_especialidades
 
 
+def _medico_desde_api(medico, indice):
+    color = color_avatar(indice).split(' ')
+
+    return {
+        'id': medico.get('id_medico'),
+        'nombre': nombre_completo(medico.get('nombre'), medico.get('apellido')),
+        'iniciales': iniciales(medico.get('nombre'), medico.get('apellido')),
+        'espera': int(medico.get('espera') or 0),
+        'turnos': int(medico.get('turnos') or 0),
+        'color_fondo': color[0],
+        'color_texto': color[1] if len(color) > 1 else '',
+    }
+
+
+def _especialidad_desde_api(especialidad):
+    return {
+        'nombre': especialidad.get('nombre') or 'Sin especialidad',
+        'espera': int(especialidad.get('espera') or 0),
+        'turnos': int(especialidad.get('turnos') or 0),
+    }
+
+
 @tiempo_espera_admin_routes.route('/admin/tiempo-espera')
 @requiere_rol("admin")
 def tiempo_espera():
@@ -109,19 +132,27 @@ def tiempo_espera():
     turnos_considerados = 0
 
     try:
-        datos = api(
-            'GET',
-            '/turnos',
-            params=parametros,
-        )
+        datos = api_estadisticas.tiempo_espera(parametros)
 
-        turnos = datos.get('turnos', [])
-
-        medicos, especialidades = _calcular_tiempos(turnos)
-        turnos_considerados = sum(medico['turnos'] for medico in medicos)
+        medicos = [
+            _medico_desde_api(medico, indice)
+            for indice, medico in enumerate(datos.get('medicos', []))
+        ]
+        especialidades = [
+            _especialidad_desde_api(especialidad)
+            for especialidad in datos.get('especialidades', [])
+        ]
+        turnos_considerados = int(datos.get('turnos_considerados') or 0)
 
     except ErrorAPI as e:
         error = e.mensaje
+
+        try:
+            turnos = api('GET', '/turnos', params=parametros).get('turnos', [])
+            medicos, especialidades = _calcular_tiempos(turnos)
+            turnos_considerados = sum(medico['turnos'] for medico in medicos)
+        except ErrorAPI:
+            pass
 
     return render_template(
         'admin/dashboards/tiempo_espera.html',

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 
+from src import api_estadisticas
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
 
@@ -66,6 +67,17 @@ def _agrupar_turnos(turnos):
     return list(especialidades.values())
 
 
+def _especialidad_desde_api(especialidad):
+    return {
+        'nombre': especialidad.get('nombre') or 'Sin especialidad',
+        'total_turnos': int(especialidad.get('total_turnos') or 0),
+        'turnos': [
+            _normalizar_turno(turno)
+            for turno in especialidad.get('turnos', [])
+        ],
+    }
+
+
 @turnos_especialidad_admin_routes.route("/admin/turnos-especialidad")
 @requiere_rol("admin")
 def turnos_especialidad():
@@ -77,20 +89,26 @@ def turnos_especialidad():
     total_turnos = 0
 
     try:
-        datos = api(
-            "GET",
-            "/turnos",
-            params=parametros,
-        )
+        datos = api_estadisticas.turnos_por_especialidad(parametros)
 
-        especialidades = _agrupar_turnos(datos.get('turnos', []))
-        total_turnos = sum(
-            especialidad['total_turnos']
-            for especialidad in especialidades
-        )
+        especialidades = [
+            _especialidad_desde_api(especialidad)
+            for especialidad in datos.get('especialidades', [])
+        ]
+        total_turnos = int(datos.get('total_turnos') or 0)
 
     except ErrorAPI as e:
         error = e.mensaje
+
+        try:
+            turnos = api("GET", "/turnos", params=parametros).get('turnos', [])
+            especialidades = _agrupar_turnos(turnos)
+            total_turnos = sum(
+                especialidad['total_turnos']
+                for especialidad in especialidades
+            )
+        except ErrorAPI:
+            pass
 
     return render_template(
         "admin/dashboards/turnos_especialidad.html",

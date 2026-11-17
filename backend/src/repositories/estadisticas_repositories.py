@@ -1,6 +1,22 @@
 from src.db import obtener_cursor
 from src.utils.fechas import hoy_local
 
+
+def _condiciones_periodo(fecha_desde, fecha_hasta):
+    condiciones = []
+    parametros = []
+
+    if fecha_desde is not None:
+        condiciones.append('DATE(t.fecha_horario_inicial) >= %s')
+        parametros.append(fecha_desde)
+    if fecha_hasta is not None:
+        condiciones.append('DATE(t.fecha_horario_inicial) <= %s')
+        parametros.append(fecha_hasta)
+
+    where = ' AND ' + ' AND '.join(condiciones) if condiciones else ''
+    return where, parametros
+
+
 def listar_sala_espera(id_usuario_medico=None):
     condiciones = [
         'DATE(t.fecha_horario_inicial) = %s',
@@ -189,3 +205,132 @@ def obtener_ocupacion_consultorios(fecha_desde=None, fecha_hasta=None):
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_ausentismo_medicos(fecha_desde=None, fecha_hasta=None):
+    where, parametros = _condiciones_periodo(fecha_desde, fecha_hasta)
+    consulta = """
+        SELECT
+            m.id_medico,
+            um.nombre AS nombre_medico,
+            um.apellido AS apellido_medico,
+            SUM(CASE WHEN LOWER(et.estado_turno) = 'ausente' THEN 1 ELSE 0 END) AS ausentes,
+            COUNT(*) AS considerados
+        FROM turno t
+        JOIN agenda a ON a.id_agenda = t.id_agenda
+        JOIN medico m ON m.id_medico = a.id_medico
+        JOIN usuario um ON um.id_usuario = m.id_usuario
+        JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+        WHERE LOWER(et.estado_turno) IN ('atendido', 'ausente')
+    """ + where + """
+        GROUP BY m.id_medico, um.nombre, um.apellido
+    """
+
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(consulta, parametros)
+        return [
+            {
+                'id_medico': int(fila['id_medico']),
+                'nombre': fila['nombre_medico'],
+                'apellido': fila['apellido_medico'],
+                'ausentes': int(fila['ausentes']),
+                'considerados': int(fila['considerados']),
+            }
+            for fila in cursor.fetchall()
+        ]
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def obtener_ausentismo_especialidades(fecha_desde=None, fecha_hasta=None):
+    where, parametros = _condiciones_periodo(fecha_desde, fecha_hasta)
+    consulta = """
+        SELECT
+            e.id_especialidad,
+            e.nombre_especialidad AS nombre,
+            SUM(CASE WHEN LOWER(et.estado_turno) = 'ausente' THEN 1 ELSE 0 END) AS ausentes,
+            COUNT(*) AS considerados
+        FROM turno t
+        JOIN agenda a ON a.id_agenda = t.id_agenda
+        JOIN medico m ON m.id_medico = a.id_medico
+        JOIN especialidad e ON e.id_especialidad = m.id_especialidad
+        JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+        WHERE LOWER(et.estado_turno) IN ('atendido', 'ausente')
+    """ + where + """
+        GROUP BY e.id_especialidad, e.nombre_especialidad
+    """
+
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(consulta, parametros)
+        return [
+            {
+                'id_especialidad': int(fila['id_especialidad']),
+                'nombre': fila['nombre'],
+                'ausentes': int(fila['ausentes']),
+                'considerados': int(fila['considerados']),
+            }
+            for fila in cursor.fetchall()
+        ]
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def _tiempos_espera(campos, columnas, agrupacion, fecha_desde, fecha_hasta):
+    where, parametros = _condiciones_periodo(fecha_desde, fecha_hasta)
+    consulta = """
+        SELECT
+    """ + campos + """,
+            SUM(ROUND(GREATEST(
+                0,
+                TIMESTAMPDIFF(SECOND, t.fecha_horario_llegada, t.fecha_horario_inicial) / 60
+            ))) AS minutos_totales,
+            COUNT(*) AS turnos
+        FROM turno t
+        JOIN agenda a ON a.id_agenda = t.id_agenda
+        JOIN medico m ON m.id_medico = a.id_medico
+        JOIN usuario um ON um.id_usuario = m.id_usuario
+        JOIN especialidad e ON e.id_especialidad = m.id_especialidad
+        JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+        WHERE t.fecha_horario_llegada IS NOT NULL
+    """ + where + """
+        GROUP BY """ + agrupacion
+
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(consulta, parametros)
+        resultado = []
+        for fila in cursor.fetchall():
+            item = {}
+            for clave, alias in columnas.items():
+                item[clave] = int(fila[alias]) if clave in ('id_medico', 'id_especialidad') else fila[alias]
+            item['minutos_totales'] = int(fila['minutos_totales'] or 0)
+            item['turnos'] = int(fila['turnos'])
+            resultado.append(item)
+        return resultado
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def obtener_tiempos_espera_medicos(fecha_desde=None, fecha_hasta=None):
+    return _tiempos_espera(
+        'm.id_medico, um.nombre AS nombre_medico, um.apellido AS apellido_medico',
+        {'id_medico': 'id_medico', 'nombre': 'nombre_medico', 'apellido': 'apellido_medico'},
+        'm.id_medico, um.nombre, um.apellido',
+        fecha_desde,
+        fecha_hasta,
+    )
+
+
+def obtener_tiempos_espera_especialidades(fecha_desde=None, fecha_hasta=None):
+    return _tiempos_espera(
+        'e.id_especialidad, e.nombre_especialidad AS nombre_especialidad',
+        {'id_especialidad': 'id_especialidad', 'nombre': 'nombre_especialidad'},
+        'e.id_especialidad, e.nombre_especialidad',
+        fecha_desde,
+        fecha_hasta,
+    )
