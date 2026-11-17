@@ -1,8 +1,10 @@
 """Turnos y agenda del médico conectados al backend."""
 
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -89,6 +91,21 @@ def _iniciar_sesion(cliente, rol="medico"):
         sesion["nombre"] = "Medico"
         sesion["apellido"] = "Demo"
         sesion["id_usuario"] = 104
+
+
+def _turno_en(horas, estado="confirmado"):
+    """Turno con la fecha horarios relativa a la hora local de ahora."""
+    momento = (
+        datetime.now(ZoneInfo("America/Argentina/Buenos_Aires"))
+        .replace(tzinfo=None, second=0, microsecond=0)
+        + timedelta(hours=horas)
+    )
+
+    turno = dict(TURNO)
+    turno["fecha_horario_inicial"] = momento.strftime("%Y-%m-%d %H:%M:%S")
+    turno["estado"] = {"id_estado": 3, "nombre": estado}
+
+    return turno
 
 
 def test_mis_turnos_muestran_los_datos_del_backend(cliente):
@@ -194,3 +211,106 @@ def test_los_turnos_requieren_sesion_de_medico(cliente):
 
     assert respuesta.status_code == 302
     assert "/login" in respuesta.headers["Location"]
+
+
+def test_no_muestra_los_turnos_disponibles(cliente):
+    _iniciar_sesion(cliente)
+
+    disponible = dict(TURNO)
+    disponible["id_turno"] = 99
+    disponible["estado"] = {"id_estado": 1, "nombre": "disponible"}
+    disponible["paciente"] = None
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [TURNO, disponible]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    assert respuesta.status_code == 200
+
+    cuerpo = respuesta.data.decode()
+    assert "Ana Rossi" in cuerpo
+    # El turno disponible no tiene paciente: no debe aparecer en la lista.
+    assert cuerpo.count("Sin paciente") == 0
+
+
+def test_no_hay_filtro_por_especialidad(cliente):
+    _iniciar_sesion(cliente)
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [TURNO]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    cuerpo = respuesta.data.decode()
+    assert 'id="filtro-especialidad"' not in cuerpo
+    assert "Todas las especialidades" not in cuerpo
+    # Los otros filtros siguen.
+    assert 'id="filtro-fecha"' in cuerpo
+    assert 'id="filtro-cobertura"' in cuerpo
+
+
+def test_muestra_el_boton_de_marcar_como_atendido_en_la_jornada(cliente):
+    _iniciar_sesion(cliente)
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [_turno_en(-1)]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    cuerpo = respuesta.data.decode()
+    assert "Marcar como atendido" in cuerpo
+    assert 'data-marcable="true"' in cuerpo
+    assert "/turno/" in cuerpo
+
+
+def test_no_muestra_el_boton_para_un_turno_que_todavia_no_ocurrio(cliente):
+    _iniciar_sesion(cliente)
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [_turno_en(5)]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    cuerpo = respuesta.data.decode()
+    assert "Marcar como atendido" not in cuerpo
+    assert 'data-marcable="false"' in cuerpo
+
+
+def test_no_muestra_el_boton_si_el_turno_no_esta_confirmado(cliente):
+    _iniciar_sesion(cliente)
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [_turno_en(-1, estado="reservado")]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    cuerpo = respuesta.data.decode()
+    assert "Marcar como atendido" not in cuerpo
+    assert 'data-marcable="false"' in cuerpo
+
+
+def test_no_muestra_el_boton_fuera_de_la_jornada(cliente):
+    _iniciar_sesion(cliente)
+
+    with patch.object(
+        medico_module,
+        "api",
+        return_value={"turnos": [_turno_en(48)]},
+    ):
+        respuesta = cliente.get("/turnos")
+
+    cuerpo = respuesta.data.decode()
+    assert "Marcar como atendido" not in cuerpo
+    assert 'data-marcable="false"' in cuerpo
+
