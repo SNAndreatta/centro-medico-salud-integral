@@ -7,6 +7,7 @@ from src.repositories.agendas_repositories import buscar_agendas
 from src.repositories.turnos_repositories import (
     buscar_datos_turno_comprobante,
     buscar_id_estado_turno,
+    buscar_ids_turnos_ausentes_pendientes,
     buscar_turno_para_cancelar,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
@@ -16,7 +17,6 @@ from src.repositories.turnos_repositories import (
     confirmar_checkin,
     guardar_estado_turno,
     insertar_turnos_disponibles,
-    marcar_ausentes_automatico,
     reservar_turno as reservar_turno_repositorio,
     cancelar_turno as cancelar_turno_repositorio,
 )
@@ -330,7 +330,14 @@ def cancelar_turno_por_token(id_turno, token):
 
 
 def ejecutar_ausentismo_automatico():
-    return marcar_ausentes_automatico()
+    id_estado_ausente = buscar_id_estado_turno('ausente')
+    ids = buscar_ids_turnos_ausentes_pendientes()
+    marcados = 0
+    for id_turno in ids:
+        _, status = actualizar_estado_turno(id_turno, id_estado_ausente)
+        if status == 200:
+            marcados += 1
+    return marcados
 
 
 def filtrar_turnos_disponibles(parametros):

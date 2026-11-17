@@ -536,26 +536,21 @@ def insertar_turnos_disponibles(turnos):
         conexion.close()
 
 
-def marcar_ausentes_automatico():
+def buscar_ids_turnos_ausentes_pendientes():
     conexion, cursor = obtener_cursor()
     try:
         cursor.execute(
             """
-            UPDATE turno t
-            JOIN estado_turno et_actual ON et_actual.id_estado_turno = t.id_estado
-            JOIN estado_turno et_ausente ON LOWER(et_ausente.estado_turno) = 'ausente'
-            SET t.id_estado = et_ausente.id_estado_turno
-            WHERE LOWER(et_actual.estado_turno) = 'reservado'
+            SELECT t.id_turno
+            FROM turno t
+            JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+            WHERE LOWER(et.estado_turno) = 'reservado'
               AND t.id_paciente IS NOT NULL
               AND t.fecha_horario_llegada IS NULL
-              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < NOW()
+              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), 'UTC', 'America/Argentina/Buenos_Aires')
             """
         )
-        conexion.commit()
-        return cursor.rowcount
-    except Exception:
-        conexion.rollback()
-        raise
+        return [int(fila['id_turno']) for fila in cursor.fetchall()]
     finally:
         cursor.close()
         conexion.close()
