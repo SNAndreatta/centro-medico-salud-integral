@@ -291,6 +291,6 @@ def perfil_usuario(id_usuario):
     }
 
     return render_template(
-        "recepcion/profile.html",
+        "recepcion/profile_paciente.html",
         usuario=usuario
     )

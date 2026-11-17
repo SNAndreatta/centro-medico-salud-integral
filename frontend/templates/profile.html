@@ -57,7 +57,8 @@
             <input id="perfil-dni" name="dni" type="text" inputmode="numeric" required
                    value="{{ usuario.dni }}"
                    placeholder="DNI"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+                   readonly
+                   class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
         </div>
 
         <!-- FECHA DE NACIMIENTO -->
@@ -67,7 +68,8 @@
             </label>
             <input id="perfil-fecha-nacimiento" name="fecha_nacimiento" type="date"
                    value="{{ usuario.fecha_nacimiento_iso }}"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+                   readonly
+                   class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
         </div>
 
         <!-- MAIL -->
@@ -168,25 +170,8 @@
 
         <!-- CONTRASEÑA -->
         <div class="sm:col-span-2 border-t border-gray-200 pt-4">
-            <label for="password-visible" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                Contraseña
-            </label>
-
-            <div class="relative">
-                <input id="password-visible" type="password"
-                       value="••••••••••••••••" readonly autocomplete="off"
-                       class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm tracking-[0.18em] text-acento outline-none">
-
-                <button type="button"
-                        class="toggle-password absolute inset-y-0 right-4 flex items-center text-acento/30"
-                        data-target="password-visible"
-                        aria-label="Mostrar contraseña">
-                    <i data-lucide="eye-off" class="h-4 w-4"></i>
-                </button>
-            </div>
-
             <button type="button" id="toggle-cambiar-password"
-                    class="mt-3 rounded-full border border-acento px-4 py-2 text-xs font-medium text-acento transition hover:bg-gray-50">
+                    class="rounded-full border border-acento px-4 py-2 text-xs font-medium text-acento transition hover:bg-gray-50">
                 Cambiar contraseña
             </button>
 
