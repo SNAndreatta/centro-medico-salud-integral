@@ -1,16 +1,27 @@
-"""Estado de los turnos visto por el médico (ownership y estado por nombre)."""
+"""Estado de los turnos visto por el médico (ownership, estado por nombre y rango)."""
 
 import unittest
+from datetime import datetime, timedelta
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from src.services.turnos_services import actualizar_estado_turno
 from src.validators.turnos_validators import validar_estado_turno
 
 
+def _en(horas):
+    """Un horario relativo a la hora local de ahora."""
+    return (
+        datetime.now(ZoneInfo("America/Argentina/Buenos_Aires"))
+        .replace(tzinfo=None, second=0, microsecond=0)
+        + timedelta(hours=horas)
+    )
+
+
 TURNO = {
     'id_estado': 3,
     'id_paciente': 1,
-    'fecha_horario_inicial': None,
+    'fecha_horario_inicial': _en(-1),
     'fecha_horario_llegada': None,
     'estado_actual': 'confirmado',
     'estado_destino': 'atendido',
@@ -86,3 +97,39 @@ class TestEstadoTurnoMedico(unittest.TestCase):
         self.assertIsNone(id_estado)
         self.assertIsNone(nombre_estado)
         self.assertEqual(error[1], 400)
+
+    def test_no_se_puede_marcar_como_atendido_un_turno_fuera_de_la_jornada(self):
+        turno = dict(TURNO)
+        turno['fecha_horario_inicial'] = _en(48)
+
+        with patch('src.services.turnos_services.buscar_turno_y_estado_destino') as buscar, \
+                patch('src.services.turnos_services.guardar_estado_turno') as guardar:
+            buscar.return_value = turno
+
+            respuesta, status = actualizar_estado_turno(
+                10,
+                4,
+                {'id_usuario': 104, 'id_rol': 4},
+            )
+
+        self.assertEqual(status, 409)
+        self.assertEqual(respuesta['errors'][0]['code'], 'TURNO_FUERA_DE_RANGO')
+        guardar.assert_not_called()
+
+    def test_no_se_puede_marcar_como_atendido_un_turno_que_todavia_no_ocurrio(self):
+        turno = dict(TURNO)
+        turno['fecha_horario_inicial'] = _en(5)
+
+        with patch('src.services.turnos_services.buscar_turno_y_estado_destino') as buscar, \
+                patch('src.services.turnos_services.guardar_estado_turno') as guardar:
+            buscar.return_value = turno
+
+            respuesta, status = actualizar_estado_turno(
+                10,
+                4,
+                {'id_usuario': 104, 'id_rol': 4},
+            )
+
+        self.assertEqual(status, 409)
+        guardar.assert_not_called()
+
