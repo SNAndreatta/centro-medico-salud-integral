@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -40,7 +41,8 @@ scheduler.add_job(
     id='ausentismo_automatico',
     replace_existing=True,
 )
-scheduler.start()
+if not Config.FLASK_DEBUG or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler.start()
 
 
 @app.get('/health')

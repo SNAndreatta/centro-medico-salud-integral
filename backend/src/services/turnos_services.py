@@ -331,6 +331,9 @@ def cancelar_turno_por_token(id_turno, token):
 
 def ejecutar_ausentismo_automatico():
     id_estado_ausente = buscar_id_estado_turno('ausente')
+    if id_estado_ausente is None:
+        return 0
+
     ids = buscar_ids_turnos_ausentes_pendientes()
     marcados = 0
     for id_turno in ids:

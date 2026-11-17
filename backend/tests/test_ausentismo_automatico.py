@@ -33,6 +33,14 @@ class TestAusentismoAutomatico(unittest.TestCase):
         self.assertEqual(resultado, 0)
         mock_actualizar.assert_not_called()
 
+    def test_devuelve_cero_cuando_no_existe_estado_ausente(self):
+        with patch('src.services.turnos_services.buscar_id_estado_turno', return_value=None), \
+             patch('src.services.turnos_services.buscar_ids_turnos_ausentes_pendientes') as mock_ids:
+            resultado = ejecutar_ausentismo_automatico()
+
+        self.assertEqual(resultado, 0)
+        mock_ids.assert_not_called()
+
     def test_llama_a_actualizar_con_el_id_correcto(self):
         p_estado, p_ids, p_actualizar = self._patch_base([42], id_estado_ausente=5)
         with p_estado, p_ids, p_actualizar as mock_actualizar:

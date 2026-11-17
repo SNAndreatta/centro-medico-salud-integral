@@ -1,4 +1,5 @@
 from src.db import obtener_cursor
+from src.utils.fechas import ahora_local as _ahora_local
 
 
 def buscar_turno_por_id(id_turno):
@@ -547,8 +548,9 @@ def buscar_ids_turnos_ausentes_pendientes():
             WHERE LOWER(et.estado_turno) = 'reservado'
               AND t.id_paciente IS NOT NULL
               AND t.fecha_horario_llegada IS NULL
-              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), 'UTC', 'America/Argentina/Buenos_Aires')
-            """
+              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < %s
+            """,
+            (_ahora_local(),),
         )
         return [int(fila['id_turno']) for fila in cursor.fetchall()]
     finally:
