@@ -90,7 +90,7 @@ def borrar_medico(id_medico):
 @medicos_bp.get('/medicos/<int:id_medico>/coberturas')
 @handle_unexpected_errors
 @token_required
-@roles_required(ADMINISTRADOR, RECEPCIONISTA, PACIENTE)
+@roles_required(ADMINISTRADOR, RECEPCIONISTA, PACIENTE, MEDICO)
 def consultar_coberturas_medico(id_medico):
     respuesta, status_code = listar_coberturas_medico(id_medico)
     return respuesta, status_code
