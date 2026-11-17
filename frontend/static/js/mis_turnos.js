@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const botonFiltros = document.querySelector("#boton-filtros");
     const panelFiltros = document.querySelector("#panel-filtros");
+    const contenedorTurnos = document.querySelector("#turnos");
 
     const filtroFecha = document.querySelector("#filtro-fecha");
-    const filtroEspecialidad = document.querySelector("#filtro-especialidad");
     const filtroCobertura = document.querySelector("#filtro-cobertura");
 
     const aplicarFiltros = document.querySelector("#aplicar-filtros");
@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const tarjetas = document.querySelectorAll(".turno-card");
     const mensajeVacio = document.querySelector("#sin-resultados");
     const cantidadTurnos = document.querySelector("#cantidad-turnos");
+
+    // Fecha de hoy (hora local del centro médico).
+    const hoy = contenedorTurnos ? contenedorTurnos.dataset.hoy || "" : "";
+
 
 
     // ==========================================
@@ -83,10 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ? filtroFecha.value
             : "";
 
-        const especialidad = filtroEspecialidad
-            ? filtroEspecialidad.value.toLowerCase().trim()
-            : "";
-
         const cobertura = filtroCobertura
             ? filtroCobertura.value.toLowerCase().trim()
             : "";
@@ -100,10 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 tarjeta.dataset.fecha || ""
             ).trim();
 
-            const especialidadTurno = (
-                tarjeta.dataset.especialidad || ""
-            ).toLowerCase().trim();
-
             const coberturaTurno = (
                 tarjeta.dataset.cobertura || ""
             ).toLowerCase().trim();
@@ -112,16 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const coincideFecha =
                 fecha === "" || fechaTurno === fecha;
 
-            const coincideEspecialidad =
-                especialidad === "" || especialidadTurno === especialidad;
-
             const coincideCobertura =
                 cobertura === "" || coberturaTurno === cobertura;
 
 
             const coincide =
                 coincideFecha &&
-                coincideEspecialidad &&
                 coincideCobertura;
 
 
@@ -130,6 +122,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (coincide) {
                 turnosVisibles++;
+            }
+
+
+            // "Marcar como atendido" sólo se muestra para los turnos del día
+            // de la fecha filtrada (hoy si no se filtró por fecha).
+
+            const botonMarcar = tarjeta.querySelector(".boton-marcar-atendido");
+
+            if (botonMarcar) {
+
+                const dentroDeRango =
+                    tarjeta.dataset.marcable === "true";
+
+                const esDelDia =
+                    fecha === ""
+                        ? fechaTurno === hoy
+                        : fechaTurno === fecha;
+
+                botonMarcar.classList.toggle(
+                    "hidden",
+                    !(dentroDeRango && esDelDia)
+                );
+
             }
 
         });
@@ -189,10 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 filtroFecha.value = "";
             }
 
-            if (filtroEspecialidad) {
-                filtroEspecialidad.value = "";
-            }
-
             if (filtroCobertura) {
                 filtroCobertura.value = "";
             }
@@ -236,4 +247,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+
+    // ==========================================
+    // FILTRADO INICIAL
+    // ==========================================
+    // Deja los botones de "Marcar como atendido" según la fecha de hoy
+    // (o la que esté filtrada).
+
+    filtrarTurnos();
+
 });
+

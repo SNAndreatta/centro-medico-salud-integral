@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<div id="turnos" class="px-1 sm:px-2">
+<div id="turnos" class="px-1 sm:px-2" data-hoy="{{ hoy }}">
 
     <!-- TÍTULO Y FILTRO -->
     <section class="relative mb-5">
@@ -53,33 +53,6 @@
                     id="filtro-fecha"
                     class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
                 >
-
-            </div>
-
-            <!-- ESPECIALIDAD -->
-            <div class="mb-4">
-
-                <label
-                    for="filtro-especialidad"
-                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
-                >
-                    ESPECIALIDAD
-                </label>
-
-                <select
-                    id="filtro-especialidad"
-                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
-                >
-
-                    <option value="">Todas las especialidades</option>
-
-                    {% for especialidad in especialidades %}
-                        <option value="{{ especialidad | lower }}">
-                            {{ especialidad }}
-                        </option>
-                    {% endfor %}
-
-                </select>
 
             </div>
 
@@ -152,14 +125,15 @@
         {% for turno in turnos %}
 
             <article
-                class="turno-card flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
+                class="turno-card flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 justify-between
+                hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
                 data-fecha="{{ turno.fecha_filtro }}"
-                data-especialidad="{{ turno.especialidad_filtro | lower }}"
                 data-cobertura="{{ turno.cobertura_filtro | lower }}"
+                data-marcable="{{ 'true' if turno.puede_marcar else 'false' }}"
             >
 
                 <!-- PACIENTE Y COBERTURA -->
-                <div class="flex min-w-0 items-center gap-5 lg:w-[42%] lg:pr-5">
+                <div class="flex min-w-0 items-center gap-5 lg:w-[30%] lg:pr-5">
 
                     <div
                         class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-medium {{ turno.color }}"
@@ -220,7 +194,7 @@
 
                 <!-- ESTADO DEL TURNO -->
                 <div
-                    class="flex items-center justify-start border-t border-gray-200 pt-3 lg:w-[14%] lg:justify-end lg:border-t-0 lg:pt-0"
+                    class="flex flex-col items-start gap-2 border-t border-gray-200 pt-3 lg:w-[14%] lg:items-end lg:justify-end lg:border-t-0 lg:pt-0"
                 >
 
                     {% set estado = turno.estado | default('Pendiente', true) | string | lower %}
@@ -251,10 +225,26 @@
 
                     {% endif %}
 
+                    {% if turno.puede_marcar %}
+
+                        <form
+                            method="POST"
+                            class="boton-marcar-atendido"
+                            data-fecha="{{ turno.fecha_filtro }}"
+                            action="{{ url_for('rutas_medico.marcar_turno_atendido', id_turno=turno.id) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-200 active:scale-95"
+                            >
+                                <i data-lucide="check" class="h-4 w-4"></i>
+                                Marcar como atendido
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
-
             </article>
-
         {% endfor %}
 
 

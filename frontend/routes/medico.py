@@ -9,7 +9,7 @@ Los datos salen del backend:
 * `PUT /turnos/<id>/estado` permite marcar un turno como atendido.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
@@ -21,11 +21,23 @@ from routes.agenda_mensual import (
 from routes.admin.dashboards._comun import color_avatar
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
+from src.tiempo import ahora_local, hoy_local
 
 medico_routes = Blueprint('rutas_medico', __name__)
 
 MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+# Ventana para marcar un turno como atendido: desde una hora antes del
+# horario del turno (el paciente puede llegar temprano) hasta doce horas
+# después del turno (para poder cerrar la jornada).
+VENTANA_ATENDIDO_HORAS_ANTES = 1
+VENTANA_ATENDIDO_HORAS_DESPUES = 12
+
+# Estados que se muestran en la lista de turnos del médico.
+# Los horarios 'disponible' no se muestran: no son turnos de pacientes.
+ESTADOS_VISIBLES = ('reservado', 'confirmado', 'atendido', 'cancelado', 'ausente')
+
 
 
 def _a_datetime(valor):
@@ -52,9 +64,38 @@ def _iniciales(nombre, apellido=''):
     return ''.join(letras).upper() or 'NC'
 
 
+def _estado_turno(turno):
+    """Nombre del estado del turno (en minúsculas)."""
+    estado = turno.get('estado') or {}
+    if isinstance(estado, dict):
+        estado = estado.get('nombre') or ''
+    return str(estado).strip().lower()
+
+
 def _mis_turnos():
-    """Turnos del médico autenticado."""
-    return api('GET', '/turnos').get('turnos', [])
+    """Turnos del médico autenticado (sin los horarios disponibles)."""
+    turnos = api('GET', '/turnos').get('turnos', [])
+
+    return [
+        turno for turno in turnos
+        if _estado_turno(turno) in ESTADOS_VISIBLES
+    ]
+
+
+def _puede_marcar_atendido(momento, estado):
+    """Un turno se puede marcar como atendido dentro de la ventana de la jornada.
+
+    Sólo los turnos confirmados (con la llegada registrada por el check-in)
+    se pueden marcar como atendidos.
+    """
+    if momento is None or estado != 'confirmado':
+        return False
+
+    ahora = ahora_local()
+    inicio = momento - timedelta(hours=VENTANA_ATENDIDO_HORAS_ANTES)
+    fin = momento + timedelta(hours=VENTANA_ATENDIDO_HORAS_DESPUES)
+
+    return inicio <= ahora <= fin
 
 
 def _mis_agendas():
@@ -68,7 +109,7 @@ def _normalizar_turno(turno, indice):
     medico = turno.get('medico') or {}
     consultorio = turno.get('consultorio') or {}
     cobertura = turno.get('cobertura') or {}
-    estado = (turno.get('estado') or {}).get('nombre') or ''
+    estado = _estado_turno(turno)
 
     momento = _a_datetime(turno.get('fecha_horario_inicial'))
     fecha = momento.date() if momento else None
@@ -95,12 +136,13 @@ def _normalizar_turno(turno, indice):
         'fecha': fecha.strftime('%d - %m - %Y') if fecha else '',
         'fecha_filtro': fecha.isoformat() if fecha else '',
         'cobertura_filtro': nombre_cobertura,
-        'especialidad_filtro': especialidad,
         'consultorio': consultorio.get('numero', '-'),
         'estado': estado.capitalize() if estado else '',
-        'atendido': estado.lower() == 'atendido',
+        'atendido': estado == 'atendido',
+        'puede_marcar': _puede_marcar_atendido(momento, estado),
         'color': color_avatar(indice),
     }
+
 
 
 # ==========================================================
@@ -142,13 +184,6 @@ def ver_turnos():
     except ErrorAPI as e:
         error = e.mensaje
 
-    # Especialidades disponibles para el filtro
-    especialidades = sorted({
-        turno['especialidad_filtro']
-        for turno in turnos
-        if turno['especialidad_filtro']
-    })
-
     # Coberturas disponibles para el filtro
     coberturas = sorted({
         turno['cobertura_filtro']
@@ -159,10 +194,11 @@ def ver_turnos():
     return render_template(
         'medico/mis_turnos.html',
         turnos=turnos,
-        especialidades=especialidades,
         coberturas=coberturas,
+        hoy=hoy_local().isoformat(),
         error=error
     )
+
 
 
 # ==========================================================
