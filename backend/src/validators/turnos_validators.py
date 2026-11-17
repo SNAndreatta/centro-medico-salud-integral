@@ -98,17 +98,27 @@ def validar_checkin_turno(datos):
 
 
 def validar_estado_turno(datos):
+    """Valida el estado destino de un turno.
+
+    Se puede enviar el `id_estado` (por ejemplo 4 para "atendido") o el
+    nombre del estado en `estado` (por ejemplo "atendido").
+    """
     error_json = validar_objeto_json(datos)
     if error_json:
-        return None, error_json
+        return None, None, error_json
 
     id_estado = datos.get('id_estado')
+    nombre_estado = datos.get('estado')
+
+    if id_estado is None and isinstance(nombre_estado, str) and nombre_estado.strip():
+        return None, nombre_estado.strip().lower(), None
+
     if type(id_estado) is not int or not 1 <= id_estado <= 2147483647:
-        return None, (
+        return None, None, (
             error_respuesta('id_estado debe ser un entero positivo válido', 'ESTADO_TURNO_INVALIDO'),
             400,
         )
-    return id_estado, None
+    return id_estado, None, None
 
 
 def validar_reserva_turno(datos, requiere_id_paciente):

@@ -1,91 +1,106 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from routes.agenda_mensual import contexto_agenda_mensual
+"""Turnos y agenda del médico autenticado.
+
+Los datos salen del backend:
+
+* `GET /turnos` devuelve los turnos del médico (el backend los filtra por
+  el usuario del token).
+* `GET /agendas` devuelve las agendas del médico con las jornadas de cada
+  día de la semana.
+* `PUT /turnos/<id>/estado` permite marcar un turno como atendido.
+"""
+
+from datetime import datetime
+
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+
+from routes.agenda_mensual import (
+    contexto_agenda_mensual,
+    mes_seleccionado,
+    rango_del_mes,
+)
+from routes.admin.dashboards._comun import color_avatar
+from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
 
 medico_routes = Blueprint('rutas_medico', __name__)
 
+MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
-# ==========================================================
-# DATOS DE PRUEBA
-# ==========================================================
 
-todos_los_turnos = [
-    {
-        'id': 1,
-        'iniciales': 'NC',
-        'nombre_paciente': 'Nombre Completo',
-        'cobertura': 'Nombre Completo',
-        'hora': '10:30 am.',
-        'fecha': '11 - 10 - 2026',
-        'consultorio': '123',
-        'especialidad': 'Dr. Nombre Completo',
-        'color': 'bg-pink-500/30 text-pink-500',
-        'fecha_filtro': '2026-10-11',
-        'cobertura_filtro': 'OSDE',
-        'especialidad_filtro': 'Cardiología',
-        'atendido': False
-    },
-    {
-        'id': 2,
-        'iniciales': 'NC',
-        'nombre_paciente': 'Nombre Completo',
-        'cobertura': 'Nombre Completo',
-        'hora': '11:00 am.',
-        'fecha': '11 - 10 - 2026',
-        'consultorio': '123',
-        'especialidad': 'Dr. Nombre Completo',
-        'color': 'bg-purple-500/30 text-purple-500',
-        'fecha_filtro': '2026-10-11',
-        'cobertura_filtro': 'Swiss Medical',
-        'especialidad_filtro': 'Dermatología',
-        'atendido': False
-    },
-    {
-        'id': 3,
-        'iniciales': 'NC',
-        'nombre_paciente': 'Nombre Completo',
-        'cobertura': 'Nombre Completo',
-        'hora': '11:30 am.',
-        'fecha': '11 - 10 - 2026',
-        'consultorio': '123',
-        'especialidad': 'Dr. Nombre Completo',
-        'color': 'bg-green-500/30 text-green-500',
-        'fecha_filtro': '2026-10-11',
-        'cobertura_filtro': 'PAMI',
-        'especialidad_filtro': 'Clínica Médica',
-        'atendido': False
-    },
-    {
-        'id': 4,
-        'iniciales': 'NC',
-        'nombre_paciente': 'Nombre Completo',
-        'cobertura': 'Nombre Completo',
-        'hora': '10:30 am.',
-        'fecha': '12 - 10 - 2026',
-        'consultorio': '123',
-        'especialidad': 'Dr. Nombre Completo',
-        'color': 'bg-red-500/30 text-red-500',
-        'fecha_filtro': '2026-10-12',
-        'cobertura_filtro': 'OSDE',
-        'especialidad_filtro': 'Cardiología',
-        'atendido': False
-    },
-    {
-        'id': 5,
-        'iniciales': 'NC',
-        'nombre_paciente': 'Nombre Completo',
-        'cobertura': 'Nombre Completo',
-        'hora': '11:00 am.',
-        'fecha': '12 - 10 - 2026',
-        'consultorio': '123',
-        'especialidad': 'Dr. Nombre Completo',
-        'color': 'bg-cyan-500/30 text-cyan-500',
-        'fecha_filtro': '2026-10-12',
-        'cobertura_filtro': 'Swiss Medical',
-        'especialidad_filtro': 'Dermatología',
-        'atendido': False
+def _a_datetime(valor):
+    if not valor:
+        return None
+
+    try:
+        return datetime.fromisoformat(str(valor))
+    except ValueError:
+        return None
+
+
+def _nombre_completo(nombre, apellido=''):
+    return f"{nombre or ''} {apellido or ''}".strip()
+
+
+def _iniciales(nombre, apellido=''):
+    letras = [
+        parte[0]
+        for parte in (nombre or '', apellido or '')
+        if parte
+    ]
+
+    return ''.join(letras).upper() or 'NC'
+
+
+def _mis_turnos():
+    """Turnos del médico autenticado."""
+    return api('GET', '/turnos').get('turnos', [])
+
+
+def _mis_agendas():
+    """Agendas del médico autenticado."""
+    return api('GET', '/agendas').get('agendas', [])
+
+
+def _normalizar_turno(turno, indice):
+    """Adapta un turno de la API al formato de las tarjetas de la vista."""
+    paciente = turno.get('paciente') or {}
+    medico = turno.get('medico') or {}
+    consultorio = turno.get('consultorio') or {}
+    cobertura = turno.get('cobertura') or {}
+    estado = (turno.get('estado') or {}).get('nombre') or ''
+
+    momento = _a_datetime(turno.get('fecha_horario_inicial'))
+    fecha = momento.date() if momento else None
+
+    nombre = _nombre_completo(
+        paciente.get('nombre'),
+        paciente.get('apellido'),
+    ) or 'Sin paciente'
+
+    especialidad = medico.get('especialidad') or ''
+    nombre_cobertura = cobertura.get('nombre') or 'Particular'
+
+    return {
+        'id': turno.get('id_turno'),
+        'iniciales': _iniciales(
+            paciente.get('nombre'),
+            paciente.get('apellido'),
+        ),
+        'nombre_paciente': nombre,
+        'nombre_completo': nombre,
+        'cobertura': nombre_cobertura,
+        'especialidad': especialidad,
+        'hora': momento.strftime('%H:%M') if momento else '',
+        'fecha': fecha.strftime('%d - %m - %Y') if fecha else '',
+        'fecha_filtro': fecha.isoformat() if fecha else '',
+        'cobertura_filtro': nombre_cobertura,
+        'especialidad_filtro': especialidad,
+        'consultorio': consultorio.get('numero', '-'),
+        'estado': estado.capitalize() if estado else '',
+        'atendido': estado.lower() == 'atendido',
+        'color': color_avatar(indice),
     }
-]
 
 
 # ==========================================================
@@ -96,11 +111,12 @@ todos_los_turnos = [
 @requiere_rol("medico")
 def marcar_turno_atendido(id_turno):
 
-    for turno in todos_los_turnos:
+    try:
+        api('PUT', f'/turnos/{id_turno}/estado', json={'estado': 'atendido'})
+        flash('El turno se marcó como atendido.', 'success')
 
-        if turno['id'] == id_turno:
-            turno['atendido'] = True
-            break
+    except ErrorAPI as e:
+        flash(e.mensaje, 'error')
 
     return redirect(
         request.referrer or url_for('rutas_medico.ver_turnos')
@@ -111,31 +127,41 @@ def marcar_turno_atendido(id_turno):
 # VER TURNOS
 # ==========================================================
 
-
 @medico_routes.route('/turnos', methods=['GET'])
 @requiere_rol("medico")
 def ver_turnos():
 
-    # Todos los turnos disponibles
-    turnos = todos_los_turnos
+    turnos = []
+    error = None
+
+    try:
+        turnos = [
+            _normalizar_turno(turno, indice)
+            for indice, turno in enumerate(_mis_turnos())
+        ]
+    except ErrorAPI as e:
+        error = e.mensaje
 
     # Especialidades disponibles para el filtro
-    especialidades = sorted(set(
+    especialidades = sorted({
         turno['especialidad_filtro']
-        for turno in todos_los_turnos
-    ))
+        for turno in turnos
+        if turno['especialidad_filtro']
+    })
 
     # Coberturas disponibles para el filtro
-    coberturas = sorted(set(
+    coberturas = sorted({
         turno['cobertura_filtro']
-        for turno in todos_los_turnos
-    ))
+        for turno in turnos
+        if turno['cobertura_filtro']
+    })
 
     return render_template(
         'medico/mis_turnos.html',
         turnos=turnos,
         especialidades=especialidades,
-        coberturas=coberturas
+        coberturas=coberturas,
+        error=error
     )
 
 
@@ -147,119 +173,50 @@ def ver_turnos():
 @requiere_rol("medico")
 def agenda():
 
-    # ------------------------------------------------------
-    # DATOS DEL MÉDICO
-    # ------------------------------------------------------
+    agendas = []
+    turnos = []
+    error = None
+
+    try:
+        agendas = _mis_agendas()
+
+        anio, mes = mes_seleccionado(request.args)
+        fecha_desde, fecha_hasta = rango_del_mes(anio, mes)
+
+        turnos = api(
+            'GET',
+            '/turnos',
+            params={
+                'fecha_desde': fecha_desde.isoformat(),
+                'fecha_hasta': fecha_hasta.isoformat(),
+            },
+        ).get('turnos', [])
+
+    except ErrorAPI as e:
+        error = e.mensaje
+
+    datos_medico = (agendas[0].get('medico') or {}) if agendas else {}
 
     medico = {
-        "id": 1,
-        "nombre_completo": "Dr. Nombre Completo"
+        'id': agendas[0]['id_medico'] if agendas else None,
+        'nombre_completo': _nombre_completo(
+            datos_medico.get('nombre') or session.get('nombre'),
+            datos_medico.get('apellido') or session.get('apellido'),
+        ) or 'Mi agenda',
     }
 
-    consultorio = {
-        "numero": 123
-    }
-
-    fecha_inicio = "2026-10-12"
-
-
-    # ------------------------------------------------------
-    # DÍAS Y HORARIOS DE LA AGENDA
-    # ------------------------------------------------------
-
-    dias_semana = [
-        {
-            "nombre": "LUN",
-            "turnos": [
-                {"hora": "09:00", "disponible": False, "seleccionado": False},
-                {"hora": "09:30", "disponible": True, "seleccionado": False},
-                {"hora": "10:00", "disponible": False, "seleccionado": False},
-                {"hora": "10:30", "disponible": True, "seleccionado": False},
-                {"hora": "11:00", "disponible": False, "seleccionado": False},
-                {"hora": "11:30", "disponible": True, "seleccionado": False},
-            ],
-        },
-        {
-            "nombre": "MAR",
-            "turnos": [
-                {"hora": "13:00", "disponible": True, "seleccionado": False},
-                {"hora": "13:30", "disponible": True, "seleccionado": False},
-                {"hora": "14:00", "disponible": False, "seleccionado": False},
-                {"hora": "14:30", "disponible": True, "seleccionado": False},
-                {"hora": "15:00", "disponible": True, "seleccionado": False},
-                {"hora": "15:30", "disponible": True, "seleccionado": False},
-            ],
-        },
-        {
-            "nombre": "MIÉ",
-            "turnos": [
-                {"hora": "09:00", "disponible": True, "seleccionado": False},
-                {"hora": "09:30", "disponible": True, "seleccionado": False},
-                {"hora": "10:00", "disponible": True, "seleccionado": False},
-                {"hora": "10:30", "disponible": True, "seleccionado": True},
-                {"hora": "11:00", "disponible": False, "seleccionado": False},
-                {"hora": "11:30", "disponible": True, "seleccionado": False},
-            ],
-        },
-        {
-            "nombre": "JUE",
-            "turnos": [
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-            ],
-        },
-        {
-            "nombre": "VIE",
-            "turnos": [
-                {"hora": "13:00", "disponible": False, "seleccionado": False},
-                {"hora": "13:30", "disponible": False, "seleccionado": False},
-                {"hora": "14:00", "disponible": False, "seleccionado": False},
-                {"hora": "14:30", "disponible": True, "seleccionado": False},
-                {"hora": "15:00", "disponible": False, "seleccionado": False},
-                {"hora": "15:30", "disponible": True, "seleccionado": False},
-            ],
-        },
-        {
-            "nombre": "SÁB",
-            "turnos": [
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-                {"hora": "", "disponible": False, "seleccionado": False},
-            ],
-        },
-    ]
-
-
-    # ------------------------------------------------------
-    # TURNO SELECCIONADO
-    # ------------------------------------------------------
-
-    turno_seleccionado = {
-        "iniciales": "NC",
-        "nombre_completo": "Nombre Completo",
-        "nombre": "Nombre Completo",
-        "cobertura": "COBERTURA",
-        "hora": "10:30 am.",
-        "fecha": "12 - 10 - 2026",
-        "consultorio": 123,
-        "color": "bg-pink-100 text-pink-400",
-    }
-
-
-    # ------------------------------------------------------
-    # ENVIAR DATOS AL TEMPLATE
-    # ------------------------------------------------------
+    consultorio = {'numero': '-'}
+    if agendas:
+        consultorio = agendas[0].get('consultorio') or {'numero': '-'}
 
     return render_template(
         'medico/agenda.html',
         medico=medico,
-        consultorio=consultorio,
-        **contexto_agenda_mensual(request.args),
+        error=error,
+        **contexto_agenda_mensual(
+            request.args,
+            agendas=agendas,
+            turnos=turnos,
+            consultorio=consultorio,
+        ),
     )

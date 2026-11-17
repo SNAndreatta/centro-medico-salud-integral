@@ -1,9 +1,8 @@
-from datetime import date
-
 from flask import session
 
 from src.api import api, ErrorAPI
 from src.api_paciente import _buscar, _fecha, _iniciales, como_lista, normalizar_turno
+from src.tiempo import hoy_local
 
 
 def perfil_usuario():
@@ -85,7 +84,7 @@ def turnos_del_dia_medico():
     GET /turnos ya limita el resultado a los turnos del propio médico
     cuando el usuario tiene rol médico.
     """
-    hoy = date.today().isoformat()
+    hoy = hoy_local().isoformat()
 
     datos = como_lista(
         api("GET", "/turnos", params={"fecha_desde": hoy, "fecha_hasta": hoy}),

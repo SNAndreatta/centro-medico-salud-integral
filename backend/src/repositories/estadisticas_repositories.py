@@ -1,12 +1,15 @@
 from src.db import obtener_cursor
+from src.utils.fechas import hoy_local
 
 def listar_sala_espera(id_usuario_medico=None):
     condiciones = [
-        'DATE(t.fecha_horario_inicial) = CURDATE()',
+        'DATE(t.fecha_horario_inicial) = %s',
         't.fecha_horario_llegada IS NOT NULL',
         "LOWER(et.estado_turno) = 'confirmado'",
     ]
-    parametros = []
+    # La fecha se calcula en hora local: no depende de la zona horaria del
+    # contenedor de MySQL.
+    parametros = [hoy_local()]
 
     if id_usuario_medico is not None:
         condiciones.append('m.id_usuario = %s')

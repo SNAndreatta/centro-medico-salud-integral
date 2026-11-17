@@ -53,10 +53,12 @@
                 class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-acento outline-none focus:border-acento"
             >
                 <option value="">Todos</option>
-                <option value="pendiente">Pendiente</option>
+                <option value="disponible">Disponible</option>
+                <option value="reservado">Reservado</option>
                 <option value="confirmado">Confirmado</option>
+                <option value="atendido">Atendido</option>
                 <option value="cancelado">Cancelado</option>
-                <option value="realizado">Realizado</option>
+                <option value="ausente">Ausente</option>
             </select>
 
         </div>
@@ -176,5 +178,7 @@
         lucide.createIcons();
     }
 </script>
+
+<script src="{{ url_for('static', filename='js/turno.js') }}" defer></script>
 
 {% endblock %}
