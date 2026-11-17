@@ -34,6 +34,12 @@ from src.validators.turnos_validators import (
     validar_reserva_turno,
 )
 
+# Ventana para marcar un turno como atendido: se puede marcar desde una hora
+# antes del horario del turno (el paciente puede llegar temprano) hasta doce
+# horas después del turno (para poder cerrar la jornada).
+VENTANA_ATENDIDO_HORAS_ANTES = 1
+VENTANA_ATENDIDO_HORAS_DESPUES = 12
+
 
 def _respuesta_llegada_registrada(turno):
     return {
@@ -107,6 +113,18 @@ def actualizar_estado_turno(id_turno, id_estado, usuario_actual=None):
                 'Solo se puede marcar ausente a un paciente sin llegada registrada y fuera de la tolerancia',
                 'TRANSICION_ESTADO_INVALIDA',
             ), 400
+
+    if destino == 'atendido':
+        ahora = _ahora_local()
+        momento = turno['fecha_horario_inicial']
+        inicio_valido = momento - timedelta(hours=VENTANA_ATENDIDO_HORAS_ANTES)
+        fin_valido = momento + timedelta(hours=VENTANA_ATENDIDO_HORAS_DESPUES)
+
+        if not (inicio_valido <= ahora <= fin_valido):
+            return error_respuesta(
+                'Sólo se pueden marcar como atendidos los turnos de la jornada en curso',
+                'TURNO_FUERA_DE_RANGO',
+            ), 409
 
     if not guardar_estado_turno(id_turno, id_estado, turno):
         return error_respuesta(
