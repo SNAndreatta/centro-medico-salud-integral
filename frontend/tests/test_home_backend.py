@@ -1,6 +1,8 @@
 """Tests de la conexión del home del frontend con el backend."""
 
+import re
 import sys
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,6 +14,13 @@ sys.path.insert(0, str(FRONTEND))
 
 import routes.home as home_module  # noqa: E402
 from app import app  # noqa: E402
+
+PERFIL_ADMIN = {
+    "id_usuario": 1,
+    "id_rol": 1,
+    "nombre": "Admin",
+    "apellido": "Root",
+}
 
 PERFIL_MEDICO = {
     "id_usuario": 9,
@@ -127,3 +136,98 @@ def test_paciente_no_puede_ver_el_home_de_admin(cliente):
     # propio rol, sin datos de otro rol.
     assert respuesta.status_code == 200
     assert "Administración" not in respuesta.data.decode()
+
+
+def _boton_crear_turnos(cuerpo):
+    bloque = re.search(
+        r'<div[^>]*class="[^"]*mt-8[^"]*"[^>]*>[\s\S]*?'
+        r'action="/home/generar-turnos"[\s\S]*?</form>[\s\S]*?</div>',
+        cuerpo,
+    )
+    assert bloque, "No se encontró el botón de 'Crear turnos'"
+    return bloque.group(0)
+
+
+def test_home_admin_habilita_crear_turnos_el_dia_15(cliente):
+    _iniciar_sesion(cliente, "admin")
+
+    with patch.object(home_module, "perfil_usuario", return_value=PERFIL_ADMIN), \
+         patch.object(home_module, "hoy_local", return_value=date(2026, 11, 15)):
+        respuesta = cliente.get("/home")
+
+    assert respuesta.status_code == 200
+    cuerpo = respuesta.data.decode()
+    boton = _boton_crear_turnos(cuerpo)
+    assert "Crear turnos" in boton
+    assert "disabled" not in boton
+    assert "bg-acento" in boton
+    assert "fixed" not in boton
+    assert "bottom-6" not in boton
+    assert "mt-8 flex justify-end" in boton
+
+
+def test_home_admin_deshabilita_crear_turnos_fuera_del_dia_15(cliente):
+    _iniciar_sesion(cliente, "admin")
+
+    with patch.object(home_module, "perfil_usuario", return_value=PERFIL_ADMIN), \
+         patch.object(home_module, "hoy_local", return_value=date(2026, 11, 16)):
+        respuesta = cliente.get("/home")
+
+    assert respuesta.status_code == 200
+    boton = _boton_crear_turnos(respuesta.data.decode())
+    assert "disabled" in boton
+    assert "bg-acento/50" in boton
+
+
+def test_generar_turnos_llama_al_endpoint_y_informa_el_resultado(cliente):
+    _iniciar_sesion(cliente, "admin")
+
+    with patch.object(home_module, "hoy_local", return_value=date(2026, 11, 15)), \
+         patch.object(home_module, "api", return_value={
+             "mensaje": "Disponibilidad generada correctamente",
+             "turnos_generados": 42,
+             "periodo": {"fecha_desde": "2026-12-01", "fecha_hasta": "2026-12-31"},
+         }) as api_mock, \
+         patch.object(home_module, "perfil_usuario", return_value=PERFIL_ADMIN):
+        respuesta = cliente.post("/home/generar-turnos", follow_redirects=True)
+
+    api_mock.assert_called_once_with("POST", "/turnos/generar")
+    assert respuesta.status_code == 200
+    assert "Se generaron 42 turnos correctamente." in respuesta.data.decode()
+
+
+def test_generar_turnos_informa_el_error_del_endpoint(cliente):
+    _iniciar_sesion(cliente, "admin")
+
+    with patch.object(home_module, "hoy_local", return_value=date(2026, 11, 15)), \
+         patch.object(home_module, "api", side_effect=home_module.ErrorAPI(
+             "No se pudo generar la disponibilidad.", 500
+         )) as api_mock, \
+         patch.object(home_module, "perfil_usuario", return_value=PERFIL_ADMIN):
+        respuesta = cliente.post("/home/generar-turnos", follow_redirects=True)
+
+    api_mock.assert_called_once_with("POST", "/turnos/generar")
+    assert "No se pudo generar la disponibilidad." in respuesta.data.decode()
+
+
+def test_generar_turnos_no_se_ejecuta_fuera_del_dia_15(cliente):
+    _iniciar_sesion(cliente, "admin")
+
+    with patch.object(home_module, "hoy_local", return_value=date(2026, 11, 16)), \
+         patch.object(home_module, "api") as api_mock, \
+         patch.object(home_module, "perfil_usuario", return_value=PERFIL_ADMIN):
+        respuesta = cliente.post("/home/generar-turnos", follow_redirects=True)
+
+    api_mock.assert_not_called()
+    assert "sólo está disponible el día 15" in respuesta.data.decode()
+
+
+def test_generar_turnos_rechaza_otros_roles(cliente):
+    _iniciar_sesion(cliente, "recepcion")
+
+    with patch.object(home_module, "api") as api_mock:
+        respuesta = cliente.post("/home/generar-turnos")
+
+    assert respuesta.status_code == 302
+    assert "/home" in respuesta.headers["Location"]
+    api_mock.assert_not_called()
