@@ -16,6 +16,7 @@ from src.repositories.turnos_repositories import (
     confirmar_checkin,
     guardar_estado_turno,
     insertar_turnos_disponibles,
+    marcar_ausentes_automatico,
     reservar_turno as reservar_turno_repositorio,
     cancelar_turno as cancelar_turno_repositorio,
 )
@@ -326,6 +327,10 @@ def cancelar_turno_por_token(id_turno, token):
         return error_respuesta('El paciente asociado a este enlace ya no existe', 'PACIENTE_INEXISTENTE'), 404
 
     return cancelar_turno(id_turno, {'id_usuario': id_usuario, 'id_rol': PACIENTE})
+
+
+def ejecutar_ausentismo_automatico():
+    return marcar_ausentes_automatico()
 
 
 def filtrar_turnos_disponibles(parametros):

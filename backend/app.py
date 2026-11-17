@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from src.config import Config
 from src.routes.auth_routes import auth_bp
@@ -13,6 +14,7 @@ from src.routes.estadisticas_routes import estadisticas_bp
 from src.routes.especialidades_routes import especialidades_bp
 from src.routes.coberturas_routes import coberturas_bp
 from src.routes.consultorios_routes import consultorios_bp
+from src.services.turnos_services import ejecutar_ausentismo_automatico
 from src.utils.http_errors import handle_unexpected_errors
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -29,6 +31,16 @@ app.register_blueprint(turnos_bp)
 app.register_blueprint(estadisticas_bp)
 app.register_blueprint(especialidades_bp)
 app.register_blueprint(coberturas_bp)
+
+scheduler = BackgroundScheduler(timezone=Config.TIMEZONE)
+scheduler.add_job(
+    ejecutar_ausentismo_automatico,
+    trigger='interval',
+    minutes=5,
+    id='ausentismo_automatico',
+    replace_existing=True,
+)
+scheduler.start()
 
 
 @app.get('/health')

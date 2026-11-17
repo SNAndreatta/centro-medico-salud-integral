@@ -536,6 +536,31 @@ def insertar_turnos_disponibles(turnos):
         conexion.close()
 
 
+def marcar_ausentes_automatico():
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            UPDATE turno t
+            JOIN estado_turno et_actual ON et_actual.id_estado_turno = t.id_estado
+            JOIN estado_turno et_ausente ON LOWER(et_ausente.estado_turno) = 'ausente'
+            SET t.id_estado = et_ausente.id_estado_turno
+            WHERE LOWER(et_actual.estado_turno) = 'reservado'
+              AND t.id_paciente IS NOT NULL
+              AND t.fecha_horario_llegada IS NULL
+              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < NOW()
+            """
+        )
+        conexion.commit()
+        return cursor.rowcount
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
+
+
 def buscar_turno_para_cancelar(id_turno):
     conexion, cursor = obtener_cursor()
     try:
