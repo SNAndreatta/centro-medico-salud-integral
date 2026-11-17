@@ -7,6 +7,7 @@ from src.repositories.agendas_repositories import buscar_agendas
 from src.repositories.turnos_repositories import (
     buscar_datos_turno_comprobante,
     buscar_id_estado_turno,
+    buscar_ids_turnos_ausentes_pendientes,
     buscar_turno_para_cancelar,
     buscar_turno_por_codigo_qr,
     buscar_turno_por_id,
@@ -326,6 +327,20 @@ def cancelar_turno_por_token(id_turno, token):
         return error_respuesta('El paciente asociado a este enlace ya no existe', 'PACIENTE_INEXISTENTE'), 404
 
     return cancelar_turno(id_turno, {'id_usuario': id_usuario, 'id_rol': PACIENTE})
+
+
+def ejecutar_ausentismo_automatico():
+    id_estado_ausente = buscar_id_estado_turno('ausente')
+    if id_estado_ausente is None:
+        return 0
+
+    ids = buscar_ids_turnos_ausentes_pendientes()
+    marcados = 0
+    for id_turno in ids:
+        _, status = actualizar_estado_turno(id_turno, id_estado_ausente)
+        if status == 200:
+            marcados += 1
+    return marcados
 
 
 def filtrar_turnos_disponibles(parametros):

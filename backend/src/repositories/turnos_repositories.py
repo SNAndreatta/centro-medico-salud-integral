@@ -1,4 +1,5 @@
 from src.db import obtener_cursor
+from src.utils.fechas import ahora_local as _ahora_local
 
 
 def buscar_turno_por_id(id_turno):
@@ -531,6 +532,27 @@ def insertar_turnos_disponibles(turnos):
         conexion.rollback()
         raise
 
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def buscar_ids_turnos_ausentes_pendientes():
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT t.id_turno
+            FROM turno t
+            JOIN estado_turno et ON et.id_estado_turno = t.id_estado
+            WHERE LOWER(et.estado_turno) = 'reservado'
+              AND t.id_paciente IS NOT NULL
+              AND t.fecha_horario_llegada IS NULL
+              AND t.fecha_horario_inicial + INTERVAL 15 MINUTE < %s
+            """,
+            (_ahora_local(),),
+        )
+        return [int(fila['id_turno']) for fila in cursor.fetchall()]
     finally:
         cursor.close()
         conexion.close()
