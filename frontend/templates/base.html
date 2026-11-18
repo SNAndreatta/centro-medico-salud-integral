@@ -62,22 +62,26 @@
                     <i data-lucide="user-round" class="h-8 w-8 sm:h-9 sm:w-9" stroke-width="1.5"></i>
                 </button>
 
+                
                 <div id="menu-perfil-opciones"
-                     class="absolute right-0 z-50 mt-2 hidden overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-1 shadow-lg {{ 'w-48' if menu_perfil_paciente else 'w-44 max-w-full sm:w-48' }}">
+                    class="absolute right-0 z-50 mt-2 hidden w-48 rounded-2xl border-1 border-gray-200 bg-white p-1 shadow-sm">
+
                     <a href="{{ url_for('rutas_profile.profile') }}"
-                       class="flex items-center rounded-xl px-3 py-2 font-medium text-acento transition hover:bg-gray-100 {{ 'gap-3 text-sm' if menu_perfil_paciente else 'gap-2 text-xs sm:gap-3 sm:text-sm' }}">
-                        <i data-lucide="user-round" class="h-4 w-4 shrink-0"></i>
-                        Perfil
+                        class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-acento transition hover:bg-gray-100">
+                            <i data-lucide="user-round" class="h-4 w-4 shrink-0"></i>
+                            <span>Perfil</span>
                     </a>
 
-                    <hr class="mt-1 mb-1 border-gray-200">
+                    <hr class="my-1 border-gray-200">
 
                     <a href="{{ url_for('rutas_auth.logout') }}"
-                       class="flex items-center rounded-xl px-3 py-2 font-medium text-red-600 transition hover:bg-red-50 {{ 'gap-3 text-sm' if menu_perfil_paciente else 'gap-2 text-xs sm:gap-3 sm:text-sm' }}">
-                        <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
-                        Cerrar sesión
+                        class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                            <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
+                            <span>Cerrar sesión</span>
                     </a>
+
                 </div>
+
             </div>
 
         </header>

@@ -2,11 +2,11 @@
 <!-- Información del médico -->
 <section class="mb-5 flex flex-col justify-center gap-1 rounded-2xl bg-acento px-5 py-3 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-2">
 
-    <h1 class="whitespace-nowrap min-w-0 font-gelasio text-xs font-semibold sm:text-xl">
+    <h1 class="whitespace-nowrap min-w-0 font-gelasio text-base font-semibold sm:text-lg md:text-xl">
         Dr. {{ usuario.nombre_completo }}
     </h1>
 
-    <p class="shrink-0 font-lexend text-xs font-medium sm:text-base">
+    <p class="shrink-0 font-lexend text-xs font-medium sm:text-sm md:text-base">
         Médico
     </p>
 
@@ -23,13 +23,13 @@
         class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
         
         <div>
-            <h2 class="text-xl font-bold text-acento">
+            <h2 class="text-sm font-bold text-acento sm:text-lg md:text-xl">
                     MIS TURNOS
                 </h2>
             </div>
             
             <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                <i data-lucide="clipboard-clock" class="h-10 w-10" stroke-width="1.5"></i>
+                <i data-lucide="clipboard-clock" class="h-8 w-10 sm:h-8 sm:w-8 md:h-10 md:w-10" stroke-width="1.5"></i>
             </div>
             
         </a>
@@ -39,13 +39,13 @@
             class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm ">
             
             <div>
-                <h2 class="text-xl font-bold text-acento">
+                <h2 class="text-sm font-bold text-acento sm:text-lg md:text-xl">
                     MI AGENDA
                 </h2>
             </div>
             
             <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
+                <i data-lucide="calendar-days" class="h-8 w-10 sm:h-8 sm:w-8 md:h-10 md:w-10" stroke-width="1.5"></i>
             </div>
             
         </a>
@@ -53,12 +53,12 @@
 
     <div class="mb-4 flex items-center justify-between border-b border-slate-300 pb-2">
 
-        <h2 class="font-lexend text-base text-slate-400">
+        <h2 class="font-lexend text-sm text-slate-400 sm:text-base">
             TURNOS DEL DÍA
         </h2>
 
         <a href="{{ url_for('rutas_medico.ver_turnos') }}"
-           class="font-lexend text-xs text-slate-400">
+           class="font-lexend text-xs text-slate-400 sm:text-sm">
             Ver todos →
         </a>
 
@@ -69,17 +69,17 @@
         <article class="mb-3 flex items-center gap-3 rounded-2xl bg-white p-6">
 
             <!-- Avatar -->
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-lexend text-xl {{ turno.color | default('bg-pink-100 text-pink-500') }}">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-lexend text-base sm:text-lg md:text-xl {{ turno.color | default('bg-pink-100 text-pink-500') }}">
                 {{ turno.iniciales | default('NC') }}
             </div>
 
             <!-- Nombre del paciente -->
-            <div class="flex-1 font-lexend text-xl text-acento">
+            <div class="flex-1 font-lexend text-base text-acento sm:text-lg md:text-xl">
                 {{ turno.nombre_paciente }}
             </div>
 
             <!-- Fecha y hora -->
-            <div class="flex-1 border-l border-slate-300 px-5 text-acento">
+            <div class="flex-1 border-l border-slate-300 px-5 text-sm text-acento sm:text-base">
                 {{ turno.hora }}
 
                 <p>
@@ -88,10 +88,10 @@
             </div>
 
             <!-- Consultorio -->
-            <div class="flex-1 border-l border-slate-300 px-5 text-acento">
+            <div class="flex-1 border-l border-slate-300 px-5 text-sm text-acento sm:text-base">
                 Consultorio
 
-                <p class="text-3xl font-medium">
+                <p class="text-xl font-medium sm:text-2xl md:text-3xl">
                     {{ turno.consultorio }}
                 </p>
             </div>
@@ -101,7 +101,7 @@
 
                 {% if turno.atendido %}
 
-                    <span class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+                    <span class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-xs font-medium text-green-700 sm:text-sm">
                         <i data-lucide="check" class="h-4 w-4"></i>
                         Atendido
                     </span>
@@ -112,7 +112,7 @@
                           action="{{ url_for('rutas_medico.marcar_turno_atendido', id_turno=turno.id) }}">
 
                         <button type="submit"
-                                class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-200 active:scale-95">
+                                class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:text-sm">
 
                             <i data-lucide="check" class="h-4 w-4"></i>
 
@@ -130,7 +130,7 @@
 
     {% else %}
 
-        <div class="rounded-2xl bg-white p-8 text-center text-slate-400">
+        <div class="rounded-2xl bg-white p-8 text-center text-sm text-slate-400 sm:text-base">
             No hay turnos para mostrar.
         </div>
 
@@ -142,7 +142,7 @@
 <!-- Coberturas del médico -->
 <section>
 
-    <h2 class="mb-4 border-b border-slate-300 pb-2 font-lexend text-base text-slate-400">
+    <h2 class="mb-4 border-b border-slate-300 pb-2 font-lexend text-sm text-slate-400 sm:text-base">
         MIS COBERTURAS
     </h2>
 
@@ -152,7 +152,7 @@
 
             <div class="rounded-2xl bg-white p-6">
 
-                <p class="font-gelasio text-3xl text-acento">
+                <p class="font-gelasio text-xl text-acento sm:text-2xl md:text-3xl">
                     {{ cobertura.nombre }}
                 </p>
 
