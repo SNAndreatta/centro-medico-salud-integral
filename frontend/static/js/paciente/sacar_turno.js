@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const error = document.getElementById("error-calendario");
         const botonesDia = calendario.querySelectorAll(".dia-calendario");
 
-        const CLASE_HORA = "rounded-full border border-gray-200 px-2 py-2 text-xs font-semibold text-acento transition hover:border-acento";
-        const CLASE_HORA_ACTIVA = "rounded-full border border-acento bg-acento px-2 py-2 text-xs font-semibold text-white transition";
+        const CLASE_HORA = "rounded-full border border-gray-200 px-1.5 py-2 text-[11px] font-semibold text-acento transition hover:border-acento sm:px-2 sm:text-xs";
+        const CLASE_HORA_ACTIVA = "rounded-full border border-acento bg-acento px-1.5 py-2 text-[11px] font-semibold text-white transition sm:px-2 sm:text-xs";
 
         let fechaActiva = campoFecha ? campoFecha.value : "";
         let horaActiva = campoHora ? campoHora.value : "";

@@ -17,13 +17,13 @@
         <div class="space-y-3">
 
             <!-- Especialidad -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Especialidad
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     {{ especialidad.nombre }}
                 </p>
 
@@ -31,13 +31,13 @@
 
 
             <!-- Profesional -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Especialista
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     Dr. {{ medico.nombre }}
                 </p>
 
@@ -45,13 +45,13 @@
 
 
             <!-- Fecha y hora -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Fecha y hora
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     {{ fecha_texto }} - {{ hora }}
                 </p>
 
@@ -112,7 +112,6 @@
         </div>
 
     </form>
-    </div>
 </div>
 
 {% endblock %}

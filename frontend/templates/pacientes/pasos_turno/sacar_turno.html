@@ -14,7 +14,7 @@
         <section class="mt-3">
 
             <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
-                <h2 class="text-xl font-bold tracking-wide text-acento">
+                <h2 class="text-lg font-bold tracking-wide text-acento sm:text-xl">
                     SACAR TURNO
                 </h2>
             </div>
@@ -28,7 +28,7 @@
             <ol class="grid grid-cols-4 items-start">
 
                 <!-- PASO 1: ESPECIALIDAD -->
-                <li class="flex min-w-0 items-center gap-1 sm:gap-2">
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
 
                     <span
                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
@@ -47,20 +47,21 @@
                         {% endif %}
                     </span>
 
-                    <span class="truncate text-[9px] sm:text-xs
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 1 %}
                             font-semibold text-acento
                         {% else %}
                             text-acento/70
                         {% endif %}">
-                        Especialidad
+                        <span class="sm:hidden">Esp.</span>
+                        <span class="hidden sm:inline">Especialidad</span>
                     </span>
 
                 </li>
 
 
                 <!-- PASO 2: MÉDICO -->
-                <li class="flex min-w-0 items-center gap-1 sm:gap-2">
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
 
                     <span
                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
@@ -79,7 +80,7 @@
                         {% endif %}
                     </span>
 
-                    <span class="truncate text-[9px] sm:text-xs
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 2 %}
                             font-semibold text-acento
                         {% else %}
@@ -92,7 +93,7 @@
 
 
                 <!-- PASO 3: DÍA Y HORARIO -->
-                <li class="flex min-w-0 items-center gap-1 sm:gap-2">
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
 
                     <span
                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
@@ -111,20 +112,21 @@
                         {% endif %}
                     </span>
 
-                    <span class="truncate text-[9px] sm:text-xs
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 3 %}
                             font-semibold text-acento
                         {% else %}
                             text-acento/70
                         {% endif %}">
-                        Día y horario
+                        <span class="sm:hidden">Día/hora</span>
+                        <span class="hidden sm:inline">Día y horario</span>
                     </span>
 
                 </li>
 
 
                 <!-- PASO 4: CONFIRMACIÓN -->
-                <li class="flex min-w-0 items-center gap-1 sm:gap-2">
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
 
                     <span
                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
@@ -143,13 +145,14 @@
                         {% endif %}
                     </span>
 
-                    <span class="truncate text-[9px] sm:text-xs
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 4 %}
                             font-semibold text-acento
                         {% else %}
                             text-acento/70
                         {% endif %}">
-                        Confirmación
+                        <span class="sm:hidden">Confirm.</span>
+                        <span class="hidden sm:inline">Confirmación</span>
                     </span>
 
                 </li>

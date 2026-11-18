@@ -1,21 +1,21 @@
 <div class="rounded-xl bg-dominante font-lexend">
 
     <!-- Información del paciente -->
-    <section class="mb-8 rounded-2xl bg-acento p-6 text-white shadow-sm">
+    <section class="mb-8 rounded-2xl bg-acento p-5 text-white shadow-sm sm:p-6">
 
-        <h2 class="mb-3 text-xl sm:text-2xl font-gelasio font-semibold">
+        <h2 class="mb-3 break-words text-xl font-gelasio font-semibold sm:text-2xl">
             {{ usuario.nombre_completo }}
         </h2>
 
-        <div class="space-y-1 text-sm">
+        <div class="space-y-1 text-xs sm:text-sm">
             <p>
                 Cobertura:
-                {{ usuario.cobertura }}
+                <span class="whitespace-nowrap">{{ usuario.cobertura }}</span>
             </p>
 
             <p>
                 Nro. Afiliado:
-                {{ usuario.numero_afiliado }}
+                <span class="whitespace-nowrap">{{ usuario.numero_afiliado }}</span>
             </p>
         </div>
 
@@ -26,40 +26,40 @@
 
         <!-- Sacar turno -->
         <a href="{{ url_for('rutas_paciente.sacar_turno') }}"
-           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
+           class="group flex min-h-28 items-center justify-between gap-2 rounded-2xl bg-white p-4 shadow-sm sm:p-5">
 
-            <div>
-                <h2 class="text-xl font-bold text-acento">
+            <div class="min-w-0">
+                <h2 class="text-lg font-bold text-acento sm:text-xl">
                     SACAR TURNO
                 </h2>
 
-                <p class="mt-1 max-w-xs text-sm text-gray-500">
+                <p class="mt-1 break-words text-xs text-gray-500 sm:max-w-xs sm:text-sm">
                     Ahora podés sacar tus turnos de manera fácil.
                 </p>
             </div>
 
-            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                <i data-lucide="plus" class="h-10 w-10" stroke-width="1.5"></i>
+            <div class="ml-2 flex h-10 w-10 shrink-0 items-center justify-center text-acento transition group-hover:scale-110 sm:ml-3 sm:h-12 sm:w-12">
+                <i data-lucide="plus" class="h-8 w-8 sm:h-10 sm:w-10" stroke-width="1.5"></i>
             </div>
 
         </a>
 
         <!-- Mis turnos -->
         <a href="{{ url_for('rutas_paciente.mis_turnos') }}"
-           class="group flex min-h-28 items-center justify-between rounded-2xl bg-white p-5 shadow-sm ">
+           class="group flex min-h-28 items-center justify-between gap-2 rounded-2xl bg-white p-4 shadow-sm sm:p-5">
 
-            <div>
-                <h2 class="text-xl font-bold text-acento">
+            <div class="min-w-0">
+                <h2 class="text-lg font-bold text-acento sm:text-xl">
                     MIS TURNOS
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 break-words text-xs text-gray-500 sm:text-sm">
                     Todos tus turnos en un mismo lugar.
                 </p>
             </div>
 
-            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
+            <div class="ml-2 flex h-10 w-10 shrink-0 items-center justify-center text-acento transition group-hover:scale-110 sm:ml-3 sm:h-12 sm:w-12">
+                <i data-lucide="calendar-days" class="h-8 w-8 sm:h-10 sm:w-10" stroke-width="1.5"></i>
             </div>
 
         </a>
@@ -69,14 +69,14 @@
     <!-- Próximos turnos -->
     <section>
 
-        <div class="mb-4 flex items-center justify-between border-b border-gray-300 pb-2">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-gray-300 pb-2">
 
             <h2 class="font-medium tracking-wide text-gray-400">
                 PRÓXIMOS TURNOS
             </h2>
 
             <a href="{{ url_for('rutas_paciente.mis_turnos') }}"
-               class="flex items-center gap-1 text-xs text-gray-400 transition hover:text-acento">
+               class="flex shrink-0 items-center gap-1 text-xs text-gray-400 transition hover:text-acento">
                 Ver todos
                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
             </a>
@@ -99,16 +99,16 @@
                             {{ (turno.estado | default('NC'))[:2] | upper }}
                         </div>
 
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-xs text-gray-400">
                                 ESTADO DEL TURNO
                             </p>
 
-                            <h3 class="text-lg font-semibold text-acento">
+                            <h3 class="break-words text-base font-semibold text-acento sm:text-lg">
                                 {{ turno.especialidad | default('Especialidad') }}
                             </h3>
 
-                            <p class="text-sm text-acento">
+                            <p class="break-words text-sm text-acento">
                                 {{ turno.medico | default('Profesional asignado') }}
                             </p>
                         </div>
@@ -122,11 +122,11 @@
                             FECHA Y HORA
                         </p>
 
-                        <p class="mt-2 text-xl font-semibold text-acento">
+                        <p class="mt-2 break-words text-lg font-semibold text-acento sm:text-xl">
                             {{ turno.hora | default('15:00 hs') }}
                         </p>
 
-                        <p class="text-sm text-acento">
+                        <p class="break-words text-sm text-acento">
                             {{ turno.fecha | default('Día - Mes - Año') }}
                         </p>
 
@@ -139,7 +139,7 @@
                             CONSULTORIO
                         </p>
 
-                        <p class="mt-2 text-3xl font-bold text-acento">
+                        <p class="mt-2 text-2xl font-bold text-acento sm:text-3xl">
                             {{ turno.consultorio | default('123') }}
                         </p>
 
@@ -180,7 +180,7 @@
 <div id="popup-reserva"
      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
 
-    <div class="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-xl">
+    <div class="w-full max-w-sm rounded-xl bg-white p-5 text-center shadow-xl sm:p-6">
 
         <!-- Icono -->
         <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-acento/10 text-acento">

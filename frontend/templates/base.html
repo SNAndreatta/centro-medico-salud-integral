@@ -25,24 +25,24 @@
 <body class="bg-white font-lexend">
 
     <!-- Contenedor principal -->
-    <div class="w-full min-h-[66vh] bg-dominante px-5 py-6 sm:px-10 sm:py-8">
+    <div class="w-full min-h-[66vh] bg-dominante px-4 py-6 sm:px-10 sm:py-8">
 
         <!-- Header -->
-        <header class="mb-8 flex items-center justify-between">
+        <header class="mb-6 flex items-center justify-between gap-2 sm:mb-8">
 
             <!-- Logo -->
-            <a href="{{ url_for('rutas_home.home') }}" class="flex items-center gap-2 text-acento">
+            <a href="{{ url_for('rutas_home.home') }}" class="flex min-w-0 items-center gap-2 text-acento">
 
-                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-acento text-white">
-                    <i data-lucide="activity" class="h-7 w-7"></i>
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-acento text-white sm:h-10 sm:w-10">
+                    <i data-lucide="activity" class="h-6 w-6 sm:h-7 sm:w-7"></i>
                 </div>
 
-                <div>
-                    <p class="text-[8px] font-medium uppercase tracking-[0.15em]">
+                <div class="min-w-0">
+                    <p class="whitespace-nowrap text-[8px] font-medium uppercase leading-tight tracking-[0.15em]">
                         Centro Médico de
                     </p>
 
-                    <h1 class="font-gelasio text-xl font-bold sm:text-2xl">
+                    <h1 class="break-words font-gelasio text-lg font-bold leading-tight sm:text-2xl sm:leading-normal">
                         Salud Integral
                     </h1>
                 </div>
@@ -50,6 +50,7 @@
             </a>
 
             <!-- Usuario -->
+            {% set menu_perfil_paciente = request.blueprint == 'rutas_paciente' or (request.endpoint in ['rutas_home.home', 'rutas_profile.profile'] and rol == 'paciente') %}
             <div class="relative">
                 <button type="button"
                         id="boton-menu-perfil"
@@ -57,23 +58,23 @@
                         aria-expanded="false"
                         aria-controls="menu-perfil-opciones"
                         title="Mi perfil"
-                        class="flex h-11 w-11 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:opacity-80 md:h-10 md:w-10">
-                    <i data-lucide="user-round" class="h-9 w-9" stroke-width="1.5"></i>
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:opacity-80 md:h-10 md:w-10">
+                    <i data-lucide="user-round" class="h-8 w-8 sm:h-9 sm:w-9" stroke-width="1.5"></i>
                 </button>
 
                 <div id="menu-perfil-opciones"
-                     class="absolute right-0 z-50 mt-2 hidden w-48 overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-1 shadow-lg">
+                     class="absolute right-0 z-50 mt-2 hidden overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-1 shadow-lg {{ 'w-48' if menu_perfil_paciente else 'w-44 max-w-full sm:w-48' }}">
                     <a href="{{ url_for('rutas_profile.profile') }}"
-                       class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-acento transition hover:bg-gray-100">
-                        <i data-lucide="user-round" class="h-4 w-4"></i>
+                       class="flex items-center rounded-xl px-3 py-2 font-medium text-acento transition hover:bg-gray-100 {{ 'gap-3 text-sm' if menu_perfil_paciente else 'gap-2 text-xs sm:gap-3 sm:text-sm' }}">
+                        <i data-lucide="user-round" class="h-4 w-4 shrink-0"></i>
                         Perfil
                     </a>
 
                     <hr class="mt-1 mb-1 border-gray-200">
 
                     <a href="{{ url_for('rutas_auth.logout') }}"
-                       class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">
-                        <i data-lucide="log-out" class="h-4 w-4"></i>
+                       class="flex items-center rounded-xl px-3 py-2 font-medium text-red-600 transition hover:bg-red-50 {{ 'gap-3 text-sm' if menu_perfil_paciente else 'gap-2 text-xs sm:gap-3 sm:text-sm' }}">
+                        <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
                         Cerrar sesión
                     </a>
                 </div>

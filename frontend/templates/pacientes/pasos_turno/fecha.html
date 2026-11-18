@@ -10,16 +10,16 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
 
         <div>
-            <h2 class="font-lexend text-base font-semibold text-acento">
+            <h2 class="font-lexend text-sm font-semibold text-acento sm:text-base">
                 Elegí fecha y hora
             </h2>
 
-            <p class="mt-1 text-xs text-acento/70">
+            <p class="mt-1 break-words text-[11px] text-acento/70 sm:text-xs">
                 Dr. {{ medico.nombre }}{% if medico.especialidad %} · {{ medico.especialidad }}{% endif %}
             </p>
         </div>
 
-        <p class="flex items-center gap-1 text-[10px] text-acento/70">
+        <p class="flex min-w-0 items-center gap-1 text-[10px] text-acento/70">
             <i data-lucide="clock" class="h-3 w-3"></i>
             Duración del turno: {{ duracion if duracion else 30 }} min aprox.
         </p>
@@ -34,20 +34,28 @@
             {{ nombre_mes | upper }} {{ anio }}
         </h3>
 
-        <div class="flex items-center gap-2">
+        <div class="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:flex-nowrap sm:gap-2">
 
             <a
                 href="{{ url_for('rutas_paciente.sacar_turno', paso=3, mes=mes_anterior, anio=anio_anterior) }}"
                 aria-label="Mes anterior"
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-300 text-acento/70 transition hover:border-acento hover:text-acento"
+                class="order-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-300 text-acento/70 transition hover:border-acento hover:text-acento sm:order-none sm:h-8 sm:w-8"
             >
-                <i data-lucide="chevron-left" class="h-4 w-4"></i>
+                <i data-lucide="chevron-left" class="h-3.5 w-3.5 sm:h-4 sm:w-4"></i>
+            </a>
+
+            <a
+                href="{{ url_for('rutas_paciente.sacar_turno', paso=3, mes=mes_siguiente, anio=anio_siguiente) }}"
+                aria-label="Mes siguiente"
+                class="order-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-300 text-acento/70 transition hover:border-acento hover:text-acento sm:order-none sm:h-8 sm:w-8"
+            >
+                <i data-lucide="chevron-right" class="h-3.5 w-3.5 sm:h-4 sm:w-4"></i>
             </a>
 
             <form
                 method="get"
                 action="{{ url_for('rutas_paciente.sacar_turno') }}"
-                class="flex items-center gap-2"
+                class="order-3 flex w-full min-w-0 items-center gap-1 sm:order-none sm:w-auto sm:flex-none sm:gap-2"
             >
                 <input type="hidden" name="paso" value="3">
 
@@ -55,38 +63,28 @@
                     name="mes"
                     aria-label="Seleccionar mes"
                     onchange="this.form.submit()"
-                    class="max-w-[150px] rounded-2xl border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:px-2 sm:text-sm"
+                    class="w-full min-w-0 flex-1 rounded-2xl border border-gray-300 bg-white px-1 py-1 text-[10px] font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:w-auto sm:flex-none sm:max-w-[150px] sm:px-2 sm:text-sm"
                 >
                     {% for num, nombre in meses %}
                     <option value="{{ num }}" {% if num == mes %}selected{% endif %}>{{ nombre }}</option>
                     {% endfor %}
                 </select>
 
-                <span class="hidden sm:flex">
-                    <select
-                        name="anio"
-                        aria-label="Seleccionar año"
-                        onchange="this.form.submit()"
-                        class="rounded-2xl border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:px-2 sm:text-sm"
-                    >
-                        {% for a in anios %}
-                        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
-                        {% endfor %}
-                    </select>
-                </span>
+                <select
+                    name="anio"
+                    aria-label="Seleccionar año"
+                    onchange="this.form.submit()"
+                    class="w-full min-w-0 flex-1 rounded-2xl border border-gray-300 bg-white px-1 py-1 text-[10px] font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:w-auto sm:flex-none sm:px-2 sm:text-sm"
+                >
+                    {% for a in anios %}
+                    <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
 
                 <noscript>
                     <button type="submit" class="rounded-2xl bg-acento px-4 py-2 text-sm font-semibold text-white">Ver</button>
                 </noscript>
             </form>
-
-            <a
-                href="{{ url_for('rutas_paciente.sacar_turno', paso=3, mes=mes_siguiente, anio=anio_siguiente) }}"
-                aria-label="Mes siguiente"
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-300 text-acento/70 transition hover:border-acento hover:text-acento"
-            >
-                <i data-lucide="chevron-right" class="h-4 w-4"></i>
-            </a>
 
         </div>
 
@@ -105,7 +103,7 @@
             <!-- Cabecera de días -->
             <div class="grid grid-cols-7 border-b border-acento/30 bg-dominante">
                 {% for d in dias_semana %}
-                <div class="py-2 text-center text-[9px] font-semibold tracking-wide text-acento sm:px-1 sm:py-3 sm:text-base">
+                <div class="px-0.5 py-2 text-center text-[9px] font-semibold tracking-wide text-acento sm:px-1 sm:py-3 sm:text-base">
                     {{ d }}
                 </div>
                 {% endfor %}
@@ -115,7 +113,7 @@
             <div id="calendario-turno" class="grid grid-cols-7">
 
                 {% for _ in range(offset_inicio) %}
-                <div class="min-h-[64px] border-b border-r border-gray-200 bg-gray-50 sm:min-h-[84px]"></div>
+                <div class="min-h-[52px] border-b border-r border-gray-200 bg-gray-50 sm:min-h-[84px]"></div>
                 {% endfor %}
 
                 {% for dia in dias %}
@@ -133,7 +131,7 @@
                         title="Fecha pasada"
                     {% endif %}
                     {% if dia.estado != 'disponible' %}disabled{% endif %}
-                    class="dia-calendario flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-r border-gray-200 py-2 transition sm:min-h-[84px] sm:px-1
+                    class="dia-calendario flex min-h-[52px] flex-col items-center justify-center gap-1 border-b border-r border-gray-200 px-0.5 py-2 transition sm:min-h-[84px] sm:px-1
                     {% if dia.estado == 'disponible' %}
                         cursor-pointer text-acento hover:bg-dominante
                     {% elif dia.estado == 'pasado' %}
@@ -142,7 +140,7 @@
                         cursor-default bg-gray-50 text-gray-400
                     {% endif %}"
                 >
-                    <span class="text-sm font-semibold sm:text-base">{{ dia.numero }}</span>
+                    <span class="text-xs font-semibold sm:text-base">{{ dia.numero }}</span>
 
                     {% if dia.estado == 'disponible' %}
                     <span class="text-[10px] leading-tight sm:hidden">•</span>
@@ -171,13 +169,13 @@
         <!-- HORARIOS DEL DÍA SELECCIONADO -->
         <section class="mt-5">
 
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
-                <h2 id="titulo-dia-turno" class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-acento/20 px-1 pb-3 sm:gap-3">
+                <h2 id="titulo-dia-turno" class="min-w-0 break-words font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
                     Seleccioná un día
                 </h2>
 
                 {% if consultorio %}
-                <p class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+                <p class="min-w-0 break-words font-lexend text-[11px] font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
                     CONSULTORIO:
                     <span class="text-acento">{{ consultorio }}</span>
                 </p>

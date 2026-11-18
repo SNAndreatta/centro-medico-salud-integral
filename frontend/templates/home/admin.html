@@ -3,13 +3,13 @@
     {% include "components/mensajes.html" %}
 
     <!-- Información del usuario -->
-    <div class="mb-7 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-acento px-5 py-3 text-white sm:px-7">
+    <div class="mb-7 flex min-h-12 flex-col justify-center gap-1 rounded-2xl bg-acento px-5 py-3 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-7">
 
-        <p class="min-w-0 truncate text-sm font-semibold font-gelasio sm:text-lg">
+        <p class="min-w-0 truncate text-sm font-semibold font-gelasio sm:text-xl">
             {{ usuario.nombre_completo }}
         </p>
 
-        <span class="shrink-0 font-lexend text-md font-medium">
+        <span class="shrink-0 font-lexend text-xs font-medium sm:text-base">
             Administración
         </span>
 
@@ -25,7 +25,7 @@
 
             <a href="{{ url_for('rutas_admin_cobertura.obtener_coberturas') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     COBERTURAS
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -33,7 +33,7 @@
 
             <a href="{{ url_for('rutas_admin_consultorio.obtener_consultorios') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     CONSULTORIOS
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -41,7 +41,7 @@
 
             <a href="{{ url_for('rutas_admin_especialidad.obtener_especialidades') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     ESPECIALIDADES
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -49,7 +49,7 @@
 
             <a href="{{ url_for('rutas_admin_usuario.obtener_usuarios') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     USUARIOS
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -64,7 +64,7 @@
 
             <a href="{{ url_for('rutas_admin_sala_espera.sala_espera') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     SALA DE ESPERA
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -72,7 +72,7 @@
 
             <a href="{{ url_for('rutas_admin_turnos_especialidad.turnos_especialidad') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     TURNOS
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -80,7 +80,7 @@
 
             <a href="{{ url_for('rutas_admin_ausentismo.ausentismo') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     ESTADÍSTICAS DE AUSENTISMO
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -88,7 +88,7 @@
 
             <a href="{{ url_for('rutas_admin_disponibilidad_consultorios.disponibilidad_consultorios') }}"
                class="flex items-center justify-between border-b border-gray-300 px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     DISPONIBILIDAD DE CONSULTORIOS
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>
@@ -96,7 +96,7 @@
 
             <a href="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
                class="flex items-center justify-between px-5 py-3 transition hover:bg-dominante">
-                <span class="font-bold tracking-[0.15em] text-acento">
+                <span class="text-[10px] font-bold tracking-[0.15em] text-acento sm:text-xs">
                     TIEMPOS DE ESPERA
                 </span>
                 <i data-lucide="chevron-right" class="h-6 w-6 text-acento"></i>

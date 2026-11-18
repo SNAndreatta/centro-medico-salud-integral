@@ -21,22 +21,22 @@
     </section>
 
     <section class="rounded-[18px] bg-white p-5 sm:p-7">
-        <div class="flex justify-between">
-            <div class="flex flex-col gap-1">
+        <div class="grid grid-cols-1 gap-3 sm:flex sm:justify-between sm:gap-0">
+            <div class="flex min-w-0 flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
-                <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.email }}</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.email }}</p>
             </div>
-            <div class="border-l border-acento/20"></div>
-            <div class="flex flex-col gap-1">
+            <div class="hidden border-l border-acento/20 sm:flex"></div>
+            <div class="flex min-w-0 flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
-                <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.fecha_nacimiento }}</p>
             </div>
-            <div class="border-l border-acento/20"></div>
-            <div class="flex flex-col gap-1">
+            <div class="hidden border-l border-acento/20 sm:flex"></div>
+            <div class="flex min-w-0 flex-col gap-1">
                 <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
-                <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.documento }}</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.documento }}</p>
             </div>
         </div>
     </section>
-    
+
 </div>
