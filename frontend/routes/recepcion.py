@@ -7,7 +7,7 @@ from src.api_catalogos import (
 from src.api_estadisticas import sala_espera as sala_espera_api
 from src.api_turnos import checkin, listar
 from src.errores import es_sesion_vencida, sesion_vencida
-from src.normalizar import normalizar_turno
+from src.normalizar import estado_turno, normalizar_turno
 from src.permisos import requiere_rol
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
@@ -132,7 +132,7 @@ def ver_turnos():
     try:
         turnos_crudos = [
             turno for turno in listar()
-            if (turno.get('estado') or {}).get('nombre', '').lower() != 'disponible'
+            if estado_turno(turno) != 'disponible'
         ]
         turnos = [
             normalizar_turno(turno, indice, vista='grilla')

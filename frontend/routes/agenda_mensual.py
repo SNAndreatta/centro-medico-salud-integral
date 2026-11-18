@@ -15,7 +15,11 @@ import calendar
 from datetime import date, datetime, timedelta
 
 from routes.admin.dashboards._comun import color_avatar
-from src.normalizar import iniciales as _iniciales, nombre_completo as _nombre_completo
+from src.normalizar import (
+    estado_turno as _estado_turno,
+    iniciales as _iniciales,
+    nombre_completo as _nombre_completo,
+)
 from src.tiempo import a_date as _a_date, a_datetime as _a_datetime, a_time as _a_time, hoy_local
 
 MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -78,7 +82,7 @@ def _slot(agenda, momento, turno, indice_color):
 
     if turno is not None:
         datos_paciente = turno.get('paciente') or {}
-        estado = ((turno.get('estado') or {}).get('nombre') or '').lower()
+        estado = _estado_turno(turno)
 
         cobertura = turno.get('cobertura') or {}
         nombre_cobertura = cobertura.get('nombre') or 'Particular'

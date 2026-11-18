@@ -1,5 +1,6 @@
 """Normalización compartida de los datos que vienen de la API."""
 
+import ast
 from datetime import datetime, timedelta
 
 from src.tiempo import a_date, a_datetime, ahora_local, formatear_fecha, hoy_local
@@ -103,13 +104,30 @@ def formatear_hora(valor):
     return momento.strftime('%H:%M') if momento else '—'
 
 
+def nombre_estado(turno):
+    estado = g(turno, "estado", "estado_turno", default="")
+
+    if isinstance(estado, str):
+        valor = estado.strip()
+        if valor.startswith(("{", "[")):
+            try:
+                estado = ast.literal_eval(valor)
+            except (SyntaxError, ValueError):
+                estado = valor
+        else:
+            estado = valor
+
+    if isinstance(estado, dict):
+        estado = g(estado, "nombre", "NOMBRE", default="")
+    elif isinstance(estado, list) and estado and isinstance(estado[0], dict):
+        estado = g(estado[0], "nombre", "NOMBRE", default="")
+
+    return str(estado).strip()
+
+
 def estado_turno(turno):
     """Nombre del estado del turno, en minúsculas."""
-    estado = g(turno, "estado", "estado_turno", default="")
-    if isinstance(estado, dict):
-        estado = estado.get("nombre", "")
-
-    return str(estado).strip().lower()
+    return nombre_estado(turno).lower()
 
 
 def puede_cancelar(momento, estado):
@@ -183,7 +201,6 @@ def normalizar_turno(turno, indice=0, vista="base"):
 
     duracion = g(turno, "duracion_turno", "duracion")
 
-    estado_crudo = g(turno, "estado", "estado_turno", default="")
     estado = estado_turno(turno)
 
     nombre_cobertura = cobertura.get("nombre") or 'Particular'
@@ -253,7 +270,7 @@ def normalizar_turno(turno, indice=0, vista="base"):
         )
         datos["medico"] = nombre_completo(medico.get("nombre"), medico.get("apellido"))
         datos["especialidad"] = especialidad or datos["medico"] or '-'
-        datos["estado"] = str(estado_crudo or '').lower()
+        datos["estado"] = estado
         datos["fecha"] = datos["fecha_tabla"]
         datos["cobertura"] = '-'
 
@@ -284,6 +301,6 @@ __all__ = [
     "a_date", "a_datetime", "ahora_local", "buscar", "color_avatar",
     "estado_turno",
     "color_estado", "como_lista", "fecha", "formatear_fecha", "formatear_hora",
-    "g", "iniciales", "nombre_completo", "nombre_medico", "normalizar_turno",
+    "g", "iniciales", "nombre_completo", "nombre_estado", "nombre_medico", "normalizar_turno",
     "puede_cancelar", "puede_marcar_atendido", "texto", "hoy_local",
 ]

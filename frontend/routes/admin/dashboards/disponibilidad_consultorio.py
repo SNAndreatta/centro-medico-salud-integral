@@ -5,7 +5,7 @@ from src.api_catalogos import obtener_consultorios
 from src.api_estadisticas import ocupacion_consultorios
 from src.api_turnos import listar as listar_turnos
 from src.errores import es_sesion_vencida, sesion_vencida
-from src.normalizar import formatear_hora
+from src.normalizar import formatear_hora, nombre_estado
 from src.permisos import requiere_rol
 
 from ._comun import fecha_iso
@@ -23,7 +23,7 @@ def _horarios_por_consultorio(turnos):
     for turno in turnos:
         consultorio = turno.get('consultorio') or {}
         id_consultorio = consultorio.get('id_consultorio')
-        estado = ((turno.get('estado') or {}).get('nombre') or '')
+        estado = nombre_estado(turno)
 
         horarios.setdefault(id_consultorio, []).append({
             'id_turno': turno.get('id_turno'),

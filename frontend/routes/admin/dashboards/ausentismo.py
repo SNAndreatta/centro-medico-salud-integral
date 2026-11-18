@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request
 from src import api_estadisticas
 from src.api import ErrorAPI
 from src.api_turnos import listar as listar_turnos
+from src.normalizar import estado_turno
 from src.permisos import requiere_rol
 
 from ._comun import (
@@ -28,7 +29,7 @@ def _calcular_ausentismo(turnos):
     especialidades = {}
 
     for turno in turnos:
-        estado = ((turno.get('estado') or {}).get('nombre') or '').lower()
+        estado = estado_turno(turno)
 
         if estado not in ESTADOS_CONSIDERADOS:
             continue
@@ -126,7 +127,7 @@ def _resumen(turnos):
     }
 
     for turno in turnos:
-        estado = ((turno.get('estado') or {}).get('nombre') or '').lower()
+        estado = estado_turno(turno)
 
         if estado == 'atendido':
             resumen['atendidos'] += 1
