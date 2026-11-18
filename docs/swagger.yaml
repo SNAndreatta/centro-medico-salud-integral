@@ -27,9 +27,29 @@ tags:
   description: "Motor principal de generación, búsqueda, reserva, cancelación y check-in QR."
 - name: Dashboards e Informes
   description: Estadísticas agregadas e indicadores clave de atención en formato JSON.
+- name: Sistema
+  description: Estado y disponibilidad del servicio.
 security:
 - bearerAuth: []
 paths:
+  /api/health:
+    get:
+      security: []
+      tags:
+      - Sistema
+      summary: Verificar disponibilidad del servicio
+      description: Health check público. La ruta interna `/health` queda expuesta como `/api/health` por el DispatcherMiddleware.
+      responses:
+        "200":
+          description: Servicio operativo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
   /api/auth/login:
     post:
       security: []
@@ -79,17 +99,19 @@ paths:
       tags:
       - Autenticación y Usuarios
       summary: Listar usuarios del sistema (Admin)
-      description: Retorna una lista del personal (Administradores y Recepcionistas). No incluye pacientes.
+      description: Retorna usuarios filtrables por rol (administrativos, pacientes y médicos).
       parameters:
       - name: rol
         in: query
-        description: Filtra por el tipo de rol administrativo.
+        description: Filtra por el tipo de rol.
         required: false
         schema:
           type: string
           enum:
           - admin
           - recepcionista
+          - paciente
+          - medico
       responses:
         "200":
           description: Lista de usuarios obtenida.
@@ -113,6 +135,59 @@ paths:
           description: "Error de validación (correo ya existe, DNI duplicado)."
         "403":
           description: Acceso denegado (requiere rol admin).
+  /api/usuarios/{id_usuario}:
+    put:
+      tags:
+      - Autenticación y Usuarios
+      summary: Actualizar datos de un usuario
+      description: >-
+        Permite al propio usuario editar sus datos personales. Un administrador
+        puede editar cualquier cuenta.
+      parameters:
+      - name: id_usuario
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioUpdate"
+        required: true
+      responses:
+        "200":
+          description: Datos actualizados correctamente.
+        "400":
+          description: Error de validación de los datos enviados.
+        "403":
+          description: Acceso denegado (solo el propio usuario o un administrador).
+        "404":
+          description: Usuario no encontrado.
+    delete:
+      tags:
+      - Autenticación y Usuarios
+      summary: Eliminar usuario
+      description: >-
+        Elimina una cuenta. No permite autoeliminarse y falla si el usuario tiene
+        turnos u otros registros vinculados.
+      parameters:
+      - name: id_usuario
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Usuario eliminado correctamente.
+        "400":
+          description: No se puede eliminar la propia cuenta.
+        "403":
+          description: Acceso denegado (requiere rol admin).
+        "404":
+          description: Usuario no encontrado.
+        "409":
+          description: El usuario está en uso y no puede eliminarse.
   /api/usuarios/{id_usuario}/password:
     put:
       tags:
@@ -220,7 +295,7 @@ paths:
           description: Cobertura eliminada.
         "409":
           description: Conflicto. No se puede eliminar porque hay pacientes/médicos que la utilizan.
-  /api/pacientes/registro:
+  /api/pacientes:
     post:
       security: []
       tags:
@@ -241,7 +316,6 @@ paths:
           description: Paciente registrado exitosamente.
         "400":
           description: Error de validación (Email en uso).
-  /api/pacientes:
     get:
       tags:
       - Pacientes
@@ -317,6 +391,8 @@ paths:
       responses:
         "200":
           description: Listado cronológico de turnos del paciente.
+        "404":
+          description: Paciente no encontrado.
   /api/especialidades:
     get:
       tags:
@@ -583,6 +659,14 @@ paths:
       responses:
         "201":
           description: Cobertura vinculada exitosamente al médico.
+        "400":
+          description: Body inválido o id de cobertura incorrecto.
+        "403":
+          description: Acceso denegado (solo el propio médico o un administrador).
+        "404":
+          description: Médico o cobertura no encontrados.
+        "409":
+          description: El vínculo ya existe.
   /api/medicos/{id_medico}/coberturas/{id_cobertura}:
     delete:
       tags:
@@ -684,6 +768,8 @@ paths:
       responses:
         "200":
           description: Agenda modificada con éxito.
+        "400":
+          description: La nueva fecha es anterior a la fecha de inicio.
         "404":
           description: Agenda no encontrada.
     delete:
@@ -711,6 +797,10 @@ paths:
       responses:
         "200":
           description: Turnos generados exitosamente en la base de datos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TurnosGenerarResponse"
         "409":
           description: La apertura de agendas todavía no está habilitada para el mes actual.
   /api/turnos/disponibles:
@@ -1009,6 +1099,72 @@ paths:
       responses:
         "200":
           description: Métricas de utilización de infraestructura devueltas con éxito.
+  /api/estadisticas/ausentismo:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Ausentismo por médico y especialidad
+      description: Devuelve `resumen` (total, atendidos, ausentes y cancelados) y los porcentajes de ausentes sobre turnos atendidos o ausentes agrupados por médico y por especialidad.
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Resumen y listados `medicos` y `especialidades` con `ausentes`, `considerados` y `porcentaje`.
+  /api/estadisticas/tiempo_espera:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Tiempo de espera por médico y especialidad
+      description: Promedio de minutos entre el horario del turno y el registro de llegada, agrupado por médico y por especialidad. Sólo considera turnos con `fecha_horario_llegada`.
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Listados `medicos` y `especialidades` con `espera` y `turnos`, más `turnos_considerados`.
+  /api/estadisticas/turnos-especialidad:
+    get:
+      tags:
+      - Dashboards e Informes
+      summary: Turnos agrupados por especialidad
+      description: Devuelve `total_turnos` y un listado de especialidades con el detalle de sus turnos, listo para renderizar el dashboard.
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Agrupación de turnos por especialidad.
 components:
   securitySchemes:
     bearerAuth:
@@ -1026,7 +1182,29 @@ components:
           type: string
           description: JWT firmado que el cliente enviará como Bearer en solicitudes protegidas.
         usuario:
-          $ref: "#/components/schemas/UsuarioInfo"
+          $ref: "#/components/schemas/UsuarioResumen"
+    UsuarioResumen:
+      required:
+      - id_usuario
+      - nombre
+      - apellido
+      - id_rol
+      type: object
+      properties:
+        id_usuario:
+          type: integer
+          example: 45
+        nombre:
+          type: string
+          example: Juan
+        apellido:
+          type: string
+          example: Pérez
+        id_rol:
+          type: integer
+          description: "1 = Admin, 2 = Recepción, 3 = Paciente, 4 = Médico"
+          example: 3
+      description: Datos mínimos del usuario devueltos por el login.
     LoginRequest:
       required:
       - correo_electronico
@@ -1123,6 +1301,29 @@ components:
           type: string
           format: password
           description: Obligatoria cuando el usuario cambia su propia contraseña.
+    UsuarioUpdate:
+      minProperties: 1
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          example: Juan
+        apellido:
+          type: string
+          example: Pérez
+        dni:
+          type: string
+          example: "30123456"
+        correo_electronico:
+          type: string
+          format: email
+          example: juan.perez@example.com
+        fecha_nacimiento:
+          type: string
+          format: date
+          example: "1990-05-12"
+      description: Campos editables del perfil de una cuenta.
     NombreRequest:
       required:
       - nombre
@@ -1163,6 +1364,10 @@ components:
           type: integer
           description: "1=Admin, 2=Recepcionista"
           example: 2
+        fecha_nacimiento:
+          type: string
+          format: date
+          example: "1990-05-12"
       description: Estructura para registrar administrativos (no pacientes).
     PacienteRegistro:
       required:
@@ -1201,26 +1406,38 @@ components:
           example: 12
       description: Estructura para registrar pacientes. El nro. de afiliado se genera automáticamente.
     PacienteUpdate:
+      minProperties: 1
       type: object
       properties:
+        nombre:
+          type: string
+        apellido:
+          type: string
+        dni:
+          type: string
         correo_electronico:
           type: string
           format: email
+        fecha_nacimiento:
+          type: string
+          format: date
         id_cobertura:
           type: integer
           nullable: true
-      description: Permite actualizar datos variables del paciente. El nro. de afiliado se genera automáticamente al cambiar la cobertura.
+      description: Permite actualizar datos del paciente. El nro. de afiliado se recalcula al cambiar la cobertura.
     ConsultorioRequest:
       required:
       - numero
       type: object
       properties:
         numero:
-          type: string
-          example: 10B
+          type: integer
+          minimum: 1
+          example: 10
         piso:
-          type: string
-          example: Planta Baja
+          type: integer
+          nullable: true
+          example: 1
     MedicoRegistro:
       required:
       - apellido
@@ -1257,13 +1474,17 @@ components:
           example: MN-123456
       description: Creación de usuario y perfil médico en la misma transacción.
     MedicoUpdate:
-      required:
-      - id_especialidad
+      minProperties: 1
       type: object
       properties:
         id_especialidad:
           type: integer
           example: 4
+        matricula:
+          type: string
+          maxLength: 50
+          example: MN-123456
+      description: Se puede actualizar la especialidad, la matrícula o ambos campos.
     AgendaConfig:
       required:
       - dias
@@ -1309,8 +1530,7 @@ components:
           example: 2027-01-31
       description: Actualización limitada de fechas de agenda (las horas se tocan creando una nueva).
     TurnoEstadoUpdate:
-      required:
-      - id_estado
+      minProperties: 1
       type: object
       properties:
         id_estado:
@@ -1319,6 +1539,12 @@ components:
           maximum: 2147483647
           description: "ID de la tabla Estado (Ej. 4 = Atendido, 6 = Ausente)"
           example: 4
+        estado:
+          type: string
+          enum:
+          - atendido
+          - ausente
+          description: Alternativa a `id_estado` usando el nombre del estado.
       description: Cambio manual a atendido o ausente según el estado actual y la tolerancia de llegada.
     id_medico_coberturas_body:
       required:
@@ -1327,33 +1553,36 @@ components:
       properties:
         id_cobertura:
           type: integer
-    turnos_generar_body:
+    TurnosGenerarResponse:
       required:
-      - fecha_desde
-      - fecha_hasta
-      - id_agenda
-      type: object
-      properties:
-        id_agenda:
-          type: integer
-          description: ID de la agenda base (médico y consultorio).
-        fecha_desde:
-          type: string
-          description: Inicio del bloque a generar.
-          format: date
-        fecha_hasta:
-          type: string
-          description: Fin del bloque a generar.
-          format: date
-    inline_response_201:
+      - mensaje
+      - periodo
+      - agendas_procesadas
+      - turnos_generados
+      - turnos_omitidos
       type: object
       properties:
         mensaje:
           type: string
-          example: Apertura de agenda exitosa.
-        cantidad_generados:
+          example: Turnos generados correctamente.
+        periodo:
+          type: object
+          properties:
+            fecha_desde:
+              type: string
+              format: date
+            fecha_hasta:
+              type: string
+              format: date
+        agendas_procesadas:
+          type: integer
+          example: 4
+        turnos_generados:
           type: integer
           example: 120
+        turnos_omitidos:
+          type: integer
+          example: 6
     turnos_checkin_body:
       required:
       - token
@@ -1363,12 +1592,11 @@ components:
           type: string
           description: Cadena encriptada o UUID contenida en el código QR.
     id_turno_reservar_body:
-      required:
-      - id_paciente
       type: object
       properties:
         id_paciente:
           type: integer
+          description: Obligatorio para administración y recepción. Los pacientes lo omiten porque se deduce del token.
     AgendaConfig_dias:
       required:
       - dia_semana

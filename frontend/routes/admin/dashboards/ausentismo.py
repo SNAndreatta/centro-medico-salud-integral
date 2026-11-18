@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 
+from src import api_estadisticas
 from src.api import ErrorAPI, api
 from src.permisos import requiere_rol
 
@@ -136,6 +137,33 @@ def _resumen(turnos):
     return resumen
 
 
+def _medico_desde_api(medico, indice):
+    porcentaje = float(medico.get('porcentaje') or 0)
+
+    return {
+        'id': medico.get('id_medico'),
+        'nombre': nombre_completo(medico.get('nombre'), medico.get('apellido')),
+        'iniciales': iniciales(medico.get('nombre'), medico.get('apellido')),
+        'ausentes': int(medico.get('ausentes') or 0),
+        'considerados': int(medico.get('considerados') or 0),
+        'porcentaje': porcentaje,
+        'porcentaje_texto': porcentaje_texto(porcentaje),
+        'color': color_avatar(indice),
+    }
+
+
+def _especialidad_desde_api(especialidad):
+    porcentaje = float(especialidad.get('porcentaje') or 0)
+
+    return {
+        'nombre': especialidad.get('nombre') or 'Sin especialidad',
+        'ausentes': int(especialidad.get('ausentes') or 0),
+        'considerados': int(especialidad.get('considerados') or 0),
+        'porcentaje': porcentaje,
+        'porcentaje_texto': porcentaje_texto(porcentaje),
+    }
+
+
 @ausentismo_admin_routes.route("/admin/ausentismo")
 @requiere_rol("admin")
 def ausentismo():
@@ -148,19 +176,33 @@ def ausentismo():
     resumen = {'total': 0, 'atendidos': 0, 'ausentes': 0, 'cancelados': 0}
 
     try:
-        datos = api(
-            "GET",
-            "/turnos",
-            params=parametros,
-        )
+        datos = api_estadisticas.ausentismo(parametros)
+        resumen_api = datos.get('resumen') or {}
 
-        turnos = datos.get('turnos', [])
-
-        medicos, especialidades = _calcular_ausentismo(turnos)
-        resumen = _resumen(turnos)
+        resumen = {
+            'total': int(resumen_api.get('total') or 0),
+            'atendidos': int(resumen_api.get('atendidos') or 0),
+            'ausentes': int(resumen_api.get('ausentes') or 0),
+            'cancelados': int(resumen_api.get('cancelados') or 0),
+        }
+        medicos = [
+            _medico_desde_api(medico, indice)
+            for indice, medico in enumerate(datos.get('medicos', []))
+        ]
+        especialidades = [
+            _especialidad_desde_api(especialidad)
+            for especialidad in datos.get('especialidades', [])
+        ]
 
     except ErrorAPI as e:
         error = e.mensaje
+
+        try:
+            turnos = api("GET", "/turnos", params=parametros).get('turnos', [])
+            medicos, especialidades = _calcular_ausentismo(turnos)
+            resumen = _resumen(turnos)
+        except ErrorAPI:
+            pass
 
     return render_template(
         "admin/dashboards/ausentismo.html",
