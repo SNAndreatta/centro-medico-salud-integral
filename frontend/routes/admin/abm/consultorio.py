@@ -7,7 +7,14 @@ from flask import (
     url_for,
 )
 
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import (
+    crear_consultorio as api_crear_consultorio,
+    editar_consultorio as api_editar_consultorio,
+    eliminar_consultorio as api_eliminar_consultorio,
+    obtener_consultorios as api_obtener_consultorios,
+)
+from src.errores import es_sesion_vencida, sesion_vencida
 from src.permisos import requiere_rol
 
 consultorio_routes = Blueprint(
@@ -17,28 +24,6 @@ consultorio_routes = Blueprint(
 
 # Pisos que se ofrecen por defecto en los formularios.
 PISOS_BASE = [1, 2, 3]
-
-
-# =========================================
-# NORMALIZACIÓN DE DATOS
-# =========================================
-
-def _normalizar_consultorio(consultorio):
-    piso = consultorio.get('piso')
-
-    return {
-        'id': int(consultorio['id_consultorio']),
-        'piso': int(piso) if piso is not None else None,
-        'numero': int(consultorio['numero']),
-    }
-
-
-def _listar_consultorios():
-    datos = api('GET', '/consultorios')
-    return [
-        _normalizar_consultorio(consultorio)
-        for consultorio in datos.get('consultorios', [])
-    ]
 
 
 def _pisos_disponibles(consultorios):
@@ -62,8 +47,10 @@ def obtener_consultorios():
     error = None
 
     try:
-        consultorios = _listar_consultorios()
+        consultorios = api_obtener_consultorios()
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = e.mensaje
 
     return render_template(
@@ -85,9 +72,11 @@ def crear_consultorio():
     numero = request.form.get("numero", type=int)
 
     try:
-        api("POST", "/consultorios", json={"numero": numero, "piso": piso})
+        api_crear_consultorio(numero, piso)
         flash("Consultorio creado correctamente.", "success")
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, "error")
 
     return redirect(
@@ -109,13 +98,11 @@ def editar_consultorio(consultorio_id):
     numero = request.form.get("numero", type=int)
 
     try:
-        api(
-            "PUT",
-            f"/consultorios/{consultorio_id}",
-            json={"numero": numero, "piso": piso},
-        )
+        api_editar_consultorio(consultorio_id, numero, piso)
         flash("Consultorio actualizado correctamente.", "success")
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, "error")
 
     return redirect(
@@ -134,9 +121,11 @@ def editar_consultorio(consultorio_id):
 @requiere_rol("admin")
 def eliminar_consultorio(consultorio_id):
     try:
-        api("DELETE", f"/consultorios/{consultorio_id}")
+        api_eliminar_consultorio(consultorio_id)
         flash("Consultorio eliminado correctamente.", "success")
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, "error")
 
     return redirect(

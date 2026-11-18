@@ -2,11 +2,16 @@ from flask import (
     Blueprint, render_template, session, redirect, url_for, flash
 )
 
-from src.api import ErrorAPI, api
-from src.api_paciente import perfil_paciente, proximos_turnos_paciente
-from src.api_usuario import (
-    perfil_usuario, coberturas_medico, turnos_del_dia_medico,
+from src.api import ErrorAPI
+from src.api_catalogos import coberturas_medico
+from src.api_paciente import perfil_paciente
+from src.api_turnos import (
+    generar_turnos as api_generar_turnos,
+    proximos_turnos_paciente,
+    turnos_del_dia_medico,
 )
+from src.api_usuario import perfil_usuario
+from src.errores import atender_error
 from src.permisos import ROLES, requiere_rol, rol_actual
 from src.tiempo import hoy_local
 
@@ -58,11 +63,9 @@ def home():
                 }
 
     except ErrorAPI as e:
-        if e.status == 401:
-            session.clear()
-            flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
-            return redirect(url_for("rutas_auth.login"))
-        flash(e.mensaje, "error")
+        respuesta = atender_error(e)
+        if respuesta:
+            return respuesta
 
     if rol == "medico":
         datos.setdefault("turnos_del_dia", [])
@@ -93,14 +96,9 @@ def generar_turnos():
         return redirect(url_for("rutas_home.home"))
 
     try:
-        resultado = api("POST", "/turnos/generar")
+        resultado = api_generar_turnos()
     except ErrorAPI as e:
-        if e.status == 401:
-            session.clear()
-            flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
-            return redirect(url_for("rutas_auth.login"))
-        flash(e.mensaje, "error")
-        return redirect(url_for("rutas_home.home"))
+        return atender_error(e, redirect_a=url_for("rutas_home.home"))
 
     if not isinstance(resultado, dict):
         resultado = {}

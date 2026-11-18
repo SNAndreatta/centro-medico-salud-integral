@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request
 
 from src import api_estadisticas
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_turnos import listar as listar_turnos
 from src.permisos import requiere_rol
 
 from ._comun import (
@@ -198,7 +199,7 @@ def ausentismo():
         error = e.mensaje
 
         try:
-            turnos = api("GET", "/turnos", params=parametros).get('turnos', [])
+            turnos = listar_turnos(parametros)
             medicos, especialidades = _calcular_ausentismo(turnos)
             resumen = _resumen(turnos)
         except ErrorAPI:
