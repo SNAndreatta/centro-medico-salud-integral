@@ -1,11 +1,11 @@
 <!-- Información del usuario -->
-<div class="mb-7 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-acento px-5 py-3 text-white sm:px-7">
+<div class="mb-7 flex min-h-12 items-center justify-between gap-2 rounded-2xl bg-acento px-4 py-3 text-white sm:gap-3 sm:px-7">
 
-    <p class="min-w-0 truncate text-sm font-semibold font-gelasio sm:text-lg">
+    <p class="min-w-0 truncate text-xs font-semibold font-gelasio sm:text-lg">
         {{ usuario.nombre_completo | default('Nombre Completo') }}
     </p>
 
-    <span class="shrink-0 font-lexend text-md font-medium">
+    <span class="shrink-0 font-lexend text-xs font-medium sm:text-base">
         Recepción
     </span>
 
@@ -18,16 +18,16 @@
     <!-- Ver turnos -->
     <a
         href="{{ url_for('rutas_recepcion.ver_turnos') }}"
-        class="group flex min-h-[76px] items-center justify-between gap-4  rounded-2xl bg-white px-5 py-5 transition bg-white hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:px-7"
+        class="group flex min-h-16 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-5 transition hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:gap-4 sm:px-7"
     >
 
-        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+        <span class="min-w-0 break-words text-xs font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
             VER TURNOS
         </span>
 
         <i
             data-lucide="clock"
-            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+            class="h-6 w-6 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
         ></i>
 
     </a>
@@ -36,16 +36,16 @@
     <!-- Ver sala de espera -->
     <a
         href="{{ url_for('rutas_recepcion.sala_espera') }}"
-        class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-white px-5 py-5 transition bg-white hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:px-7"
+        class="group flex min-h-16 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-5 transition hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:gap-4 sm:px-7"
     >
 
-        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+        <span class="min-w-0 break-words text-xs font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
             VER SALA DE ESPERA
         </span>
 
         <i
             data-lucide="clipboard-clock"
-            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+            class="h-6 w-6 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
         ></i>
 
     </a>
@@ -54,16 +54,16 @@
     <!-- Ver pacientes -->
     <a
         href="{{ url_for('rutas_recepcion.ver_pacientes') }}"
-        class="group flex min-h-[76px] items-center justify-between gap-4 rounded-2xl bg-white px-5 py-5 transition bg-white hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:px-7"
+        class="group flex min-h-16 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-5 transition hover:bg-gray-100 hover:shadow-md sm:min-h-[84px] sm:gap-4 sm:px-7"
     >
 
-        <span class="text-base font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
+        <span class="min-w-0 break-words text-xs font-bold font-lexend tracking-wide text-acento sm:text-xl lg:text-2xl">
             VER PACIENTES
         </span>
 
         <i
             data-lucide="users"
-            class="h-8 w-8 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
+            class="h-6 w-6 shrink-0 text-acento transition group-hover:scale-110 sm:h-10 sm:w-10"
         ></i>
 
     </a>
