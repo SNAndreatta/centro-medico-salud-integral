@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Sacar turno | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="bg-dominante px-4 sm:px-6">
+
+    <div class="mx-auto max-w-[1100px]">
+
+        {% include "components/mensajes.html" %}
+
+        <!-- TÍTULO -->
+        <section class="mt-3">
+
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+                <h2 class="text-lg font-bold tracking-wide text-acento sm:text-xl">
+                    SACAR TURNO
+                </h2>
+            </div>
+
+        </section>
+
+
+        <!-- BARRA DE PROGRESO -->
+        <nav aria-label="Pasos para sacar un turno" class="mb-4 mt-3">
+
+            <ol class="grid grid-cols-4 items-start">
+
+                <!-- PASO 1: ESPECIALIDAD -->
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
+
+                    <span
+                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
+                        {% if paso == 1 %}
+                            bg-acento text-white
+                        {% elif paso > 1 %}
+                            bg-acento/70 text-white
+                        {% else %}
+                            bg-acento/10 text-white
+                        {% endif %}"
+                    >
+                        {% if paso > 1 %}
+                            <i data-lucide="check" class="h-3 w-3"></i>
+                        {% else %}
+                            1
+                        {% endif %}
+                    </span>
+
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                        {% if paso == 1 %}
+                            font-semibold text-acento
+                        {% else %}
+                            text-acento/70
+                        {% endif %}">
+                        <span class="sm:hidden">Esp.</span>
+                        <span class="hidden sm:inline">Especialidad</span>
+                    </span>
+
+                </li>
+
+
+                <!-- PASO 2: MÉDICO -->
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
+
+                    <span
+                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
+                        {% if paso == 2 %}
+                            bg-acento text-white
+                        {% elif paso > 2 %}
+                            bg-acento/70 text-white
+                        {% else %}
+                            bg-acento/10 text-white
+                        {% endif %}"
+                    >
+                        {% if paso > 2 %}
+                            <i data-lucide="check" class="h-3 w-3"></i>
+                        {% else %}
+                            2
+                        {% endif %}
+                    </span>
+
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                        {% if paso == 2 %}
+                            font-semibold text-acento
+                        {% else %}
+                            text-acento/70
+                        {% endif %}">
+                        Médico
+                    </span>
+
+                </li>
+
+
+                <!-- PASO 3: DÍA Y HORARIO -->
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
+
+                    <span
+                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
+                        {% if paso == 3 %}
+                            bg-acento text-white
+                        {% elif paso > 3 %}
+                            bg-acento/70 text-white
+                        {% else %}
+                            bg-acento/10 text-white
+                        {% endif %}"
+                    >
+                        {% if paso > 3 %}
+                            <i data-lucide="check" class="h-3 w-3"></i>
+                        {% else %}
+                            3
+                        {% endif %}
+                    </span>
+
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                        {% if paso == 3 %}
+                            font-semibold text-acento
+                        {% else %}
+                            text-acento/70
+                        {% endif %}">
+                        <span class="sm:hidden">Día/hora</span>
+                        <span class="hidden sm:inline">Día y horario</span>
+                    </span>
+
+                </li>
+
+
+                <!-- PASO 4: CONFIRMACIÓN -->
+                <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
+
+                    <span
+                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold
+                        {% if paso == 4 %}
+                            bg-acento text-white
+                        {% elif paso > 4 %}
+                            bg-acento/70 text-white
+                        {% else %}
+                            bg-acento/10 text-white
+                        {% endif %}"
+                    >
+                        {% if paso > 4 %}
+                            <i data-lucide="check" class="h-3 w-3"></i>
+                        {% else %}
+                            4
+                        {% endif %}
+                    </span>
+
+                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                        {% if paso == 4 %}
+                            font-semibold text-acento
+                        {% else %}
+                            text-acento/70
+                        {% endif %}">
+                        <span class="sm:hidden">Confirm.</span>
+                        <span class="hidden sm:inline">Confirmación</span>
+                    </span>
+
+                </li>
+
+            </ol>
+
+        </nav>
+
+
+        <!-- CONTENIDO DEL PASO ACTUAL -->
+        <main>
+
+            <section class="rounded-[10px] bg-white px-4 py-5 shadow-sm sm:px-6 sm:py-6">
+
+                {% block contenido_paso %}
+                {% endblock %}
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+<!-- ICONOS -->
+<script src="{{ url_for('static', filename='js/paciente/sacar_turno.js') }}" defer></script>
+
+{% endblock %}

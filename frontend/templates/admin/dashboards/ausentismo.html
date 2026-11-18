@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Ausentismo | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div>
+
+    <!-- FILTRO DE FECHAS -->
+    <form
+        method="GET"
+        action="{{ url_for('rutas_admin_ausentismo.ausentismo') }}"
+        class="mb-6 flex flex-wrap items-center gap-3"
+    >
+
+        <!-- Desde -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_desde"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Desde
+            </label>
+
+            <input
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value="{{ fecha_desde }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <!-- Hasta -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_hasta"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Hasta
+            </label>
+
+            <input
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value="{{ fecha_hasta }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <button
+            type="submit"
+            class="rounded-full bg-acento/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-white transition hover:opacity-90 flex flex-row gap-2"
+        >
+            <span>Filtrar</span>
+            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+        </button>
+
+        {% if fecha_desde or fecha_hasta %}
+        <a
+            href="{{ url_for('rutas_admin_ausentismo.ausentismo') }}"
+            class="rounded-full border border-acento/20 bg-white px-4 py-1.5 text-xs font-semibold tracking-wide text-acento transition hover:shadow-sm"
+        >
+            Limpiar
+        </a>
+        {% endif %}
+
+        <p class="ml-auto text-xs tracking-wide text-acento/70">
+            Turnos: {{ resumen.total }}
+            · Atendidos: {{ resumen.atendidos }}
+            · Ausentes: {{ resumen.ausentes }}
+            · Cancelados: {{ resumen.cancelados }}
+        </p>
+
+    </form>
+
+    <!-- ERROR -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+
+    <!-- AUSENTISMO POR MÉDICO -->
+    <section class="mb-7">
+
+        <!-- Título y filtro -->
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+            <h2 class="text-xl font-bold tracking-wide text-acento">
+                AUSENTISMO POR MÉDICO
+            </h2>
+
+            <!-- Buscador -->
+            <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                <input
+                    id="buscarMedico"
+                    type="text"
+                    placeholder="Buscar médico"
+                    class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                >
+
+                <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+            </div>
+
+        </div>
+
+        <!-- Tarjetas de médicos -->
+        <div id="listaMedicos" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+            {% for medico in medicos %}
+
+            <a
+                data-filtro-medico
+                data-texto="{{ medico.nombre | lower }}"
+                class="flex min-h-[62px] items-center gap-3 rounded-2xl bg-white px-4 py-3 transition hover:shadow-sm sm:gap-4 sm:px-6"
+            >
+
+                <!-- Iniciales -->
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ medico.color }} text-base font-medium">
+                    {{ medico.iniciales }}
+                </div>
+
+                <!-- Nombre -->
+                <div class="min-w-0 flex-1">
+                    <p class="truncate font-serif text-xl text-acento sm:text-2xl">
+                        {{ medico.nombre }}
+                    </p>
+
+                    <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                        {{ medico.ausentes }} de {{ medico.considerados }} turnos
+                    </p>
+                </div>
+
+                <!-- Porcentaje -->
+                <p class="shrink-0 text-lg font-semibold text-acento/70 sm:text-2xl">
+                    {{ medico.porcentaje_texto }}%
+                </p>
+
+            </a>
+
+            {% endfor %}
+
+            <p id="sinMedicos" class="col-span-full {{ 'hidden' if medicos else '' }} rounded-xl bg-white px-4 py-6 text-center text-sm text-gray-500">
+                No se encontraron médicos.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- AUSENTISMO POR ESPECIALIDAD -->
+    <section>
+
+        <!-- Título y buscador -->
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+            <h2 class="text-xl font-bold tracking-wide text-acento">
+                AUSENTISMO POR ESPECIALIDAD
+            </h2>
+
+            <!-- Buscador -->
+            <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                <input
+                    id="buscarEspecialidad"
+                    type="text"
+                    placeholder="Buscar especialidad"
+                    class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                >
+
+                <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+            </div>
+
+        </div>
+
+
+        <!-- Tarjetas de especialidades -->
+        <div id="listaEspecialidades" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+            {% for especialidad in especialidades %}
+
+            <a
+                data-filtro-especialidad
+                data-texto="{{ especialidad.nombre | lower }}"
+                class="flex min-h-[62px] items-center justify-between gap-3 rounded-2xl bg-white px-5 py-3 transition hover:shadow-sm sm:px-6"
+            >
+
+                <div class="min-w-0">
+                    <p class="truncate font-serif text-xl text-acento sm:text-2xl">
+                        {{ especialidad.nombre }}
+                    </p>
+
+                    <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                        {{ especialidad.ausentes }} de {{ especialidad.considerados }} turnos
+                    </p>
+                </div>
+
+                <p class="shrink-0 text-lg font-semibold text-acento/70 sm:text-2xl">
+                    {{ especialidad.porcentaje_texto }}%
+                </p>
+
+            </a>
+
+            {% endfor %}
+
+            <p id="sinEspecialidades" class="col-span-full {{ 'hidden' if especialidades else '' }} rounded-xl bg-white px-4 py-6 text-center text-sm text-gray-500">
+                No se encontraron especialidades.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/admin/dashboards/ausentismo.js') }}"></script>
+
+{% endblock %}

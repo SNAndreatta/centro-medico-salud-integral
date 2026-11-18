@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Mi perfil{% endblock %}
+
+{% block content %}
+{% from "components/modales.html" import modal, botones_modal, modal_confirmar %}
+
+<div class="min-h-auto bg-dominante">
+    <div class="w-full">
+        {% if rol == "medico" %}
+            {% include "profile/medico.html" %}
+        {% elif rol == "recepcion" or rol == "recepcionista" %}
+            {% include "profile/recepcion.html" %}
+        {% elif rol == "paciente" %}
+            {% include "profile/paciente.html" %}
+        {% elif rol == "admin" or rol == "administrador" %}
+            {% include "profile/admin.html" %}
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- POPUP: EDITAR DATOS DEL PERFIL -->
+{% call modal("configuracion-modal", "Editar datos de perfil", "max-w-[640px]") %}
+    <form id="form-editar-perfil"
+        action="{{ url_for('rutas_profile.actualizar_perfil') }}"
+        method="post"
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+        <!-- NOMBRE -->
+        <div>
+            <label for="perfil-nombre" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Nombre
+            </label>
+            <input id="perfil-nombre" name="nombre" type="text" required
+                   value="{{ usuario.nombre }}"
+                   placeholder="Nombre"
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+        </div>
+
+        <!-- APELLIDO -->
+        <div>
+            <label for="perfil-apellido" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Apellido
+            </label>
+            <input id="perfil-apellido" name="apellido" type="text" required
+                   value="{{ usuario.apellido }}"
+                   placeholder="Apellido"
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+        </div>
+
+        <!-- DNI -->
+        <div>
+            <label for="perfil-dni" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                DNI
+            </label>
+            <input id="perfil-dni" name="dni" type="text" inputmode="numeric" required
+                   value="{{ usuario.dni }}"
+                   placeholder="DNI"
+                   readonly
+                   class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
+        </div>
+
+        <!-- FECHA DE NACIMIENTO -->
+        <div>
+            <label for="perfil-fecha-nacimiento" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Fecha de nacimiento
+            </label>
+            <input id="perfil-fecha-nacimiento" name="fecha_nacimiento" type="date"
+                   value="{{ usuario.fecha_nacimiento_iso }}"
+                   readonly
+                   class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
+        </div>
+
+        <!-- MAIL -->
+        <div class="sm:col-span-2">
+            <label for="perfil-mail" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Mail
+            </label>
+            <input id="perfil-mail" name="mail" type="email" required
+                   value="{{ usuario.email }}"
+                   placeholder="Mail"
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+        </div>
+
+        {% if rol == "paciente" %}
+        <!-- COBERTURA -->
+        <div class="sm:col-span-2">
+            <label for="id-cobertura-perfil" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Cobertura
+            </label>
+            <select id="id-cobertura-perfil" name="id_cobertura"
+                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
+                <option value="">Particular</option>
+                {% for cobertura in coberturas %}
+                <option value="{{ cobertura.id }}"
+                        {% if usuario.id_cobertura == cobertura.id %}selected{% endif %}>
+                    {{ cobertura.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        {% if rol == "medico" %}
+        <!-- ESPECIALIDAD -->
+        <div>
+            <label for="perfil-especialidad" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Especialidad
+            </label>
+            <select id="perfil-especialidad" name="id_especialidad" required
+                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
+                <option value="">Seleccionar especialidad</option>
+                {% for especialidad in especialidades %}
+                <option value="{{ especialidad.id }}"
+                        {% if especialidad.id == usuario.id_especialidad %}selected{% endif %}>
+                    {{ especialidad.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- MATRÍCULA -->
+        <div>
+            <label for="perfil-matricula" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Nro. matrícula
+            </label>
+            <input id="perfil-matricula" name="matricula" type="text" required
+                   value="{{ usuario.matricula if usuario.matricula != '-' else '' }}"
+                   placeholder="Matrícula"
+                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+        </div>
+
+        <!-- AGREGAR COBERTURAS -->
+        <div class="sm:col-span-2">
+            <label class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                Agregar coberturas
+            </label>
+
+            <div class="relative">
+                <button type="button"
+                        id="botonSelectorCoberturasPerfil"
+                        onclick="alternarSelector('selector-coberturas-perfil')"
+                        class="flex h-11 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-4 text-left text-sm text-acento/70">
+                    <span id="texto-coberturas-perfil" class="truncate">Coberturas</span>
+                    <i data-lucide="chevron-down" class="h-4 w-4 shrink-0"></i>
+                </button>
+
+                <div id="selector-coberturas-perfil"
+                     class="absolute bottom-12 left-0 z-30 hidden max-h-40 w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
+                    <p class="border-b border-gray-200 px-2 py-2 text-[10px] uppercase text-acento/70">
+                        Coberturas disponibles
+                    </p>
+
+                    {% for cobertura in coberturas_disponibles %}
+                    <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-gray-200">
+                        <input type="checkbox" name="coberturas" value="{{ cobertura.id }}"
+                               class="h-3 w-3 accent-acento">
+                        <span class="text-xs text-acento">{{ cobertura.nombre }}</span>
+                    </label>
+                    {% else %}
+                    <p class="px-2 py-2 text-xs text-acento/70">
+                        No hay más coberturas para agregar.
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- CONTRASEÑA -->
+        <div class="sm:col-span-2 border-t border-gray-200 pt-4">
+            <button type="button" id="toggle-cambiar-password"
+                    class="rounded-full border border-acento px-4 py-2 text-xs font-medium text-acento transition hover:bg-gray-50">
+                Cambiar contraseña
+            </button>
+
+            <!-- CAMPOS PARA CAMBIAR CONTRASEÑA -->
+            <div id="seccion-cambiar-password" class="hidden space-y-4 pt-4">
+
+                <div>
+                    <label for="password-actual" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Contraseña anterior
+                    </label>
+
+                    <div class="relative">
+                        <input id="password-actual" name="password_actual"
+                               form="form-cambiar-password" type="password"
+                               autocomplete="current-password"
+                               class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
+
+                        <button type="button"
+                                class="toggle-password absolute inset-y-0 right-4 flex items-center text-acento/30"
+                                data-target="password-actual"
+                                aria-label="Mostrar contraseña anterior">
+                            <i data-lucide="eye-off" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="nueva-password" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Contraseña nueva
+                    </label>
+
+                    <div class="relative">
+                        <input id="nueva-password" name="nueva_password"
+                               form="form-cambiar-password" type="password"
+                               autocomplete="new-password"
+                               class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
+
+                        <button type="button"
+                                class="toggle-password absolute inset-y-0 right-4 flex items-center text-acento/30"
+                                data-target="nueva-password"
+                                aria-label="Mostrar contraseña nueva">
+                            <i data-lucide="eye-off" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="confirmar-password" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Repetir contraseña nueva
+                    </label>
+
+                    <div class="relative">
+                        <input id="confirmar-password" name="confirmar_password"
+                               form="form-cambiar-password" type="password"
+                               autocomplete="new-password"
+                               class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 pr-11 text-sm text-acento outline-none focus:border-acento/70">
+
+                        <button type="button"
+                                class="toggle-password absolute inset-y-0 right-4 flex items-center text-acento/30"
+                                data-target="confirmar-password"
+                                aria-label="Mostrar confirmación de contraseña">
+                            <i data-lucide="eye-off" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" form="form-cambiar-password"
+                        class="rounded-full bg-acento px-4 py-2 text-xs font-medium text-white transition hover:bg-acento/60">
+                    Guardar contraseña
+                </button>
+            </div>
+        </div>
+
+        <div class="sm:col-span-2">
+            {{ botones_modal("configuracion-modal", "Guardar") }}
+        </div>
+
+    </form>
+
+    <!-- ELIMINAR CUENTA (fuera del form principal) -->
+    <div class="mt-4 border-t border-gray-200 pt-4 pb-4 text-center">
+        <button type="button"
+                id="abrirConfirmarEliminarCuenta"
+                data-abrir-modal="modalEliminarCuenta"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700">
+            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+            Eliminar cuenta
+        </button>
+    </div>
+
+    <!-- FORM PARA CAMBIAR CONTRASEÑA (fuera del form principal) -->
+    <form id="form-cambiar-password"
+          action="{{ url_for('rutas_profile.actualizar_password') }}"
+          method="post"
+          class="hidden">
+    </form>
+
+{% endcall %}
+
+
+<!-- POPUP: ELIMINAR CUENTA -->
+{{ modal_confirmar(
+    id="modalEliminarCuenta",
+    titulo="¿Está seguro que quiere eliminar su cuenta?",
+    mensaje="Se eliminarán todos sus datos.",
+    accion="#"
+) }}
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}" defer></script>
+{% endblock %}

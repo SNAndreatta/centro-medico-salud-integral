@@ -1,0 +1,181 @@
+from src.errores import error_respuesta
+from src.utils.roles import ADMINISTRADOR, MEDICO, PACIENTE, RECEPCIONISTA
+from src.validators.common import (
+    texto_obligatorio,
+    validar_correo_electronico,
+    validar_fecha_iso_opcional,
+    validar_objeto_json,
+)
+
+
+CAMPOS_USUARIO_STAFF = {
+    'nombre',
+    'apellido',
+    'dni',
+    'correo_electronico',
+    'password',
+    'id_rol',
+}
+CAMPOS_USUARIO_STAFF_OPCIONALES = {'fecha_nacimiento'}
+
+CAMPOS_USUARIO_ACTUALIZACION = {
+    'nombre',
+    'apellido',
+    'dni',
+    'correo_electronico',
+}
+CAMPOS_USUARIO_ACTUALIZACION_OPCIONALES = {'fecha_nacimiento'}
+
+ROLES_FILTRO = {
+    'admin': ADMINISTRADOR,
+    'recepcionista': RECEPCIONISTA,
+    'paciente': PACIENTE,
+    'medico': MEDICO,
+}
+
+
+def validar_filtro_rol(rol):
+    if rol not in (None, *ROLES_FILTRO):
+        return error_respuesta(
+            'El filtro rol debe ser admin, recepcionista, paciente o medico',
+            'FILTRO_INVALIDO',
+        )
+    return None
+
+
+def validar_cambio_password(datos, es_cambio_propio):
+    error_json = validar_objeto_json(datos)
+    if error_json:
+        return error_json
+
+    if set(datos) - {'nueva_password', 'password_actual'}:
+        return error_respuesta(
+            'El cuerpo solo admite nueva_password y password_actual',
+            'CUERPO_INVALIDO',
+        ), 400
+
+    nueva_password = datos.get('nueva_password')
+    if not texto_obligatorio(nueva_password) or not 8 <= len(nueva_password) <= 128:
+        return error_respuesta(
+            'nueva_password debe tener entre 8 y 128 caracteres',
+            'PASSWORD_INVALIDA',
+        ), 400
+
+    if (es_cambio_propio or 'password_actual' in datos) and not texto_obligatorio(datos.get('password_actual')):
+        return error_respuesta(
+            'password_actual debe ser texto y es obligatoria para un cambio propio',
+            'PASSWORD_ACTUAL_REQUERIDA',
+        ), 400
+    return None
+
+
+def validar_datos_usuario_staff(datos):
+    if (
+        not CAMPOS_USUARIO_STAFF.issubset(datos)
+        or set(datos) - CAMPOS_USUARIO_STAFF - CAMPOS_USUARIO_STAFF_OPCIONALES
+    ):
+        return None, error_respuesta(
+            'El cuerpo debe incluir nombre, apellido, dni, correo_electronico, password e id_rol; '
+            'fecha_nacimiento es opcional',
+            'CUERPO_INVALIDO',
+        )
+
+    texto = ('nombre', 'apellido', 'dni', 'correo_electronico', 'password')
+    if any(not texto_obligatorio(datos[campo]) for campo in texto):
+        return None, error_respuesta(
+            'Todos los campos de texto son obligatorios',
+            'DATOS_INVALIDOS',
+        )
+
+    limites = {
+        'nombre': 100,
+        'apellido': 100,
+        'dni': 20,
+        'correo_electronico': 150,
+    }
+    if any(len(datos[campo].strip()) > limite for campo, limite in limites.items()):
+        return None, error_respuesta(
+            'Uno o más campos exceden la longitud permitida',
+            'DATOS_INVALIDOS',
+        )
+
+    correo, error = validar_correo_electronico(datos['correo_electronico'])
+    if error:
+        return None, error
+
+    fecha_nacimiento, error = validar_fecha_iso_opcional(
+        datos.get('fecha_nacimiento'),
+        'fecha_nacimiento',
+    )
+    if error:
+        return None, error
+
+    id_rol = datos['id_rol']
+    if isinstance(id_rol, bool) or not isinstance(id_rol, int) or id_rol not in (
+        ADMINISTRADOR,
+        RECEPCIONISTA,
+    ):
+        return None, error_respuesta(
+            'id_rol debe ser 1 (Administrador) o 2 (Recepcionista)',
+            'ROL_INVALIDO',
+        )
+
+    return {
+        'id_rol': id_rol,
+        'nombre': datos['nombre'].strip(),
+        'apellido': datos['apellido'].strip(),
+        'dni': datos['dni'].strip(),
+        'correo_electronico': correo,
+        'fecha_nacimiento': fecha_nacimiento,
+        'password': datos['password'],
+    }, None
+
+
+def validar_datos_actualizacion_usuario(datos):
+    if (
+        not isinstance(datos, dict)
+        or not CAMPOS_USUARIO_ACTUALIZACION.issubset(datos)
+        or set(datos) - CAMPOS_USUARIO_ACTUALIZACION - CAMPOS_USUARIO_ACTUALIZACION_OPCIONALES
+    ):
+        return None, error_respuesta(
+            'El cuerpo debe incluir nombre, apellido, dni y correo_electronico; '
+            'fecha_nacimiento es opcional',
+            'CUERPO_INVALIDO',
+        )
+
+    if any(not texto_obligatorio(datos[campo]) for campo in CAMPOS_USUARIO_ACTUALIZACION):
+        return None, error_respuesta(
+            'Todos los campos de texto son obligatorios',
+            'DATOS_INVALIDOS',
+        )
+
+    limites = {
+        'nombre': 100,
+        'apellido': 100,
+        'dni': 20,
+        'correo_electronico': 150,
+    }
+    if any(len(datos[campo].strip()) > limite for campo, limite in limites.items()):
+        return None, error_respuesta(
+            'Uno o más campos exceden la longitud permitida',
+            'DATOS_INVALIDOS',
+        )
+
+    correo, error = validar_correo_electronico(datos['correo_electronico'])
+    if error:
+        return None, error
+
+    fecha_nacimiento, error = validar_fecha_iso_opcional(
+        datos.get('fecha_nacimiento'),
+        'fecha_nacimiento',
+    )
+    if error:
+        return None, error
+
+    return {
+        'nombre': datos['nombre'].strip(),
+        'apellido': datos['apellido'].strip(),
+        'dni': datos['dni'].strip(),
+        'correo_electronico': correo,
+        'fecha_nacimiento': fecha_nacimiento,
+    }, None

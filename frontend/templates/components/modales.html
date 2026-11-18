@@ -1,0 +1,98 @@
+{#
+  Componentes de pop-ups (estilo Figma).
+
+  Uso:
+    {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
+
+  Pop-up de confirmación:
+    {{ modal_confirmar(
+        id="modal-cerrar-sesion",
+        titulo="¿Está seguro que quiere cerrar sesión?",
+        accion=url_for('auth.logout')
+    ) }}
+
+  Con texto secundario:
+    {{ modal_confirmar(
+        id="modal-eliminar-cuenta",
+        titulo="¿Está seguro que quiere eliminar su cuenta?",
+        mensaje="Se eliminarán todos sus datos.",
+        accion=url_for('usuario.eliminar')
+    ) }}
+
+  Pop-up con contenido propio (formularios):
+    {% call modal("modal-crear-algo", "Crear algo", "max-w-[640px]") %}
+        <form> ... {{ botones_modal("modal-crear-algo", "Crear") }} </form>
+    {% endcall %}
+
+  Abrir / cerrar desde cualquier botón (lo maneja static/js/modales.js):
+    <button type="button" data-abrir-modal="modal-cerrar-sesion">Cerrar sesión</button>
+    <button type="button" data-cerrar-modal="modal-cerrar-sesion">Cancelar</button>
+#}
+
+
+{# ---------- Contenedor base: overlay + tarjeta + título centrado ---------- #}
+{% macro modal(id, titulo, ancho="max-w-[640px]") %}
+<div id="{{ id }}"
+     class="modal-overlay fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center sm:p-6">
+
+    <section role="dialog"
+             aria-modal="true"
+             aria-labelledby="{{ id }}-titulo"
+             class="my-auto flex max-h-[calc(100dvh-2rem)] w-full {{ ancho }} min-h-0 flex-col overflow-hidden rounded-2xl bg-white shadow-xl sm:max-h-[90dvh]">
+
+        <header class="shrink-0 px-4 pt-6 pb-4 sm:px-6 sm:pt-7 sm:pb-5">
+            <h2 id="{{ id }}-titulo"
+                class="text-center text-xl font-bold leading-snug text-acento sm:text-2xl">
+                {{ titulo }}
+            </h2>
+        </header>
+
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-5 sm:px-6 sm:pb-6">
+            {{ caller() }}
+        </div>
+
+    </section>
+</div>
+{% endmacro %}
+
+
+
+{# ---------- Par de botones: CANCELAR + acción ----------
+   destructivo=True  -> rosa con borde rojo (eliminar, cerrar sesión, cancelar turno)
+   destructivo=False -> azul oscuro (crear, guardar)
+#}
+{% macro botones_modal(id, texto="Aceptar", destructivo=False) %}
+<div class="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
+    <button type="button"
+            data-cerrar-modal="{{ id }}"
+            class="h-11 w-full rounded-full sm:w-1/2 border border-gray-300 bg-white min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-acento hover:bg-gray-50">
+        Cancelar
+    </button>
+
+    {% if destructivo %}
+    <button type="submit"
+            class="h-11 w-full rounded-full sm:w-1/2 border border-red-300 bg-red-100 min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-red-700 hover:bg-red-200">
+        {{ texto }}
+    </button>
+    {% else %}
+    <button type="submit"
+            class="h-11 w-full rounded-full sm:w-1/2 border border-acento bg-acento min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-white hover:bg-acento/60">
+        {{ texto }}
+    </button>
+    {% endif %}
+</div>
+{% endmacro %}
+
+
+{# ---------- Pop-up de confirmación completo ---------- #}
+{% macro modal_confirmar(id, titulo, accion, mensaje=none, texto_confirmar="Aceptar", metodo="POST") %}
+{% call modal(id, titulo) %}
+    {% if mensaje %}
+    <p class="text-center text-xs text-acento/70">{{ mensaje }}</p>
+    {% endif %}
+
+    <form method="{{ metodo }}" action="{{ accion }}">
+        {{ botones_modal(id, texto_confirmar, destructivo=True) }}
+    </form>
+{% endcall %}
+{% endmacro %}

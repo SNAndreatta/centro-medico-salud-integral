@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Mi agenda | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="px-1 sm:px-2">
+
+    <!-- Encabezado -->
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+        <h2 class="text-xl font-bold tracking-wide text-acento">
+            AGENDA DE {{ medico.nombre_completo | default('Dr. Nombre Completo') }}
+        </h2>
+
+    </div>
+
+    {% include "components/agenda_mensual.html" %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/agenda_mensual.js') }}" defer></script>
+{% endblock %}

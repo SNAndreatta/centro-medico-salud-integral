@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios | Salud Integral{% endblock %}
+
+{% block content %}
+
+
+    <!-- Contenedor principal con solapa -->
+    <main class="relative mt-16 w-full rounded-b-xl rounded-tr-xl bg-acento/60 p-3 pt-6">
+
+        <!-- Solapa -->
+        <div class="absolute -top-7 left-0 rounded-t-xl bg-acento/60 px-5">
+            <h2 class="text-lg font-bold tracking-widest text-white">
+                USUARIOS
+            </h2>
+        </div>
+
+
+        <!-- Mensajes -->
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+            <div class="mb-3 space-y-2">
+                {% for categoria, mensaje in mensajes %}
+                <p class="rounded-lg px-4 py-2 text-sm font-medium
+                          {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ mensaje }}
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if error %}
+        <p class="mb-3 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+            {{ error }}
+        </p>
+        {% endif %}
+
+
+        <!-- Buscadores y filtros -->
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+
+            <!-- Filtro por rol -->
+            <div class="relative">
+                <select
+                    id="filtroRol"
+                    class="w-44 appearance-none rounded-full border border-gray-200 bg-white px-3 py-1 pr-8 text-xs text-acento/70 outline-none sm:text-sm"
+                >
+                    <option value="">Filtrar por rol</option>
+
+                    {% for rol in roles %}
+                    <option value="{{ rol.clave }}">
+                        {{ rol.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <i data-lucide="sliders-horizontal"
+                   class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-acento/50">
+                </i>
+            </div>
+
+
+            <!-- Buscador -->
+            <div class="flex w-40 items-center rounded-full border border-gray-200 bg-white px-3 py-1 sm:w-52">
+                <input
+                    id="buscadorUsuario"
+                    type="text"
+                    placeholder="Buscar usuario"
+                    class="w-full bg-transparent text-xs outline-none sm:text-sm"
+                >
+                <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+            </div>
+
+        </div>
+
+
+        <!-- Listado de usuarios -->
+        <div class="overflow-hidden rounded-xl bg-white">
+
+            {% for usuario in usuarios %}
+
+            <div
+                class="fila-usuario grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-200 px-3 py-2.5 last:border-b-0 sm:px-4 md:grid-cols-[48px_minmax(0,1.6fr)_minmax(130px,1fr)_100px_auto] md:gap-4"
+                data-nombre="{{ (usuario.nombre ~ ' ' ~ usuario.apellido) | lower }}"
+                data-dni="{{ usuario.dni }}"
+                data-rol="{{ usuario.rol_clave }}"
+                data-id="{{ usuario.id }}"
+            >
+
+                <!-- Avatar -->
+                <div class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold
+                            {% if usuario.id_rol == 1 %}bg-slate-500/20 text-slate-600
+                            {% elif usuario.id_rol == 2 %}bg-emerald-500/20 text-emerald-600
+                            {% elif usuario.id_rol == 3 %}bg-pink-500/20 text-pink-600
+                            {% else %}bg-indigo-500/20 text-indigo-600{% endif %}">
+                    {{ usuario.iniciales }}
+                </div>
+
+
+                <!-- Nombre -->
+                <div class="min-w-0">
+                    <span class="text-[18px] text-acento sm:text-[20px] font-gelasio">
+                        {{ usuario.nombre }} {{ usuario.apellido }}
+                    </span>
+
+                    <!-- Rol e ID en mobile -->
+                    <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-acento/60 md:hidden">
+                        <span>{{ usuario.rol }}</span>
+                        <span>ID {{ usuario.id }}</span>
+                    </div>
+                </div>
+
+
+                <!-- Rol -->
+                <div class="hidden min-w-0 md:block">
+                    <span class="mr-2 text-[10px] text-acento/50">
+                        ROL
+                    </span>
+                    <span class="truncate text-xs font-semibold uppercase text-acento">
+                        {{ usuario.rol }}
+                    </span>
+                </div>
+
+
+                <!-- ID -->
+                <div class="hidden min-w-0 md:block">
+                    <span class="mr-2 text-[10px] text-acento/50">
+                        ID USUARIO
+                    </span>
+                    <span class="text-xs font-semibold text-acento">
+                        {{ usuario.id }}
+                    </span>
+                </div>
+
+
+                <!-- Ir al perfil -->
+                <a
+                    href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=usuario.id) }}"
+                    class="flex items-center gap-1 whitespace-nowrap rounded-full bg-acento/60 px-3 py-1.5 text-[11px] text-white hover:bg-acento sm:text-xs"
+                >
+                    Ir al perfil
+                    <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+
+            <!-- Sin resultados -->
+            <p id="sinResultados" class="hidden px-4 py-6 text-center text-sm text-gray-500">
+                No se encontraron usuarios.
+            </p>
+
+        </div>
+
+        <!-- Volver y crear -->
+        <div class="mt-3 flex items-center justify-between">
+
+            <a href="{{ url_for('rutas_home.home') }}"
+               class="inline-flex items-center gap-1 text-sm text-white hover:text-acento">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Volver al menú
+            </a>
+            <button
+                type="button"
+                onclick="abrirModalUsuario()"
+                class="inline-flex items-center gap-2 rounded-full bg-acento px-4 py-2 text-sm font-medium text-white transition hover:bg-acento/60"
+            >
+                Crear usuario
+                <i data-lucide="plus" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+    </main>
+
+
+
+    <!-- ================================= -->
+    <!-- POPUP CREAR USUARIO -->
+    <!-- ================================= -->
+
+    <div
+        id="modalCrearUsuario"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30 p-4"
+    >
+
+        <!-- Contenedor del modal -->
+        <div class="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl"
+             style="max-height: calc(100dvh - 2rem);">
+
+            <!-- Cerrar -->
+            <button
+                type="button"
+                onclick="cerrarModalUsuario()"
+                class="absolute right-4 top-4 z-10 text-gray-400 hover:text-gray-700"
+                aria-label="Cerrar"
+            >
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+
+            <!-- Contenido con scrollbar -->
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6"
+                 style="flex: 1 1 auto; min-height: 0; overflow-y: auto;">
+
+                <h2 class="mb-5 pr-8 font-serif text-xl font-bold text-acento">
+                    Crear usuario nuevo
+                </h2>
+
+                <form
+                    action="{{ url_for('rutas_admin_usuario.crear_usuario') }}"
+                    method="POST"
+                    class="flex flex-col"
+                >
+
+                    <!-- Primera fila -->
+                    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                        <!-- Nombre -->
+                        <div>
+                            <label for="nombre" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                NOMBRE/S
+                            </label>
+
+                            <input
+                                id="nombre"
+                                name="nombre"
+                                type="text"
+                                required
+                                placeholder="Ingresar nombre/s"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                        <!-- Apellido -->
+                        <div>
+                            <label for="apellido" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                APELLIDO/S
+                            </label>
+
+                            <input
+                                id="apellido"
+                                name="apellido"
+                                type="text"
+                                required
+                                placeholder="Ingresar apellido/s"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- Segunda fila -->
+                    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                        <!-- Mail -->
+                        <div>
+                            <label for="mail" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                MAIL
+                            </label>
+
+                            <input
+                                id="mail"
+                                name="mail"
+                                type="email"
+                                required
+                                placeholder="ejemplo.user@gmail.com"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                        <!-- Fecha de nacimiento -->
+                        <div>
+                            <label for="fecha_nacimiento" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                FECHA DE NACIMIENTO
+                            </label>
+
+                            <input
+                                id="fecha_nacimiento"
+                                name="fecha_nacimiento"
+                                type="date"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm text-acento/60 outline-none focus:border-acento"
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- Tercera fila -->
+                    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                        <!-- DNI -->
+                        <div>
+                            <label for="dni" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                DNI
+                            </label>
+
+                            <input
+                                id="dni"
+                                name="dni"
+                                type="text"
+                                inputmode="numeric"
+                                required
+                                placeholder="Ingresar DNI"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div>
+                            <label for="password" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                CONTRASEÑA
+                            </label>
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                minlength="8"
+                                autocomplete="new-password"
+                                required
+                                placeholder="Mínimo 8 caracteres"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- Rol -->
+                    <div class="mb-4">
+                        <label for="idRolUsuario" class="mb-1 block text-[11px] font-medium text-acento/60">
+                            ROL
+                        </label>
+
+                        <select
+                            id="idRolUsuario"
+                            name="id_rol"
+                            required
+                            class="w-full rounded-full border border-acento/20 bg-white px-3 py-2 text-sm text-acento outline-none focus:border-acento"
+                        >
+                            <option value="">Seleccionar rol</option>
+
+                            {% for rol in roles_crear %}
+                            <option value="{{ rol.id }}">
+                                {{ rol.nombre }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                    <!-- Campos extra para médicos -->
+                    <fieldset
+                        id="camposMedico"
+                        class="mb-4 grid-cols-1 gap-4 py-4 sm:grid-cols-2"
+                        style="display: none; min-width: 0;"
+                        disabled
+                    >
+
+                        <legend class="text-[13px] font-semibold uppercase tracking-wide text-acento/60">
+                            Datos del médico
+                        </legend>
+
+                        <!-- Especialidad -->
+                        <div>
+                            <label for="id_especialidad" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                ESPECIALIDAD
+                            </label>
+
+                            <select
+                                id="id_especialidad"
+                                name="id_especialidad"
+                                class="w-full rounded-full border border-acento/20 bg-white px-3 py-2 text-sm text-acento outline-none focus:border-acento"
+                            >
+                                <option value="">Seleccionar especialidad</option>
+
+                                {% for especialidad in especialidades %}
+                                <option value="{{ especialidad.id }}">
+                                    {{ especialidad.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Matrícula -->
+                        <div>
+                            <label for="matricula" class="mb-1 block text-[11px] font-medium text-acento/60">
+                                NRO. MATRÍCULA
+                            </label>
+
+                            <input
+                                id="matricula"
+                                name="matricula"
+                                type="text"
+                                placeholder="Ingresar matrícula"
+                                class="w-full rounded-full border border-acento/20 px-3 py-2 text-sm outline-none focus:border-acento"
+                            >
+                        </div>
+
+                        <!-- Coberturas -->
+                        <div class="relative sm:col-span-2">
+
+                            <p id="coberturasLabel" class="mb-2 text-[11px] font-medium text-acento/60">
+                                COBERTURAS
+                            </p>
+
+                            <button
+                                type="button"
+                                id="coberturasTrigger"
+                                class="flex w-full items-center justify-between gap-2 rounded-full border border-acento/20 bg-white px-3 py-2 text-left text-sm text-acento outline-none transition focus:border-acento disabled:cursor-not-allowed disabled:opacity-60"
+                                aria-expanded="false"
+                                aria-controls="coberturasPanel"
+                                aria-labelledby="coberturasLabel coberturasTrigger"
+                                {% if not coberturas %}disabled{% endif %}
+                            >
+                                <span id="coberturasTexto" class="truncate text-acento/40">
+                                    {% if coberturas %}Seleccionar coberturas{% else %}No hay coberturas cargadas{% endif %}
+                                </span>
+
+                                <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-acento/50 transition-transform"></i>
+                            </button>
+
+                            <!-- Panel: se abre hacia arriba -->
+                            <div
+                                id="coberturasPanel"
+                                class="absolute bottom-full left-0 right-0 z-20 hidden max-h-40 overflow-y-auto rounded-xl border border-acento/20 bg-white p-2 shadow-lg"
+                                role="group"
+                                aria-labelledby="coberturasLabel"
+                            >
+                                {% for cobertura in coberturas %}
+                                <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-acento/10">
+
+                                    <input
+                                        type="checkbox"
+                                        name="coberturas"
+                                        value="{{ cobertura.id }}"
+                                        data-nombre="{{ cobertura.nombre }}"
+                                        class="h-4 w-4 accent-acento"
+                                    >
+
+                                    <span class="text-sm text-acento">
+                                        {{ cobertura.nombre }}
+                                    </span>
+
+                                </label>
+                                {% else %}
+                                <p class="px-2 py-1 text-sm text-acento/60">
+                                    No hay coberturas cargadas.
+                                </p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+
+                    </fieldset>
+
+                    <!-- Crear -->
+                    <div class="flex justify-center pb-2">
+                        <button
+                            type="submit"
+                            class="w-40 rounded-full bg-acento px-4 py-2 text-sm text-white hover:bg-acento/60 sm:w-48"
+                        >
+                            Crear usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/admin/abm/usuario.js') }}"></script>
+{% endblock %}

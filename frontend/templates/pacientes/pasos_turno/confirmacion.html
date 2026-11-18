@@ -1,0 +1,117 @@
+{% extends "pacientes/pasos_turno/sacar_turno.html" %}
+
+{% set paso = 4 %}
+
+{% block contenido_paso %}
+
+<div class="space-y-5">
+
+    <h2 class="font-lexend text-base font-semibold text-acento">
+        Confirmá tu turno
+    </h2>
+
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-[1fr_180px]">
+
+        <!-- Resumen -->
+        <div class="space-y-3">
+
+            <!-- Especialidad -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Especialidad
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    {{ especialidad.nombre }}
+                </p>
+
+            </div>
+
+
+            <!-- Profesional -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Especialista
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    Dr. {{ medico.nombre }}
+                </p>
+
+            </div>
+
+
+            <!-- Fecha y hora -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Fecha y hora
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    {{ fecha_texto }} - {{ hora }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Confirmación visual -->
+        <div class="flex flex-col items-center justify-start gap-3">
+
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-acento text-white">
+                <i data-lucide="check" class="h-7 w-7"></i>
+            </div>
+
+            <p class="max-w-[160px] text-center text-[9px] leading-relaxed text-acento/70">
+                Revisá los datos y confirmá tu turno. Una vez confirmado, recibirás la información correspondiente.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Botones atras adelante -->
+    <form method="POST">
+        <input type="hidden" name="paso" value="4">
+        <input type="hidden" name="especialidad_id" value="{{ especialidad.id }}">
+        <input type="hidden" name="medico_id" value="{{ medico.id }}">
+        <input type="hidden" name="fecha" value="{{ fecha }}">
+        <input type="hidden" name="hora" value="{{ hora }}">
+            <!-- Botón siguiente y anterior -->
+        <div class="mt-6 flex w-full flex-row flex-wrap items-center justify-between gap-2">
+
+            <!-- Anterior -->
+            <button
+                type="submit"
+                name="accion"
+                value="anterior"
+                class="inline-flex items-center gap-2 rounded-full border border-acento px-3 py-2 text-xs font-medium text-acento transition hover:bg-acento/5 sm:px-5"
+            >
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Anterior
+            </button>
+
+            <!-- Confirmar -->
+            <button
+                type="submit"
+                name="accion"
+                value="confirmar"
+                class="inline-flex items-center gap-2 rounded-full bg-acento px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 sm:px-5"
+            >
+                Confirmar
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% from "components/modales.html" import modal %}
+
+{% block title %}Sala de espera | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div class="w-full">
+
+    <!-- =========================================
+         TÍTULO Y BOTONES
+    ========================================== -->
+
+    <div class="relative mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-400/70 px-1 pb-1">
+
+        <h2 class="text-base font-bold font-lexend tracking-wide text-acento sm:text-2xl">
+            SALA DE ESPERA
+        </h2>
+
+
+        <div class="flex flex-wrap items-center gap-2">
+
+            <!-- BOTÓN FILTROS -->
+            <button
+                id="boton-filtros"
+                type="button"
+                aria-expanded="false"
+                class="flex items-center gap-2 rounded-full bg-acento/70 px-3 py-2 text-xs font-semibold text-white transition hover:bg-acento sm:gap-3 sm:px-5 sm:text-sm"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+            <!-- BOTÓN INGRESAR PACIENTE -->
+            <button
+                type="button"
+                id="boton-ingresar-paciente"
+                data-url-checkin="{{ url_for('rutas_recepcion.registrar_ingreso') }}"
+                class="flex items-center gap-2 rounded-full bg-acento/80 px-3 py-2 text-xs font-medium font-lexend text-white transition hover:bg-acento sm:text-sm"
+            >
+                Ingresar paciente
+
+                <i data-lucide="qr-code" class="h-5 w-5"></i>
+            </button>
+
+        </div>
+
+
+        <!-- =========================================
+             PANEL DE FILTROS
+        ========================================== -->
+
+        <div
+            id="panel-filtros"
+            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+        >
+
+            <h3 class="mb-4 font-lexend text-base font-semibold text-acento">
+                Filtrar pacientes
+            </h3>
+
+
+            <!-- ESPECIALIDAD -->
+            <div class="mb-5">
+
+                <label
+                    for="filtro-especialidad"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    ESPECIALIDAD
+                </label>
+
+                <select
+                    id="filtro-especialidad"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+
+                    <option value="">
+                        Todas las especialidades
+                    </option>
+
+                    {% for especialidad in especialidades %}
+
+                        <option value="{{ especialidad.nombre | lower }}">
+                            {{ especialidad.nombre }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- BOTONES -->
+            <div class="flex items-center justify-between gap-3">
+
+                <button
+                    type="button"
+                    id="limpiar-filtros"
+                    class="w-1/2 rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                >
+                    Limpiar
+                </button>
+
+                <button
+                    type="button"
+                    id="aplicar-filtros"
+                    class="w-1/2 rounded-full bg-acento px-4 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                >
+                    Aplicar filtros
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         ERROR
+    ========================================== -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% else %}
+
+
+    <!-- =========================================
+         LISTADO DE PACIENTES
+    ========================================== -->
+
+    <section
+        id="listaPacientes"
+        aria-label="Pacientes en espera"
+        class="space-y-3.5 sm:space-y-4"
+    >
+
+        {% for paciente in pacientes_en_espera %}
+
+            <div
+                class="tarjeta-paciente"
+                data-especialidad="{{ paciente.especialidad | lower | trim }}"
+            >
+
+                {% include "recepcion/_card_paciente.html" %}
+
+            </div>
+
+        {% else %}
+
+            <!-- SALA DE ESPERA VACÍA -->
+            <div
+                id="estadoVacio"
+                class="flex flex-col items-center justify-center rounded-2xl bg-white px-5 py-12 text-center"
+            >
+
+                <i data-lucide="users-round" class="mb-4 h-12 w-12 text-slate-400"></i>
+
+                <h3 class="font-gelasio text-xl font-semibold text-acento sm:text-2xl">
+                    Sala de espera vacía
+                </h3>
+
+                <p class="mt-2 text-sm font-lexend text-slate-500">
+                    Todavía no hay pacientes esperando atención.
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+
+        <!-- SIN RESULTADOS PARA EL FILTRO -->
+        <div
+            id="sinResultados"
+            class="hidden flex-col items-center justify-center rounded-2xl bg-white px-5 py-12 text-center"
+        >
+
+            <i data-lucide="search-x" class="mb-4 h-12 w-12 text-slate-400"></i>
+
+            <h3 class="font-gelasio text-xl font-semibold text-acento sm:text-2xl">
+                No hay pacientes
+            </h3>
+
+            <p class="mt-2 text-sm font-lexend text-slate-500">
+                No hay pacientes esperando atención en esta especialidad.
+            </p>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- =========================================
+         MODAL ESCÁNER DE CÓDIGO QR
+    ========================================== -->
+    {% call modal("modal-escaner-qr", "Ingresar paciente", "max-w-[520px]") %}
+        <div class="flex flex-col items-center gap-4">
+
+            <p class="text-center text-sm font-lexend text-slate-500">
+                Apuntá la cámara al código QR del comprobante del turno.
+            </p>
+
+            <!-- Lector de QR -->
+            <div
+                id="lector-qr"
+                class="w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900"
+            ></div>
+
+            <!-- Cámara del dispositivo (lector alternativo) -->
+            <video
+                id="video-qr"
+                class="hidden w-full rounded-xl border border-slate-200 bg-slate-900"
+                playsinline
+                muted
+            ></video>
+
+            <p id="estado-lector" class="text-center text-xs font-lexend text-slate-500">
+                Iniciando la cámara...
+            </p>
+
+            <button
+                type="button"
+                data-cerrar-modal="modal-escaner-qr"
+                class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-[13px] font-medium uppercase tracking-[0.2em] text-acento transition hover:bg-gray-50"
+            >
+                Cancelar
+            </button>
+
+        </div>
+    {% endcall %}
+
+
+    <!-- =========================================
+         POP-UP RESULTADO DEL INGRESO
+    ========================================== -->
+    {% call modal("modal-resultado-ingreso", "Ingreso de paciente", "max-w-[420px]") %}
+        <div class="flex flex-col items-center gap-4 text-center">
+
+            <i
+                id="icono-resultado-exito"
+                data-lucide="circle-check"
+                class="h-14 w-14 text-green-600"
+            ></i>
+
+            <i
+                id="icono-resultado-error"
+                data-lucide="circle-x"
+                class="hidden h-14 w-14 text-red-600"
+            ></i>
+
+            <p
+                id="mensaje-resultado-ingreso"
+                class="text-sm font-lexend text-slate-600"
+            ></p>
+
+            <button
+                type="button"
+                id="boton-cerrar-resultado-ingreso"
+                data-cerrar-modal="modal-resultado-ingreso"
+                class="h-11 w-full rounded-full bg-acento px-4 text-[13px] font-medium uppercase tracking-[0.2em] text-white transition hover:opacity-90"
+            >
+                Cerrar
+            </button>
+
+        </div>
+    {% endcall %}
+
+
+    <script src="{{ url_for('static', filename='js/recepcion/sala_espera.js') }}"></script>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/recepcion/ingresar_paciente.js') }}" defer></script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "pacientes/pasos_turno/sacar_turno.html" %}
+
+{% set paso = 5 %}
+
+{% block contenido_paso %}
+
+<div class="space-y-5">
+
+    <!-- Encabezado -->
+    <div class="flex items-center gap-3">
+
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-acento text-white sm:h-12 sm:w-12">
+            <i data-lucide="check" class="h-6 w-6 sm:h-7 sm:w-7"></i>
+        </div>
+
+        <div class="min-w-0">
+            <h2 class="break-words font-lexend text-sm font-semibold text-acento sm:text-base">
+                ¡Turno reservado!
+            </h2>
+
+            <p class="mt-1 text-xs text-acento/70">
+                Guardá este código QR: lo vas a necesitar al llegar al consultorio.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-[1fr_180px]">
+
+        <!-- Resumen del turno -->
+        <div class="space-y-3">
+
+            <!-- Especialidad -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Especialidad
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    {{ especialidad.nombre }}
+                </p>
+
+            </div>
+
+
+            <!-- Profesional -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Especialista
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    Dr. {{ medico.nombre }}
+                </p>
+
+            </div>
+
+
+            <!-- Fecha y hora -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Fecha y hora
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    {{ fecha_texto }} - {{ hora }}
+                </p>
+
+            </div>
+
+
+            <!-- Consultorio -->
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Consultorio
+                </p>
+
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                    {{ consultorio if consultorio else 'A confirmar' }}
+                </p>
+
+            </div>
+
+
+            <!-- Envío del comprobante por correo -->
+            <div class="rounded-lg border border-gray-200 px-3 py-2">
+
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                    Comprobante por correo
+                </p>
+
+                {% if email_enviado %}
+                <p class="mt-1 break-words text-xs text-acento">
+                    Enviamos el comprobante y el código QR a
+                    {{ email_destinatario if email_destinatario else 'tu correo' }}.
+                </p>
+                {% else %}
+                <p class="mt-1 break-words text-xs text-acento">
+                    No pudimos enviar el correo{{ ': ' ~ email_error if email_error else '' }}.
+                    Guardá el código QR y mostralo en recepción.
+                </p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Código QR -->
+        <div class="flex flex-col items-center justify-start gap-3">
+
+            {% if qr_imagen %}
+            <img
+                src="data:{{ qr_mime }};base64,{{ qr_imagen }}"
+                alt="Código QR del turno reservado"
+                class="w-40 max-w-full rounded-xl border border-gray-200 bg-white p-2 sm:w-48"
+            >
+
+            <p class="max-w-full text-center text-[9px] leading-relaxed text-acento/70 sm:max-w-[160px]">
+                Presentá este código en recepción para confirmar tu llegada.
+            </p>
+            {% else %}
+            <p class="max-w-full text-center text-xs text-acento/70 sm:max-w-[160px]">
+                Tu turno quedó reservado. Consultá el comprobante en el correo o en recepción.
+            </p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Botones -->
+    <div class="mt-6 flex flex-row flex-wrap items-center justify-between gap-2">
+
+        <a
+            href="{{ url_for('rutas_paciente.mis_turnos') }}"
+            class="inline-flex items-center gap-2 rounded-full border border-acento px-3 py-2 text-xs font-medium text-acento transition hover:bg-acento/5 sm:px-5"
+        >
+            <i data-lucide="calendar-days" class="h-4 w-4"></i>
+            Ver mis turnos
+        </a>
+
+        <a
+            href="{{ url_for('rutas_home.home') }}"
+            class="inline-flex items-center gap-2 rounded-full bg-acento px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 sm:px-5"
+        >
+            Ir al inicio
+            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

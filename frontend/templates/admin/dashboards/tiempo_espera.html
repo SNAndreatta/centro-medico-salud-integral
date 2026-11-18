@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Tiempo de espera | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div>
+
+    <!-- FILTRO DE FECHAS -->
+    <form
+        method="GET"
+        action="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
+        class="mb-6 flex flex-wrap items-center gap-3"
+    >
+
+        <!-- Desde -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_desde"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Desde
+            </label>
+
+            <input
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value="{{ fecha_desde }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <!-- Hasta -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_hasta"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Hasta
+            </label>
+
+            <input
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value="{{ fecha_hasta }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <button
+            type="submit"
+            class="rounded-full bg-acento/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-white transition hover:opacity-90 flex flex-row gap-2"
+        >
+            <span>Filtrar</span>
+            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+        </button>
+
+        {% if fecha_desde or fecha_hasta %}
+        <a
+            href="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
+            class="rounded-full border border-acento/20 bg-white px-4 py-1.5 text-xs font-semibold tracking-wide text-acento transition hover:shadow-sm"
+        >
+            Limpiar
+        </a>
+        {% endif %}
+
+        <p class="ml-auto text-xs tracking-wide text-acento/70">
+            {{ turnos_considerados }}
+            {{ 'turno con registro de llegada' if turnos_considerados == 1 else 'turnos con registro de llegada' }}
+        </p>
+
+    </form>
+
+    <!-- ERROR -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+
+    <div class="space-y-7">
+
+        <!-- ========================================== -->
+        <!-- TIEMPO DE ESPERA POR MÉDICO -->
+        <!-- ========================================== -->
+
+        <section>
+
+            <!-- Encabezado -->
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+                <h2 class="text-xl font-bold tracking-wide text-acento">
+                    TIEMPO DE ESPERA POR MÉDICO
+                </h2>
+
+                <!-- Buscador -->
+                <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                    <input
+                        id="buscarMedico"
+                        type="text"
+                        placeholder="Buscar médico"
+                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                    >
+
+                    <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+                </div>
+
+            </div>
+
+
+            <!-- Médicos -->
+            <div
+                id="lista-medicos"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+
+                {% for medico in medicos %}
+
+                <article
+                    class="medico-card flex min-w-0 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-3 sm:px-5"
+                    data-search="{{ medico.nombre | lower }}"
+                >
+
+                    <!-- Iniciales y nombre -->
+                    <div class="flex min-w-0 items-center gap-3 sm:gap-5">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-medium {{ medico.color_fondo }} {{ medico.color_texto }}">
+                            {{ medico.iniciales }}
+                        </div>
+
+                        <div class="min-w-0">
+                            <h3 class="truncate font-serif text-lg text-acento sm:text-xl">
+                                {{ medico.nombre }}
+                            </h3>
+
+                            <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                                {{ medico.turnos }}
+                                {{ 'turno' if medico.turnos == 1 else 'turnos' }}
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Tiempo de espera -->
+                    <p class="shrink-0 text-base font-semibold text-acento/70 sm:text-xl">
+                        {{ medico.espera }} min
+                    </p>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+            <p id="sin-medicos" class="{{ 'hidden' if medicos else '' }} py-5 text-center text-sm text-gray-500">
+                No se encontraron médicos.
+            </p>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TIEMPO DE ESPERA POR ESPECIALIDAD -->
+        <!-- ========================================== -->
+
+        <section>
+
+            <!-- Encabezado -->
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+                <h2 class="text-xl font-bold tracking-wide text-acento">
+                    TIEMPO DE ESPERA POR ESPECIALIDAD
+                </h2>
+
+                <!-- Buscador -->
+                <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                    <input
+                        id="buscarEspecialidad"
+                        type="text"
+                        placeholder="Buscar especialidad"
+                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                    >
+
+                    <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+                </div>
+
+            </div>
+
+
+            <!-- Especialidades -->
+            <div
+                id="lista-especialidades"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+
+                {% for especialidad in especialidades %}
+
+                <article
+                    class="especialidad-card flex items-center justify-between gap-3 rounded-2xl bg-white px-5 py-3 sm:px-6"
+                    data-search="{{ especialidad.nombre | lower }}"
+                >
+
+                    <div class="min-w-0">
+                        <h3 class="font-serif text-lg text-acento sm:text-xl">
+                            {{ especialidad.nombre }}
+                        </h3>
+
+                        <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                            {{ especialidad.turnos }}
+                            {{ 'turno' if especialidad.turnos == 1 else 'turnos' }}
+                        </p>
+                    </div>
+
+                    <p class="shrink-0 text-base font-semibold text-acento/70 sm:text-xl">
+                        {{ especialidad.espera }} min
+                    </p>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+            <p id="sin-especialidades" class="{{ 'hidden' if especialidades else '' }} py-5 text-center text-sm text-gray-500">
+                No se encontraron especialidades.
+            </p>
+
+        </section>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin/dashboards/tiempo_espera.js') }}"></script>
+
+</div>
+
+{% endblock %}

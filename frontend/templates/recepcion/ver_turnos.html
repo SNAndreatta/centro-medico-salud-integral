@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Turnos | Salud Integral{% endblock %}
+
+{% block content %}
+
+    <!-- Título y filtros -->
+    <section class="relative mb-7">
+
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+            <h1 class="text-lg font-bold tracking-wide text-acento sm:text-2xl">
+                VER TURNOS
+            </h1>
+
+            <!-- Botón filtrar -->
+            <button
+                type="button"
+                id="boton-filtros"
+                aria-expanded="false"
+                aria-controls="panel-filtros"
+                class="flex items-center gap-2 rounded-full bg-acento/70 px-3 py-2 text-xs font-semibold text-white transition hover:bg-acento sm:gap-3 sm:px-5 sm:text-sm"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+
+        <!-- Panel de filtros -->
+        <div
+            id="panel-filtros"
+            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+        >
+
+            <h2 class="mb-4 font-lexend text-acento text-base font-semibold">
+                Filtrar turnos
+            </h2>
+
+            <!-- Filtro por especialidad -->
+            <div class="mb-4">
+
+                <label
+                    for="filtro-especialidad"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    ESPECIALIDAD
+                </label>
+
+                <select
+                    id="filtro-especialidad"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+                    <option value="">Todas las especialidades</option>
+                    {% for especialidad in especialidades %}
+                    <option value="{{ especialidad|lower }}">{{ especialidad }}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+            <!-- Filtro por médico -->
+            <div class="mb-5">
+
+                <label
+                    for="filtro-medico"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    MÉDICO
+                </label>
+
+                <select
+                    id="filtro-medico"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+                    <option value="">Todos los médicos</option>
+                    {% for medico in medicos %}
+                    <option value="{{ medico|lower }}">{{ medico }}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-between gap-3">
+
+                <button
+                    type="button"
+                    id="limpiar-filtros"
+                    class="rounded-full w-1/2 border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                >
+                    Limpiar
+                </button>
+
+                <button
+                    type="button"
+                    id="aplicar-filtros"
+                    class="rounded-full w-1/2 bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                >
+                    Aplicar filtros
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+
+    <!-- Lista de turnos -->
+    <section id="lista-turnos" class="space-y-3.5">
+
+        {% for turno in turnos %}
+
+            <!-- Card de turno -->
+            <article
+                class="turno-card grid grid-cols-1 items-center gap-3 rounded-2xl bg-white px-4 py-5 shadow-sm transition hover:shadow-md sm:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,1.5fr)] sm:gap-0 sm:px-8"
+                data-especialidad="{{ turno.especialidad|lower }}"
+                data-medico="{{ turno.medico|lower }}"
+            >
+
+                <!-- Avatar y paciente -->
+                <div class="flex min-w-0 items-center gap-3 sm:gap-7 sm:pr-5">
+
+                    <div
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-lexend text-lg font-medium {{ turno.color_fondo | default('bg-pink-500/30 text-pink-500') }}"
+                    >
+                        {{ turno.iniciales | default('SP') }}
+                    </div>
+
+                    <div class="min-w-0">
+
+                        <p class="mb-0.5 break-words font-lexend text-[10px] font-medium tracking-wide text-slate-500 sm:text-xs">
+                            PACIENTE{% if turno.estado %} · {{ turno.estado|upper }}{% endif %}
+                        </p>
+
+                        <h2 class="truncate font-lexend text-lg font-medium text-acento sm:text-2xl">
+                            {{ turno.paciente }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Fecha y hora -->
+                <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:px-5 sm:pt-0">
+
+                    <p class="mb-0.5 break-words font-lexend text-[10px] font-medium tracking-wide text-slate-500 sm:text-xs">
+                        FECHA Y HORA
+                    </p>
+
+                    <p class="font-lexend text-lg font-medium leading-tight text-acento sm:text-xl">
+                        {{ turno.hora }}
+                    </p>
+
+                    <p class="break-words font-lexend text-xs font-medium leading-tight text-acento">
+                        {{ turno.fecha }}
+                    </p>
+
+                </div>
+
+
+                <!-- Consultorio -->
+                <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:px-5 sm:pt-0">
+
+                    <p class="mb-1 break-words font-lexend text-[10px] font-medium tracking-wide text-slate-500 sm:text-xs">
+                        CONSULTORIO
+                    </p>
+
+                    <p class="font-lexend text-3xl font-semibold leading-tight text-acento">
+                        {{ turno.consultorio }}
+                    </p>
+
+                </div>
+
+
+                <!-- Especialidad / médico -->
+                <div class="border-t border-slate-300 pt-3 sm:min-h-[68px] sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+
+                    <p class="mb-1 break-words font-lexend text-[10px] font-medium tracking-wide text-slate-500 sm:text-xs">
+                        ESPECIALIDAD / MÉDICO
+                    </p>
+
+                    <p class="truncate font-lexend text-base font-medium text-acento sm:text-lg">
+                        {{ turno.especialidad }}
+                    </p>
+                    {% if turno.medico %}
+                    <p class="truncate font-lexend text-xs text-slate-500 sm:text-sm">
+                        {{ turno.medico }}
+                    </p>
+                    {% endif %}
+
+                </div>
+
+            </article>
+
+        {% else %}
+            {% if not error %}
+            <p class="py-10 text-center font-lexend text-slate-500">
+                No hay turnos para mostrar.
+            </p>
+            {% endif %}
+        {% endfor %}
+
+    </section>
+
+
+    <!-- Sin resultados -->
+    <p
+        id="sin-resultados"
+        class="hidden py-10 text-center font-lexend text-slate-500"
+    >
+        No se encontraron turnos con esos filtros.
+    </p>
+
+
+    <script src="{{ url_for('static', filename='js/recepcion/ver_turnos.js') }}"></script>
+
+{% endblock %}

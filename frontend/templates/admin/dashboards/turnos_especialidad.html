@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Turnos por especialidad | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div>
+
+    <!-- FILTRO DE FECHAS -->
+    <form
+        method="GET"
+        action="{{ url_for('rutas_admin_turnos_especialidad.turnos_especialidad') }}"
+        class="mb-5 flex flex-wrap items-center gap-3"
+    >
+
+        <!-- Desde -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_desde"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Desde
+            </label>
+
+            <input
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value="{{ fecha_desde }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <!-- Hasta -->
+        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+            <label
+                for="fecha_hasta"
+                class="text-[10px] uppercase tracking-wide text-acento/50"
+            >
+                Hasta
+            </label>
+
+            <input
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value="{{ fecha_hasta }}"
+                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+            >
+        </div>
+
+        <button
+            type="submit"
+            class="rounded-full bg-acento/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-white transition hover:opacity-90 flex flex-row gap-2"
+        >
+            <span>Filtrar</span>
+            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+        </button>
+
+        {% if fecha_desde or fecha_hasta %}
+        <a
+            href="{{ url_for('rutas_admin_turnos_especialidad.turnos_especialidad') }}"
+            class="rounded-full border border-acento/20 bg-white px-4 py-1.5 text-xs font-semibold tracking-wide text-acento transition hover:shadow-sm"
+        >
+            Limpiar
+        </a>
+        {% endif %}
+
+        <p class="ml-auto text-xs tracking-wide text-acento/70">
+            {{ total_turnos }}
+            {{ 'turno' if total_turnos == 1 else 'turnos' }}
+        </p>
+
+    </form>
+
+    <!-- ERROR -->
+    {% if error %}
+    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+        {{ error }}
+    </p>
+    {% endif %}
+
+    <div class="space-y-5">
+
+        {% for especialidad in especialidades %}
+
+        <section class="overflow-hidden rounded-xl bg-white">
+
+            <!-- Encabezado de especialidad -->
+            <div class="flex items-center justify-between gap-3 bg-acento px-4 py-2.5 text-white sm:px-5">
+
+                <h2 class="text-sm font-bold uppercase tracking-[0.15em] sm:text-base">
+                    {{ especialidad.nombre }}
+                </h2>
+
+                <p class="shrink-0 text-[9px] font-semibold uppercase tracking-wider sm:text-[10px]">
+                    TOTAL TURNOS:
+                    <span>{{ especialidad.total_turnos }}</span>
+                </p>
+
+            </div>
+
+
+            <!-- Lista de turnos -->
+            <div>
+
+                {% for turno in especialidad.turnos %}
+
+                <article class="grid grid-cols-1 items-center gap-3 border-b border-acento/20 px-3 py-3 last:border-b-0 sm:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:gap-3 sm:px-4 sm:py-3">
+
+                    <!-- Médico y paciente -->
+                    <div class="flex min-w-0 items-center gap-4 sm:gap-6">
+
+                        <!-- Iniciales -->
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-500/30 text-base font-medium text-pink-500 sm:h-[46px] sm:w-[46px]">
+                            {{ turno.iniciales }}
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="min-w-0">
+
+                            <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
+                                MÉDICO
+                            </p>
+
+                            <h3 class="truncate text-base font-medium text-acento sm:text-lg">
+                                {{ turno.nombre }}
+                            </h3>
+
+                            <p class="truncate text-[9px] uppercase tracking-wide text-acento/60">
+                                {{ turno.estado }}
+                                {% if turno.paciente %}
+                                · {{ turno.paciente }}
+                                {% endif %}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Fecha y hora -->
+                    <div class="border-t border-acento/20 pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+
+                        <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
+                            FECHA Y HORA
+                        </p>
+
+                        <p class="text-base font-semibold leading-tight text-acento sm:text-lg">
+                            {{ turno.hora }}
+                        </p>
+
+                        <p class="text-[9px] font-medium text-acento sm:text-[10px]">
+                            {{ turno.fecha }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- Consultorio -->
+                    <div class="border-t border-acento/20 pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+
+                        <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
+                            CONSULTORIO
+                        </p>
+
+                        <p class="text-2xl font-bold leading-tight text-acento sm:text-3xl">
+                            {{ turno.consultorio if turno.consultorio else '—' }}
+                        </p>
+
+                    </div>
+
+                </article>
+
+                {% else %}
+
+                <div class="px-5 py-8 text-center text-sm text-gray-500">
+                    No hay turnos para esta especialidad.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        {% else %}
+
+        <div class="rounded-xl bg-white px-6 py-12 text-center">
+
+            <i data-lucide="calendar-x" class="mx-auto mb-3 h-10 w-10 text-gray-400"></i>
+
+            <h3 class="font-semibold text-acento">
+                No hay turnos disponibles
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-500">
+                No se encontraron turnos agrupados por especialidad.
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- JavaScript -->
+<script src="{{ url_for('static', filename='js/admin/dashboards/turnos_especialidad.js') }}"></script>
+
+{% endblock %}

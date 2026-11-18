@@ -1,0 +1,164 @@
+
+<!-- Información del médico -->
+<section class="mb-5 flex flex-col justify-center gap-1 rounded-2xl bg-acento px-5 py-3 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+
+    <h1 class="whitespace-nowrap min-w-0 font-gelasio text-xs font-semibold sm:text-xl">
+        Dr. {{ usuario.nombre_completo }}
+    </h1>
+
+    <p class="shrink-0 font-lexend text-xs font-medium sm:text-base">
+        Médico
+    </p>
+
+</section>
+
+
+<!-- Turnos del día -->
+<section class="mb-7">
+    
+    <!-- Accesos principales -->
+    <section class="mb-9 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- Mis turno -->
+        <a href="{{ url_for('rutas_medico.ver_turnos') }}"
+        class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
+        
+        <div>
+            <h2 class="text-xl font-bold text-acento">
+                    MIS TURNOS
+                </h2>
+            </div>
+            
+            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
+                <i data-lucide="clipboard-clock" class="h-10 w-10" stroke-width="1.5"></i>
+            </div>
+            
+        </a>
+        
+        <!-- Mi agenda -->
+        <a href="{{ url_for('rutas_medico.agenda') }}"
+            class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm ">
+            
+            <div>
+                <h2 class="text-xl font-bold text-acento">
+                    MI AGENDA
+                </h2>
+            </div>
+            
+            <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
+                <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
+            </div>
+            
+        </a>
+    </section>
+
+    <div class="mb-4 flex items-center justify-between border-b border-slate-300 pb-2">
+
+        <h2 class="font-lexend text-base text-slate-400">
+            TURNOS DEL DÍA
+        </h2>
+
+        <a href="{{ url_for('rutas_medico.ver_turnos') }}"
+           class="font-lexend text-xs text-slate-400">
+            Ver todos →
+        </a>
+
+    </div>
+
+    {% for turno in datos.turnos_del_dia %}
+
+        <article class="mb-3 flex items-center gap-3 rounded-2xl bg-white p-6">
+
+            <!-- Avatar -->
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-lexend text-xl {{ turno.color | default('bg-pink-100 text-pink-500') }}">
+                {{ turno.iniciales | default('NC') }}
+            </div>
+
+            <!-- Nombre del paciente -->
+            <div class="flex-1 font-lexend text-xl text-acento">
+                {{ turno.nombre_paciente }}
+            </div>
+
+            <!-- Fecha y hora -->
+            <div class="flex-1 border-l border-slate-300 px-5 text-acento">
+                {{ turno.hora }}
+
+                <p>
+                    {{ turno.fecha }}
+                </p>
+            </div>
+
+            <!-- Consultorio -->
+            <div class="flex-1 border-l border-slate-300 px-5 text-acento">
+                Consultorio
+
+                <p class="text-3xl font-medium">
+                    {{ turno.consultorio }}
+                </p>
+            </div>
+
+            <!-- Estado del turno -->
+            <div class="flex min-w-[170px] justify-end">
+
+                {% if turno.atendido %}
+
+                    <span class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+                        <i data-lucide="check" class="h-4 w-4"></i>
+                        Atendido
+                    </span>
+
+                {% else %}
+
+                    <form method="POST"
+                          action="{{ url_for('rutas_medico.marcar_turno_atendido', id_turno=turno.id) }}">
+
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-200 active:scale-95">
+
+                            <i data-lucide="check" class="h-4 w-4"></i>
+
+                            Marcar como atendido
+
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+    {% else %}
+
+        <div class="rounded-2xl bg-white p-8 text-center text-slate-400">
+            No hay turnos para mostrar.
+        </div>
+
+    {% endfor %}
+
+</section>
+
+
+<!-- Coberturas del médico -->
+<section>
+
+    <h2 class="mb-4 border-b border-slate-300 pb-2 font-lexend text-base text-slate-400">
+        MIS COBERTURAS
+    </h2>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+        {% for cobertura in datos.coberturas %}
+
+            <div class="rounded-2xl bg-white p-6">
+
+                <p class="font-gelasio text-3xl text-acento">
+                    {{ cobertura.nombre }}
+                </p>
+
+            </div>
+        {% endfor %}
+
+    </div>
+
+</section>

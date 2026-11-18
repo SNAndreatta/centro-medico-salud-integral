@@ -1,0 +1,118 @@
+{% from "components/modales.html" import modal_confirmar %}
+
+<div class="flex flex-col gap-7">
+
+    {% include "components/mensajes.html" %}
+
+    <section class="relative overflow-hidden rounded-[20px] bg-white">
+        <div class="h-24 bg-acento sm:h-28"></div>
+        <div class="absolute left-4 top-14 flex h-16 w-16 items-center justify-center rounded-full border-[6px] border-white bg-acento font-lexend text-lg font-semibold text-white sm:left-8 sm:top-16 sm:h-20 sm:w-20 sm:text-xl">
+            {{ usuario.iniciales }}
+        </div>
+        <div class="absolute left-20 right-4 top-0 flex h-24 items-end sm:left-32 sm:right-5 sm:h-28">
+            <h1 class="min-w-0 break-words font-gelasio text-xl font-semibold text-white sm:text-3xl mb-2">
+                {{ usuario.nombre }} {{ usuario.apellido }}
+            </h1>
+        </div>
+        <div class="flex min-h-14 items-start justify-between gap-2 pl-20 pr-4 sm:min-h-16 sm:gap-4 sm:pl-32 sm:pr-8 mt-2">
+            <p class="min-w-0 break-words font-lexend text-[11px] text-acento/70 sm:text-sm">
+                {{ rol|capitalize }} desde {{ usuario.fecha_registro }}
+            </p>
+            <button type="button" id="configuracion-perfil" aria-label="Configuración del perfil"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-acento text-white transition hover:opacity-80 sm:h-9 sm:w-9">
+                <i data-lucide="pencil-line" class="h-4 w-4 sm:h-5 sm:w-5"></i>
+            </button>
+        </div>
+    </section>
+
+    <section class="rounded-[18px] bg-white p-5 sm:p-7">
+        <div class="grid grid-cols-1 gap-3 sm:flex sm:justify-between sm:gap-0">
+            <div class="flex min-w-0 flex-col gap-1">
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.email }}</p>
+            </div>
+            <div class="hidden border-l border-acento/20 sm:block"></div>
+            <div class="flex min-w-0 flex-col gap-1">
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.documento }}</p>
+            </div>
+            <div class="hidden border-l border-acento/20 sm:block"></div>
+            <div class="flex min-w-0 flex-col gap-1">
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.fecha_nacimiento }}</p>
+            </div>
+            <div class="hidden border-l border-acento/20 sm:block"></div>
+            <div class="flex min-w-0 flex-col gap-1">
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. afiliado</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.numero_afiliado | default('987654321') }}</p>
+            </div>
+            <div class="hidden border-l border-acento/20 sm:block"></div>
+            <div class="flex min-w-0 flex-col gap-1">
+                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Cobertura</p>
+                <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">{{ usuario.cobertura | default('Nombre de cobertura') }}</p>
+            </div>
+        </div>
+    </section>
+    
+<section class="flex flex-col gap-4">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-acento/20 px-1 pb-3 sm:gap-3">
+        <h2 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">Próximos turnos</h2>
+        <a href="{{ url_for('rutas_paciente.mis_turnos') }}" class="inline-flex items-center gap-2 font-lexend text-[11px] text-acento/40 transition hover:text-acento sm:text-xs">Ver todos <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+    </div>
+    <div class="flex flex-col gap-4">
+    {% if proximos_turnos is defined and proximos_turnos %}
+        {% for turno in proximos_turnos %}
+        <article class="rounded-[18px] bg-white p-5 sm:p-6">
+            <div class="grid grid-cols-1 items-center gap-5 md:grid-cols-[1.2fr_1fr_0.7fr_auto]">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-pink-500/30 font-lexend text-lg font-medium text-pink-500">{{ turno.iniciales | default('NC') }}</div>
+                    <div class="flex min-w-0 flex-col gap-1">
+                        <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Estado del turno</p>
+                        <h3 class="break-words font-lexend text-base font-medium text-acento sm:text-lg">{{ turno.especialidad | default('Especialidad') }}</h3>
+                        <p class="font-lexend text-sm text-acento">Dr. {{ turno.medico | default('Nombre completo') }}</p>
+                    </div>
+                </div>
+                <div class="flex min-w-0 flex-col gap-1 md:border-l md:border-acento/20 md:pl-6">
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Fecha y hora</p>
+                    <p class="font-lexend text-base font-semibold text-acento sm:text-lg">{{ turno.hora | default('15:00') }}</p>
+                    <p class="break-words font-lexend text-sm text-acento">{{ turno.fecha | default('Día - Mes - Año') }}</p>
+                </div>
+                <div class="flex min-w-0 flex-col gap-1 md:border-l md:border-acento/20 md:pl-6">
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/70">Consultorio</p>
+                    <p class="font-lexend text-2xl font-semibold text-acento sm:text-3xl">{{ turno.consultorio | default('123') }}</p>
+                </div>
+                <div class="flex md:justify-end">
+                    {% if turno.puede_cancelar %}
+                    <button type="button" data-turno-id="{{ turno.id }}" data-abrir-modal="modal-cancelar-turno-{{ turno.id }}" class="cancelar-turno rounded-full bg-red-100 px-4 py-2.5 font-lexend text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-200 sm:px-5">
+                        Cancelar
+                    </button>
+                    {% else %}
+                    <p class="font-lexend text-xs uppercase tracking-wide text-acento/50">
+                        {{ turno.estado_texto if turno.estado_texto else 'Sin acciones' }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% else %}
+        <p class="rounded-[18px] bg-white p-6 font-lexend text-sm text-acento/70">No tenés próximos turnos.</p>
+    {% endif %}
+    </div>
+</section>
+
+{# POPUPS: CANCELAR TURNO #}
+{% if proximos_turnos is defined and proximos_turnos %}
+    {% for turno in proximos_turnos %}
+    {% if turno.puede_cancelar %}
+    {{ modal_confirmar(
+        id="modal-cancelar-turno-" ~ turno.id,
+        titulo="¿Está seguro que quiere cancelar su turno?",
+        mensaje="Vas a liberar el horario y avisar a recepción.",
+        accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
+    ) }}
+    {% endif %}
+    {% endfor %}
+{% endif %}
+
+</div>

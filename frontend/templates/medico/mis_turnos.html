@@ -1,0 +1,278 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mis turnos | Salud Integral{% endblock %}
+
+{% block content %}
+
+<div id="turnos" class="px-1 sm:px-2" data-hoy="{{ hoy }}">
+
+    <!-- TÍTULO Y FILTRO -->
+    <section class="relative mb-5">
+
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+
+            <h2 class="text-xl font-bold tracking-wide text-acento">
+                MIS TURNOS
+            </h2>
+
+            <button
+                id="boton-filtros"
+                type="button"
+                aria-expanded="false"
+                class="flex items-center gap-3 rounded-full bg-acento/70 px-5 py-2 text-sm font-semibold text-white transition hover:bg-acento"
+            >
+                <span>Filtrar</span>
+                <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
+            </button>
+
+        </div>
+
+        <!-- PANEL DE FILTROS -->
+        <div
+            id="panel-filtros"
+            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+        >
+
+            <h3 class="mb-4 font-lexend text-base font-semibold text-acento">
+                Filtrar turnos
+            </h3>
+
+            <!-- FECHA -->
+            <div class="mb-4">
+
+                <label
+                    for="filtro-fecha"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    FECHA
+                </label>
+
+                <input
+                    type="date"
+                    id="filtro-fecha"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+
+            </div>
+
+            <!-- COBERTURA -->
+            <div class="mb-5">
+
+                <label
+                    for="filtro-cobertura"
+                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                >
+                    COBERTURA
+                </label>
+
+                <select
+                    id="filtro-cobertura"
+                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                >
+
+                    <option value="">Todas las coberturas</option>
+
+                    {% for cobertura in coberturas %}
+                        <option value="{{ cobertura | lower }}">
+                            {{ cobertura }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex items-center justify-between gap-3">
+
+                <button
+                    type="button"
+                    id="limpiar-filtros"
+                    class="w-1/2 rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                >
+                    Limpiar
+                </button>
+
+                <button
+                    type="button"
+                    id="aplicar-filtros"
+                    class="w-1/2 rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                >
+                    Aplicar filtros
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CANTIDAD DE TURNOS -->
+    <div class="mb-4 flex items-center justify-between">
+
+        <p class="text-sm text-gray-500">
+            <span id="cantidad-turnos">{{ turnos | length }}</span> turnos encontrados
+        </p>
+
+    </div>
+
+
+    <!-- LISTA DE TURNOS -->
+    <section class="space-y-4" id="listado-turnos">
+
+        {% for turno in turnos %}
+
+            <article
+                class="turno-card flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 justify-between
+                hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
+                data-fecha="{{ turno.fecha_filtro }}"
+                data-cobertura="{{ turno.cobertura_filtro | lower }}"
+                data-marcable="{{ 'true' if turno.puede_marcar else 'false' }}"
+            >
+
+                <!-- PACIENTE Y COBERTURA -->
+                <div class="flex min-w-0 items-center gap-5 lg:w-[30%] lg:pr-5">
+
+                    <div
+                        class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-medium {{ turno.color }}"
+                    >
+                        {{ turno.iniciales }}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+
+                        <h3 class="truncate text-xl font-medium leading-tight text-acento sm:text-2xl">
+                            {{ turno.nombre_completo | default(turno.nombre_paciente | default('Nombre Completo', true), true) }}
+                        </h3>
+
+                        <p class="truncate text-xs font-medium tracking-wide text-acento/70">
+                            {{ turno.cobertura }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FECHA Y HORA -->
+                <div
+                    class="border-t border-gray-200 pt-3 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5 lg:pr-3"
+                >
+
+                    <p class="text-xs font-medium tracking-wide text-acento/70">
+                        FECHA Y HORA
+                    </p>
+
+                    <p class="text-xl font-medium leading-tight text-acento">
+                        {{ turno.hora }}
+                    </p>
+
+                    <p class="text-xs font-medium text-acento">
+                        {{ turno.fecha }}
+                    </p>
+
+                </div>
+
+
+                <!-- CONSULTORIO -->
+                <div
+                    class="border-t border-gray-200 pt-3 lg:w-[16%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5"
+                >
+
+                    <p class="text-xs font-medium tracking-wide text-acento/70">
+                        CONSULTORIO
+                    </p>
+
+                    <p class="text-3xl font-medium leading-tight text-acento">
+                        {{ turno.consultorio }}
+                    </p>
+
+                </div>
+
+
+                <!-- ESTADO DEL TURNO -->
+                <div
+                    class="flex flex-col items-start gap-2 border-t border-gray-200 pt-3 lg:w-[14%] lg:items-end lg:justify-end lg:border-t-0 lg:pt-0"
+                >
+
+                    {% set estado = turno.estado | default('Pendiente', true) | string | lower %}
+
+                    {% if estado in ['atendido', 'completado', 'realizado'] %}
+
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-green-600/60 px-4 py-1.5 text-sm font-medium text-white"
+                        >
+                            Atendido
+                        </span>
+
+                    {% elif estado in ['cancelado', 'cancelada'] %}
+
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-red-500/60 px-4 py-1.5 text-sm font-medium text-white"
+                        >
+                            Cancelado
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-dominante px-4 py-1.5 text-sm font-medium text-acento"
+                        >
+                            {{ turno.estado | default('Pendiente', true) }}
+                        </span>
+
+                    {% endif %}
+
+                    {% if turno.puede_marcar %}
+
+                        <form
+                            method="POST"
+                            class="boton-marcar-atendido"
+                            data-fecha="{{ turno.fecha_filtro }}"
+                            action="{{ url_for('rutas_medico.marcar_turno_atendido', id_turno=turno.id) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-200 active:scale-95"
+                            >
+                                <i data-lucide="check" class="h-4 w-4"></i>
+                                Marcar como atendido
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+
+
+        <!-- MENSAJE SIN RESULTADOS -->
+        <div
+            id="sin-resultados"
+            class="{% if turnos %}hidden{% endif %} rounded-2xl bg-white px-6 py-12 text-center shadow-sm"
+        >
+
+            <i
+                data-lucide="calendar-x"
+                class="mx-auto mb-4 h-12 w-12 text-gray-400"
+            ></i>
+
+            <h3 class="text-lg font-bold text-acento">
+                No hay turnos disponibles
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-500">
+                No se encontraron turnos que coincidan con los filtros seleccionados.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/mis_turnos.js') }}"></script>
+
+{% endblock %}
