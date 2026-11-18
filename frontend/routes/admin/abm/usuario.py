@@ -1,5 +1,3 @@
-from datetime import date
-
 from flask import (
     Blueprint,
     flash,
@@ -9,7 +7,23 @@ from flask import (
     url_for,
 )
 
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import (
+    agregar_coberturas_medico,
+    coberturas_medico,
+    obtener_coberturas,
+    obtener_especialidades,
+)
+from src.api_usuario import (
+    buscar_usuario,
+    crear_medico as api_crear_medico,
+    crear_usuario as api_crear_usuario,
+    editar_usuario as api_editar_usuario,
+    editar_medico as api_editar_medico,
+    eliminar_usuario as api_eliminar_usuario,
+    listar_usuarios,
+)
+from src.errores import es_sesion_vencida, sesion_vencida
 from src.permisos import requiere_rol
 
 usuario_admin_routes = Blueprint('rutas_admin_usuario', __name__)
@@ -36,66 +50,10 @@ ROLES_CREAR = [
 ROLES_CREAR_IDS = {rol['id'] for rol in ROLES_CREAR}
 
 
-def _iniciales(nombre, apellido):
-    return f"{(nombre or ' ')[0]}{(apellido or ' ')[0]}".upper().strip() or 'NC'
+def _con_rol(usuario):
+    clave, etiqueta = ROLES.get(usuario['id_rol'], ('desconocido', 'SIN ROL'))
 
-
-def _fecha(valor):
-    if not valor:
-        return '-'
-    try:
-        return date.fromisoformat(str(valor)[:10]).strftime('%d/%m/%Y')
-    except ValueError:
-        return '-'
-
-
-def _fecha_iso(valor):
-    """Fecha en formato AAAA-MM-DD para precargar inputs type="date"."""
-    if not valor:
-        return ''
-    try:
-        return date.fromisoformat(str(valor)[:10]).isoformat()
-    except ValueError:
-        return ''
-
-
-def _normalizar_usuario(usuario):
-    id_rol = int(usuario['id_rol'])
-    clave, etiqueta = ROLES.get(id_rol, ('desconocido', 'SIN ROL'))
-
-    return {
-        'id': int(usuario['id_usuario']),
-        'nombre': usuario['nombre'],
-        'apellido': usuario['apellido'],
-        'iniciales': _iniciales(usuario['nombre'], usuario['apellido']),
-        'id_rol': id_rol,
-        'rol_clave': clave,
-        'rol': etiqueta,
-        'mail': usuario['correo_electronico'],
-        'dni': usuario['dni'],
-        'fecha_nacimiento': _fecha(usuario.get('fecha_nacimiento')),
-        'fecha_nacimiento_iso': _fecha_iso(usuario.get('fecha_nacimiento')),
-        'fecha_registro': _fecha(usuario.get('fecha_creacion')),
-        'id_medico': usuario.get('id_medico'),
-        'matricula': usuario.get('matricula'),
-        'especialidad': usuario.get('nombre_especialidad'),
-        'id_paciente': usuario.get('id_paciente'),
-        'cobertura': usuario.get('nombre_cobertura'),
-    }
-
-
-def _buscar_usuario(id_usuario):
-    """Devuelve el usuario normalizado o None. Puede lanzar ErrorAPI."""
-    datos = api('GET', '/usuarios')
-
-    return next(
-        (
-            _normalizar_usuario(u)
-            for u in datos.get('usuarios', [])
-            if int(u['id_usuario']) == id_usuario
-        ),
-        None,
-    )
+    return {**usuario, 'rol_clave': clave, 'rol': etiqueta}
 
 
 def _catalogos():
@@ -103,45 +61,16 @@ def _catalogos():
     coberturas = []
 
     try:
-        especialidades = [
-            {
-                'id': e['id_especialidad'],
-                'nombre': e['nombre_especialidad'],
-            }
-            for e in api('GET', '/especialidades').get('especialidades', [])
-        ]
+        especialidades = obtener_especialidades()
     except ErrorAPI:
         pass
 
     try:
-        coberturas = [
-            {'id': c['id_cobertura'], 'nombre': c['nombre']}
-            for c in api('GET', '/coberturas').get('coberturas', [])
-        ]
+        coberturas = obtener_coberturas()
     except ErrorAPI:
         pass
 
     return especialidades, coberturas
-
-
-def _coberturas_medico(id_medico):
-    """Coberturas ya asociadas a un médico.
-
-    GET /medicos/<id>/coberturas devuelve
-    {'coberturas': [{'id_cobertura': ..., 'nombre': ...}]}.
-    """
-    if not id_medico:
-        return []
-
-    try:
-        datos = api('GET', f'/medicos/{id_medico}/coberturas')
-    except ErrorAPI:
-        return []
-
-    return [
-        {'id': c['id_cobertura'], 'nombre': c['nombre']}
-        for c in datos.get('coberturas', [])
-    ]
 
 
 # =================================
@@ -155,12 +84,10 @@ def obtener_usuarios():
     error = None
 
     try:
-        datos = api('GET', '/usuarios')
-        usuarios = [
-            _normalizar_usuario(usuario)
-            for usuario in datos.get('usuarios', [])
-        ]
+        usuarios = [_con_rol(usuario) for usuario in listar_usuarios()]
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = e.mensaje
 
     especialidades, coberturas = _catalogos()
@@ -207,7 +134,7 @@ def crear_usuario():
 
     try:
         if id_rol in (1, 2):
-            api('POST', '/usuarios', json={**datos, 'id_rol': id_rol})
+            api_crear_usuario({**datos, 'id_rol': id_rol})
             flash('Usuario creado correctamente.', 'success')
 
         elif id_rol == 4:
@@ -218,22 +145,16 @@ def crear_usuario():
                 flash('Para crear un médico tenés que indicar especialidad y matrícula.', 'error')
                 return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
-            respuesta = api('POST', '/medicos', json={
+            id_medico = api_crear_medico({
                 **datos,
                 'id_especialidad': id_especialidad,
                 'matricula': matricula,
             })
-
-            id_medico = respuesta['medico']['id_medico']
             coberturas_error = False
 
             for id_cobertura in request.form.getlist('coberturas'):
                 try:
-                    api(
-                        'POST',
-                        f'/medicos/{id_medico}/coberturas',
-                        json={'id_cobertura': int(id_cobertura)},
-                    )
+                    agregar_coberturas_medico(id_medico, [id_cobertura])
                 except (ErrorAPI, ValueError):
                     coberturas_error = True
 
@@ -246,6 +167,8 @@ def crear_usuario():
                 flash('Médico creado correctamente.', 'success')
 
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
@@ -259,24 +182,27 @@ def crear_usuario():
 @requiere_rol("admin")
 def usuario_perfil(id_usuario):
     try:
-        usuario = _buscar_usuario(id_usuario)
+        usuario = buscar_usuario(id_usuario)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
     if usuario is None:
         return 'Usuario no encontrado', 404
 
+    usuario = _con_rol(usuario)
     especialidades = []
-    coberturas_medico = []
+    coberturas_medico_actuales = []
     coberturas_disponibles = []
 
     # Los datos extra solo se necesitan para los médicos.
     if usuario['id_rol'] == 4:
         especialidades, catalogo_coberturas = _catalogos()
-        coberturas_medico = _coberturas_medico(usuario['id_medico'])
+        coberturas_medico_actuales = coberturas_medico(usuario['id_medico'])
 
-        ids_asociadas = {c['id'] for c in coberturas_medico}
+        ids_asociadas = {c['id'] for c in coberturas_medico_actuales}
         coberturas_disponibles = [
             c for c in catalogo_coberturas if c['id'] not in ids_asociadas
         ]
@@ -285,7 +211,7 @@ def usuario_perfil(id_usuario):
         'admin/abm/usuarios/profile.html',
         usuario=usuario,
         especialidades=especialidades,
-        coberturas_medico=coberturas_medico,
+        coberturas_medico=coberturas_medico_actuales,
         coberturas_disponibles=coberturas_disponibles,
     )
 
@@ -302,8 +228,10 @@ def editar_usuario(id_usuario):
     )
 
     try:
-        usuario = _buscar_usuario(id_usuario)
+        usuario = buscar_usuario(id_usuario)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return perfil
 
@@ -330,7 +258,7 @@ def editar_usuario(id_usuario):
         datos['fecha_nacimiento'] = fecha_nacimiento
 
     try:
-        api('PUT', f'/usuarios/{id_usuario}', json=datos)
+        api_editar_usuario(id_usuario, datos)
 
         if usuario['id_rol'] == 4 and usuario['id_medico']:
             id_especialidad = request.form.get('id_especialidad', type=int)
@@ -340,7 +268,7 @@ def editar_usuario(id_usuario):
                 flash('Para un médico tenés que indicar especialidad y matrícula.', 'error')
                 return perfil
 
-            api('PUT', f"/medicos/{usuario['id_medico']}", json={
+            api_editar_medico(usuario['id_medico'], {
                 'id_especialidad': id_especialidad,
                 'matricula': matricula,
             })
@@ -350,11 +278,7 @@ def editar_usuario(id_usuario):
 
             for id_cobertura in request.form.getlist('coberturas'):
                 try:
-                    api(
-                        'POST',
-                        f"/medicos/{usuario['id_medico']}/coberturas",
-                        json={'id_cobertura': int(id_cobertura)},
-                    )
+                    agregar_coberturas_medico(usuario['id_medico'], [id_cobertura])
                 except (ErrorAPI, ValueError):
                     coberturas_error = True
 
@@ -368,6 +292,8 @@ def editar_usuario(id_usuario):
         flash('Datos actualizados correctamente.', 'success')
 
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return perfil
@@ -381,8 +307,10 @@ def editar_usuario(id_usuario):
 @requiere_rol("admin")
 def eliminar_usuario(id_usuario):
     try:
-        api('DELETE', f'/usuarios/{id_usuario}')
+        api_eliminar_usuario(id_usuario)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(
             url_for('rutas_admin_usuario.usuario_perfil', id_usuario=id_usuario)

@@ -1,25 +1,22 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from src.api import ErrorAPI
-from src.api_paciente import (
-    perfil_paciente, proximos_turnos_paciente, actualizar_datos_paciente,
-    cambiar_password, obtener_coberturas, obtener_especialidades,
+from src.api_catalogos import (
+    agregar_coberturas_medico, coberturas_medico, obtener_coberturas,
+    obtener_especialidades,
 )
+from src.api_paciente import actualizar_datos_paciente, perfil_paciente
+from src.api_turnos import proximos_turnos_paciente
 from src.api_usuario import (
-    perfil_usuario, actualizar_datos_usuario, actualizar_datos_medico,
-    coberturas_medico, agregar_coberturas_medico,
+    actualizar_datos_medico, actualizar_datos_usuario, cambiar_password,
+    perfil_usuario,
 )
+from src.errores import sesion_vencida
 from src.permisos import ROLES, requiere_rol
 
 profile_routes = Blueprint('rutas_profile', __name__)
 
 ROLES_ADMIN = ("admin", "administrador")
 ROLES_RECEPCION = ("recepcion", "recepcionista")
-
-
-def _sesion_vencida():
-    session.clear()
-    flash("Tu sesión expiró. Iniciá sesión de nuevo.", "error")
-    return redirect(url_for("rutas_auth.login"))
 
 
 def _usuario_fallback():
@@ -87,7 +84,7 @@ def profile():
         except ErrorAPI as e:
             print("ERROR PERFIL:", e.status, e.mensaje, flush=True)
             if e.status == 401:
-                return _sesion_vencida()
+                return sesion_vencida()
             flash(e.mensaje, "error")
             usuario = _usuario_fallback()
             usuario.update({"numero_afiliado": "-", "cobertura": "-",
@@ -100,7 +97,7 @@ def profile():
         except ErrorAPI as e:
             print("ERROR COBERTURAS:", e.status, e.mensaje, flush=True)
             if e.status == 401:
-                return _sesion_vencida()
+                return sesion_vencida()
             coberturas = []
 
         return render_template("profile.html", rol=rol, usuario=usuario,
@@ -111,7 +108,7 @@ def profile():
     except ErrorAPI as e:
         print("ERROR PERFIL:", e.status, e.mensaje, flush=True)
         if e.status == 401:
-            return _sesion_vencida()
+            return sesion_vencida()
         flash(e.mensaje, "error")
         usuario = _usuario_fallback()
 
@@ -126,7 +123,7 @@ def profile():
              coberturas_disponibles) = _catalogos_medico(usuario)
         except ErrorAPI as e:
             if e.status == 401:
-                return _sesion_vencida()
+                return sesion_vencida()
             flash(e.mensaje, "error")
 
     return render_template(
@@ -176,7 +173,7 @@ def actualizar_perfil():
             id_medico = perfil.get("id_medico")
         except ErrorAPI as e:
             if e.status == 401:
-                return _sesion_vencida()
+                return sesion_vencida()
             flash(e.mensaje, "error")
             return redirect(url_for("rutas_profile.profile"))
 
@@ -221,7 +218,7 @@ def actualizar_perfil():
         flash("Datos actualizados.", "success")
     except ErrorAPI as e:
         if e.status == 401:
-            return _sesion_vencida()
+            return sesion_vencida()
         flash(e.mensaje, "error")
 
     return redirect(url_for("rutas_profile.profile"))
@@ -247,7 +244,7 @@ def actualizar_password():
             flash("Contraseña actualizada.", "success")
         except ErrorAPI as e:
             if e.status == 401:
-                return _sesion_vencida()
+                return sesion_vencida()
             flash(e.mensaje, "error")
 
     return redirect(url_for("rutas_profile.profile"))

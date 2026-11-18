@@ -1,17 +1,7 @@
 """ABM de médicos del administrador.
 
-Los datos salen del backend:
-
-* `GET /medicos/<id>`: datos del médico.
-* `GET /usuarios`: datos del usuario asociado (fechas, documento, etc.).
-* `GET /turnos?id_medico=...`: turnos del médico.
-* `GET /agendas?id_medico=...`: agendas del médico.
-* `POST /agendas`: creación de una agenda nueva.
-* `PUT /medicos/<id>`: edición de especialidad y matrícula.
-* `DELETE /medicos/<id>`: baja del médico.
+Todas las llamadas a la API pasan por los helpers de ``src``.
 """
-
-from datetime import date, datetime
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
@@ -20,8 +10,33 @@ from routes.agenda_mensual import (
     mes_seleccionado,
     rango_del_mes,
 )
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import (
+    agregar_coberturas_medico,
+    coberturas_medico as coberturas_del_medico,
+    obtener_coberturas,
+    obtener_consultorios,
+    obtener_especialidades,
+    obtener_medico,
+    quitar_cobertura_medico,
+)
+from src.api_turnos import crear_agenda as api_crear_agenda, listar as listar_turnos
+from src.api_turnos import obtener_agendas
+from src.api_usuario import (
+    editar_medico as api_editar_medico,
+    editar_usuario as api_editar_usuario,
+    eliminar_medico as api_eliminar_medico,
+    listar_usuarios,
+)
+from src.errores import es_sesion_vencida, sesion_vencida
+from src.normalizar import (
+    g,
+    iniciales,
+    nombre_completo,
+    normalizar_turno,
+)
 from src.permisos import requiere_rol
+from src.tiempo import a_date, formatear_fecha
 
 medico_admin_routes = Blueprint('rutas_admin_medico', __name__)
 
@@ -36,104 +51,43 @@ DIAS_SEMANA = [
     'Domingo',
 ]
 
-# Color del avatar según el estado del turno.
-COLORES_ESTADO = {
-    'disponible': 'bg-gray-200 text-gray-600',
-    'reservado': 'bg-pink-500/30 text-pink-500',
-    'confirmado': 'bg-lime-500/30 text-lime-500',
-    'atendido': 'bg-purple-500/30 text-purple-500',
-    'cancelado': 'bg-emerald-500/30 text-emerald-500',
-    'ausente': 'bg-orange-500/30 text-orange-500',
-}
 
-
-def _a_datetime(valor):
-    if not valor:
-        return None
-
+def _entero(valor):
     try:
-        return datetime.fromisoformat(str(valor))
-    except ValueError:
-        return None
-
-
-def _a_date(valor):
-    if not valor:
-        return None
-
-    try:
-        return date.fromisoformat(str(valor)[:10])
-    except ValueError:
-        return None
-
-
-def _fecha(valor):
-    """Fecha en formato DD/MM/AAAA."""
-    momento = _a_date(valor)
-
-    return momento.strftime('%d/%m/%Y') if momento else '-'
-
-
-def _fecha_iso(valor):
-    """Fecha en formato AAAA-MM-DD para los inputs type="date"."""
-    momento = _a_date(valor)
-
-    return momento.isoformat() if momento else ''
-
-
-def _iniciales(nombre, apellido=''):
-    letras = [
-        parte[0]
-        for parte in (nombre or '', apellido or '')
-        if parte
-    ]
-
-    return ''.join(letras).upper() or 'NC'
-
-
-def _nombre_completo(nombre, apellido=''):
-    return f"{nombre or ''} {apellido or ''}".strip()
+        return int(valor)
+    except (TypeError, ValueError):
+        return valor
 
 
 def _obtener_medico(id_medico):
-    """Datos del médico (GET /medicos/<id>)."""
-    return api('GET', f'/medicos/{id_medico}').get('medico')
+    medico = obtener_medico(id_medico)
+
+    return medico
 
 
 def _buscar_usuario(id_medico):
-    """Usuario asociado al médico (GET /usuarios)."""
-    usuarios = api('GET', '/usuarios').get('usuarios', [])
-
+    """Usuario asociado al médico, buscando en el listado de la API."""
     return next(
         (
-            usuario for usuario in usuarios
-            if int(usuario.get('id_medico') or 0) == int(id_medico)
+            usuario for usuario in listar_usuarios()
+            if _entero(usuario.get('id_medico')) == _entero(id_medico)
         ),
         None,
     )
 
 
 def _catalogos():
-    """Catálogos de especialidades y coberturas."""
+    """Catálogos de especialidades y coberturas, con fallbacks explícitos."""
     especialidades = []
     coberturas = []
 
     try:
-        especialidades = [
-            {
-                'id': e['id_especialidad'],
-                'nombre': e['nombre_especialidad'],
-            }
-            for e in api('GET', '/especialidades').get('especialidades', [])
-        ]
+        especialidades = obtener_especialidades()
     except ErrorAPI:
         pass
 
     try:
-        coberturas = [
-            {'id': c['id_cobertura'], 'nombre': c['nombre']}
-            for c in api('GET', '/coberturas').get('coberturas', [])
-        ]
+        coberturas = obtener_coberturas()
     except ErrorAPI:
         pass
 
@@ -141,102 +95,74 @@ def _catalogos():
 
 
 def _coberturas_medico(id_medico):
-    """Coberturas ya asociadas al médico."""
     try:
-        datos = api('GET', f'/medicos/{id_medico}/coberturas')
+        return coberturas_del_medico(id_medico)
     except ErrorAPI:
         return []
-
-    return [
-        {'id': c['id_cobertura'], 'nombre': c['nombre']}
-        for c in datos.get('coberturas', [])
-    ]
 
 
 def _consultorios():
-    """Consultorios disponibles para las agendas."""
     try:
-        datos = api('GET', '/consultorios')
+        return obtener_consultorios()
     except ErrorAPI:
         return []
-
-    return [
-        {
-            'id': c.get('id_consultorio', c.get('id')),
-            'numero': c.get('numero', c.get('numero_consultorio')),
-        }
-        for c in datos.get('consultorios', [])
-    ]
 
 
 def _medico_vista(medico, usuario=None):
     """Datos del médico en el formato que usan las plantillas."""
     usuario = usuario or {}
 
-    nombre = medico.get('nombre') or usuario.get('nombre') or ''
-    apellido = medico.get('apellido') or usuario.get('apellido') or ''
+    id_medico = _entero(g(medico, 'id_medico', 'id'))
+    id_usuario = _entero(g(medico, 'id_usuario', default=g(usuario, 'id_usuario')))
+    nombre = g(medico, 'nombre', default=g(usuario, 'nombre', default='')) or ''
+    apellido = g(medico, 'apellido', default=g(usuario, 'apellido', default='')) or ''
+    mail = (
+        g(medico, 'correo_electronico')
+        or g(medico, 'email')
+        or g(usuario, 'mail')
+        or ''
+    )
+    documento = g(medico, 'dni') or g(usuario, 'dni') or ''
+    fecha_nac = g(medico, 'fecha_nacimiento') or g(usuario, 'fecha_nacimiento_iso')
+    fecha_reg = g(medico, 'fecha_creacion') or g(usuario, 'fecha_registro')
+    nacimiento = a_date(fecha_nac)
 
     return {
-        'id': int(medico['id_medico']),
-        'id_medico': int(medico['id_medico']),
-        'id_usuario': int(medico.get('id_usuario') or usuario.get('id_usuario') or 0),
+        'id': id_usuario,
+        'id_usuario': id_usuario,
+        'id_medico': id_medico,
+        'id_rol': 4,
         'nombre': nombre,
         'apellido': apellido,
-        'nombre_completo': _nombre_completo(nombre, apellido),
-        'iniciales': _iniciales(nombre, apellido),
-        'especialidad': medico.get('nombre_especialidad') or usuario.get('nombre_especialidad') or '',
-        'id_especialidad': medico.get('id_especialidad'),
-        'matricula': medico.get('matricula') or usuario.get('matricula') or '',
-        'email': medico.get('correo_electronico') or usuario.get('correo_electronico') or '',
-        'documento': medico.get('dni') or usuario.get('dni') or '',
-        'dni': medico.get('dni') or usuario.get('dni') or '',
-        'fecha_nacimiento': _fecha(usuario.get('fecha_nacimiento')),
-        'fecha_nacimiento_iso': _fecha_iso(usuario.get('fecha_nacimiento')),
-        'fecha_registro': _fecha(usuario.get('fecha_creacion')),
-    }
-
-
-def _usuario_vista(medico, usuario=None):
-    """Médico visto como usuario (es la plantilla que se usa para el perfil)."""
-    datos = _medico_vista(medico, usuario)
-
-    return {
-        **datos,
-        'id': datos['id_usuario'],
-        'id_rol': 4,
-        'mail': datos['email'],
-        'rol': 'Médico',
-    }
-
-
-def _normalizar_turno(turno):
-    """Adapta un turno de la API al formato de la lista del administrador."""
-    paciente = turno.get('paciente') or {}
-    consultorio = turno.get('consultorio') or {}
-    estado = ((turno.get('estado') or {}).get('nombre') or '').lower()
-
-    momento = _a_datetime(turno.get('fecha_horario_inicial'))
-    fecha = momento.date() if momento else None
-
-    nombre = _nombre_completo(
-        paciente.get('nombre'),
-        paciente.get('apellido'),
-    )
-
-    return {
-        'id': turno.get('id_turno'),
-        'iniciales': _iniciales(
-            paciente.get('nombre'),
-            paciente.get('apellido'),
-        ) if nombre else 'SP',
-        'nombre_paciente': nombre or 'Sin paciente',
-        'estado': estado,
-        'estado_nombre': estado.capitalize() if estado else '',
-        'hora': momento.strftime('%H:%M') if momento else '',
-        'fecha': fecha.strftime('%d - %m - %Y') if fecha else '',
-        'consultorio': consultorio.get('numero', '-'),
-        'color': COLORES_ESTADO.get(estado, 'bg-pink-500/30 text-pink-500'),
-        'color_texto': COLORES_ESTADO.get(estado, 'bg-pink-500/30 text-pink-500'),
+        'nombre_completo': nombre_completo(nombre, apellido),
+        'iniciales': iniciales(nombre, apellido),
+        'especialidad': (
+            g(medico, 'nombre_especialidad')
+            or g(usuario, 'especialidad')
+            or ''
+        ),
+        'id_especialidad': (
+            g(medico, 'id_especialidad')
+            or g(usuario, 'id_especialidad')
+        ),
+        'matricula': g(medico, 'matricula') or g(usuario, 'matricula') or '',
+        'email': mail,
+        'mail': mail,
+        'documento': documento,
+        'dni': documento,
+        'fecha_nacimiento': (
+            g(usuario, 'fecha_nacimiento')
+            if g(usuario, 'fecha_nacimiento')
+            else (formatear_fecha(fecha_nac) if fecha_nac else '-')
+        ),
+        'fecha_nacimiento_iso': (
+            nacimiento.isoformat() if nacimiento else ''
+        ),
+        'fecha_registro': (
+            g(usuario, 'fecha_registro')
+            if g(usuario, 'fecha_registro')
+            else (formatear_fecha(fecha_reg) if fecha_reg else '-')
+        ),
     }
 
 
@@ -267,12 +193,12 @@ def _agenda_resumen(agenda):
 @medico_admin_routes.route("/medicos/<int:id_medico>")
 @requiere_rol("admin")
 def medico_perfil(id_medico):
-
     try:
         medico = _obtener_medico(id_medico)
         usuario = _buscar_usuario(id_medico)
-
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
@@ -280,18 +206,18 @@ def medico_perfil(id_medico):
         return "Médico no encontrado", 404
 
     especialidades, catalogo_coberturas = _catalogos()
-    coberturas_medico = _coberturas_medico(id_medico)
+    actuales = _coberturas_medico(id_medico)
 
-    ids_asociadas = {c['id'] for c in coberturas_medico}
+    ids_asociadas = {c['id'] for c in actuales}
     coberturas_disponibles = [
         c for c in catalogo_coberturas if c['id'] not in ids_asociadas
     ]
 
     return render_template(
         "admin/abm/usuarios/profile.html",
-        usuario=_usuario_vista(medico, usuario),
+        usuario=_medico_vista(medico, usuario),
         especialidades=especialidades,
-        coberturas_medico=coberturas_medico,
+        coberturas_medico=actuales,
         coberturas_disponibles=coberturas_disponibles,
         consultorios=_consultorios(),
     )
@@ -304,30 +230,34 @@ def medico_perfil(id_medico):
 @medico_admin_routes.route("/turnos/<int:id_medico>")
 @requiere_rol("admin")
 def turnos(id_medico):
-
     try:
         medico = _obtener_medico(id_medico)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
     if medico is None:
         return "Médico no encontrado", 404
 
+    lista_turnos = []
+
     try:
-        datos = api('GET', '/turnos', params={'id_medico': id_medico})
+        turnos_api = listar_turnos({'id_medico': id_medico})
         lista_turnos = [
-            _normalizar_turno(turno)
-            for turno in datos.get('turnos', [])
+            normalizar_turno(turno, indice, vista='admin_tabla')
+            for indice, turno in enumerate(turnos_api)
         ]
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
-        lista_turnos = []
 
     return render_template(
         "admin/abm/medicos/turnos.html",
         medico=_medico_vista(medico),
-        turnos=lista_turnos
+        turnos=lista_turnos,
     )
 
 
@@ -338,10 +268,11 @@ def turnos(id_medico):
 @medico_admin_routes.route("/agenda/<int:id_medico>")
 @requiere_rol("admin")
 def agenda(id_medico):
-
     try:
         medico = _obtener_medico(id_medico)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_usuario.obtener_usuarios'))
 
@@ -352,26 +283,19 @@ def agenda(id_medico):
     turnos_del_mes = []
 
     try:
-        agendas = api(
-            'GET',
-            '/agendas',
-            params={'id_medico': id_medico},
-        ).get('agendas', [])
+        agendas = obtener_agendas(id_medico=id_medico)
 
         anio, mes = mes_seleccionado(request.args)
         fecha_desde, fecha_hasta = rango_del_mes(anio, mes)
 
-        turnos_del_mes = api(
-            'GET',
-            '/turnos',
-            params={
-                'id_medico': id_medico,
-                'fecha_desde': fecha_desde.isoformat(),
-                'fecha_hasta': fecha_hasta.isoformat(),
-            },
-        ).get('turnos', [])
-
+        turnos_del_mes = listar_turnos({
+            'id_medico': id_medico,
+            'fecha_desde': fecha_desde.isoformat(),
+            'fecha_hasta': fecha_hasta.isoformat(),
+        })
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     consultorio = agendas[0].get('consultorio') if agendas else None
@@ -402,7 +326,6 @@ def agenda(id_medico):
 )
 @requiere_rol("admin")
 def editar_medico(id_medico):
-
     perfil = redirect(
         url_for("rutas_admin_medico.medico_perfil", id_medico=id_medico)
     )
@@ -410,6 +333,8 @@ def editar_medico(id_medico):
     try:
         medico = _obtener_medico(id_medico)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return perfil
 
@@ -428,25 +353,22 @@ def editar_medico(id_medico):
         flash("Completá todos los campos obligatorios.", "error")
         return perfil
 
+    datos = {
+        'nombre': nombre,
+        'apellido': apellido,
+        'dni': documento,
+        'correo_electronico': email,
+    }
+    if fecha_nacimiento:
+        datos['fecha_nacimiento'] = fecha_nacimiento
+
     try:
-        datos = {
-            'nombre': nombre,
-            'apellido': apellido,
-            'dni': documento,
-            'correo_electronico': email,
-        }
-
-        if fecha_nacimiento:
-            datos['fecha_nacimiento'] = fecha_nacimiento
-
-        api('PUT', f"/usuarios/{medico['id_usuario']}", json=datos)
-
-        api('PUT', f'/medicos/{id_medico}', json={
+        api_editar_usuario(medico['id_usuario'], datos)
+        api_editar_medico(id_medico, {
             'id_especialidad': id_especialidad,
             'matricula': matricula,
         })
 
-        # Coberturas elegidas en el formulario.
         actuales = {c['id'] for c in _coberturas_medico(id_medico)}
         elegidas = {
             int(id_cobertura)
@@ -454,22 +376,16 @@ def editar_medico(id_medico):
             if id_cobertura.isdigit()
         }
 
-        for id_cobertura in elegidas - actuales:
-            api(
-                'POST',
-                f'/medicos/{id_medico}/coberturas',
-                json={'id_cobertura': id_cobertura},
-            )
+        agregar_coberturas_medico(id_medico, elegidas - actuales)
 
         for id_cobertura in actuales - elegidas:
-            api(
-                'DELETE',
-                f'/medicos/{id_medico}/coberturas/{id_cobertura}',
-            )
+            quitar_cobertura_medico(id_medico, id_cobertura)
 
         flash('Médico actualizado correctamente.', 'success')
 
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return perfil
@@ -485,10 +401,11 @@ def editar_medico(id_medico):
 )
 @requiere_rol("admin")
 def eliminar_medico(id_medico):
-
     try:
-        api('DELETE', f'/medicos/{id_medico}')
+        api_eliminar_medico(id_medico)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(
             url_for("rutas_admin_medico.medico_perfil", id_medico=id_medico)
@@ -511,12 +428,13 @@ def eliminar_medico(id_medico):
 )
 @requiere_rol("admin")
 def crear_agenda(id_medico):
-
     agenda_destino = url_for("rutas_admin_medico.agenda", id_medico=id_medico)
 
     try:
         medico = _obtener_medico(id_medico)
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(agenda_destino)
 
@@ -562,7 +480,7 @@ def crear_agenda(id_medico):
         return redirect(agenda_destino)
 
     try:
-        api('POST', '/agendas', json={
+        api_crear_agenda({
             'id_medico': int(id_medico),
             'id_consultorio': int(id_consultorio),
             'duracion_turno': int(duracion_turno),
@@ -574,6 +492,8 @@ def crear_agenda(id_medico):
         flash('Agenda creada correctamente.', 'success')
 
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return redirect(agenda_destino)

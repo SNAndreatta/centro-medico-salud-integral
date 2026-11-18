@@ -1,46 +1,19 @@
 from flask import Blueprint, render_template, request
 
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import obtener_consultorios
+from src.api_estadisticas import ocupacion_consultorios
+from src.api_turnos import listar as listar_turnos
+from src.errores import es_sesion_vencida, sesion_vencida
+from src.normalizar import formatear_hora, nombre_estado
 from src.permisos import requiere_rol
 
-from ._comun import fecha_iso, formatear_hora
+from ._comun import fecha_iso
 
 disponibilidad_consultorios_admin_routes = Blueprint(
     'rutas_admin_disponibilidad_consultorios',
     __name__
 )
-
-
-def _listar_consultorios():
-    """Devuelve los consultorios de la API."""
-    datos = api('GET', '/consultorios')
-
-    return datos.get('consultorios', [])
-
-
-def _listar_turnos_del_dia(fecha):
-    """Devuelve los turnos programados para la fecha indicada."""
-    datos = api(
-        'GET',
-        '/turnos',
-        params={'fecha_desde': fecha, 'fecha_hasta': fecha},
-    )
-
-    return datos.get('turnos', [])
-
-
-def _listar_ocupacion(fecha):
-    """Devuelve la ocupación de los consultorios para la fecha indicada."""
-    datos = api(
-        'GET',
-        '/estadisticas/ocupacion_consultorios',
-        params={'fecha_desde': fecha, 'fecha_hasta': fecha},
-    )
-
-    return {
-        consultorio['id_consultorio']: consultorio
-        for consultorio in datos.get('consultorios', [])
-    }
 
 
 def _horarios_por_consultorio(turnos):
@@ -50,7 +23,7 @@ def _horarios_por_consultorio(turnos):
     for turno in turnos:
         consultorio = turno.get('consultorio') or {}
         id_consultorio = consultorio.get('id_consultorio')
-        estado = ((turno.get('estado') or {}).get('nombre') or '')
+        estado = nombre_estado(turno)
 
         horarios.setdefault(id_consultorio, []).append({
             'id_turno': turno.get('id_turno'),
@@ -70,7 +43,7 @@ def _armar_pisos(consultorios, horarios, ocupacion):
     pisos = {}
 
     for consultorio in consultorios:
-        id_consultorio = int(consultorio['id_consultorio'])
+        id_consultorio = int(consultorio['id'])
         piso = consultorio.get('piso')
         clave = piso if piso is not None else 'sin-piso'
 
@@ -109,7 +82,6 @@ def _armar_pisos(consultorios, horarios, ocupacion):
 @disponibilidad_consultorios_admin_routes.route("/disponibilidad-consultorios")
 @requiere_rol("admin")
 def disponibilidad_consultorios():
-
     fecha = fecha_iso(request.args.get("fecha"))
 
     error = None
@@ -118,18 +90,30 @@ def disponibilidad_consultorios():
     ocupacion = {}
 
     try:
-        consultorios = _listar_consultorios()
+        consultorios = obtener_consultorios()
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = e.mensaje
 
     try:
-        turnos = _listar_turnos_del_dia(fecha)
+        turnos = listar_turnos({'fecha_desde': fecha, 'fecha_hasta': fecha})
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = error or e.mensaje
 
     try:
-        ocupacion = _listar_ocupacion(fecha)
+        datos = ocupacion_consultorios({
+            'fecha_desde': fecha, 'fecha_hasta': fecha,
+        })
+        ocupacion = {
+            consultorio['id_consultorio']: consultorio
+            for consultorio in datos.get('consultorios', [])
+        }
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = error or e.mensaje
 
     pisos = _armar_pisos(

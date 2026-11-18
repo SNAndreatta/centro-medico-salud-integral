@@ -7,45 +7,18 @@ from flask import (
     url_for,
 )
 
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import (
+    crear_cobertura as api_crear_cobertura,
+    editar_cobertura as api_editar_cobertura,
+    eliminar_cobertura as api_eliminar_cobertura,
+    listar_medicos,
+    obtener_coberturas as api_obtener_coberturas,
+)
+from src.errores import es_sesion_vencida, sesion_vencida
 from src.permisos import requiere_rol
 
 cobertura_routes = Blueprint('rutas_admin_cobertura', __name__)
-
-
-# =================================
-# NORMALIZACIÓN DE DATOS
-# =================================
-
-def _iniciales(nombre, apellido):
-    return f"{(nombre or ' ')[0]}{(apellido or ' ')[0]}".upper().strip() or 'NC'
-
-
-def _normalizar_cobertura(cobertura):
-    return {
-        'id': int(cobertura['id_cobertura']),
-        'nombre': cobertura['nombre'],
-        'cantidad_medicos': int(cobertura.get('cantidad_medicos') or 0),
-    }
-
-
-def _listar_coberturas():
-    datos = api('GET', '/coberturas')
-    return [
-        _normalizar_cobertura(cobertura)
-        for cobertura in datos.get('coberturas', [])
-    ]
-
-
-def _normalizar_medico(medico):
-    return {
-        'id': int(medico['id_medico']),
-        'id_usuario': int(medico['id_usuario']),
-        'nombre': f"{medico['nombre']} {medico['apellido']}".strip(),
-        'iniciales': _iniciales(medico['nombre'], medico['apellido']),
-        'especialidad': medico.get('nombre_especialidad'),
-        'matricula': medico.get('matricula'),
-    }
 
 
 # LISTADO DE COBERTURAS
@@ -56,8 +29,10 @@ def obtener_coberturas():
     error = None
 
     try:
-        coberturas = _listar_coberturas()
+        coberturas = api_obtener_coberturas()
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = e.mensaje
 
     return render_template(
@@ -72,8 +47,10 @@ def obtener_coberturas():
 @requiere_rol("admin")
 def detalle_cobertura(cobertura_id):
     try:
-        coberturas = _listar_coberturas()
+        coberturas = api_obtener_coberturas()
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(url_for('rutas_admin_cobertura.obtener_coberturas'))
 
@@ -88,12 +65,10 @@ def detalle_cobertura(cobertura_id):
     medicos = []
 
     try:
-        datos = api('GET', '/medicos', params={'id_cobertura': cobertura_id})
-        medicos = [
-            _normalizar_medico(medico)
-            for medico in datos.get('medicos', [])
-        ]
+        medicos = listar_medicos({'id_cobertura': cobertura_id})
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return render_template(
@@ -110,9 +85,11 @@ def crear_cobertura():
     nombre = request.form.get('nombre', '').strip()
 
     try:
-        api('POST', '/coberturas', json={'nombre': nombre})
+        api_crear_cobertura(nombre)
         flash('Cobertura creada correctamente.', 'success')
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return redirect(
@@ -130,9 +107,11 @@ def editar_cobertura(cobertura_id):
     nombre = request.form.get('nombre', '').strip()
 
     try:
-        api('PUT', f'/coberturas/{cobertura_id}', json={'nombre': nombre})
+        api_editar_cobertura(cobertura_id, nombre)
         flash('Cobertura actualizada correctamente.', 'success')
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
 
     return redirect(
@@ -151,12 +130,14 @@ def editar_cobertura(cobertura_id):
 @requiere_rol("admin")
 def eliminar_cobertura(cobertura_id):
     try:
-        api('DELETE', f'/coberturas/{cobertura_id}')
+        api_eliminar_cobertura(cobertura_id)
         flash('Cobertura eliminada correctamente.', 'success')
         return redirect(
             url_for('rutas_admin_cobertura.obtener_coberturas')
         )
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         flash(e.mensaje, 'error')
         return redirect(
             url_for(

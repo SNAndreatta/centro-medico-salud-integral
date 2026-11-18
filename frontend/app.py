@@ -17,6 +17,7 @@ from routes.admin.dashboards.disponibilidad_consultorio import disponibilidad_co
 from routes.admin.dashboards.tiempo_espera import tiempo_espera_admin_routes
 
 from src.config import Config
+from src.errores import registrar_manejo_errores
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -39,6 +40,9 @@ app.register_blueprint(turnos_especialidad_admin_routes)
 app.register_blueprint(ausentismo_admin_routes)
 app.register_blueprint(disponibilidad_consultorios_admin_routes)
 app.register_blueprint(tiempo_espera_admin_routes)
+
+registrar_manejo_errores(app)
+
 
 @app.context_processor
 def agregar_datos_globales():

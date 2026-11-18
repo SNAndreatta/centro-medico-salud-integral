@@ -1,48 +1,17 @@
 from flask import Blueprint, render_template, request
 
 from src import api_estadisticas
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_turnos import listar as listar_turnos
+from src.normalizar import normalizar_turno
 from src.permisos import requiere_rol
 
-from ._comun import (
-    filtros_fechas,
-    formatear_fecha,
-    formatear_hora,
-    iniciales,
-    nombre_completo,
-)
+from ._comun import filtros_fechas
 
 turnos_especialidad_admin_routes = Blueprint(
     'rutas_admin_turnos_especialidad',
     __name__
 )
-
-
-def _normalizar_turno(turno):
-    medico = turno.get('medico') or {}
-    paciente = turno.get('paciente') or {}
-    consultorio = turno.get('consultorio') or {}
-    estado = turno.get('estado') or {}
-
-    return {
-        'id_turno': turno.get('id_turno'),
-        'iniciales': iniciales(
-            medico.get('nombre'),
-            medico.get('apellido'),
-        ),
-        'nombre': nombre_completo(
-            medico.get('nombre'),
-            medico.get('apellido'),
-        ),
-        'paciente': nombre_completo(
-            paciente.get('nombre'),
-            paciente.get('apellido'),
-        ),
-        'hora': formatear_hora(turno.get('fecha_horario_inicial')),
-        'fecha': formatear_fecha(turno.get('fecha_horario_inicial')),
-        'consultorio': consultorio.get('numero'),
-        'estado': estado.get('nombre') or '',
-    }
 
 
 def _agrupar_turnos(turnos):
@@ -62,7 +31,7 @@ def _agrupar_turnos(turnos):
 
         especialidad = especialidades[nombre_especialidad]
         especialidad['total_turnos'] += 1
-        especialidad['turnos'].append(_normalizar_turno(turno))
+        especialidad['turnos'].append(normalizar_turno(turno, vista='dashboard'))
 
     return list(especialidades.values())
 
@@ -72,7 +41,7 @@ def _especialidad_desde_api(especialidad):
         'nombre': especialidad.get('nombre') or 'Sin especialidad',
         'total_turnos': int(especialidad.get('total_turnos') or 0),
         'turnos': [
-            _normalizar_turno(turno)
+            normalizar_turno(turno, vista='dashboard')
             for turno in especialidad.get('turnos', [])
         ],
     }
@@ -101,7 +70,7 @@ def turnos_especialidad():
         error = e.mensaje
 
         try:
-            turnos = api("GET", "/turnos", params=parametros).get('turnos', [])
+            turnos = listar_turnos(parametros)
             especialidades = _agrupar_turnos(turnos)
             total_turnos = sum(
                 especialidad['total_turnos']

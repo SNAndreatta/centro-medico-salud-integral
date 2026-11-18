@@ -1,44 +1,11 @@
-from datetime import date, datetime
+from datetime import date
 
-from src.tiempo import hoy_local
-
-
-# Paleta de avatares ya utilizada por los dashboards.
-COLORES_AVATAR = (
-    'bg-pink-500/30 text-pink-500',
-    'bg-purple-500/30 text-purple-500',
-    'bg-blue-500/30 text-blue-500',
-    'bg-green-500/30 text-green-500',
-    'bg-orange-500/30 text-orange-500',
-    'bg-indigo-500/30 text-indigo-500',
-)
+from src.normalizar import color_avatar, iniciales, nombre_completo
+from src.tiempo import a_datetime as _a_datetime, hoy_local
 
 
-def iniciales(nombre, apellido=''):
-    """Devuelve las iniciales de una persona."""
-    letras = []
-
-    for parte in (nombre, apellido):
-        parte = (parte or '').strip()
-        if parte:
-            letras.append(parte[0])
-
-    return ''.join(letras).upper() or 'NC'
-
-
-def nombre_completo(nombre, apellido=''):
-    """Devuelve el nombre y apellido unidos."""
-    return f"{nombre or ''} {apellido or ''}".strip()
-
-
-def _a_datetime(valor):
-    if not valor:
-        return None
-
-    try:
-        return datetime.fromisoformat(str(valor))
-    except ValueError:
-        return None
+# La paleta y los formateadores viven en src.normalizar; se reexportan
+# porque los dashboards y otras vistas los importan de aquí.
 
 
 def formatear_hora(valor):
@@ -59,11 +26,6 @@ def formatear_fecha(valor):
         return '—'
 
     return momento.strftime('%d/%m/%Y')
-
-
-def color_avatar(indice):
-    """Devuelve el color del avatar según la posición del elemento."""
-    return COLORES_AVATAR[indice % len(COLORES_AVATAR)]
 
 
 def minutos_espera(fecha_inicial, fecha_llegada):
