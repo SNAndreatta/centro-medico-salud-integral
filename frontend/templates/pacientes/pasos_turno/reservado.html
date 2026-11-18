@@ -9,12 +9,12 @@
     <!-- Encabezado -->
     <div class="flex items-center gap-3">
 
-        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-acento text-white">
-            <i data-lucide="check" class="h-7 w-7"></i>
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-acento text-white sm:h-12 sm:w-12">
+            <i data-lucide="check" class="h-6 w-6 sm:h-7 sm:w-7"></i>
         </div>
 
-        <div>
-            <h2 class="font-lexend text-base font-semibold text-acento">
+        <div class="min-w-0">
+            <h2 class="break-words font-lexend text-sm font-semibold text-acento sm:text-base">
                 ¡Turno reservado!
             </h2>
 
@@ -32,13 +32,13 @@
         <div class="space-y-3">
 
             <!-- Especialidad -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Especialidad
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     {{ especialidad.nombre }}
                 </p>
 
@@ -46,13 +46,13 @@
 
 
             <!-- Profesional -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Especialista
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     Dr. {{ medico.nombre }}
                 </p>
 
@@ -60,13 +60,13 @@
 
 
             <!-- Fecha y hora -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Fecha y hora
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     {{ fecha_texto }} - {{ hora }}
                 </p>
 
@@ -74,13 +74,13 @@
 
 
             <!-- Consultorio -->
-            <div class="grid grid-cols-[90px_1fr] items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Consultorio
                 </p>
 
-                <p class="text-xs font-medium text-acento">
+                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
                     {{ consultorio if consultorio else 'A confirmar' }}
                 </p>
 
@@ -90,17 +90,17 @@
             <!-- Envío del comprobante por correo -->
             <div class="rounded-lg border border-gray-200 px-3 py-2">
 
-                <p class="text-[9px] font-medium uppercase text-acento/70">
+                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
                     Comprobante por correo
                 </p>
 
                 {% if email_enviado %}
-                <p class="mt-1 text-xs text-acento">
+                <p class="mt-1 break-words text-xs text-acento">
                     Enviamos el comprobante y el código QR a
                     {{ email_destinatario if email_destinatario else 'tu correo' }}.
                 </p>
                 {% else %}
-                <p class="mt-1 text-xs text-acento">
+                <p class="mt-1 break-words text-xs text-acento">
                     No pudimos enviar el correo{{ ': ' ~ email_error if email_error else '' }}.
                     Guardá el código QR y mostralo en recepción.
                 </p>
@@ -118,14 +118,14 @@
             <img
                 src="data:{{ qr_mime }};base64,{{ qr_imagen }}"
                 alt="Código QR del turno reservado"
-                class="w-48 rounded-xl border border-gray-200 bg-white p-2"
+                class="w-40 max-w-full rounded-xl border border-gray-200 bg-white p-2 sm:w-48"
             >
 
-            <p class="max-w-[160px] text-center text-[9px] leading-relaxed text-acento/70">
+            <p class="max-w-full text-center text-[9px] leading-relaxed text-acento/70 sm:max-w-[160px]">
                 Presentá este código en recepción para confirmar tu llegada.
             </p>
             {% else %}
-            <p class="max-w-[160px] text-center text-xs text-acento/70">
+            <p class="max-w-full text-center text-xs text-acento/70 sm:max-w-[160px]">
                 Tu turno quedó reservado. Consultá el comprobante en el correo o en recepción.
             </p>
             {% endif %}
