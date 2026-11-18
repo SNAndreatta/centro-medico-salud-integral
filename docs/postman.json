@@ -1,0 +1,976 @@
+{
+    "info": {
+        "name": "Centro Médico Salud Integral API",
+        "_postman_id": "c1f7b8e2-8921-4d3a-b892-74892c90e111",
+        "description": "Colección completa de endpoints para Centro Médico Salud Integral con ejemplos válidos para todas las requests.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:5000/api",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "TOKEN_JWT_AQUI",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Sistema",
+            "item": [
+                {
+                    "name": "Health check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["health"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Autenticación y Usuarios",
+            "item": [
+                {
+                    "name": "POST Iniciar sesión (Login)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"correo_electronico\": \"admin.demo@saludintegral.test\",\n    \"password\": \"12345678\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Mi Perfil (Usuario Me)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/usuarios/me",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios", "me"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Listar Usuarios (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/usuarios?rol=medico",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios"],
+                            "query": [
+                                {
+                                    "key": "rol",
+                                    "value": "medico",
+                                    "description": "admin | recepcionista | paciente | medico"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Usuario de Staff (Admin o Recepcionista)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Mariana\",\n    \"apellido\": \"Gómez\",\n    \"dni\": \"25333444\",\n    \"correo_electronico\": \"mgomez@saludintegral.test\",\n    \"password\": \"PasswordSegura2026!\",\n    \"id_rol\": 2,\n    \"fecha_nacimiento\": \"1990-05-12\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/usuarios",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Actualizar Datos de Usuario",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Juan Carlos\",\n    \"apellido\": \"Pérez\",\n    \"dni\": \"30123456\",\n    \"correo_electronico\": \"juan.perez@saludintegral.test\",\n    \"fecha_nacimiento\": \"1990-05-12\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/usuarios/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Usuario",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/usuarios/20",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios", "20"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Actualizar Contraseña (Propia o Restablecimiento)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"password_actual\": \"12345678\",\n    \"nueva_password\": \"NuevaClaveSegura2026!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/usuarios/1/password",
+                            "host": ["{{base_url}}"],
+                            "path": ["usuarios", "1", "password"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Coberturas",
+            "item": [
+                {
+                    "name": "GET Listar Coberturas",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/coberturas",
+                            "host": ["{{base_url}}"],
+                            "path": ["coberturas"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Cobertura",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Medifé\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/coberturas",
+                            "host": ["{{base_url}}"],
+                            "path": ["coberturas"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Cobertura",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"OSDE Binario\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/coberturas/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["coberturas", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Cobertura",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/coberturas/10",
+                            "host": ["{{base_url}}"],
+                            "path": ["coberturas", "10"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Pacientes",
+            "item": [
+                {
+                    "name": "POST Alta de Paciente (Público / Autogestión o Recepción)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Carlos\",\n    \"apellido\": \"Rodríguez\",\n    \"dni\": \"30111222\",\n    \"correo_electronico\": \"carlosr@saludintegral.test\",\n    \"fecha_nacimiento\": \"1985-05-15\",\n    \"password\": \"PasswordPaciente2026!\",\n    \"id_cobertura\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/pacientes",
+                            "host": ["{{base_url}}"],
+                            "path": ["pacientes"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Listar / Buscar Pacientes (Recepción)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/pacientes?dni=30111222&apellido=Rodriguez",
+                            "host": ["{{base_url}}"],
+                            "path": ["pacientes"],
+                            "query": [
+                                {"key": "dni", "value": "30111222"},
+                                {"key": "apellido", "value": "Rodriguez"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Perfil Completo del Paciente",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/pacientes/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["pacientes", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Actualizar Datos de Paciente",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Carlos Alberto\",\n    \"apellido\": \"Rodríguez\",\n    \"dni\": \"30111222\",\n    \"correo_electronico\": \"carlos.alberto@saludintegral.test\",\n    \"fecha_nacimiento\": \"1985-05-15\",\n    \"id_cobertura\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/pacientes/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["pacientes", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Historial y Próximos Turnos del Paciente",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/pacientes/1/turnos",
+                            "host": ["{{base_url}}"],
+                            "path": ["pacientes", "1", "turnos"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Especialidades",
+            "item": [
+                {
+                    "name": "GET Listar Especialidades",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/especialidades",
+                            "host": ["{{base_url}}"],
+                            "path": ["especialidades"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Especialidad",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Neurología\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/especialidades",
+                            "host": ["{{base_url}}"],
+                            "path": ["especialidades"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Especialidad",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Cardiología Infantil\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/especialidades/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["especialidades", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Especialidad",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/especialidades/10",
+                            "host": ["{{base_url}}"],
+                            "path": ["especialidades", "10"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Consultorios",
+            "item": [
+                {
+                    "name": "GET Listar Consultorios",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/consultorios",
+                            "host": ["{{base_url}}"],
+                            "path": ["consultorios"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Consultorio",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"numero\": 105,\n    \"piso\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/consultorios",
+                            "host": ["{{base_url}}"],
+                            "path": ["consultorios"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Consultorio",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"numero\": 105,\n    \"piso\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/consultorios/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["consultorios", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Consultorio",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/consultorios/10",
+                            "host": ["{{base_url}}"],
+                            "path": ["consultorios", "10"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Médicos",
+            "item": [
+                {
+                    "name": "GET Buscar / Listar Médicos",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/medicos?id_especialidad=1&id_cobertura=1&nombre=Ana",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos"],
+                            "query": [
+                                {"key": "id_especialidad", "value": "1"},
+                                {"key": "id_cobertura", "value": "1"},
+                                {"key": "nombre", "value": "Ana"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Médico (Alta de Usuario y Profesional)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombre\": \"Dr. Roberto\",\n    \"apellido\": \"López\",\n    \"dni\": \"15222333\",\n    \"correo_electronico\": \"rlopez@saludintegral.test\",\n    \"password\": \"PasswordMedico2026!\",\n    \"id_especialidad\": 1,\n    \"matricula\": \"MN-123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/medicos",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Ver Perfil del Médico",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/medicos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Especialidad / Matrícula del Médico",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id_especialidad\": 2,\n    \"matricula\": \"MN-999888\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/medicos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Médico",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/medicos/10",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "10"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Listar Coberturas Aceptadas por Médico",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/medicos/1/coberturas",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "1", "coberturas"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Vincular Médico con Cobertura",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id_cobertura\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/medicos/1/coberturas",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "1", "coberturas"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Desvincular Médico de Cobertura",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/medicos/1/coberturas/3",
+                            "host": ["{{base_url}}"],
+                            "path": ["medicos", "1", "coberturas", "3"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Agendas",
+            "item": [
+                {
+                    "name": "GET Listar Agendas (con Filtros)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/agendas?id_medico=1&id_consultorio=1&vigente=true",
+                            "host": ["{{base_url}}"],
+                            "path": ["agendas"],
+                            "query": [
+                                {"key": "id_medico", "value": "1"},
+                                {"key": "id_consultorio", "value": "1"},
+                                {"key": "vigente", "value": "true"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Crear Nueva Agenda Semanal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id_medico\": 1,\n    \"id_consultorio\": 1,\n    \"duracion_turno\": 30,\n    \"fecha_inicio\": \"2026-11-01\",\n    \"fecha_hasta\": \"2026-12-31\",\n    \"dias\": [\n        {\n            \"dia_semana\": 1,\n            \"horario_inicio_jornada\": \"09:00:00\",\n            \"horario_final_jornada\": \"13:00:00\"\n        },\n        {\n            \"dia_semana\": 3,\n            \"horario_inicio_jornada\": \"14:00:00\",\n            \"horario_final_jornada\": \"18:00:00\"\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/agendas",
+                            "host": ["{{base_url}}"],
+                            "path": ["agendas"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Ver Detalle de Agenda",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/agendas/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["agendas", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Agenda (Extender/Acortar Vigencia)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fecha_hasta\": \"2027-01-31\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/agendas/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["agendas", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE Eliminar Agenda",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/agendas/10",
+                            "host": ["{{base_url}}"],
+                            "path": ["agendas", "10"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Turnos (Reserva y Recepción)",
+            "item": [
+                {
+                    "name": "POST Generar Turnos Disponibles (Apertura de Agendas)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/turnos/generar",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "generar"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Buscar Turnos Disponibles (Paciente)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/turnos/disponibles?id_especialidad=1&id_medico=1&id_cobertura=1&fecha_desde=2026-11-01&fecha_hasta=2026-11-30&hora_desde=09:00:00&hora_hasta=18:00:00",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "disponibles"],
+                            "query": [
+                                {"key": "id_especialidad", "value": "1"},
+                                {"key": "id_medico", "value": "1"},
+                                {"key": "id_cobertura", "value": "1"},
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"},
+                                {"key": "hora_desde", "value": "09:00:00"},
+                                {"key": "hora_hasta", "value": "18:00:00"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Grilla General de Turnos (Recepción / Backoffice)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/turnos?fecha_desde=2026-11-01&fecha_hasta=2026-11-30&id_medico=1&id_estado=2",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"},
+                                {"key": "id_medico", "value": "1"},
+                                {
+                                    "key": "id_estado",
+                                    "value": "2",
+                                    "description": "1: disp, 2: reserv, 3: conf, 4: atend, 5: canc, 6: aus"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Detalle Completo de un Turno",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/turnos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Check-in con QR en Recepción",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"token\": \"eyJpZF90dXJubyI6IDEsICJpZF9hZ2VuZGEiOiAxLCAiaWRfcGFjaWVudGUiOiAxLCAiZmVjaGFfaG9yYXJpb19pbmljaWFsIjogIjIwMjYtMTEtMDIgMDk6MzA6MDAiLCAiZXN0YWRvIjogInJlc2VydmFkbyJ9\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/turnos/checkin",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "checkin"]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Reservar Turno y Enviar QR",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id_paciente\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/turnos/1/reservar",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "1", "reservar"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Cancelar Reserva desde Enlace de Email",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/turnos/1/cancelar?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fake_signature",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "1", "cancelar"],
+                            "query": [
+                                {"key": "token", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fake_signature"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "POST Cancelar Reserva (Backoffice o Sesión Autenticada)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id_turno\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/turnos/cancelar",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "cancelar"]
+                        }
+                    }
+                },
+                {
+                    "name": "PUT Modificar Estado de Turno (Atendido / Ausente)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {"key": "Content-Type", "value": "application/json"},
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"estado\": \"atendido\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/turnos/1/estado",
+                            "host": ["{{base_url}}"],
+                            "path": ["turnos", "1", "estado"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Dashboards e Informes",
+            "item": [
+                {
+                    "name": "GET Sala de Espera del Día",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/sala_espera",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "sala_espera"]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Agrupamiento de Turnos por Estado (Gráficos)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/turnos?fecha_desde=2026-11-01&fecha_hasta=2026-11-30",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "turnos"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Ocupación de Consultorios",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/ocupacion_consultorios?fecha_desde=2026-11-01&fecha_hasta=2026-11-30",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "ocupacion_consultorios"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Estadísticas de Ausentismo (Médicos y Especialidades)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/ausentismo?fecha_desde=2026-11-01&fecha_hasta=2026-11-30",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "ausentismo"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Tiempos de Espera (Médicos y Especialidades)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/tiempo_espera?fecha_desde=2026-11-01&fecha_hasta=2026-11-30",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "tiempo_espera"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GET Turnos Agrupados por Especialidad",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {"key": "Authorization", "value": "Bearer {{token}}"}
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/estadisticas/turnos-especialidad?fecha_desde=2026-11-01&fecha_hasta=2026-11-30",
+                            "host": ["{{base_url}}"],
+                            "path": ["estadisticas", "turnos-especialidad"],
+                            "query": [
+                                {"key": "fecha_desde", "value": "2026-11-01"},
+                                {"key": "fecha_hasta", "value": "2026-11-30"}
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
