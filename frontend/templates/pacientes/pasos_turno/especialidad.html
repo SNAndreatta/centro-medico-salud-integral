@@ -1,3 +1,4 @@
+
 {% extends "pacientes/pasos_turno/sacar_turno.html" %}
 
 {% set paso = 1 %}
@@ -8,7 +9,7 @@
 
     <!-- Título y descripción -->
     <div>
-        <h2 class="font-lexend text-base font-semibold text-acento">
+        <h2 class="font-lexend text-sm font-semibold text-acento sm:text-base">
             ¿Qué especialidad necesitás?
         </h2>
 
@@ -95,7 +96,7 @@
 
         <!-- Mensaje si no hay resultados -->
         <p id="sin-resultados"
-           class="hidden py-6 text-center text-sm text-acento/70">
+           class="hidden py-6 text-center text-xs text-acento/70 sm:text-sm">
             No se encontraron especialidades.
         </p>
 
@@ -103,7 +104,7 @@
         <div class="mt-6 flex justify-end">
             <button
                 type="submit"
-                class="inline-flex items-center gap-2 rounded-full bg-acento px-3 py-2.5 text-xs font-medium text-white transition hover:opacity-90 sm:px-5"
+                class="inline-flex items-center gap-2 rounded-full bg-acento px-3 py-2.5 text-xs font-medium text-white transition hover:opacity-90 sm:px-5 sm:text-sm"
             >
                 Siguiente
                 <i data-lucide="arrow-right" class="h-4 w-4"></i>

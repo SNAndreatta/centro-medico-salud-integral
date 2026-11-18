@@ -1,20 +1,21 @@
+
 {% extends "base.html" %}
 
 {% block title %}Sacar turno | Salud Integral{% endblock %}
 
 {% block content %}
 
-<div class="bg-dominante px-4 sm:px-6">
+<div class="bg-dominante px-1.5 min-[400px]:px-2.5 sm:px-6">
 
     <div class="mx-auto max-w-[1100px]">
 
         {% include "components/mensajes.html" %}
 
         <!-- TÍTULO -->
-        <section class="mt-3">
+        <section class="mt-2 sm:mt-3">
 
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
-                <h2 class="text-lg font-bold tracking-wide text-acento sm:text-xl">
+            <div class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2 sm:mb-6">
+                <h2 class="text-base font-bold tracking-wide text-acento sm:text-xl">
                     SACAR TURNO
                 </h2>
             </div>
@@ -23,9 +24,9 @@
 
 
         <!-- BARRA DE PROGRESO -->
-        <nav aria-label="Pasos para sacar un turno" class="mb-4 mt-3">
+        <nav aria-label="Pasos para sacar un turno" class="mb-4 mt-3 px-1 sm:px-0">
 
-            <ol class="grid grid-cols-4 items-start">
+            <ol class="grid grid-cols-4 items-start gap-1 sm:gap-3">
 
                 <!-- PASO 1: ESPECIALIDAD -->
                 <li class="flex min-w-0 flex-col items-center gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
@@ -47,13 +48,13 @@
                         {% endif %}
                     </span>
 
-                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                    <span class="w-full truncate text-[9px] leading-tight min-[400px]:text-[10px] sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 1 %}
                             font-semibold text-acento
                         {% else %}
                             text-acento/70
                         {% endif %}">
-                        <span class="sm:hidden">Esp.</span>
+                        <span class="sm:hidden">Especialidad</span>
                         <span class="hidden sm:inline">Especialidad</span>
                     </span>
 
@@ -80,7 +81,7 @@
                         {% endif %}
                     </span>
 
-                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                    <span class="w-full truncate text-[9px] leading-tight min-[400px]:text-[10px] sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 2 %}
                             font-semibold text-acento
                         {% else %}
@@ -112,7 +113,7 @@
                         {% endif %}
                     </span>
 
-                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                    <span class="w-full truncate text-[9px] leading-tight min-[400px]:text-[10px] sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 3 %}
                             font-semibold text-acento
                         {% else %}
@@ -145,13 +146,13 @@
                         {% endif %}
                     </span>
 
-                    <span class="w-full truncate text-[9px] leading-tight sm:w-auto sm:text-xs sm:leading-normal
+                    <span class="w-full truncate text-[9px] leading-tight min-[400px]:text-[10px] sm:w-auto sm:text-xs sm:leading-normal
                         {% if paso == 4 %}
                             font-semibold text-acento
                         {% else %}
                             text-acento/70
                         {% endif %}">
-                        <span class="sm:hidden">Confirm.</span>
+                        <span class="sm:hidden">Confirmación</span>
                         <span class="hidden sm:inline">Confirmación</span>
                     </span>
 
@@ -165,7 +166,7 @@
         <!-- CONTENIDO DEL PASO ACTUAL -->
         <main>
 
-            <section class="rounded-[10px] bg-white px-4 py-5 shadow-sm sm:px-6 sm:py-6">
+            <section class="rounded-[10px] bg-white px-3 py-4 shadow-sm min-[400px]:px-4 sm:px-6 sm:py-6">
 
                 {% block contenido_paso %}
                 {% endblock %}
