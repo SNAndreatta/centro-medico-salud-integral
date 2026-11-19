@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, g, request
 
 from src.services.pacientes_services import (
     filtrar_pacientes,
@@ -45,14 +45,14 @@ def consultar_paciente(id_paciente):
 @pacientes_bp.put('/pacientes/<int:id_paciente>')
 @handle_unexpected_errors
 @token_required
-@roles_required(RECEPCIONISTA, ADMINISTRADOR)
+@roles_required(RECEPCIONISTA, ADMINISTRADOR, PACIENTE)
 def editar_paciente(id_paciente):
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:
         return error_json
 
-    respuesta, status_code = modificar_paciente(id_paciente, datos)
+    respuesta, status_code = modificar_paciente(id_paciente, datos, g.current_user)
     return respuesta, status_code
 
 @pacientes_bp.get('/pacientes/<int:id_paciente>/turnos')

@@ -7,6 +7,7 @@ from src.repositories.pacientes_repositories import (
     obtener_turnos_de_paciente
 )
 from src.errores import error_respuesta
+from src.utils.roles import ADMINISTRADOR, RECEPCIONISTA
 from src.validators.pacientes_validators import (
     validar_filtros_pacientes,
     validar_datos_actualizacion_paciente
@@ -31,7 +32,15 @@ def obtener_paciente(id_paciente):
 
     return {'paciente': paciente}, 200
 
-def modificar_paciente(id_paciente, datos):
+def modificar_paciente(id_paciente, datos, usuario_actual):
+    if usuario_actual['id_rol'] not in (ADMINISTRADOR, RECEPCIONISTA):
+        id_propio = obtener_id_paciente_por_usuario(usuario_actual['id_usuario'])
+        if id_propio is None or int(id_propio) != id_paciente:
+            return error_respuesta(
+                'No tenés permiso para modificar este paciente',
+                'PERMISOS_INSUFICIENTES',
+            ), 403
+
     datos_validados, error = validar_datos_actualizacion_paciente(datos)
     if error:
         return error, 400
