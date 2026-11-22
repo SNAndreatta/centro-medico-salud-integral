@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS estado_turno(
     estado_turno VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS control_tarea_programada(
+    nombre VARCHAR(100) PRIMARY KEY,
+    ultima_ejecucion DATETIME NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS consultorio(
     id_consultorio INT PRIMARY KEY AUTO_INCREMENT,
     numero INT NOT NULL,

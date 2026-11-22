@@ -1,5 +1,51 @@
+from datetime import datetime, timedelta
+
 from src.db import obtener_cursor
 from src.utils.fechas import ahora_local as _ahora_local
+
+
+def intentar_adquirir_ejecucion_tarea(nombre, ahora, intervalo_segundos):
+    conexion, cursor = obtener_cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT IGNORE INTO control_tarea_programada (nombre, ultima_ejecucion)
+            VALUES (%s, %s)
+            """,
+            (nombre, datetime(1970, 1, 1)),
+        )
+        cursor.execute(
+            """
+            SELECT ultima_ejecucion
+            FROM control_tarea_programada
+            WHERE nombre = %s
+            FOR UPDATE
+            """,
+            (nombre,),
+        )
+        fila = cursor.fetchone()
+        ultima_ejecucion = fila['ultima_ejecucion']
+
+        if ahora - ultima_ejecucion < timedelta(seconds=intervalo_segundos):
+            conexion.commit()
+            return False
+
+        cursor.execute(
+            """
+            UPDATE control_tarea_programada
+            SET ultima_ejecucion = %s
+            WHERE nombre = %s
+            """,
+            (ahora, nombre),
+        )
+        conexion.commit()
+        return True
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        cursor.close()
+        conexion.close()
 
 
 def buscar_turno_por_id(id_turno):
