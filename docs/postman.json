@@ -8,7 +8,7 @@
     "variable": [
         {
             "key": "base_url",
-            "value": "http://localhost:5000/api",
+            "value": "https://centro-medico-salud-integral.vercel.app/api",
             "type": "string"
         },
         {
