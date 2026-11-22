@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ titulo }} - Centro Médico Salud Integral</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f8fb; color: #1f2937;
+           display: flex; align-items: center; justify-content: center;
+           min-height: 100vh; padding: 24px; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+               display: flex; align-items: center; justify-content: center;
+               z-index: 1000; padding: 24px; }
+    .modal { background: white; border-radius: 16px; padding: 40px 28px;
+             max-width: 420px; width: 100%; text-align: center;
+             box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+             animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); }
+                        to { opacity: 1; transform: translateY(0); } }
+    .icon { font-size: 56px; color: {{ color }}; margin-bottom: 16px; display: block; }
+    h1 { color: #0f172a; margin-bottom: 12px; font-size: 22px; }
+    p { color: #4b5563; margin-bottom: 28px; font-size: 15px; line-height: 1.5; }
+    .btn { display: inline-flex; align-items: center; justify-content: center;
+           background: {{ color }}; color: #ffffff; text-decoration: none;
+           padding: 12px 32px; border-radius: 50px; font-weight: 700; font-size: 15px;
+           width: 100%; border: none; cursor: pointer; }
+    .btn:hover { filter: brightness(0.92); }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <span class="icon">{{ icono }}</span>
+      <h1>{{ titulo }}</h1>
+      <p>{{ mensaje }}</p>
+      <button class="btn" id="btnAccion">{{ boton_texto }}</button>
+    </div>
+  </div>
+
+  <script>
+    function irInicio() { window.location.href = '{{ boton_url }}'; }
+    document.getElementById('btnAccion').addEventListener('click', irInicio);
+    document.getElementById('overlay').addEventListener('click', function(e) {
+      if (e.target === this) irInicio();
+    });
+  </script>
+</body>
+</html>
