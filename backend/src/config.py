@@ -47,3 +47,4 @@ class Config:
     CANCELACION_TTL_MINUTES = int(os.getenv('CANCELACION_TTL_MINUTES', '86400'))
     if CANCELACION_TTL_MINUTES <= 0:
         raise ValueError('CANCELACION_TTL_MINUTES must be greater than zero')
+    INTERVALO_AUSENTISMO_SEGUNDOS = int(os.getenv('INTERVALO_AUSENTISMO_SEGUNDOS', '300'))

@@ -33,16 +33,13 @@ app.register_blueprint(estadisticas_bp)
 app.register_blueprint(especialidades_bp)
 app.register_blueprint(coberturas_bp)
 
-INTERVALO_AUSENTISMO_SEGUNDOS = 300
-
-
 @app.before_request
 def verificar_ausentismo_lazy():
     try:
         debe_ejecutar = intentar_adquirir_ejecucion_tarea(
             'ausentismo_automatico',
             ahora_local(),
-            INTERVALO_AUSENTISMO_SEGUNDOS,
+            Config.INTERVALO_AUSENTISMO_SEGUNDOS,
         )
         if debe_ejecutar:
             ejecutar_ausentismo_automatico()
