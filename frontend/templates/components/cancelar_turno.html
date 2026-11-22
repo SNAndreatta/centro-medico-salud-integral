@@ -1,49 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ titulo }} - Centro Médico Salud Integral</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f5f8fb; color: #1f2937;
-           display: flex; align-items: center; justify-content: center;
-           min-height: 100vh; padding: 24px; }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-               display: flex; align-items: center; justify-content: center;
-               z-index: 1000; padding: 24px; }
-    .modal { background: white; border-radius: 16px; padding: 40px 28px;
-             max-width: 420px; width: 100%; text-align: center;
-             box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-             animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); }
-                        to { opacity: 1; transform: translateY(0); } }
-    .icon { font-size: 56px; color: {{ color }}; margin-bottom: 16px; display: block; }
-    h1 { color: #0f172a; margin-bottom: 12px; font-size: 22px; }
-    p { color: #4b5563; margin-bottom: 28px; font-size: 15px; line-height: 1.5; }
-    .btn { display: inline-flex; align-items: center; justify-content: center;
-           background: {{ color }}; color: #ffffff; text-decoration: none;
-           padding: 12px 32px; border-radius: 50px; font-weight: 700; font-size: 15px;
-           width: 100%; border: none; cursor: pointer; }
-    .btn:hover { filter: brightness(0.92); }
-  </style>
-</head>
-<body>
-  <div class="overlay" id="overlay">
-    <div class="modal">
-      <span class="icon">{{ icono }}</span>
-      <h1>{{ titulo }}</h1>
-      <p>{{ mensaje }}</p>
-      <button class="btn" id="btnAccion">{{ boton_texto }}</button>
-    </div>
-  </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#E7EBEF">
 
-  <script>
-    function irInicio() { window.location.href = '{{ boton_url }}'; }
-    document.getElementById('btnAccion').addEventListener('click', irInicio);
-    document.getElementById('overlay').addEventListener('click', function(e) {
-      if (e.target === this) irInicio();
-    });
-  </script>
+    <title>{{ titulo }} | Salud Integral</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gelasio:wght@400;500;600;700&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-dominante font-sans text-acento antialiased">
+
+    <main class="flex items-center justify-center px-4 py-4 sm:px-6 sm:py-10">
+
+        <section class="w-full max-w-[400px]">
+
+            <!-- Logo y nombre del centro -->
+            <header class="mb-4 flex justify-center sm:mb-8">
+                <div class="flex items-center gap-2.5 sm:gap-3">
+
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-acento text-white sm:h-12 sm:w-12">
+                        <i data-lucide="activity" class="h-6 w-6 sm:h-8 sm:w-8"></i>
+                    </div>
+
+                    <div class="min-w-0">
+                        <p class="mb-0.5 text-[9px] font-medium font-lexend tracking-[0.18em] text-slate-500 sm:text-xs">
+                            CENTRO MÉDICO
+                        </p>
+                        <h2 class="font-gelasio text-xl font-bold leading-tight tracking-tight sm:text-2xl">
+                            Salud Integral
+                        </h2>
+                    </div>
+
+                </div>
+            </header>
+
+            <!-- Tarjeta de resultado -->
+            <div class="rounded-xl bg-white px-4 py-6 text-center shadow-sm sm:px-8 sm:py-9">
+                <h1 class="mb-3 text-xl font-bold font-lexend text-acento sm:text-[26px]">
+                    {{ titulo }}
+                </h1>
+
+                <p class="mb-6 text-xs leading-relaxed font-lexend text-slate-600 sm:text-sm">
+                    {{ mensaje }}
+                </p>
+
+                <a
+                    href="{{ boton_url }}"
+                    class="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-acento px-3 text-xs font-semibold font-lexend text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2 sm:h-12 sm:px-4 sm:text-sm"
+                >
+                    {{ boton_texto }}
+                    <i data-lucide="arrow-right" class="h-4 w-4 sm:h-[18px] sm:w-[18px]"></i>
+                </a>
+
+            </div>
+
+        </section>
+    </main>
+
+    <script>lucide.createIcons();</script>
+
 </body>
 </html>
