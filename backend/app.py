@@ -16,7 +16,10 @@ from src.routes.estadisticas_routes import estadisticas_bp
 from src.routes.especialidades_routes import especialidades_bp
 from src.routes.coberturas_routes import coberturas_bp
 from src.routes.consultorios_routes import consultorios_bp
-from src.services.turnos_services import ejecutar_ausentismo_automatico
+from src.services.turnos_services import (
+    cancelar_turno_por_token,
+    ejecutar_ausentismo_automatico,
+)
 from src.repositories.turnos_repositories import intentar_adquirir_ejecucion_tarea
 from src.utils.fechas import ahora_local
 from src.utils.http_errors import handle_unexpected_errors
