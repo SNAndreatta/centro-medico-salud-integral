@@ -7,8 +7,10 @@ from src.repositories.medicos_repositories import (
     guardar_medico,
     obtener_coberturas_de_medico,
     obtener_medico_por_id,
+    obtener_medico_por_usuario,
     vincular_cobertura_medico,
 )
+from src.utils.roles import ADMINISTRADOR
 from src.utils.security import hash_password
 from src.validators.medicos_validators import (
     validar_datos_actualizacion_medico,
@@ -72,7 +74,25 @@ def obtener_medico(id_medico):
     return {'medico': medico}, 200
 
 
-def modificar_medico(id_medico, datos):
+def _validar_medico_propio(id_medico, usuario_actual):
+    if usuario_actual['id_rol'] == ADMINISTRADOR:
+        return None
+
+    medico = obtener_medico_por_usuario(usuario_actual['id_usuario'])
+    if medico is not None and int(medico['id_medico']) == id_medico:
+        return None
+
+    return error_respuesta(
+        'No tenés permiso para modificar este médico',
+        'PERMISOS_INSUFICIENTES',
+    ), 403
+
+
+def modificar_medico(id_medico, datos, usuario_actual):
+    error_permiso = _validar_medico_propio(id_medico, usuario_actual)
+    if error_permiso:
+        return error_permiso
+
     id_especialidad, matricula, error = validar_datos_actualizacion_medico(datos)
     if error:
         return error, 400
@@ -133,7 +153,11 @@ def listar_coberturas_medico(id_medico):
     return {'coberturas': coberturas}, 200
 
 
-def agregar_cobertura_medico(id_medico, id_cobertura):
+def agregar_cobertura_medico(id_medico, id_cobertura, usuario_actual):
+    error_permiso = _validar_medico_propio(id_medico, usuario_actual)
+    if error_permiso:
+        return error_permiso
+
     vinculo, error = vincular_cobertura_medico(id_medico, id_cobertura)
     if error == 'MEDICO_NO_EXISTE':
         return error_respuesta(

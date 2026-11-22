@@ -87,7 +87,16 @@ def crear_usuario_staff(datos):
     return {'usuario': usuario_guardado}, 201
 
 
-def actualizar_usuario(id_usuario, datos):
+def actualizar_usuario(id_usuario, datos, usuario_actual):
+    if (
+        id_usuario != usuario_actual['id_usuario']
+        and usuario_actual['id_rol'] != ADMINISTRADOR
+    ):
+        return error_respuesta(
+            'No tenés permiso para modificar otro usuario',
+            'PERMISOS_INSUFICIENTES',
+        ), 403
+
     datos_validados, error = validar_datos_actualizacion_usuario(datos)
     if error:
         return error, 400

@@ -1,6 +1,5 @@
 from flask import Blueprint, g, request
 
-from src.repositories.medicos_repositories import obtener_medico_por_usuario
 from src.services.medicos_services import (
     agregar_cobertura_medico,
     crear_medico,
@@ -18,12 +17,6 @@ from src.validators.common import validar_objeto_json
 from src.validators.medicos_validators import validar_datos_cobertura_medico
 
 medicos_bp = Blueprint('medicos_bp', __name__)
-
-
-def _es_medico_propio(id_medico):
-    """Indica si el médico indicado pertenece al usuario autenticado."""
-    medico = obtener_medico_por_usuario(g.current_user['id_usuario'])
-    return medico is not None and int(medico['id_medico']) == id_medico
 
 
 @medicos_bp.post('/medicos')
@@ -63,18 +56,12 @@ def consultar_medico(id_medico):
 @token_required
 @roles_required(ADMINISTRADOR, MEDICO)
 def editar_medico(id_medico):
-    if g.current_user['id_rol'] != ADMINISTRADOR and not _es_medico_propio(id_medico):
-        return error_respuesta(
-            'No tenés permiso para modificar este médico',
-            'PERMISOS_INSUFICIENTES',
-        ), 403
-
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:
         return error_json
 
-    respuesta, status_code = modificar_medico(id_medico, datos)
+    respuesta, status_code = modificar_medico(id_medico, datos, g.current_user)
     return respuesta, status_code
 
 
@@ -101,12 +88,6 @@ def consultar_coberturas_medico(id_medico):
 @token_required
 @roles_required(ADMINISTRADOR, MEDICO)
 def agregar_cobertura_a_medico(id_medico):
-    if g.current_user['id_rol'] != ADMINISTRADOR and not _es_medico_propio(id_medico):
-        return error_respuesta(
-            'No tenés permiso para modificar este médico',
-            'PERMISOS_INSUFICIENTES',
-        ), 403
-
     datos = request.get_json(silent=True)
     error_json = validar_objeto_json(datos)
     if error_json:
@@ -116,7 +97,7 @@ def agregar_cobertura_a_medico(id_medico):
     if error:
         return error, 400
 
-    respuesta, status_code = agregar_cobertura_medico(id_medico, id_cobertura)
+    respuesta, status_code = agregar_cobertura_medico(id_medico, id_cobertura, g.current_user)
     return respuesta, status_code
 
 

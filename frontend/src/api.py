@@ -9,8 +9,23 @@ class ErrorAPI(Exception):
         self.status = status
 
 
-def api(metodo, ruta, **kwargs):
-    headers = kwargs.pop("headers", {})
+def mensaje_error(datos):
+    """Extrae el mensaje del formato de errores del backend."""
+    if not isinstance(datos, dict):
+        return None
+
+    mensaje = datos.get("mensaje") or datos.get("error") or datos.get("detalle")
+    errores = datos.get("errors")
+    if not mensaje and isinstance(errores, list) and errores:
+        primero = errores[0]
+        if isinstance(primero, dict):
+            mensaje = primero.get("message") or primero.get("description")
+
+    return mensaje
+
+
+def api(metodo, ruta, codigo_esperado=None, **kwargs):
+    headers = {}
     token = session.get("access_token")
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -31,16 +46,11 @@ def api(metodo, ruta, **kwargs):
     except ValueError:
         datos = {}
 
-    if not r.ok:
+    if not r.ok or (codigo_esperado is not None and r.status_code != codigo_esperado):
         print("API ERROR:", metodo, ruta, r.status_code, r.text[:300], flush=True)
-        mensaje = None
-        if isinstance(datos, dict):
-            mensaje = datos.get("mensaje") or datos.get("error")
-            errores = datos.get("errors")
-            if not mensaje and isinstance(errores, list) and errores:
-                primero = errores[0]
-                if isinstance(primero, dict):
-                    mensaje = primero.get("message") or primero.get("description")
-        raise ErrorAPI(mensaje or "Ocurrió un error inesperado.", r.status_code)
+        raise ErrorAPI(
+            mensaje_error(datos) or "Ocurrió un error inesperado.",
+            r.status_code,
+        )
 
     return datos

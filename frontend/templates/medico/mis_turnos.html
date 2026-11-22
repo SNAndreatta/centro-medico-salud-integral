@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Mis turnos | Salud Integral{% endblock %}
@@ -10,9 +9,9 @@
     <!-- TÍTULO Y FILTRO -->
     <section class="relative mb-5">
 
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-acento/20 pb-2 sm:gap-3">
 
-            <h2 class="text-xl font-bold tracking-wide text-acento">
+            <h2 class="text-lg font-bold tracking-wide text-acento sm:text-2xl">
                 MIS TURNOS
             </h2>
 
@@ -20,7 +19,7 @@
                 id="boton-filtros"
                 type="button"
                 aria-expanded="false"
-                class="flex items-center gap-3 rounded-full bg-acento/70 px-5 py-2 text-sm font-semibold text-white transition hover:bg-acento"
+                class="flex items-center gap-2 rounded-full bg-acento/70 px-3 py-2 text-xs font-semibold text-white transition hover:bg-acento sm:gap-3 sm:px-5 sm:text-sm"
             >
                 <span>Filtrar</span>
                 <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
@@ -31,10 +30,10 @@
         <!-- PANEL DE FILTROS -->
         <div
             id="panel-filtros"
-            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+            class="absolute right-0 top-12 z-30 hidden w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-4 shadow-lg sm:p-5"
         >
 
-            <h3 class="mb-4 font-lexend text-base font-semibold text-acento">
+            <h3 class="mb-4 font-lexend text-sm font-semibold text-acento sm:text-base">
                 Filtrar turnos
             </h3>
 
@@ -43,7 +42,7 @@
 
                 <label
                     for="filtro-fecha"
-                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                    class="mb-2 block font-lexend text-[11px] font-medium text-slate-500 sm:text-xs"
                 >
                     FECHA
                 </label>
@@ -51,7 +50,7 @@
                 <input
                     type="date"
                     id="filtro-fecha"
-                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                    class="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-xs text-acento outline-none focus:border-acento sm:h-10 sm:text-sm"
                 >
 
             </div>
@@ -61,14 +60,14 @@
 
                 <label
                     for="filtro-cobertura"
-                    class="mb-2 block font-lexend text-xs font-medium text-slate-500"
+                    class="mb-2 block font-lexend text-[11px] font-medium text-slate-500 sm:text-xs"
                 >
                     COBERTURA
                 </label>
 
                 <select
                     id="filtro-cobertura"
-                    class="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-sm text-acento outline-none focus:border-acento"
+                    class="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 font-lexend text-xs text-acento outline-none focus:border-acento sm:h-10 sm:text-sm"
                 >
 
                     <option value="">Todas las coberturas</option>
@@ -84,12 +83,12 @@
             </div>
 
             <!-- BOTONES -->
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center justify-between gap-2 sm:gap-3">
 
                 <button
                     type="button"
                     id="limpiar-filtros"
-                    class="w-1/2 rounded-full border border-slate-300 px-4 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100"
+                    class="w-1/2 rounded-full border border-slate-300 px-3 py-2 font-lexend text-xs text-slate-600 transition hover:bg-slate-100 sm:px-4"
                 >
                     Limpiar
                 </button>
@@ -97,7 +96,7 @@
                 <button
                     type="button"
                     id="aplicar-filtros"
-                    class="w-1/2 rounded-full bg-acento px-5 py-2 font-lexend text-xs text-white transition hover:opacity-90"
+                    class="w-1/2 rounded-full bg-acento px-3 py-2 font-lexend text-xs text-white transition hover:opacity-90 sm:px-5"
                 >
                     Aplicar filtros
                 </button>
@@ -112,7 +111,7 @@
     <!-- CANTIDAD DE TURNOS -->
     <div class="mb-4 flex items-center justify-between">
 
-        <p class="text-sm text-gray-500">
+        <p class="text-xs text-gray-500 sm:text-sm">
             <span id="cantidad-turnos">{{ turnos | length }}</span> turnos encontrados
         </p>
 
@@ -120,34 +119,33 @@
 
 
     <!-- LISTA DE TURNOS -->
-    <section class="space-y-4" id="listado-turnos">
+    <section class="space-y-3 sm:space-y-4" id="listado-turnos">
 
         {% for turno in turnos %}
 
             <article
-                class="turno-card flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm transition duration-200 justify-between
-                hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
+                class="turno-card flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4"
                 data-fecha="{{ turno.fecha_filtro }}"
                 data-cobertura="{{ turno.cobertura_filtro | lower }}"
                 data-marcable="{{ 'true' if turno.puede_marcar else 'false' }}"
             >
 
                 <!-- PACIENTE Y COBERTURA -->
-                <div class="flex min-w-0 items-center gap-5 lg:w-[30%] lg:pr-5">
+                <div class="flex min-w-0 items-center gap-3 sm:gap-5 lg:w-[30%] lg:pr-5">
 
                     <div
-                        class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-medium {{ turno.color }}"
+                        class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-base font-medium sm:text-xl {{ turno.color }}"
                     >
                         {{ turno.iniciales }}
                     </div>
 
                     <div class="min-w-0 flex-1">
 
-                        <h3 class="truncate text-xl font-medium leading-tight text-acento sm:text-2xl">
+                        <h3 class="break-words text-lg font-medium leading-tight text-acento sm:text-2xl">
                             {{ turno.nombre_completo | default(turno.nombre_paciente | default('Nombre Completo', true), true) }}
                         </h3>
 
-                        <p class="truncate text-xs font-medium tracking-wide text-acento/70">
+                        <p class="break-words text-[11px] font-medium tracking-wide text-acento/70 sm:text-xs">
                             {{ turno.cobertura }}
                         </p>
 
@@ -161,15 +159,15 @@
                     class="border-t border-gray-200 pt-3 lg:w-[28%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5 lg:pr-3"
                 >
 
-                    <p class="text-xs font-medium tracking-wide text-acento/70">
+                    <p class="text-[10px] font-medium tracking-wide text-acento/70 sm:text-xs">
                         FECHA Y HORA
                     </p>
 
-                    <p class="text-xl font-medium leading-tight text-acento">
+                    <p class="text-lg font-medium leading-tight text-acento sm:text-xl">
                         {{ turno.hora }}
                     </p>
 
-                    <p class="text-xs font-medium text-acento">
+                    <p class="break-words text-[11px] font-medium text-acento sm:text-xs">
                         {{ turno.fecha }}
                     </p>
 
@@ -181,11 +179,11 @@
                     class="border-t border-gray-200 pt-3 lg:w-[16%] lg:border-l lg:border-t-0 lg:py-1 lg:pl-5"
                 >
 
-                    <p class="text-xs font-medium tracking-wide text-acento/70">
+                    <p class="text-[10px] font-medium tracking-wide text-acento/70 sm:text-xs">
                         CONSULTORIO
                     </p>
 
-                    <p class="text-3xl font-medium leading-tight text-acento">
+                    <p class="text-xl font-medium leading-tight text-acento sm:text-3xl">
                         {{ turno.consultorio }}
                     </p>
 
@@ -202,7 +200,7 @@
                     {% if estado in ['atendido', 'completado', 'realizado'] %}
 
                         <span
-                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-green-600/60 px-4 py-1.5 text-sm font-medium text-white"
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-green-600/60 px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm"
                         >
                             Atendido
                         </span>
@@ -210,7 +208,7 @@
                     {% elif estado in ['cancelado', 'cancelada'] %}
 
                         <span
-                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-red-500/60 px-4 py-1.5 text-sm font-medium text-white"
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-red-500/60 px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm"
                         >
                             Cancelado
                         </span>
@@ -218,7 +216,7 @@
                     {% else %}
 
                         <span
-                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-dominante px-4 py-1.5 text-sm font-medium text-acento"
+                            class="inline-flex min-w-[96px] items-center justify-center rounded-full bg-dominante px-3 py-1.5 text-xs font-medium text-acento sm:px-4 sm:text-sm"
                         >
                             {{ turno.estado | default('Pendiente', true) }}
                         </span>
@@ -236,7 +234,7 @@
 
                             <button
                                 type="submit"
-                                class="inline-flex items-center gap-2 rounded-2xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-200 active:scale-95"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-green-100 px-3 py-2 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm"
                             >
                                 <i data-lucide="check" class="h-4 w-4"></i>
                                 Marcar como atendido
@@ -251,19 +249,19 @@
         <!-- MENSAJE SIN RESULTADOS -->
         <div
             id="sin-resultados"
-            class="{% if turnos %}hidden{% endif %} rounded-2xl bg-white px-6 py-12 text-center shadow-sm"
+            class="{% if turnos %}hidden{% endif %} rounded-2xl bg-white px-4 py-8 text-center shadow-sm sm:px-6"
         >
 
             <i
                 data-lucide="calendar-x"
-                class="mx-auto mb-4 h-12 w-12 text-gray-400"
+                class="mx-auto mb-4 h-10 w-10 text-gray-400 sm:h-12 sm:w-12"
             ></i>
 
-            <h3 class="text-lg font-bold text-acento">
+            <h3 class="text-base font-bold text-acento sm:text-lg">
                 No hay turnos disponibles
             </h3>
 
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-xs text-gray-500 sm:text-sm">
                 No se encontraron turnos que coincidan con los filtros seleccionados.
             </p>
 

@@ -1,6 +1,3 @@
-
-import requests
-
 from flask import (
     Blueprint,
     render_template,
@@ -8,9 +5,12 @@ from flask import (
     redirect,
     url_for,
     session,
-    current_app,
-    jsonify
 )
+
+from src.api import ErrorAPI
+from src.api_auth import coberturas as coberturas_registro
+from src.api_auth import login as login_api
+from src.api_auth import registrar as registrar_api
 
 auth_routes = Blueprint('rutas_auth', __name__)
 
@@ -24,29 +24,11 @@ ROLES = {
 
 
 def _listar_coberturas():
-    """Coberturas de la base de datos para el selector del registro.
-
-    Devuelve una lista vacía si el backend no está disponible, para que el
-    registro siga funcionando con la opción "Particular".
-    """
+    """Devuelve [] si el backend no está disponible (alta como Particular)."""
     try:
-        respuesta = requests.get(
-            f"{current_app.config['BACKEND_URL']}/coberturas",
-            timeout=10
-        )
-        respuesta.raise_for_status()
-        datos = respuesta.json()
-    except (requests.RequestException, ValueError):
+        return coberturas_registro()
+    except ErrorAPI:
         return []
-
-    return [
-        {
-            'id': cobertura.get('id_cobertura'),
-            'nombre': cobertura.get('nombre'),
-        }
-        for cobertura in datos.get('coberturas', [])
-        if cobertura.get('id_cobertura') and cobertura.get('nombre')
-    ]
 
 
 # LOGIN
@@ -65,57 +47,32 @@ def login():
             )
 
         try:
-            respuesta = requests.post(
-                f"{current_app.config['BACKEND_URL']}/auth/login",
-                json={
-                    'correo_electronico': correo_electronico,
-                    'password': password
-                },
-                timeout=10
-            )
+            datos = login_api(correo_electronico, password)
+        except ErrorAPI as error:
+            return render_template('auth/login.html', mensaje=error.mensaje)
 
-            try:
-                datos = respuesta.json()
-            except ValueError:
-                datos = {}
+        usuario = datos.get('usuario')
+        print("LOGIN USUARIO:", usuario, flush=True)
+        access_token = datos.get('access_token')
 
-            if respuesta.status_code != 200:
-                return render_template(
-                    'auth/login.html',
-                    mensaje=datos.get(
-                        'mensaje',
-                        'Correo electrónico o contraseña incorrectos.'
-                    )
-                )
-
-            usuario = datos.get('usuario')
-            print("LOGIN USUARIO:", usuario, flush=True)
-            access_token = datos.get('access_token')
-
-            if not usuario or not access_token:
-                return render_template(
-                    'auth/login.html',
-                    mensaje='El servidor devolvió una respuesta incompleta.'
-                )
-
-            id_rol = usuario.get('id_rol')
-
-            session.clear()
-            session['access_token'] = access_token
-            session['usuario'] = usuario
-            session['id_usuario'] = usuario.get('id_usuario')
-            session['id_rol'] = id_rol
-            session['rol'] = ROLES.get(id_rol, 'paciente')
-            session['nombre'] = usuario.get('nombre', '')
-            session['apellido'] = usuario.get('apellido', '')
-
-            return redirect(url_for('rutas_home.home'))
-
-        except requests.RequestException:
+        if not usuario or not access_token:
             return render_template(
                 'auth/login.html',
-                mensaje='No se pudo conectar con el servidor.'
+                mensaje='El servidor devolvió una respuesta incompleta.'
             )
+
+        id_rol = usuario.get('id_rol')
+
+        session.clear()
+        session['access_token'] = access_token
+        session['usuario'] = usuario
+        session['id_usuario'] = usuario.get('id_usuario')
+        session['id_rol'] = id_rol
+        session['rol'] = ROLES.get(id_rol, 'paciente')
+        session['nombre'] = usuario.get('nombre', '')
+        session['apellido'] = usuario.get('apellido', '')
+
+        return redirect(url_for('rutas_home.home'))
 
     return render_template('auth/login.html')
 
@@ -184,59 +141,16 @@ def register():
         }
 
         try:
-            respuesta = requests.post(
-                f"{current_app.config['BACKEND_URL']}/pacientes",
-                json=datos,
-                timeout=10
-            )
-
-            try:
-                resultado = respuesta.json()
-            except ValueError:
-                resultado = {}
-
-            if respuesta.status_code != 201:
-
-                print("ERROR EN REGISTRO:")
-                print("Estado:", respuesta.status_code)
-                print("Respuesta del backend:", respuesta.text)
-
-                errores = resultado.get('errors')
-                mensaje_backend = None
-
-                if isinstance(errores, list) and errores:
-                    primer_error = errores[0]
-
-                    if isinstance(primer_error, dict):
-                        mensaje_backend = (
-                            primer_error.get('message')
-                            or primer_error.get('description')
-                        )
-
-                mensaje = (
-                    resultado.get('mensaje')
-                    or mensaje_backend
-                    or resultado.get('error')
-                    or resultado.get('detalle')
-                    or 'No se pudo crear la cuenta. Revisá los datos e intentá nuevamente.'
-                )
-
-                return render_template(
-                    'auth/register.html',
-                    mensaje=mensaje,
-                    coberturas=_listar_coberturas(),
-                    id_cobertura=id_cobertura
-                )
-
-            return redirect(url_for('rutas_auth.login'))
-
-        except requests.RequestException:
+            registrar_api(datos)
+        except ErrorAPI as error:
             return render_template(
                 'auth/register.html',
-                mensaje='No se pudo conectar con el servidor.',
+                mensaje=error.mensaje,
                 coberturas=_listar_coberturas(),
                 id_cobertura=id_cobertura
             )
+
+        return redirect(url_for('rutas_auth.login'))
 
     return render_template(
         'auth/register.html',

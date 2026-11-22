@@ -5,12 +5,18 @@ from flask import (
     Blueprint, render_template, request, session, redirect, url_for, flash
 )
 
-from src.api import ErrorAPI, api
-from src.api_paciente import (
-    ESTADOS_TURNO, cobertura_paciente, id_paciente_actual,
-    medicos_por_especialidad, mis_turnos_paciente, obtener_especialidades,
-    turnos_disponibles,
+from src.api import ErrorAPI
+from src.api_catalogos import medicos_por_especialidad, obtener_especialidades
+from src.api_paciente import cobertura_paciente, id_paciente_actual
+from src.api_turnos import (
+    cancelar_turno as api_cancelar_turno,
+    mis_turnos_paciente,
+    obtener_agendas,
+    reservar_turno,
 )
+from src.api_turnos import disponibles as turnos_disponibles
+from src.errores import atender_error
+from src.normalizar import ESTADOS_TURNO
 from src.permisos import requiere_rol
 from src.tiempo import ahora_local, hoy_local
 
@@ -36,8 +42,7 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
     hoy = hoy_local()
     ahora = ahora_local()
 
-    agendas = api('GET', '/agendas', params={'id_medico': medico['id']}).get(
-        'agendas', [])
+    agendas = obtener_agendas(id_medico=medico['id'])
 
     rangos = []
     consultorio = None
@@ -160,16 +165,6 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
     }
 
 
-def _error_api(e):
-    """401 -> sesión vencida; el resto se muestra como mensaje."""
-    if e.status == 401:
-        session.clear()
-        flash('Tu sesión expiró. Iniciá sesión de nuevo.', 'error')
-        return redirect(url_for('rutas_auth.login'))
-    flash(e.mensaje, 'error')
-    return None
-
-
 # ---------------- MIS TURNOS ----------------
 
 @paciente_routes.route('/turnos-paciente', methods=['GET'])
@@ -181,7 +176,7 @@ def mis_turnos():
         turnos = mis_turnos_paciente()
         especialidades = obtener_especialidades()
     except ErrorAPI as e:
-        return _error_api(e) or redirect(url_for('rutas_home.home'))
+        return atender_error(e) or redirect(url_for('rutas_home.home'))
 
     return render_template(
         'pacientes/mis_turnos.html',
@@ -198,10 +193,10 @@ def cancelar_turno(id_turno):
         return redirect(url_for('rutas_auth.login'))
 
     try:
-        api('POST', '/turnos/cancelar', json={'id_turno': id_turno})
+        api_cancelar_turno(id_turno)
         flash('Turno cancelado correctamente.', 'success')
     except ErrorAPI as e:
-        resp = _error_api(e)   # 409 = fuera del plazo de 24 hs o ya no reservado
+        resp = atender_error(e)   # 409 = fuera del plazo de 24 hs o ya no reservado
         if resp:
             return resp
 
@@ -308,10 +303,9 @@ def sacar_turno():
                         flash('Ese turno ya no está disponible. Elegí otro horario.', 'error')
                         return redirect(url_for('rutas_paciente.sacar_turno', paso=3))
                     try:
-                        respuesta = api(
-                            'POST',
-                            f"/turnos/{turno['id']}/reservar",
-                            json={'id_paciente': id_paciente_actual()},
+                        respuesta = reservar_turno(
+                            turno['id'],
+                            {'id_paciente': id_paciente_actual()},
                         )
                     except ErrorAPI as e:
                         if e.status == 409:
@@ -396,4 +390,4 @@ def sacar_turno():
         return redirect(url_for('rutas_paciente.sacar_turno'))  # paso inválido (corregido el BuildError)
 
     except ErrorAPI as e:
-        return _error_api(e) or redirect(url_for('rutas_paciente.sacar_turno'))
+        return atender_error(e) or redirect(url_for('rutas_paciente.sacar_turno'))

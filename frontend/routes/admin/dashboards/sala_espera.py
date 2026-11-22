@@ -1,14 +1,11 @@
 from flask import Blueprint, render_template
 
-from src.api import ErrorAPI, api
+from src.api import ErrorAPI
+from src.api_catalogos import obtener_especialidades
+from src.api_estadisticas import sala_espera as sala_espera_api
+from src.errores import es_sesion_vencida, sesion_vencida
+from src.normalizar import normalizar_turno
 from src.permisos import requiere_rol
-
-from ._comun import (
-    color_avatar,
-    formatear_hora,
-    iniciales,
-    nombre_completo,
-)
 
 sala_espera_admin_routes = Blueprint(
     'rutas_admin_sala_espera',
@@ -19,69 +16,28 @@ sala_espera_admin_routes = Blueprint(
 def _listar_especialidades():
     """Devuelve las especialidades de la API para el filtro."""
     try:
-        datos = api('GET', '/especialidades')
+        return obtener_especialidades()
     except ErrorAPI:
         return []
-
-    return [
-        {
-            'id': int(especialidad['id_especialidad']),
-            'nombre': especialidad['nombre_especialidad'],
-        }
-        for especialidad in datos.get('especialidades', [])
-    ]
-
-
-def _normalizar_turno(turno, indice):
-    """Adapta un turno de la API al formato de la tarjeta de la sala."""
-    paciente = turno.get('paciente') or {}
-    medico = turno.get('medico') or {}
-
-    especialidad = medico.get('especialidad') or ''
-
-    return {
-        'id_turno': turno.get('id_turno'),
-        'iniciales': iniciales(
-            paciente.get('nombre'),
-            paciente.get('apellido'),
-        ),
-        'nombre_completo': nombre_completo(
-            paciente.get('nombre'),
-            paciente.get('apellido'),
-        ),
-        'dni': paciente.get('dni') or '',
-        'hora_turno': formatear_hora(turno.get('fecha_horario_inicial')),
-        'hora_llegada': formatear_hora(turno.get('fecha_horario_llegada')),
-        'modalidad': especialidad[:3].upper(),
-        'especialidad': especialidad,
-        'medico': nombre_completo(
-            medico.get('nombre'),
-            medico.get('apellido'),
-        ),
-        'consultorio': turno.get('numero_consultorio'),
-        'color_avatar': color_avatar(indice),
-    }
 
 
 @sala_espera_admin_routes.route('/admin/sala-espera')
 @requiere_rol("admin")
 def sala_espera():
-
     pacientes_en_espera = []
     error = None
     total = 0
 
     try:
-        datos = api('GET', '/estadisticas/sala_espera')
-
+        datos = sala_espera_api()
         pacientes_en_espera = [
-            _normalizar_turno(turno, indice)
+            normalizar_turno(turno, indice, vista='sala')
             for indice, turno in enumerate(datos.get('sala_espera', []))
         ]
-
         total = int(datos.get('total') or len(pacientes_en_espera))
-
     except ErrorAPI as e:
+        if es_sesion_vencida(e):
+            return sesion_vencida()
         error = e.mensaje
 
     especialidades = _listar_especialidades()
