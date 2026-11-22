@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request
 from src import api_estadisticas
 from src.api import ErrorAPI
 from src.api_turnos import listar as listar_turnos
-from src.normalizar import normalizar_turno
+from src.normalizar import estado_turno, normalizar_turno
 from src.permisos import requiere_rol
 
 from ._comun import filtros_fechas
@@ -19,6 +19,9 @@ def _agrupar_turnos(turnos):
     especialidades = {}
 
     for turno in turnos:
+        if estado_turno(turno) == 'disponible':
+            continue
+
         medico = turno.get('medico') or {}
         nombre_especialidad = medico.get('especialidad') or 'Sin especialidad'
 
@@ -37,12 +40,17 @@ def _agrupar_turnos(turnos):
 
 
 def _especialidad_desde_api(especialidad):
+    turnos = [
+        turno for turno in especialidad.get('turnos', [])
+        if estado_turno(turno) != 'disponible'
+    ]
+
     return {
         'nombre': especialidad.get('nombre') or 'Sin especialidad',
-        'total_turnos': int(especialidad.get('total_turnos') or 0),
+        'total_turnos': len(turnos),
         'turnos': [
             normalizar_turno(turno, vista='dashboard')
-            for turno in especialidad.get('turnos', [])
+            for turno in turnos
         ],
     }
 
@@ -64,7 +72,10 @@ def turnos_especialidad():
             _especialidad_desde_api(especialidad)
             for especialidad in datos.get('especialidades', [])
         ]
-        total_turnos = int(datos.get('total_turnos') or 0)
+        total_turnos = sum(
+            especialidad['total_turnos']
+            for especialidad in especialidades
+        )
 
     except ErrorAPI as e:
         error = e.mensaje
