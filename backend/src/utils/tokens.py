@@ -39,4 +39,4 @@ def validar_token_cancelacion_turno(token):
 def generar_url_cancelacion_turno(id_turno, id_paciente):
     token = generar_token_cancelacion_turno(id_turno, id_paciente)
     base_url = Config.PUBLIC_BASE_URL.rstrip('/')
-    return f'{base_url}/api/turnos/{id_turno}/cancelar?token={token}'
+    return f'{base_url}/cancelar-turno/{id_turno}?token={token}'

@@ -44,6 +44,7 @@ class Config:
     SMTP_TIMEOUT = int(os.getenv('SMTP_TIMEOUT', '15'))
     SMTP_DEFAULT_SENDER = os.getenv('SMTP_DEFAULT_SENDER', 'no-reply@saludintegral.local')
     PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'http://localhost:5000')
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:8000')
     CANCELACION_TTL_MINUTES = int(os.getenv('CANCELACION_TTL_MINUTES', '86400'))
     if CANCELACION_TTL_MINUTES <= 0:
         raise ValueError('CANCELACION_TTL_MINUTES must be greater than zero')
