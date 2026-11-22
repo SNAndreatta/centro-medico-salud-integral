@@ -38,11 +38,6 @@ INTERVALO_AUSENTISMO_SEGUNDOS = 300
 
 @app.before_request
 def verificar_ausentismo_lazy():
-    ruta = f'{request.script_root.rstrip("/")}{request.path}'
-    prefijos = ('/api/turnos', '/api/agendas', '/turnos', '/agendas')
-    if not any(ruta == prefijo or ruta.startswith(f'{prefijo}/') for prefijo in prefijos):
-        return
-
     try:
         debe_ejecutar = intentar_adquirir_ejecucion_tarea(
             'ausentismo_automatico',
