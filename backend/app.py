@@ -59,9 +59,10 @@ root_app = Flask('root')
 
 
 def _pagina_cancelacion(titulo, mensaje, icono, exito, boton_texto, boton_url):
-    """Devuelve un string HTML sencillo y bonito para mostrar tras cancelar un turno."""
-    color = '#10b981' if exito else '#dc2626'
-    frente_color = '#ffffff' if exito else '#ffffff'
+    """Devuelve una página HTML con UN solo modal (estilo parecido a
+    frontend/templates/components/modales.html) para mostrar tras cancelar un turno."""
+    color = '#10b981' if exito else '#dc2626'   # verde éxito / rojo error
+    frente_color = '#ffffff'
     return f"""
     <!DOCTYPE html>
     <html lang="es">
@@ -74,62 +75,40 @@ def _pagina_cancelacion(titulo, mensaje, icono, exito, boton_texto, boton_url):
         body {{ font-family: Arial, sans-serif; background: #f5f8fb; color: #1f2937;
                 display: flex; align-items: center; justify-content: center;
                 min-height: 100vh; padding: 24px; }}
-        .card {{ background: white; border-radius: 12px; padding: 40px 32px;
-                 max-width: 420px; width: 100%; text-align: center;
-                 box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
-        .icon {{ font-size: 56px; color: {color}; margin-bottom: 16px; display: block; }}
-        h1 {{ color: #0f172a; margin-bottom: 12px; font-size: 24px; }}
-        p {{ color: #4b5563; margin-bottom: 24px; font-size: 16px; line-height: 1.5; }}
-        .btn {{ display: inline-flex; align-items: center; justify-content: center;
-                background: {color}; color: {frente_color}; text-decoration: none;
-                padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 16px;
-                margin-bottom: 12px; }}
-        .btn:hover {{ filter: brightness(0.95); }}
-        .btn-sec {{ display: inline-block; background: #e5e7eb; color: #374151;
-                    text-decoration: none; padding: 10px 20px; border-radius: 8px;
-                    font-size: 14px; }}
-        .btn-sec:hover {{ background: #d1d5db; }}
-        .popup {{ position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-                  display: flex; align-items: center; justify-content: center;
-                  z-index: 1000; }}
-        .popup-content {{ background: white; padding: 32px; border-radius: 12px;
-                          max-width: 360px; width: 90%; text-align: center;
-                          box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-                          animation: fadeIn 0.3s ease; }}
+        .overlay {{ position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 1000; padding: 24px; }}
+        .modal {{ background: white; border-radius: 16px; padding: 40px 28px;
+                  max-width: 420px; width: 100%; text-align: center;
+                  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+                  animation: fadeIn 0.3s ease; }}
         @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(-10px); }}
                              to {{ opacity: 1; transform: translateY(0); }} }}
-        .popup .icon {{ font-size: 64px; margin-bottom: 16px; }}
-        .popup h2 {{ margin-bottom: 12px; font-size: 22px; color: #0f172a; }}
-        .popup p {{ color: #4b5563; margin-bottom: 24px; font-size: 16px; }}
-        .popup .btn-ok {{ background: {color}; color: {frente_color}; border: none;
-                          padding: 12px 28px; border-radius: 8px; font-weight: 700;
-                          font-size: 16px; cursor: pointer; width: 100%; }}
-        .popup .btn-ok:hover {{ filter: brightness(0.9); }}
+        .icon {{ font-size: 56px; color: {color}; margin-bottom: 16px; display: block; }}
+        h1 {{ color: #0f172a; margin-bottom: 12px; font-size: 22px; }}
+        p {{ color: #4b5563; margin-bottom: 28px; font-size: 15px; line-height: 1.5; }}
+        .btn {{ display: inline-flex; align-items: center; justify-content: center;
+                background: {color}; color: {frente_color}; text-decoration: none;
+                padding: 12px 32px; border-radius: 50px; font-weight: 700; font-size: 15px;
+                width: 100%; border: none; cursor: pointer; }}
+        .btn:hover {{ filter: brightness(0.92); }}
       </style>
     </head>
     <body>
-      <div class="popup" id="popup">
-        <div class="popup-content">
+      <div class="overlay" id="overlay">
+        <div class="modal">
           <span class="icon">{icono}</span>
-          <h2>{titulo}</h2>
+          <h1>{titulo}</h1>
           <p>{mensaje}</p>
-          <button class="btn-ok" id="cerrarPopup">Aceptar</button>
+          <button class="btn" id="btnAccion">{boton_texto}</button>
         </div>
       </div>
 
-      <div class="card">
-        <span class="icon">{icono}</span>
-        <h1>{titulo}</h1>
-        <p>{mensaje}</p>
-        <a href="{boton_url}" class="btn">{boton_texto}</a>
-      </div>
-
       <script>
-        document.getElementById('cerrarPopup').addEventListener('click', function() {{
-          document.getElementById('popup').style.display = 'none';
-        }});
-        document.getElementById('popup').addEventListener('click', function(e) {{
-          if (e.target === this) this.style.display = 'none';
+        function irInicio() {{ window.location.href = '{boton_url}'; }}
+        document.getElementById('btnAccion').addEventListener('click', irInicio);
+        document.getElementById('overlay').addEventListener('click', function(e) {{
+          if (e.target === this) irInicio();
         }});
       </script>
     </body>
