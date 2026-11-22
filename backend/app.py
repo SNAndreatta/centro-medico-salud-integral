@@ -2,7 +2,8 @@ import subprocess
 from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, request
+from flask import Flask, redirect, request
+from urllib.parse import urlencode
 from src.config import Config
 from src.errores import error_respuesta
 from src.routes.auth_routes import auth_bp
@@ -55,21 +56,28 @@ def health():
     return {'status': 'ok'}
 
 
-# --- Página HTML para cancelar turno desde el correo (sin login) ---
-root_app = Flask('root', template_folder='templates')
+# --- Redirección para cancelar turno desde el correo (sin login) ---
+# El backend valida el token, cancela el turno y redirige al frontend,
+# que es quien renderiza el HTML del modal (templates/components).
+root_app = Flask('root')
 
 
-def _pagina_cancelacion(titulo, mensaje, icono, exito, boton_texto, boton_url):
-    """Renderiza el template HTML del modal para cancelar turno."""
+def _resultado_cancelacion(titulo, mensaje, icono, exito, boton_texto, boton_url, status_code):
+    """Construye los parámetros y redirige al frontend para mostrar el modal."""
     color = '#10b981' if exito else '#dc2626'   # verde éxito / rojo error
-    return render_template(
-        'components/cancelar_turno.html',
-        titulo=titulo,
-        mensaje=mensaje,
-        icono=icono,
-        color=color,
-        boton_texto=boton_texto,
-        boton_url=boton_url,
+    estado = 'exito' if exito else 'error'
+    params = {
+        'estado': estado,
+        'titulo': titulo,
+        'mensaje': mensaje,
+        'icono': icono,
+        'color': color,
+        'boton_texto': boton_texto,
+        'boton_url': boton_url,
+    }
+    return redirect(
+        f"{Config.FRONTEND_URL}/cancelar-turno?{urlencode(params)}",
+        code=302,
     )
 
 
@@ -77,52 +85,52 @@ def _pagina_cancelacion(titulo, mensaje, icono, exito, boton_texto, boton_url):
 def cancelar_turno_desde_correo(id_turno):
     token = request.args.get('token')
     if not token:
-        html = _pagina_cancelacion(
+        return _resultado_cancelacion(
             'Enlace inválido',
             'No se recibió el token de cancelación.',
             '⚠️',
             False,
             'Volver al inicio',
             Config.FRONTEND_URL or '/',
+            400,
         )
-        return html, 400
 
     try:
         respuesta, status_code = cancelar_turno_por_token(id_turno, token)
     except ValueError as exc:
-        html = _pagina_cancelacion(
+        return _resultado_cancelacion(
             'Error al cancelar',
             str(exc),
             '⚠️',
             False,
             'Volver al inicio',
             Config.FRONTEND_URL or '/',
+            400,
         )
-        return html, 400
 
     exito = status_code == 200
     if exito:
-        html = _pagina_cancelacion(
+        return _resultado_cancelacion(
             'Turno cancelado',
             'Tu turno ha sido cancelado correctamente.',
             '✅',
             True,
             'Volver al inicio',
             Config.FRONTEND_URL or '/',
+            200,
         )
-        return html, 200
 
     # Error de negocio (token inválido, turno fuera de plazo, etc.)
     mensaje = respuesta.get('message') or respuesta.get('mensaje') or 'No se pudo cancelar el turno.'
-    html = _pagina_cancelacion(
+    return _resultado_cancelacion(
         'No se pudo cancelar',
         mensaje,
         '⚠️',
         False,
         'Volver al inicio',
         Config.FRONTEND_URL or '/',
+        status_code,
     )
-    return html, status_code
 
 
 app.wsgi_app = DispatcherMiddleware(root_app, {'/api': app.wsgi_app})

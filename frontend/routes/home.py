@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, session, redirect, url_for, flash
+    Blueprint, render_template, session, redirect, url_for, flash, request
 )
 
 from src.api import ErrorAPI
@@ -115,3 +115,26 @@ def generar_turnos():
     flash(mensaje, "success")
 
     return redirect(url_for("rutas_home.home"))
+
+
+@home_routes.route("/cancelar-turno")
+def cancelar_turno_desde_correo():
+    """Página pública para mostrar el resultado de cancelar un turno desde el correo.
+
+    El backend redirige acá pasando el resultado por query string.
+    No requiere iniciar sesión.
+    """
+    estado = request.args.get("estado", "exito")
+    status_code = 200 if estado == "exito" else 400
+    return (
+        render_template(
+            "components/cancelar_turno.html",
+            titulo=request.args.get("titulo", "Turno cancelado"),
+            mensaje=request.args.get("mensaje", ""),
+            icono=request.args.get("icono", "✅"),
+            color=request.args.get("color", "#10b981"),
+            boton_texto=request.args.get("boton_texto", "Volver al inicio"),
+            boton_url=request.args.get("boton_url", "/"),
+        ),
+        status_code,
+    )
