@@ -10,8 +10,8 @@ from routes.admin.abm.consultorio import consultorio_routes
 from routes.admin.abm.especialidad import especialidad_routes
 from routes.admin.abm.medico import medico_admin_routes
 from routes.admin.abm.usuario import usuario_admin_routes
-from routes.admin.dashboards.sala_espera import sala_espera_admin_routes
 from routes.admin.dashboards.turnos_especialidad import turnos_especialidad_admin_routes
+from routes.sala_espera import sala_espera_routes
 from routes.admin.dashboards.ausentismo import ausentismo_admin_routes
 from routes.admin.dashboards.disponibilidad_consultorio import disponibilidad_consultorios_admin_routes
 from routes.admin.dashboards.tiempo_espera import tiempo_espera_admin_routes
@@ -35,7 +35,7 @@ app.register_blueprint(consultorio_routes)
 app.register_blueprint(especialidad_routes)
 app.register_blueprint(usuario_admin_routes)
 app.register_blueprint(medico_admin_routes)
-app.register_blueprint(sala_espera_admin_routes)
+app.register_blueprint(sala_espera_routes)
 app.register_blueprint(turnos_especialidad_admin_routes)
 app.register_blueprint(ausentismo_admin_routes)
 app.register_blueprint(disponibilidad_consultorios_admin_routes)
