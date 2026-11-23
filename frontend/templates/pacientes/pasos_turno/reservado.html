@@ -6,156 +6,131 @@
 
 <div class="space-y-5">
 
-    <!-- Encabezado -->
-    <div class="flex items-center gap-3">
+   <!-- Encabezado -->
+   <div class="flex items-start gap-2.5 sm:items-center sm:gap-3">
+       <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-acento text-white sm:h-12 sm:w-12">
+           <i data-lucide="check" class="h-5 w-5 sm:h-7 sm:w-7"></i>
+       </div>
 
-        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-acento text-white sm:h-12 sm:w-12">
-            <i data-lucide="check" class="h-6 w-6 sm:h-7 sm:w-7"></i>
-        </div>
+       <div class="min-w-0 flex-1">
+           <h2 class="font-lexend text-sm font-semibold leading-tight text-acento sm:text-base">
+               ¡Turno reservado!
+           </h2>
 
-        <div class="min-w-0">
-            <h2 class="break-words font-lexend text-sm font-semibold text-acento sm:text-base">
-                ¡Turno reservado!
-            </h2>
+           <p class="mt-1 text-[10px] leading-relaxed text-acento/70 sm:text-xs">
+               Guardá este código QR: lo vas a necesitar al llegar al consultorio.
+           </p>
+       </div>
+   </div>
 
-            <p class="mt-1 text-xs text-acento/70">
-                Guardá este código QR: lo vas a necesitar al llegar al consultorio.
-            </p>
-        </div>
+   <!-- Información del turno y QR -->
+   <div class="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_180px] md:gap-6">
 
-    </div>
+       <!-- Resumen del turno -->
+       <div class="min-w-0 space-y-2.5 sm:space-y-3">
+           <!-- Especialidad -->
+           <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_minmax(0,1fr)] sm:px-3">
+               <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                   Especialidad
+               </p>
 
+               <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                   {{ especialidad.nombre }}
+               </p>
+           </div>
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-[1fr_180px]">
+           <!-- Profesional -->
+           <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_minmax(0,1fr)] sm:px-3">
+               <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                   Especialista
+               </p>
 
-        <!-- Resumen del turno -->
-        <div class="space-y-3">
+               <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                   Dr. {{ medico.nombre }}
+               </p>
+           </div>
 
-            <!-- Especialidad -->
-            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+           <!-- Fecha y hora -->
+           <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_minmax(0,1fr)] sm:px-3">
+               <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                   Fecha y hora
+               </p>
 
-                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
-                    Especialidad
-                </p>
+               <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                   {{ fecha_texto }} - {{ hora }}
+               </p>
+           </div>
 
-                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
-                    {{ especialidad.nombre }}
-                </p>
+           <!-- Consultorio -->
+           <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_minmax(0,1fr)] sm:px-3">
+               <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                   Consultorio
+               </p>
 
-            </div>
+               <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
+                   {{ consultorio if consultorio else 'A confirmar' }}
+               </p>
+           </div>
 
+           <!-- Envío del comprobante por correo -->
+           <div class="rounded-lg border border-gray-200 px-2.5 py-2 sm:px-3">
+               <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
+                   Comprobante por correo
+               </p>
+               {% if email_enviado %}
+               <p class="mt-1 break-words text-[10px] leading-relaxed text-acento sm:text-xs">
+                   Enviamos el comprobante y el código QR a
+                   {{ email_destinatario if email_destinatario else 'tu correo' }}.
+               </p>
+               {% else %}
+               <p class="mt-1 break-words text-[10px] leading-relaxed text-acento sm:text-xs">
+                   No pudimos enviar el correo{{ ': ' ~ email_error if email_error else '' }}.
+                   Guardá el código QR y mostralo en recepción.
+               </p>
+               {% endif %}
+           </div>
+       </div>
 
-            <!-- Profesional -->
-            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
+       <!-- Código QR -->
+       <div class="flex min-w-0 flex-col items-center justify-start gap-2.5 md:gap-3">
+           {% if qr_imagen %}
+           <img
+               src="data:{{ qr_mime }};base64,{{ qr_imagen }}"
+               alt="Código QR del turno reservado"
+               class="h-auto w-36 max-w-full rounded-xl border border-gray-200 bg-white p-2 sm:w-44 md:w-48"
+           >
+           <p class="max-w-[220px] text-center text-[9px] leading-relaxed text-acento/70 sm:max-w-[160px]">
+               Presentá este código en recepción para confirmar tu llegada.
+           </p>
+           {% else %}
+           <p class="max-w-[220px] text-center text-[10px] leading-relaxed text-acento/70 sm:max-w-[160px] sm:text-xs">
+               Tu turno quedó reservado. Consultá el comprobante en el correo o en recepción.
+           </p>
 
-                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
-                    Especialista
-                </p>
+           {% endif %}
+       </div>
+   </div>
 
-                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
-                    Dr. {{ medico.nombre }}
-                </p>
+   <!-- Botones -->
+   <div class="mt-5 flex w-full flex-nowrap items-center justify-between gap-2 sm:mt-6">
+       <!-- Ver mis turnos -->
+       <a
+           href="{{ url_for('rutas_paciente.mis_turnos') }}"
+           class="inline-flex min-w-0 shrink items-center justify-center gap-1 rounded-full border border-acento px-2.5 py-2 text-[10px] font-medium text-acento transition hover:bg-acento/5 sm:gap-2 sm:px-5 sm:text-xs"
+       >
+           <i data-lucide="calendar-days" class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"></i>
+           <span class="whitespace-nowrap">Ver mis turnos</span>
+       </a>
 
-            </div>
-
-
-            <!-- Fecha y hora -->
-            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
-
-                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
-                    Fecha y hora
-                </p>
-
-                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
-                    {{ fecha_texto }} - {{ hora }}
-                </p>
-
-            </div>
-
-
-            <!-- Consultorio -->
-            <div class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-gray-200 px-2 py-2 sm:grid-cols-[90px_1fr] sm:px-3">
-
-                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
-                    Consultorio
-                </p>
-
-                <p class="min-w-0 break-words text-[11px] font-medium text-acento sm:text-xs">
-                    {{ consultorio if consultorio else 'A confirmar' }}
-                </p>
-
-            </div>
-
-
-            <!-- Envío del comprobante por correo -->
-            <div class="rounded-lg border border-gray-200 px-3 py-2">
-
-                <p class="text-[8px] font-medium uppercase text-acento/70 sm:text-[9px]">
-                    Comprobante por correo
-                </p>
-
-                {% if email_enviado %}
-                <p class="mt-1 break-words text-xs text-acento">
-                    Enviamos el comprobante y el código QR a
-                    {{ email_destinatario if email_destinatario else 'tu correo' }}.
-                </p>
-                {% else %}
-                <p class="mt-1 break-words text-xs text-acento">
-                    No pudimos enviar el correo{{ ': ' ~ email_error if email_error else '' }}.
-                    Guardá el código QR y mostralo en recepción.
-                </p>
-                {% endif %}
-
-            </div>
-
-        </div>
-
-
-        <!-- Código QR -->
-        <div class="flex flex-col items-center justify-start gap-3">
-
-            {% if qr_imagen %}
-            <img
-                src="data:{{ qr_mime }};base64,{{ qr_imagen }}"
-                alt="Código QR del turno reservado"
-                class="w-40 max-w-full rounded-xl border border-gray-200 bg-white p-2 sm:w-48"
-            >
-
-            <p class="max-w-full text-center text-[9px] leading-relaxed text-acento/70 sm:max-w-[160px]">
-                Presentá este código en recepción para confirmar tu llegada.
-            </p>
-            {% else %}
-            <p class="max-w-full text-center text-xs text-acento/70 sm:max-w-[160px]">
-                Tu turno quedó reservado. Consultá el comprobante en el correo o en recepción.
-            </p>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-
-    <!-- Botones -->
-    <div class="mt-6 flex flex-row flex-wrap items-center justify-between gap-2">
-
-        <a
-            href="{{ url_for('rutas_paciente.mis_turnos') }}"
-            class="inline-flex items-center gap-2 rounded-full border border-acento px-3 py-2 text-xs font-medium text-acento transition hover:bg-acento/5 sm:px-5"
-        >
-            <i data-lucide="calendar-days" class="h-4 w-4"></i>
-            Ver mis turnos
-        </a>
-
-        <a
-            href="{{ url_for('rutas_home.home') }}"
-            class="inline-flex items-center gap-2 rounded-full bg-acento px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 sm:px-5"
-        >
-            Ir al inicio
-            <i data-lucide="arrow-right" class="h-4 w-4"></i>
-        </a>
-
-    </div>
-
+       <!-- Ir al inicio -->
+       <a
+           href="{{ url_for('rutas_home.home') }}"
+           class="inline-flex min-w-0 shrink items-center justify-center gap-1 rounded-full bg-acento px-2.5 py-2 text-[10px] font-medium text-white transition hover:opacity-90 sm:gap-2 sm:px-5 sm:text-xs"
+       >
+           <span class="whitespace-nowrap">Ir al inicio</span>
+           <i data-lucide="arrow-right" class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"></i>
+       </a>
+   </div>
 </div>
 
 {% endblock %}
