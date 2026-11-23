@@ -16,16 +16,22 @@ document.addEventListener("DOMContentLoaded", function () {
         cerrarMenus();
 
         if (!estabaAbierto) {
+
             menu.classList.remove("hidden");
 
             if (boton) {
                 boton.setAttribute("aria-expanded", "true");
             }
+
         }
+
     };
 
 
-    // Cerrar todos los menús.
+    // =========================================
+    // CERRAR TODOS LOS MENÚS
+    // =========================================
+
     window.cerrarMenus = function () {
 
         document.querySelectorAll(".menu-consultorio").forEach(function (menu) {
@@ -35,11 +41,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const contenedor = menu.parentElement;
 
             if (contenedor) {
+
                 const boton = contenedor.querySelector(".boton-menu");
 
                 if (boton) {
                     boton.setAttribute("aria-expanded", "false");
                 }
+
             }
 
         });
@@ -47,7 +55,10 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
 
-    // Cerrar menú al hacer clic fuera.
+    // =========================================
+    // CERRAR MENÚ AL HACER CLIC AFUERA
+    // =========================================
+
     document.addEventListener("click", function (event) {
 
         if (
@@ -61,93 +72,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================
-    // ABRIR MODALES
+    // CERRAR MENÚ ANTES DE ABRIR UN MODAL
     // =========================================
 
-    window.abrirModal = function (id) {
+    document.addEventListener("click", function (event) {
 
-        const modal = document.getElementById(id);
+        const botonModal = event.target.closest("[data-abrir-modal]");
 
-        if (!modal) {
-            console.error("No se encontró el modal:", id);
-            return;
-        }
-
-        cerrarMenus();
-
-        // Cerramos otros modales antes de abrir uno nuevo.
-        document.querySelectorAll(".modal-overlay").forEach(function (otroModal) {
-
-            otroModal.classList.add("hidden");
-            otroModal.classList.remove("flex");
-
-        });
-
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-
-        document.body.classList.add("overflow-hidden");
-
-        // Inicializar iconos del modal.
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-
-    };
-
-
-    // =========================================
-    // CERRAR MODALES
-    // =========================================
-
-    window.cerrarModal = function (id) {
-
-        const modal = document.getElementById(id);
-
-        if (!modal) return;
-
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
-
-        // Restaurar scroll si no hay otro modal abierto.
-        const modalAbierto = document.querySelector(".modal-overlay.flex");
-
-        if (!modalAbierto) {
-            document.body.classList.remove("overflow-hidden");
-        }
-
-    };
-
-
-    // =========================================
-    // CERRAR AL HACER CLIC EN EL FONDO
-    // =========================================
-
-    window.cerrarSiFondo = function (event, id) {
-
-        if (event.target === event.currentTarget) {
-            cerrarModal(id);
-        }
-
-    };
-
-
-    // =========================================
-    // CERRAR CON ESCAPE
-    // =========================================
-
-    document.addEventListener("keydown", function (event) {
-
-        if (event.key === "Escape") {
-
+        if (botonModal) {
             cerrarMenus();
-
-            document.querySelectorAll(".modal-overlay.flex").forEach(function (modal) {
-                cerrarModal(modal.id);
-            });
-
         }
 
+    });
+
+
+    // =========================================
+    // CERRAR MENÚ CUANDO SE ABRE UN MODAL
+    // =========================================
+
+    document.addEventListener("modal:abierto", function () {
+        cerrarMenus();
     });
 
 
@@ -155,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // BUSCADOR DE CONSULTORIOS
     // =========================================
 
-    const buscador = document.getElementById("buscadorConsultorio");
+    const buscador = document.getElementById("buscar-consultorio");
 
     const filas = document.querySelectorAll(".fila-consultorio");
 
@@ -187,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
 
+            // Mostrar mensaje cuando no hay coincidencias.
             if (sinResultados) {
 
                 sinResultados.classList.toggle(
