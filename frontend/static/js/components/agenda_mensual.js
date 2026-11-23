@@ -59,14 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.type = "button";
             btn.dataset.hora = turno.hora;
 
-            if (turno.disponible) {
-                // Disponible: visible pero no seleccionable
+            // En modo medico/admin: SOLO los horarios OCUPADOS (con paciente) son seleccionables
+            // turno.disponible = true  => libre (sin paciente)  => NO seleccionable
+            // turno.disponible = false => ocupado (con paciente) => SELECCIONABLE
+            const tienePaciente = turno.disponible === false;
+
+            if (!tienePaciente) {
+                // Libre (sin paciente): visible pero NO seleccionable
                 btn.disabled = true;
-                btn.className = `${CLASES_HORARIO} cursor-default bg-white text-acento  border border-acento`;
+                btn.className = `${CLASES_HORARIO} cursor-default bg-white text-acento border border-acento`;
                 btn.title = "Disponible";
                 btn.textContent = turno.hora;
             } else {
-                // Ocupado: seleccionable, muestra el detalle
+                // Ocupado (con paciente): seleccionable, muestra el detalle del turno
                 btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
                 btn.title = "Ocupado - ver turno";
                 btn.textContent = turno.hora;
