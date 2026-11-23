@@ -1,48 +1,15 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 
 from src.api import ErrorAPI
 from src.api_catalogos import (
     obtener_especialidades, obtener_paciente, obtener_pacientes,
 )
-from src.api_turnos import checkin, listar
+from src.api_turnos import listar
 from src.errores import es_sesion_vencida, sesion_vencida
 from src.normalizar import estado_turno, normalizar_turno
 from src.permisos import requiere_rol
 
 recepcion_routes = Blueprint('rutas_recepcion', __name__)
-
-
-# ==========================================
-# INGRESO DE PACIENTE (CHECK-IN POR QR)
-# ==========================================
-
-@recepcion_routes.route('/recepcion/checkin', methods=['POST'])
-@requiere_rol("recepcion")
-def registrar_ingreso():
-    """Registra el ingreso del paciente a partir del formulario de check-in."""
-    token = str(request.form.get('token') or '').strip()
-
-    if not token:
-        return redirect(url_for(
-            'rutas_recepcion.sala_espera',
-            resultado='error',
-            mensaje='El código QR está vacío.',
-        ))
-
-    try:
-        checkin(token)
-    except ErrorAPI as e:
-        return redirect(url_for(
-            'rutas_recepcion.sala_espera',
-            resultado='error',
-            mensaje=e.mensaje or 'No se pudo registrar el ingreso.',
-        ))
-
-    return redirect(url_for(
-        'rutas_recepcion.sala_espera',
-        resultado='ok',
-        mensaje='Ingreso registrado correctamente.',
-    ))
 
 
 # ==========================================
