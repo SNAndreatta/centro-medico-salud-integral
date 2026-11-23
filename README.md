@@ -28,4 +28,4 @@ Para ejecutar la db mysql local usar
 ``` bash
 docker compose -f docker-compose.yaml -f docker-compose.development.yaml --profile development up --build
 ```
-.
+
