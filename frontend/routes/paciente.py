@@ -91,6 +91,7 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
     cantidad_dias = calendar.monthrange(anio, mes)[1]
 
     dias_mes = []
+    primer_disponible = None
     for numero in range(1, cantidad_dias + 1):
         fecha = date(anio, mes, numero)
         iso = fecha.isoformat()
@@ -110,12 +111,22 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
         else:
             estado = 'cerrado'
 
+        # Para el componente agenda_mensual: solo horarios disponibles,
+        # con disponible=False para que el JS los muestre como seleccionables.
+        turnos_dia = [
+            {'hora': h, 'disponible': False} for h in horas
+        ] if estado == 'disponible' else []
+
+        if estado == 'disponible' and primer_disponible is None:
+            primer_disponible = iso
+
         dias_mes.append({
             'fecha': iso,
             'numero': numero,
             'dia_semana': fecha.weekday(),
             'libres': len(horas),
             'estado': estado,
+            'turnos': turnos_dia,
         })
 
     hay_disponibles = any(d['estado'] == 'disponible' for d in dias_mes)
@@ -143,6 +154,15 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
         *(fin.year for _, fin, _ in rangos),
     })
 
+    fecha_inicial = (
+        primer_disponible
+        or (hoy.isoformat() if (hoy.year, hoy.month) == (anio, mes) else None)
+        or (dias_mes[0]['fecha'] if dias_mes else hoy.isoformat())
+    )
+
+    # El componente agenda_mensual espera consultorio como objeto con .numero
+    consultorio_obj = {'numero': consultorio} if consultorio else {'numero': '-'}
+
     return {
         'dias': dias_mes,
         'dias_semana': DIAS_SEMANA_CALENDARIO,
@@ -159,9 +179,10 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
         'horarios_por_fecha': horarios_mes,
         'hay_disponibles': hay_disponibles,
         'duracion': duracion,
-        'consultorio': consultorio,
+        'consultorio': consultorio_obj,
         'fecha_seleccionada': fecha_sel,
         'hora_seleccionada': hora_sel,
+        'fecha_inicial': fecha_inicial,
     }
 
 
