@@ -9,7 +9,8 @@
     {% if mensajes %}
     <div class="mb-3 space-y-2">
         {% for categoria, mensaje in mensajes %}
-        <p class="rounded-lg px-4 py-2 text-sm font-medium
+        <p role="{% if categoria == 'success' %}status{% else %}alert{% endif %}"
+           class="break-words rounded-lg px-3 py-2 text-xs leading-snug sm:px-4 sm:text-sm
                   {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
             {{ mensaje }}
         </p>
