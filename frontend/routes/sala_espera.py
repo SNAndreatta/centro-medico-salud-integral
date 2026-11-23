@@ -6,7 +6,7 @@ from src.api_estadisticas import sala_espera as sala_espera_api
 from src.api_turnos import checkin
 from src.errores import es_sesion_vencida, sesion_vencida
 from src.normalizar import normalizar_turno
-from src.permisos import requiere_rol
+from src.permisos import requiere_rol, rol_actual as _rol_actual
 
 sala_espera_routes = Blueprint('rutas_sala_espera', __name__)
 
@@ -27,7 +27,7 @@ def sala_espera():
     - Recepción: ve el botón "Ingresar paciente" para hacer check-in por QR.
     - Admin: no ve el botón de ingreso, solo observa la sala.
     """
-    rol_actual = session.get('rol')
+    rol_actual = _rol_actual()
 
     pacientes_en_espera = []
     error = None
