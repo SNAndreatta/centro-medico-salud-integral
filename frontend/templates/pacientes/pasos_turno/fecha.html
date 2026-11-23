@@ -29,7 +29,7 @@
 
     </div>
 
-    <!-- AGENDA MENSUAL (componente compartido) -->
+    <!-- AGENDA MENSUAL (componente compartido: solo su HTML, sin su JS) -->
     {% include "components/agenda_mensual.html" %}
 
     <form method="POST" id="form-turno">
@@ -102,16 +102,43 @@
 
     </form>
 
-    <!-- Script para adaptar el componente agenda_mensual al flujo de paciente:
-         los horarios disponibles se seleccionan y se guardan en los campos hidden. -->
+    <!-- JS propio para paciente: usa el HTML del componente agenda_mensual
+         pero maneja la selección de día y horario como necesita el paciente. -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const datosEl = document.getElementById('datosAgendaJson');
+            const contenedor = document.getElementById('datosAgenda');
+            const panel = document.getElementById('panelHorarios');
+            const titulo = document.getElementById('tituloDia');
             const campoFecha = document.getElementById('campo-fecha');
             const campoHora = document.getElementById('campo-hora');
             const textoResumen = document.getElementById('texto-resumen-turno');
             const errorCalendario = document.getElementById('error-calendario');
-            const panel = document.getElementById('panelHorarios');
             const btnConfirmar = document.querySelector('#form-turno button[name="accion"][value="continuar"]');
+
+            if (!datosEl || !contenedor || !panel) return;
+
+            const porFecha = {};
+            try {
+                const datos = JSON.parse(datosEl.textContent);
+                datos.forEach(d => { porFecha[d.fecha] = d; });
+            } catch (e) {
+                console.error('Error leyendo datos de agenda:', e);
+                return;
+            }
+
+            const fechaInicial = contenedor.dataset.fechaInicial || '';
+            const CLASE_HORA = "flex items-center justify-center rounded-full px-2 py-2 text-xs font-semibold transition sm:text-sm";
+            let fechaActiva = fechaInicial || (campoFecha.value || '');
+            let horaActiva = campoHora.value || '';
+
+            function formatearFecha(iso) {
+                const [y, m, d] = iso.split('-').map(Number);
+                const texto = new Date(y, m - 1, d).toLocaleDateString('es-AR', {
+                    weekday: 'long', day: 'numeric', month: 'long',
+                });
+                return texto.charAt(0).toUpperCase() + texto.slice(1);
+            }
 
             function actualizarCampos(fecha, hora) {
                 campoFecha.value = fecha;
@@ -129,39 +156,103 @@
                 if (btnConfirmar) btnConfirmar.disabled = true;
             }
 
-            // Re-asignar listeners a los botones de horario tras cada render del panel.
-            // agenda_mensual.js limpia el panel al cambiar de día, por eso usamos
-            // un MutationObserver para volver a asignar los clicks.
-            const observer = new MutationObserver(() => {
-                panel.querySelectorAll('button[data-hora]').forEach(btn => {
-                    // Evitar duplicar listeners clonando el nodo
-                    const nuevo = btn.cloneNode(true);
-                    btn.parentNode.replaceChild(nuevo, btn);
-                    nuevo.addEventListener('click', () => {
-                        const fechaActiva = document.querySelector('.dia-agenda[aria-pressed="true"]');
-                        if (!fechaActiva) return;
-                        const fecha = fechaActiva.dataset.fecha;
-                        const hora = nuevo.dataset.hora;
-                        actualizarCampos(fecha, hora);
-                    });
+            function marcarDia(iso) {
+                document.querySelectorAll('.dia-agenda').forEach(b => {
+                    const activo = b.dataset.fecha === iso;
+                    b.classList.toggle('bg-acento', activo);
+                    b.classList.toggle('text-white', activo);
+                    b.classList.toggle('hover:bg-acento', !activo);
+                    b.setAttribute('aria-pressed', activo);
                 });
+            }
+
+            function renderHorarios(iso) {
+                panel.innerHTML = '';
+                horaActiva = '';
+                campoHora.value = '';
+
+                const dia = porFecha[iso];
+                if (!dia || !dia.turnos || dia.turnos.length === 0) {
+                    panel.innerHTML = '<p class="col-span-full text-center text-xs text-acento/70">No hay horarios disponibles para este día.</p>';
+                    titulo.textContent = formatearFecha(iso);
+                    limpiarCampos();
+                    return;
+                }
+
+                titulo.textContent = formatearFecha(iso);
+
+                dia.turnos.forEach(t => {
+                    if (!t.disponible) return; // solo mostramos disponibles
+
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.dataset.hora = t.hora;
+                    btn.className = CLASE_HORA + ' bg-acento text-white border border-acento';
+                    btn.textContent = t.hora;
+                    btn.addEventListener('click', () => {
+                        panel.querySelectorAll('button[data-hora]').forEach(b => {
+                            b.className = CLASE_HORA + ' border border-gray-300 text-acento';
+                        });
+                        btn.className = CLASE_HORA + ' bg-white text-acento border border-acento ring-2 ring-acento';
+                        horaActiva = t.hora;
+                        actualizarCampos(iso, t.hora);
+                    });
+                    panel.appendChild(btn);
+                });
+
+                // Si ya había hora guardada, marcarla
+                if (horaActiva && dia.turnos.some(t => t.hora === horaActiva && t.disponible)) {
+                    const btn = panel.querySelector(`button[data-hora="${horaActiva}"]`);
+                    if (btn) {
+                        btn.className = CLASE_HORA + ' bg-white text-acento border border-acento ring-2 ring-acento';
+                    }
+                }
+            }
+
+            function seleccionarDia(iso) {
+                fechaActiva = iso;
+                marcarDia(iso);
+                renderHorarios(iso);
+            }
+
+            // Listeners a los botones de día
+            document.querySelectorAll('.dia-agenda').forEach(b => {
+                b.addEventListener('click', () => seleccionarDia(b.dataset.fecha));
             });
 
-            if (panel) observer.observe(panel, { childList: true });
-
-            // Si hay una fecha y hora preseleccionadas (viene de session), aplicarlas.
-            if ({{ fecha_seleccionada | tojson }} && {{ hora_seleccionada | tojson }}) {
-                actualizarCampos({{ fecha_seleccionada | tojson }}, {{ hora_seleccionada | tojson }});
+            // Inicializar con la fecha inicial o la guardada en sesión
+            const fechaInicio = campoFecha.value || fechaInicial;
+            if (fechaInicio && porFecha[fechaInicio]) {
+                seleccionarDia(fechaInicio);
+                // Restaurar hora si viene de sesión
+                if (campoHora.value) {
+                    renderHorarios(fechaInicio);
+                }
             } else {
-                limpiarCampos();
+                // Seleccionar el primer día disponible por defecto
+                const primerDisponible = Object.values(porFecha).find(d => d.turnos && d.turnos.some(t => t.disponible));
+                if (primerDisponible) {
+                    seleccionarDia(primerDisponible.fecha);
+                } else {
+                    limpiarCampos();
+                }
+            }
+
+            // Validación al enviar el formulario
+            const formulario = document.getElementById('form-turno');
+            if (formulario) {
+                formulario.addEventListener('submit', (evento) => {
+                    const accion = evento.submitter ? evento.submitter.value : 'continuar';
+                    if (accion === 'anterior') return;
+                    if (!campoFecha.value || !campoHora.value) {
+                        evento.preventDefault();
+                        errorCalendario.classList.remove('hidden');
+                    }
+                });
             }
         });
     </script>
 
 </div>
 
-{% endblock %}
-
-{% block extra_scripts %}
-    <script src="{{ url_for('static', filename='js/components/agenda_mensual.js') }}" defer></script>
 {% endblock %}
