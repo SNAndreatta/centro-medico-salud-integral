@@ -33,7 +33,7 @@
 {# ---------- Contenedor base: overlay + tarjeta + título centrado ---------- #}
 {% macro modal(id, titulo, ancho="max-w-[640px]") %}
 <div id="{{ id }}"
-     class="modal-overlay fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center sm:p-6">
+     class="modal-overlay fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto overscroll-contain bg-black/50 p-4 sm:items-center sm:p-6">
 
     <section role="dialog"
              aria-modal="true"
@@ -42,7 +42,7 @@
 
         <header class="shrink-0 px-4 pt-6 pb-4 sm:px-6 sm:pt-7 sm:pb-5">
             <h2 id="{{ id }}-titulo"
-                class="text-center text-xl font-bold leading-snug text-acento sm:text-2xl">
+                class="break-words text-center text-xl font-bold leading-snug text-acento sm:text-2xl">
                 {{ titulo }}
             </h2>
         </header>
@@ -57,26 +57,27 @@
 
 
 
-{# ---------- Par de botones: CANCELAR + acción ----------
+{# ---------- Par de botones: CANCELAR + acción (siempre lado a lado) ----------
    destructivo=True  -> rosa con borde rojo (eliminar, cerrar sesión, cancelar turno)
    destructivo=False -> azul oscuro (crear, guardar)
+   En mobile son más bajos y con letra más chica; desde sm vuelven al tamaño original.
 #}
 {% macro botones_modal(id, texto="Aceptar", destructivo=False) %}
-<div class="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
+<div class="mt-6 flex flex-row gap-2 sm:gap-3">
     <button type="button"
             data-cerrar-modal="{{ id }}"
-            class="h-11 w-full rounded-full sm:w-1/2 border border-gray-300 bg-white min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-acento hover:bg-gray-50">
+            class="h-9 min-w-0 flex-1 rounded-full border border-gray-300 bg-white px-2 text-[10px] font-medium uppercase tracking-[0.1em] text-acento hover:bg-gray-50 sm:h-11 sm:px-4 sm:text-[13px] sm:tracking-[0.2em]">
         Cancelar
     </button>
 
     {% if destructivo %}
     <button type="submit"
-            class="h-11 w-full rounded-full sm:w-1/2 border border-red-300 bg-red-100 min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-red-700 hover:bg-red-200">
+            class="h-9 min-w-0 flex-1 rounded-full border border-red-300 bg-red-100 px-2 text-[10px] font-medium uppercase tracking-[0.1em] text-red-700 hover:bg-red-200 sm:h-11 sm:px-4 sm:text-[13px] sm:tracking-[0.2em]">
         {{ texto }}
     </button>
     {% else %}
     <button type="submit"
-            class="h-11 w-full rounded-full sm:w-1/2 border border-acento bg-acento min-w-0 px-2 text-[11px] font-medium uppercase tracking-[0.1em] sm:px-4 sm:text-[13px] sm:tracking-[0.2em] text-white hover:bg-acento/60">
+            class="h-9 min-w-0 flex-1 rounded-full border border-acento bg-acento px-2 text-[10px] font-medium uppercase tracking-[0.1em] text-white hover:bg-acento/60 sm:h-11 sm:px-4 sm:text-[13px] sm:tracking-[0.2em]">
         {{ texto }}
     </button>
     {% endif %}
@@ -88,7 +89,7 @@
 {% macro modal_confirmar(id, titulo, accion, mensaje=none, texto_confirmar="Aceptar", metodo="POST") %}
 {% call modal(id, titulo) %}
     {% if mensaje %}
-    <p class="text-center text-xs text-acento/70">{{ mensaje }}</p>
+    <p class="text-center text-xs text-acento/70 sm:text-sm">{{ mensaje }}</p>
     {% endif %}
 
     <form method="{{ metodo }}" action="{{ accion }}">
