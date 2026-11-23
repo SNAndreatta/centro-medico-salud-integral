@@ -8,8 +8,8 @@
 
             <!-- Avatar -->
             <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-lexend text-sm font-medium sm:h-14 sm:w-14 sm:text-xl {{ paciente.color_avatar | default('bg-pink-100 text-pink-500') }}">
-                {{ paciente.iniciales | default('NC') }}
+                class="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-full font-lexend text-sm font-medium sm:text-xl {{ paciente.color_avatar | default('bg-pink-100 text-pink-500') }}">
+                {{ paciente.iniciales }}
             </div>
 
             <!-- Nombre completo (sin cortar: si es largo baja de renglón) -->
