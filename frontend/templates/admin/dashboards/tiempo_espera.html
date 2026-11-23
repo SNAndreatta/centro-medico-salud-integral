@@ -1,111 +1,109 @@
+
 {% extends "base.html" %}
 
 {% block title %}Tiempo de espera | Salud Integral{% endblock %}
 
 {% block content %}
 
-<div>
+<div class="w-full min-w-0 px-1 sm:px-2">
 
     <!-- FILTRO DE FECHAS -->
     <form
         method="GET"
         action="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
-        class="mb-6 flex flex-wrap items-center gap-3"
+        class="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
     >
 
-        <!-- Desde -->
-        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
-            <label
-                for="fecha_desde"
-                class="text-[10px] uppercase tracking-wide text-acento/50"
-            >
-                Desde
-            </label>
+        <!-- FECHAS DESDE Y HASTA -->
+        <div class="grid w-full min-w-0 grid-cols-2 gap-2 sm:contents">
 
-            <input
-                type="date"
-                id="fecha_desde"
-                name="fecha_desde"
-                value="{{ fecha_desde }}"
-                class="bg-transparent text-xs tracking-wide text-acento outline-none"
-            >
+            <!-- Desde -->
+            <div class="flex min-w-0 items-center gap-1 rounded-full border border-acento/20 bg-white px-2 py-2 sm:gap-2 sm:px-3 sm:py-1">
+
+                <label
+                    for="fecha_desde"
+                    class="shrink-0 text-[9px] uppercase tracking-wide text-acento/50 sm:text-[10px]"
+                >
+                    Desde
+                </label>
+
+                <input
+                    type="date"
+                    id="fecha_desde"
+                    name="fecha_desde"
+                    value="{{ fecha_desde }}"
+                    class="w-full min-w-0 bg-transparent text-[10px] tracking-tight text-acento outline-none sm:text-xs sm:tracking-wide"
+                >
+
+            </div>
+
+
+            <!-- Hasta -->
+            <div class="flex min-w-0 items-center gap-1 rounded-full border border-acento/20 bg-white px-2 py-2 sm:gap-2 sm:px-3 sm:py-1">
+
+                <label
+                    for="fecha_hasta"
+                    class="shrink-0 text-[9px] uppercase tracking-wide text-acento/50 sm:text-[10px]"
+                >
+                    Hasta
+                </label>
+
+                <input
+                    type="date"
+                    id="fecha_hasta"
+                    name="fecha_hasta"
+                    value="{{ fecha_hasta }}"
+                    class="w-full min-w-0 bg-transparent text-[10px] tracking-tight text-acento outline-none sm:text-xs sm:tracking-wide"
+                >
+
+            </div>
+
         </div>
 
-        <!-- Hasta -->
-        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
-            <label
-                for="fecha_hasta"
-                class="text-[10px] uppercase tracking-wide text-acento/50"
-            >
-                Hasta
-            </label>
-
-            <input
-                type="date"
-                id="fecha_hasta"
-                name="fecha_hasta"
-                value="{{ fecha_hasta }}"
-                class="bg-transparent text-xs tracking-wide text-acento outline-none"
-            >
-        </div>
-
-        <button
-            type="submit"
-            class="rounded-full bg-acento/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-white transition hover:opacity-90 flex flex-row gap-2"
-        >
-            <span>Filtrar</span>
-            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
-        </button>
-
-        {% if fecha_desde or fecha_hasta %}
-        <a
-            href="{{ url_for('rutas_admin_tiempo_espera.tiempo_espera') }}"
-            class="rounded-full border border-acento/20 bg-white px-4 py-1.5 text-xs font-semibold tracking-wide text-acento transition hover:shadow-sm"
-        >
-            Limpiar
-        </a>
-        {% endif %}
-
-        <p class="ml-auto text-xs tracking-wide text-acento/70">
+        <!-- RESUMEN -->
+        <p class="w-full text-start text-[10px] tracking-tight text-acento/70 sm:ml-auto sm:w-auto sm:text-right sm:text-xs sm:tracking-wide">
             {{ turnos_considerados }}
             {{ 'turno con registro de llegada' if turnos_considerados == 1 else 'turnos con registro de llegada' }}
         </p>
 
     </form>
 
+
     <!-- ERROR -->
     {% if error %}
-    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+    <p class="mb-3 rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 sm:mb-4 sm:px-4 sm:text-sm">
         {{ error }}
     </p>
     {% endif %}
 
 
-    <div class="space-y-7">
+    <div class="space-y-5 sm:space-y-7">
 
         <!-- ========================================== -->
         <!-- TIEMPO DE ESPERA POR MÉDICO -->
         <!-- ========================================== -->
 
-        <section>
+        <section class="min-w-0">
 
             <!-- Encabezado -->
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+            <div class="mb-3 flex flex-col gap-2 border-b border-acento/20 pb-2 sm:mb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
 
-                <h2 class="text-xl font-bold tracking-wide text-acento">
+                <h2 class="text-base font-bold tracking-wide text-acento sm:text-xl">
                     TIEMPO DE ESPERA POR MÉDICO
                 </h2>
 
                 <!-- Buscador -->
-                <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                <div class="flex w-full items-center rounded-full border border-acento/20 bg-white px-3 py-1.5 sm:w-52 sm:py-1">
+
                     <input
                         id="buscarMedico"
                         type="text"
                         placeholder="Buscar médico"
-                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                        class="w-full min-w-0 bg-transparent text-[11px] tracking-wide text-acento outline-none placeholder:text-acento/50 sm:text-xs"
                     >
 
-                    <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+                    <i data-lucide="search" class="h-3.5 w-3.5 shrink-0 text-acento/50 sm:h-4 sm:w-4"></i>
+
                 </div>
 
             </div>
@@ -114,29 +112,29 @@
             <!-- Médicos -->
             <div
                 id="lista-medicos"
-                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                class="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3"
             >
 
                 {% for medico in medicos %}
 
                 <article
-                    class="medico-card flex min-w-0 items-center justify-between gap-2 rounded-2xl bg-white px-4 py-3 sm:px-5"
+                    class="medico-card flex min-h-[54px] min-w-0 items-center justify-between gap-2 rounded-2xl bg-white px-2.5 py-2.5 transition hover:shadow-sm sm:min-h-0 sm:px-5 sm:py-3"
                     data-search="{{ medico.nombre | lower }}"
                 >
 
                     <!-- Iniciales y nombre -->
-                    <div class="flex min-w-0 items-center gap-3 sm:gap-5">
+                    <div class="flex min-w-0 items-center gap-2 sm:gap-5">
 
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-medium {{ medico.color_fondo }} {{ medico.color_texto }}">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium {{ medico.color_fondo }} {{ medico.color_texto }} sm:h-10 sm:w-10 sm:text-base">
                             {{ medico.iniciales }}
                         </div>
 
                         <div class="min-w-0">
-                            <h3 class="truncate font-serif text-lg text-acento sm:text-xl">
+                            <h3 class="truncate font-serif text-base text-acento sm:text-xl">
                                 {{ medico.nombre }}
                             </h3>
 
-                            <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                            <p class="text-[8px] uppercase tracking-wide text-acento/60 sm:text-[9px]">
                                 {{ medico.turnos }}
                                 {{ 'turno' if medico.turnos == 1 else 'turnos' }}
                             </p>
@@ -145,7 +143,7 @@
                     </div>
 
                     <!-- Tiempo de espera -->
-                    <p class="shrink-0 text-base font-semibold text-acento/70 sm:text-xl">
+                    <p class="shrink-0 text-sm font-semibold text-acento/70 sm:text-xl">
                         {{ medico.espera }} min
                     </p>
 
@@ -155,7 +153,7 @@
 
             </div>
 
-            <p id="sin-medicos" class="{{ 'hidden' if medicos else '' }} py-5 text-center text-sm text-gray-500">
+            <p id="sin-medicos" class="{{ 'hidden' if medicos else '' }} py-4 text-center text-xs text-gray-500 sm:py-5 sm:text-sm">
                 No se encontraron médicos.
             </p>
 
@@ -166,25 +164,27 @@
         <!-- TIEMPO DE ESPERA POR ESPECIALIDAD -->
         <!-- ========================================== -->
 
-        <section>
+        <section class="min-w-0">
 
             <!-- Encabezado -->
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+            <div class="mb-3 flex flex-col gap-2 border-b border-acento/20 pb-2 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
 
-                <h2 class="text-xl font-bold tracking-wide text-acento">
+                <h2 class="text-base font-bold tracking-wide text-acento sm:text-xl">
                     TIEMPO DE ESPERA POR ESPECIALIDAD
                 </h2>
 
                 <!-- Buscador -->
-                <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
+                <div class="flex w-full items-center rounded-full border border-acento/20 bg-white px-3 py-1.5 sm:w-52 sm:py-1">
+
                     <input
                         id="buscarEspecialidad"
                         type="text"
                         placeholder="Buscar especialidad"
-                        class="w-full bg-transparent text-acento text-xs tracking-wide outline-none placeholder:text-acento/50"
+                        class="w-full min-w-0 bg-transparent text-[11px] tracking-wide text-acento outline-none placeholder:text-acento/50 sm:text-xs"
                     >
 
-                    <i data-lucide="search" class="h-4 w-4 text-acento/50"></i>
+                    <i data-lucide="search" class="h-3.5 w-3.5 shrink-0 text-acento/50 sm:h-4 sm:w-4"></i>
+
                 </div>
 
             </div>
@@ -193,28 +193,28 @@
             <!-- Especialidades -->
             <div
                 id="lista-especialidades"
-                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                class="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3"
             >
 
                 {% for especialidad in especialidades %}
 
                 <article
-                    class="especialidad-card flex items-center justify-between gap-3 rounded-2xl bg-white px-5 py-3 sm:px-6"
+                    class="especialidad-card flex min-h-[54px] min-w-0 items-center justify-between gap-2 rounded-2xl bg-white px-2.5 py-2.5 transition hover:shadow-sm sm:min-h-0 sm:gap-3 sm:px-6 sm:py-3"
                     data-search="{{ especialidad.nombre | lower }}"
                 >
 
-                    <div class="min-w-0">
-                        <h3 class="font-serif text-lg text-acento sm:text-xl">
+                    <div class="min-w-0 flex-1">
+                        <h3 class="truncate font-serif text-base text-acento sm:text-xl">
                             {{ especialidad.nombre }}
                         </h3>
 
-                        <p class="text-[9px] uppercase tracking-wide text-acento/60">
+                        <p class="text-[8px] uppercase tracking-wide text-acento/60 sm:text-[9px]">
                             {{ especialidad.turnos }}
                             {{ 'turno' if especialidad.turnos == 1 else 'turnos' }}
                         </p>
                     </div>
 
-                    <p class="shrink-0 text-base font-semibold text-acento/70 sm:text-xl">
+                    <p class="shrink-0 text-sm font-semibold text-acento/70 sm:text-xl">
                         {{ especialidad.espera }} min
                     </p>
 
@@ -224,7 +224,7 @@
 
             </div>
 
-            <p id="sin-especialidades" class="{{ 'hidden' if especialidades else '' }} py-5 text-center text-sm text-gray-500">
+            <p id="sin-especialidades" class="{{ 'hidden' if especialidades else '' }} py-4 text-center text-xs text-gray-500 sm:py-5 sm:text-sm">
                 No se encontraron especialidades.
             </p>
 
