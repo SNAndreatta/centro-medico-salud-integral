@@ -250,8 +250,16 @@ document.addEventListener("DOMContentLoaded", () => {
         resultadoResuelto = true;
         resultadoVisible = false;
 
+        // Cerrar el modal visualmente antes de recargar o reintentar
+        const modal = document.getElementById("modal-resultado-ingreso");
+        if (modal) {
+            modal.classList.remove("flex");
+            modal.classList.add("hidden");
+        }
+
         if (recargarAlCerrar) {
-            window.location.reload();
+            // Pequeño delay para que se vea el cierre del modal antes de recargar
+            setTimeout(() => window.location.reload(), 150);
             return;
         }
 
