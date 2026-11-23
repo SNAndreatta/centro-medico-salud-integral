@@ -185,8 +185,11 @@ def generar_agenda_mensual(anio, mes, agendas=None, turnos=None):
     return dias
 
 
-def contexto_agenda_mensual(args, agendas=None, turnos=None, consultorio=None):
-    """Usar con request.args. Devuelve todo lo que necesita components/agenda_mensual.html."""
+def contexto_agenda_mensual(args, agendas=None, turnos=None, consultorio=None, modo='medico'):
+    """Usar con request.args. Devuelve todo lo que necesita components/agenda_mensual.html.
+
+    `modo` puede ser 'medico' (default, no cambia nada) o 'paciente'.
+    """
     hoy = hoy_local()
     anio, mes = mes_seleccionado(args)
 
@@ -216,4 +219,5 @@ def contexto_agenda_mensual(args, agendas=None, turnos=None, consultorio=None):
         "dias_semana": DIAS_SEMANA,
         "fecha_inicial": fecha_inicial,
         "consultorio": consultorio,
+        "modo": modo,
     }

@@ -183,6 +183,7 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
         'fecha_seleccionada': fecha_sel,
         'hora_seleccionada': hora_sel,
         'fecha_inicial': fecha_inicial,
+        'modo': 'paciente',
     }
 
 
