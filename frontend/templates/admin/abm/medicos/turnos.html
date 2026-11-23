@@ -1,24 +1,25 @@
+
 {% extends "base.html" %}
 
 {% block title %}Turnos del médico | Salud Integral{% endblock %}
 
 {% block content %}
 
-<div id="turnos-medico" class="px-1 sm:px-2">
+<div id="turnos-medico" class="w-full min-w-0 px-1 sm:px-2">
 
     <!-- Título y acciones -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
+    <div class="mb-4 flex min-w-0 flex-col gap-3 border-b border-acento/20 pb-3 min-[500px]:flex-row min-[500px]:items-center min-[500px]:justify-between sm:mb-6 sm:pb-2">
 
-        <h2 class="text-xl font-bold tracking-wide text-acento">
+        <h2 class="min-w-0 text-base font-bold tracking-wide text-acento min-[400px]:text-lg sm:text-xl">
             TURNOS DE {{ medico.nombre_completo }}
         </h2>
 
-        <div class="flex items-center gap-2">
+        <div class="flex w-full items-center gap-2 min-[500px]:w-auto min-[500px]:shrink-0 min-[500px]:justify-end">
 
             <!-- Ir al perfil -->
             <a
-                href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id) }}"
-                class="flex items-center gap-1 rounded-full bg-acento/70 px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
+                href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id_medico) }}"
+                class="inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-acento/70 px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-acento min-[400px]:px-4 sm:text-xs"
             >
                 Ir al perfil
                 <i data-lucide="chevron-right" class="h-4 w-4"></i>
@@ -28,7 +29,7 @@
             <button
                 type="button"
                 id="botonFiltro"
-                class="flex items-center gap-2 rounded-full bg-acento/70 px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento"
+                class="inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-acento/70 px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-acento min-[400px]:gap-2 min-[400px]:px-4 sm:text-xs"
             >
                 Filtrar
                 <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
@@ -40,17 +41,17 @@
 
 
     <!-- Panel de filtros -->
-    <div id="menuFiltro" class="mb-5 hidden rounded-2xl bg-white p-5 shadow-sm">
+    <div id="menuFiltro" class="mb-4 hidden rounded-2xl bg-white p-3 shadow-sm sm:mb-5 sm:p-5">
 
-        <div class="max-w-xs">
+        <div class="w-full max-w-xs">
 
-            <label class="mb-2 block text-sm font-semibold text-acento">
+            <label class="mb-2 block text-xs font-semibold text-acento sm:text-sm">
                 Estado del turno
             </label>
 
             <select
                 id="filtroEstado"
-                class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-acento outline-none focus:border-acento"
+                class="w-full rounded-lg border border-gray-300 bg-white p-2 text-xs text-acento outline-none focus:border-acento sm:text-sm"
             >
                 <option value="">Todos</option>
                 <option value="disponible">Disponible</option>
@@ -67,9 +68,9 @@
 
 
     <!-- Cantidad de turnos -->
-    <div class="mb-4">
+    <div class="mb-3 sm:mb-4">
 
-        <p class="text-sm text-gray-500">
+        <p class="text-xs text-gray-500 sm:text-sm">
             {{ turnos|length }} turnos encontrados
         </p>
 
@@ -82,26 +83,25 @@
         {% for turno in turnos %}
 
         <article
-            class="fila-turno flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md sm:flex-row sm:items-center sm:gap-0 sm:px-5 sm:py-4"
+            class="fila-turno flex min-w-0 flex-col gap-3 rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md min-[500px]:gap-4 sm:flex-row sm:items-center sm:gap-0 sm:px-5 sm:py-4"
             data-estado="{{ turno.estado | lower }}"
         >
 
             <!-- Estado del turno -->
-            <div class="flex min-w-0 items-center gap-4 sm:w-[38%] sm:pr-5">
+            <div class="flex min-w-0 items-center gap-3 sm:w-[38%] sm:gap-4 sm:pr-5">
 
                 <div
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-medium
-                    {{ turno.color }} {{ turno.color_texto }};"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-medium min-[500px]:h-12 min-[500px]:w-12 min-[500px]:text-sm {{ turno.color }} {{ turno.color_texto }}"
                 >
                     {{ turno.iniciales }}
                 </div>
 
                 <div class="min-w-0">
-                    <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
+                    <p class="mb-1 text-[10px] font-medium tracking-wide text-acento/70 sm:text-xs">
                         ESTADO DEL TURNO
                     </p>
 
-                    <p class="truncate text-base font-medium text-acento">
+                    <p class="truncate text-sm font-medium text-acento sm:text-base">
                         {{ turno.estado_nombre }}
                     </p>
                 </div>
@@ -112,15 +112,15 @@
             <!-- Fecha y hora -->
             <div class="border-t border-gray-200 pt-3 sm:w-[32%] sm:border-l sm:border-t-0 sm:py-1 sm:pl-5">
 
-                <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
+                <p class="mb-1 text-[10px] font-medium tracking-wide text-acento/70 sm:text-xs">
                     FECHA Y HORA
                 </p>
 
-                <p class="text-base font-medium leading-tight text-acento">
+                <p class="text-sm font-medium leading-tight text-acento sm:text-base">
                     {{ turno.hora }}
                 </p>
 
-                <p class="text-xs text-acento">
+                <p class="text-[11px] text-acento sm:text-xs">
                     {{ turno.fecha }}
                 </p>
 
@@ -130,11 +130,11 @@
             <!-- Consultorio -->
             <div class="border-t border-gray-200 pt-3 sm:w-[30%] sm:border-l sm:border-t-0 sm:py-1 sm:pl-5">
 
-                <p class="mb-1 text-xs font-medium tracking-wide text-acento/70">
+                <p class="mb-1 text-[10px] font-medium tracking-wide text-acento/70 sm:text-xs">
                     CONSULTORIO
                 </p>
 
-                <p class="text-3xl font-bold leading-tight text-acento">
+                <p class="text-2xl font-bold leading-tight text-acento sm:text-3xl">
                     {{ turno.consultorio }}
                 </p>
 
@@ -145,15 +145,15 @@
         {% else %}
 
         <!-- Sin turnos -->
-        <div class="rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+        <div class="rounded-2xl bg-white px-4 py-8 text-center shadow-sm sm:px-6 sm:py-12">
 
-            <i data-lucide="calendar-x" class="mx-auto mb-4 h-12 w-12 text-gray-400"></i>
+            <i data-lucide="calendar-x" class="mx-auto mb-3 h-10 w-10 text-gray-400 sm:mb-4 sm:h-12 sm:w-12"></i>
 
-            <h3 class="text-lg font-bold text-acento">
+            <h3 class="text-base font-bold text-acento sm:text-lg">
                 No hay turnos disponibles
             </h3>
 
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-xs text-gray-500 sm:text-sm">
                 Este médico todavía no tiene turnos registrados.
             </p>
 
@@ -163,7 +163,7 @@
 
         <p
             id="sinResultadosTurnos"
-            class="hidden rounded-2xl bg-white px-6 py-8 text-center text-sm text-gray-500"
+            class="hidden rounded-2xl bg-white px-4 py-6 text-center text-xs text-gray-500 sm:px-6 sm:py-8 sm:text-sm"
         >
             No se encontraron turnos con ese estado.
         </p>
