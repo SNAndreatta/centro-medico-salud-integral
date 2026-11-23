@@ -54,29 +54,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderHorariosMedico(dia, fecha) {
-        dia.turnos.forEach(turno => {
+        // Filtrar: SOLO horarios OCUPADOS (con paciente = turno.disponible === false)
+        const ocupados = dia.turnos.filter(t => t.disponible === false);
+
+        panel.innerHTML = "";
+
+        if (ocupados.length === 0) {
+            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay turnos reservados para este día.</p>`;
+            mostrarSinTurno();
+            return;
+        }
+
+        ocupados.forEach(turno => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.dataset.hora = turno.hora;
-
-            // En modo medico/admin: SOLO los horarios OCUPADOS (con paciente) son seleccionables
-            // turno.disponible = true  => libre (sin paciente)  => NO seleccionable
-            // turno.disponible = false => ocupado (con paciente) => SELECCIONABLE
-            const tienePaciente = turno.disponible === false;
-
-            if (!tienePaciente) {
-                // Libre (sin paciente): visible pero NO seleccionable
-                btn.disabled = true;
-                btn.className = `${CLASES_HORARIO} cursor-default bg-white text-acento border border-acento`;
-                btn.title = "Disponible";
-                btn.textContent = turno.hora;
-            } else {
-                // Ocupado (con paciente): seleccionable, muestra el detalle del turno
-                btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
-                btn.title = "Ocupado - ver turno";
-                btn.textContent = turno.hora;
-                btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
-            }
+            // Ocupado (con paciente): seleccionable, muestra el detalle del turno
+            btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
+            btn.title = "Ocupado - ver turno";
+            btn.textContent = turno.hora;
+            btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
             panel.appendChild(btn);
         });
 
