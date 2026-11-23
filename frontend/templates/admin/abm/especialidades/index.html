@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Especialidades | Salud Integral{% endblock %}
@@ -5,195 +6,247 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-    <!-- Contenido -->
-    <main class="relative mt-16 w-full rounded-b-xl rounded-tr-xl bg-acento/20 p-3 pt-6">
+<!-- CONTENIDO -->
+<main class="relative mt-16 w-full min-w-0 rounded-b-xl rounded-tr-xl bg-acento/20 p-2.5 pt-5 sm:p-5 sm:pt-6">
 
-        <!-- Solapa -->
-        <div class="absolute -top-7 left-0 rounded-t-xl bg-acento/20 px-4">
-            <h2 class="text-lg font-bold tracking-widest text-white">
-                ESPECIALIDADES
-            </h2>
+    <!-- SOLAPA -->
+    <div class="absolute bottom-full left-0 rounded-t-xl bg-acento/20 px-3 pb-2 pt-2 sm:px-4">
+        <h2 class="text-sm font-bold tracking-widest text-white sm:text-lg">
+            ESPECIALIDADES
+        </h2>
+    </div>
+
+    <!-- MENSAJES -->
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+        <div class="mb-3 space-y-2">
+            {% for categoria, mensaje in mensajes %}
+            <p class="rounded-lg px-3 py-2 text-xs font-medium sm:px-4 sm:py-2 sm:text-sm
+                {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ mensaje }}
+            </p>
+            {% endfor %}
         </div>
-
-        <!-- Mensajes -->
-        {% with mensajes = get_flashed_messages(with_categories=true) %}
-            {% if mensajes %}
-            <div class="mb-3 space-y-2">
-                {% for categoria, mensaje in mensajes %}
-                <p class="rounded-lg px-4 py-2 text-sm font-medium
-                          {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
-                    {{ mensaje }}
-                </p>
-                {% endfor %}
-            </div>
-            {% endif %}
-        {% endwith %}
-
-        {% if error %}
-        <p class="mb-3 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
-            {{ error }}
-        </p>
         {% endif %}
+    {% endwith %}
 
-        <!-- Buscador -->
-        <div class="mb-2 flex justify-end">
-            <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
-                <input
-                    id="buscadorEspecialidad"
-                    type="text"
-                    placeholder="Buscar especialidad"
-                    class="w-full bg-transparent text-xs outline-none"
-                >
-                <i data-lucide="search" class="h-3 w-3"></i>
-            </div>
-        </div>
+    {% if error %}
+    <p class="mb-3 rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 sm:px-4 sm:text-sm">
+        {{ error }}
+    </p>
+    {% endif %}
 
-        <!-- Listado de especialidades -->
-        <div class="overflow-visible rounded-xl bg-white">
+    <!-- BUSCADOR -->
+    <div class="mb-2 flex justify-end">
+        <div class="flex w-full max-w-[190px] items-center rounded-full border border-acento/20 bg-white px-3 py-1 sm:w-52 sm:max-w-none">
 
-            {% for especialidad in especialidades %}
-
-            <div
-                class="fila-especialidad grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-b border-gray-200 px-5 py-4 last:border-b-0 sm:grid-cols-[1.2fr_1.2fr_1fr_auto]"
-                data-busqueda="{{ especialidad.nombre }} {{ especialidad.id }} {{ especialidad.cantidad_medicos }}"
+            <input
+                id="buscadorEspecialidad"
+                type="text"
+                placeholder="Buscar especialidad"
+                class="w-full min-w-0 bg-transparent text-[10px] tracking-wide text-acento outline-none placeholder:text-acento/50 sm:text-xs"
             >
 
-                <!-- Nombre -->
-                <span class="text-[18px] text-acento sm:text-[20px] font-gelasio">
+            <i data-lucide="search" class="h-3 w-3 shrink-0 text-acento/50"></i>
+
+        </div>
+    </div>
+
+    <!-- LISTADO DE ESPECIALIDADES -->
+    <div class="w-full min-w-0 overflow-hidden rounded-xl bg-white px-2 sm:px-3">
+
+        {% for especialidad in especialidades %}
+
+        <article
+            class="fila-especialidad relative grid min-h-[43px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b border-gray-200 px-2 py-2 last:border-b-0 sm:min-h-[49px] sm:gap-3 sm:px-3 sm:py-2 md:grid-cols-[1.2fr_1.2fr_1fr_auto]"
+            data-busqueda="{{ especialidad.nombre }} {{ especialidad.id }} {{ especialidad.cantidad_medicos }}"
+        >
+
+            <!-- NOMBRE -->
+            <div class="row-start-1 col-start-1 flex min-w-0 items-center md:row-auto md:col-auto">
+                <span class="truncate font-gelasio text-[14px] text-acento sm:text-[20px]">
                     {{ especialidad.nombre }}
                 </span>
+            </div>
 
-                <!-- ID -->
-                <div class="hidden items-center gap-2 sm:flex">
-                    <span class="text-[9px] uppercase text-acento/50">
-                        ID ESPECIALIDAD
-                    </span>
-                    <span class="text-[9px] font-semibold text-acento">
-                        {{ especialidad.id }}
-                    </span>
-                </div>
+            <!-- ID ESPECIALIDAD -->
+            <div class="hidden items-center gap-2 md:flex">
+                <span class="text-[9px] font-medium uppercase text-acento/50">
+                    ID ESPECIALIDAD
+                </span>
 
-                <!-- Cantidad de médicos -->
-                <div class="hidden items-center gap-2 sm:flex">
-                    <span class="text-[9px] uppercase text-acento/50">
-                        {{ especialidad.cantidad_medicos }}
-                        {{ 'ESPECIALISTA' if especialidad.cantidad_medicos == 1 else 'ESPECIALISTAS' }}
-                    </span>
-                </div>
+                <span class="text-[9px] font-semibold text-acento">
+                    {{ especialidad.id }}
+                </span>
+            </div>
 
-                <!-- Menú -->
-                <div class="relative">
+            <!-- CANTIDAD DE MÉDICOS -->
+            <div class="hidden items-center gap-2 md:flex">
+                <span class="text-[9px] font-medium uppercase text-acento/50">
+                    {{ especialidad.cantidad_medicos }}
+                    {{ 'ESPECIALISTA' if especialidad.cantidad_medicos == 1 else 'ESPECIALISTAS' }}
+                </span>
+            </div>
+
+            <!-- MENÚ DE OPCIONES -->
+            <div class="relative row-start-1 row-span-2 col-start-2 flex self-stretch items-center justify-center md:row-auto md:col-auto">
+
+                <button
+                    type="button"
+                    onclick="alternarMenu('menu-especialidad-{{ especialidad.id }}')"
+                    aria-label="Opciones de {{ especialidad.nombre }}"
+                    aria-expanded="false"
+                    aria-controls="menu-especialidad-{{ especialidad.id }}"
+                    class="rounded-full p-1 text-acento/70 transition hover:bg-gray-200"
+                >
+                    <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
+                </button>
+
+                <div
+                    id="menu-especialidad-{{ especialidad.id }}"
+                    class="menu-especialidad absolute right-0 top-7 z-30 hidden w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+                >
+
+                    <!-- EDITAR -->
                     <button
                         type="button"
-                        onclick="alternarMenu('menu-especialidad-{{ especialidad.id }}')"
-                        class="rounded-full p-1 text-acento hover:bg-gray-200"
-                        aria-label="Opciones"
+                        onclick="cerrarMenus()"
+                        data-abrir-modal="modal-editar-especialidad-{{ especialidad.id }}"
+                        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-acento transition hover:bg-gray-200"
                     >
-                        <i data-lucide="ellipsis-vertical" class="h-4 w-4"></i>
+                        <i data-lucide="pencil-line" class="h-3 w-3"></i>
+                        Editar especialidad
                     </button>
 
-                    <div
-                        id="menu-especialidad-{{ especialidad.id }}"
-                        class="menu-especialidad absolute right-0 top-7 z-20 hidden w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+                    <!-- ELIMINAR -->
+                    <button
+                        type="button"
+                        onclick="cerrarMenus()"
+                        data-abrir-modal="modal-eliminar-especialidad-{{ especialidad.id }}"
+                        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-red-600 transition hover:bg-red-50"
                     >
-                        <button
-                            type="button"
-                            onclick="cerrarMenus()"
-                            data-abrir-modal="modal-editar-especialidad-{{ especialidad.id }}"
-                            class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-acento hover:bg-gray-200"
-                        >
-                            <i data-lucide="pencil-line" class="h-3 w-3"></i>
-                            Editar especialidad
-                        </button>
+                        <i data-lucide="trash-2" class="h-3 w-3"></i>
+                        Eliminar especialidad
+                    </button>
 
-                        <button
-                            type="button"
-                            onclick="cerrarMenus()"
-                            data-abrir-modal="modal-eliminar-especialidad-{{ especialidad.id }}"
-                            class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] text-red-600 hover:bg-red-50"
-                        >
-                            <i data-lucide="trash-2" class="h-3 w-3"></i>
-                            Eliminar especialidad
-                        </button>
-                    </div>
                 </div>
+            </div>
 
-                <!-- ID Y ESPECIALISTAS EN MOBILE -->
-                <div class="col-span-2 text-[9px] uppercase text-acento/60 sm:hidden">
-                    ID {{ especialidad.id }}
-                    <span class="ml-3">
-                        {{ especialidad.cantidad_medicos }}
-                        {{ 'especialista' if especialidad.cantidad_medicos == 1 else 'especialistas' }}
+            <!-- ID Y ESPECIALISTAS EN MOBILE -->
+            <div class="row-start-2 col-start-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-[8px] font-medium uppercase text-acento/60 md:hidden sm:text-[9px]">
+
+                <span>
+                    ID ESPECIALIDAD
+                    <span class="font-semibold text-acento">
+                        {{ especialidad.id }}
                     </span>
-                </div>
+                </span>
+
+                <span>
+                    {{ especialidad.cantidad_medicos }}
+                    {{ 'ESPECIALISTA' if especialidad.cantidad_medicos == 1 else 'ESPECIALISTAS' }}
+                </span>
 
             </div>
 
-            {% endfor %}
+        </article>
 
-            <p id="sinResultados" class="{{ 'hidden' if especialidades else '' }} px-4 py-6 text-center text-xs text-gray-500">
-                No se encontraron especialidades.
-            </p>
+        {% endfor %}
 
-        </div>
+        <!-- SIN RESULTADOS -->
+        <p
+            id="sinResultados"
+            class="{{ 'hidden' if especialidades else '' }} px-3 py-6 text-center text-[10px] text-gray-500 sm:px-4 sm:text-xs"
+        >
+            No se encontraron especialidades.
+        </p>
 
-        <!-- Volver y crear -->
-        <div class="mt-3 flex items-center justify-between">
+    </div>
 
-            <a href="{{ url_for('rutas_home.home') }}"
-               class="inline-flex items-center gap-1 text-[13px] text-white hover:text-acento">
-                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-                Volver al menú
-            </a>
-            <button
-                type="button"
-                data-abrir-modal="modal-crear-especialidad"
-                class="inline-flex items-center gap-2 rounded-full bg-acento px-4 py-2 text-[13px] font-medium text-white transition hover:bg-acento/60"
+    <!-- VOLVER Y CREAR -->
+    <div class="mt-2.5 flex w-full min-w-0 flex-nowrap items-center justify-between gap-1 sm:mt-3 sm:gap-3">
+
+        <!-- VOLVER -->
+        <a
+            href="{{ url_for('rutas_home.home') }}"
+            class="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-[8px] text-white transition hover:text-acento min-[400px]:text-[9px] sm:gap-1 sm:text-[13px]"
+        >
+            <i data-lucide="arrow-left" class="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5"></i>
+            Volver al menú
+        </a>
+
+        <!-- CREAR -->
+        <button
+            type="button"
+            data-abrir-modal="modal-crear-especialidad"
+            class="inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-acento px-2 py-1.5 text-[9px] font-medium text-white transition hover:bg-acento/60 min-[400px]:px-2.5 sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
+        >
+            Crear especialidad
+            <i data-lucide="plus" class="h-3 w-3 shrink-0 sm:h-4 sm:w-4"></i>
+        </button>
+
+    </div>
+
+</main>
+
+
+<!-- MODAL: CREAR ESPECIALIDAD -->
+{% call modal("modal-crear-especialidad", "Crear nueva especialidad") %}
+
+    <form
+        action="{{ url_for('rutas_admin_especialidad.crear_especialidad') }}"
+        method="POST"
+        class="mt-3 space-y-2 sm:mt-5 sm:space-y-4"
+    >
+
+        <!-- NOMBRE -->
+        <div>
+            <label
+                for="nombre-especialidad"
+                class="mb-1 block text-[9px] uppercase tracking-wide text-acento/70 sm:mb-1.5 sm:text-[10px]"
             >
-                Crear especialidad
-                <i data-lucide="plus" class="h-4 w-4"></i>
-            </button>
+                Nombre
+            </label>
+
+            <input
+                id="nombre-especialidad"
+                name="nombre"
+                type="text"
+                required
+                maxlength="100"
+                placeholder="Nombre de la especialidad"
+                class="h-8 w-full rounded-full border border-gray-300 px-3 text-[10px] text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
-    </main>
+
+        <p class="mt-2 text-[9px] leading-relaxed text-acento/60 sm:mt-3 sm:text-[10px]">
+            Los médicos se asignan a la especialidad desde el alta y la edición de cada médico.
+        </p>
+
+        {{ botones_modal("modal-crear-especialidad", "Crear") }}
+
+    </form>
+
+{% endcall %}
 
 
-    <!-- POPUP: CREAR ESPECIALIDAD -->
-    {% call modal("modal-crear-especialidad", "Crear nueva especialidad") %}
-        <form action="{{ url_for('rutas_admin_especialidad.crear_especialidad') }}" method="POST" class="mt-5">
+{% for especialidad in especialidades %}
 
-            <!-- Nombre -->
-            <div>
-                <label for="nombre-especialidad" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
-                    Nombre
-                </label>
+<!-- MODAL: EDITAR ESPECIALIDAD -->
+{% call modal("modal-editar-especialidad-" ~ especialidad.id, "Editar especialidad") %}
 
-                <input
-                    id="nombre-especialidad"
-                    name="nombre"
-                    type="text"
-                    required
-                    maxlength="100"
-                    placeholder="Nombre de la especialidad"
-                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70"
-                >
-            </div>
+    <form
+        action="{{ url_for('rutas_admin_especialidad.editar_especialidad', especialidad_id=especialidad.id) }}"
+        method="POST"
+        class="mt-3 space-y-2 sm:mt-5 sm:space-y-4"
+    >
 
-            <p class="mt-3 text-[10px] leading-relaxed text-acento/60">
-                Los médicos se asignan a la especialidad desde el alta y la edición de cada médico.
-            </p>
-
-            {{ botones_modal("modal-crear-especialidad", "Crear") }}
-        </form>
-    {% endcall %}
-
-
-    {% for especialidad in especialidades %}
-
-    <!-- POPUP: EDITAR ESPECIALIDAD -->
-    {% call modal("modal-editar-especialidad-" ~ especialidad.id, "Editar especialidad") %}
-        <form action="{{ url_for('rutas_admin_especialidad.editar_especialidad', especialidad_id=especialidad.id) }}" method="POST" class="mt-5">
-
-            <label for="nombre-editar-{{ especialidad.id }}" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+        <!-- NOMBRE -->
+        <div>
+            <label
+                for="nombre-editar-{{ especialidad.id }}"
+                class="mb-1 block text-[9px] uppercase tracking-wide text-acento/70 sm:mb-1.5 sm:text-[10px]"
+            >
                 Nombre
             </label>
 
@@ -204,49 +257,74 @@
                 value="{{ especialidad.nombre }}"
                 required
                 maxlength="100"
-                class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70"
+                class="h-8 w-full rounded-full border border-gray-300 px-3 text-[10px] text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
             >
+        </div>
 
-            <p class="mb-1.5 mt-4 block text-[10px] uppercase tracking-wide text-acento/70">
+        <!-- MÉDICOS DE LA ESPECIALIDAD -->
+        <div>
+
+            <p class="mb-1 block text-[9px] uppercase tracking-wide text-acento/70 sm:mb-1.5 sm:text-[10px]">
                 Médicos de esa especialidad
             </p>
 
             {% if especialidad.medicos %}
+
             <div class="max-h-40 space-y-1 overflow-y-auto rounded-2xl border border-gray-300 p-2">
+
                 {% for medico in especialidad.medicos %}
-                <a href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}"
-                   class="flex items-center gap-3 rounded-md px-2 py-2 text-xs text-acento hover:bg-gray-200">
+
+                <a
+                    href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}"
+                    class="flex min-w-0 items-center gap-2 rounded-md px-2 py-2 text-[10px] text-acento transition hover:bg-gray-200 sm:gap-3 sm:text-xs"
+                >
+
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[9px] font-semibold text-indigo-600">
                         {{ medico.iniciales }}
                     </span>
-                    <span class="truncate">{{ medico.nombre }}</span>
+
+                    <span class="min-w-0 truncate">
+                        {{ medico.nombre }}
+                    </span>
+
                     <i data-lucide="chevron-right" class="ml-auto h-3 w-3 shrink-0 text-acento/50"></i>
+
                 </a>
+
                 {% endfor %}
+
             </div>
+
             {% else %}
-            <p class="rounded-2xl border border-gray-300 px-3 py-3 text-center text-[11px] text-acento/60">
+
+            <p class="rounded-2xl border border-gray-300 px-3 py-3 text-center text-[10px] text-acento/60 sm:text-[11px]">
                 Todavía no hay médicos en esta especialidad.
             </p>
+
             {% endif %}
 
-            {{ botones_modal("modal-editar-especialidad-" ~ especialidad.id, "Guardar") }}
-        </form>
-    {% endcall %}
+        </div>
+
+        {{ botones_modal("modal-editar-especialidad-" ~ especialidad.id, "Guardar") }}
+
+    </form>
+
+{% endcall %}
 
 
-    <!-- POPUP: ELIMINAR ESPECIALIDAD -->
-    {{ modal_confirmar(
-        id="modal-eliminar-especialidad-" ~ especialidad.id,
-        titulo="¿Está seguro que quiere eliminar la especialidad " ~ especialidad.nombre ~ "?",
-        mensaje="Esta acción puede afectar los datos relacionados con esta especialidad.",
-        accion=url_for('rutas_admin_especialidad.eliminar_especialidad', especialidad_id=especialidad.id)
-    ) }}
+<!-- MODAL: ELIMINAR ESPECIALIDAD -->
+{{ modal_confirmar(
+    id="modal-eliminar-especialidad-" ~ especialidad.id,
+    titulo="¿Está seguro que quiere eliminar la especialidad " ~ especialidad.nombre ~ "?",
+    mensaje="Esta acción puede afectar los datos relacionados con esta especialidad.",
+    accion=url_for('rutas_admin_especialidad.eliminar_especialidad', especialidad_id=especialidad.id)
+) }}
 
-    {% endfor %}
+{% endfor %}
 
 
-    <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/admin/abm/especialidad.js') }}" defer></script>
+<!-- JAVASCRIPT -->
+<script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/admin/abm/especialidad.js') }}" defer></script>
 
 {% endblock %}
