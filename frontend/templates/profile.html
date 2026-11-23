@@ -27,6 +27,9 @@
         method="post"
         class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
+        <input type="hidden" name="dni" value="{{ usuario.dni }}">
+        <input type="hidden" name="fecha_nacimiento" value="{{ usuario.fecha_nacimiento_iso }}">
+
         <!-- NOMBRE -->
         <div>
             <label for="perfil-nombre" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
@@ -54,10 +57,11 @@
             <label for="perfil-dni" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 DNI
             </label>
-            <input id="perfil-dni" name="dni" type="text" inputmode="numeric" required
+            <input id="perfil-dni" type="text" inputmode="numeric"
                    value="{{ usuario.dni }}"
                    placeholder="DNI"
-                   readonly
+                   disabled
+                   style="opacity: 1; background-color: var(--color-gray-100); color: color-mix(in oklab, var(--color-acento) 70%, transparent); -webkit-text-fill-color: color-mix(in oklab, var(--color-acento) 70%, transparent);"
                    class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
         </div>
 
@@ -66,9 +70,10 @@
             <label for="perfil-fecha-nacimiento" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Fecha de nacimiento
             </label>
-            <input id="perfil-fecha-nacimiento" name="fecha_nacimiento" type="date"
+            <input id="perfil-fecha-nacimiento" type="date"
                    value="{{ usuario.fecha_nacimiento_iso }}"
-                   readonly
+                   disabled
+                   style="opacity: 1; background-color: var(--color-gray-100); color: color-mix(in oklab, var(--color-acento) 70%, transparent); -webkit-text-fill-color: color-mix(in oklab, var(--color-acento) 70%, transparent);"
                    class="h-11 w-full rounded-full border border-gray-300 bg-gray-100 px-4 text-sm text-acento/70 outline-none">
         </div>
 

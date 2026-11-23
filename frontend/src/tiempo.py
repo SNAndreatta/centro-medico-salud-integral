@@ -56,7 +56,7 @@ def a_datetime(valor):
 
 
 def a_date(valor):
-    """Parsea 'YYYY-MM-DD' (o un datetime); devuelve None si no es válida."""
+    """Parsea una fecha del backend (ISO o RFC 822); None si no es válida."""
     if isinstance(valor, datetime):
         return valor.date()
     if isinstance(valor, date):
@@ -64,10 +64,12 @@ def a_date(valor):
     if not valor:
         return None
 
+    texto = str(valor).strip()
     try:
-        return date.fromisoformat(str(valor).strip()[:10])
+        return date.fromisoformat(texto[:10])
     except ValueError:
-        return None
+        momento = a_datetime(texto)
+        return momento.date() if momento else None
 
 
 def a_time(valor):
