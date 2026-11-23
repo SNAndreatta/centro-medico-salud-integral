@@ -28,8 +28,6 @@ Observaciones de compatibilidad con el esquema
 
     Permitir cobertura y número de afiliado nulos para pacientes particulares.
 
-    Aclarar cómo Agenda–Días representa los horarios semanales recurrentes.
-
     Permitir paciente nulo en los turnos disponibles que aún no estén reservados.
 
     Conservar el registro de las reservas canceladas al volver a ofrecer ese horario.
