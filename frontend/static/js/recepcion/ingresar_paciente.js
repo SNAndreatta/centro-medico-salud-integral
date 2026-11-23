@@ -213,6 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
         formularioCheckin.submit();
     }
 
+    function limpiarUrlResultado() {
+        // Quita ?resultado=...&mensaje=... de la URL sin recargar
+        const url = new URL(window.location.href);
+        url.searchParams.delete('resultado');
+        url.searchParams.delete('mensaje');
+        window.history.replaceState({}, '', url);
+    }
+
     function mostrarResultado(exito, mensaje) {
         recargarAlCerrar = exito;
         resultadoResuelto = false;
@@ -242,6 +250,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (iconoErrorVisible) {
             iconoErrorVisible.classList.toggle("hidden", exito);
         }
+
+        // Limpiar la URL para que al recargar no vuelva a aparecer el modal
+        limpiarUrlResultado();
     }
 
     function cerrarResultado() {
