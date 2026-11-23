@@ -54,30 +54,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderHorariosMedico(dia, fecha) {
-        // Filtrar: SOLO horarios OCUPADOS (con paciente = disponible === false)
-        // Defensa: acepta boolean false, string "false", 0, pero NO true/"true"/1
-        const ocupados = dia.turnos.filter(t => {
-            const d = t.disponible;
-            return d === false || d === "false" || d === 0;
-        });
-
         panel.innerHTML = "";
 
-        if (ocupados.length === 0) {
-            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay turnos reservados para este día.</p>`;
+        if (dia.turnos.length === 0) {
+            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay turnos para este día.</p>`;
             mostrarSinTurno();
             return;
         }
 
-        ocupados.forEach(turno => {
+        dia.turnos.forEach(turno => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.dataset.hora = turno.hora;
-            // Ocupado (con paciente): fondo acento clarito, seleccionable
-            btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento/30 hover:text-acento border border-acento`;
-            btn.title = "Ocupado - ver turno";
-            btn.textContent = turno.hora;
-            btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
+
+            // Si el slot es disponible (sin paciente): deshabilitado, no clickeable
+            if (!turno.disponible) {
+                // Ocupado (con paciente): fondo acento clarito, seleccionable
+                btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento/30 hover:text-acento border border-acento`;
+                btn.title = "Ocupado - ver turno";
+                btn.textContent = turno.hora;
+                btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
+            } else {
+                // Disponible (sin paciente): apariencia deshabilitada, no seleccionable
+                btn.className = `${CLASES_HORARIO} cursor-default bg-white text-gray-400 border border-gray-300`;
+                btn.title = "Disponible";
+                btn.textContent = turno.hora;
+                btn.disabled = true;
+                // Al clickar disponible, no hacer nada (no mostrar detalle)
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            }
             panel.appendChild(btn);
         });
 

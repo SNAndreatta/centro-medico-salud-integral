@@ -79,13 +79,20 @@ def _slot(agenda, momento, turno, indice_color):
     """Arma un horario del día con su turno (si lo tiene)."""
     estado = ''
     paciente = None
-
+    # Disponible: solo si NO hay paciente asignado Y el turno está en estado 'disponible'
+    # Si id_paciente es None y estado es 'disponible' => slot libre (mostrar pero deshabilitado)
+    # Si id_paciente tiene valor o estado es distinto de 'disponible' => slot ocupado (seleccionable)
     if turno is not None:
         datos_paciente = turno.get('paciente') or {}
         estado = _estado_turno(turno)
 
         cobertura = turno.get('cobertura') or {}
         nombre_cobertura = cobertura.get('nombre') or 'Particular'
+
+        id_paciente = datos_paciente.get('id') if isinstance(datos_paciente, dict) else None
+
+        # Lógica de disponibilidad: libre solo si sin paciente y estado 'disponible'
+        disponible = id_paciente is None and estado == 'disponible'
 
         paciente = {
             'nombre': _nombre_completo(
@@ -97,12 +104,15 @@ def _slot(agenda, momento, turno, indice_color):
                 datos_paciente.get('nombre'),
                 datos_paciente.get('apellido'),
             ),
+            'id': id_paciente,
             'color': color_avatar(indice_color),
         }
+    else:
+        disponible = True
 
     return {
         'hora': momento.strftime('%H:%M'),
-        'disponible': turno is None,
+        'disponible': disponible,
         'estado': estado,
         'consultorio': _numero_consultorio(agenda),
         'paciente': paciente,
