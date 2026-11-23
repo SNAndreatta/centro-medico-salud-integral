@@ -146,7 +146,7 @@ El proyecto utiliza `America/Argentina/Buenos_Aires` como zona horaria. La fecha
 
 ## Ejecución con Docker
 
-Desde la raíz del proyecto:
+Desde la raíz del proyecto para desarrollo:
 
 ```bash
 docker compose -f docker-compose.yaml -f docker-compose.development.yaml --profile development up --build
