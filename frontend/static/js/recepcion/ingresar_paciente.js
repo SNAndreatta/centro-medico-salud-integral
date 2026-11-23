@@ -2,7 +2,7 @@
  * ingresar_paciente.js — ingreso de pacientes por lectura del código QR.
  *
  * 1. El botón "Ingresar paciente" abre el modal con la cámara del dispositivo.
- * 2. Al leer un QR se envía el token al backend (POST /turnos/checkin).
+ * 2. Al leer un QR se completa un formulario HTML y Flask lo envía al backend.
  * 3. Se muestra un pop-up con el resultado (correcto / incorrecto).
  * 4. Si el ingreso fue correcto, la sala de espera se recarga para mostrar
  *    al paciente que acaba de llegar.
@@ -26,7 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    const urlCheckin = botonIngresar.dataset.urlCheckin;
+    const formularioCheckin = document.getElementById("form-checkin-qr");
+    const tokenCheckin = document.getElementById("token-checkin");
 
     // Estado del lector.
     let escanerHtml5 = null;
@@ -203,28 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
         await detenerCamara();
         mostrarEstado("Registrando el ingreso...");
 
-        let exito = false;
-        let mensaje = "No se pudo registrar el ingreso.";
-
-        try {
-            const respuesta = await fetch(urlCheckin, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: token }),
-            });
-
-            const datos = await respuesta.json();
-
-            exito = Boolean(datos.ok);
-            mensaje = datos.mensaje || mensaje;
-
-        } catch (error) {
-            console.warn("Error al registrar el ingreso:", error);
-            exito = false;
-            mensaje = "No se pudo conectar con el servidor.";
+        if (!formularioCheckin || !tokenCheckin) {
+            mostrarResultado(false, "No se pudo preparar el formulario de ingreso.");
+            return;
         }
 
-        mostrarResultado(exito, mensaje);
+        tokenCheckin.value = token;
+        formularioCheckin.submit();
     }
 
     function mostrarResultado(exito, mensaje) {
@@ -304,6 +290,14 @@ document.addEventListener("DOMContentLoaded", () => {
             cerrarResultado();
         }
     });
+
+    const datosResultado = document.getElementById("datos-resultado-ingreso");
+    if (datosResultado && datosResultado.dataset.resultado) {
+        mostrarResultado(
+            datosResultado.dataset.resultado === "ok",
+            datosResultado.dataset.mensaje || "Ingreso registrado correctamente.",
+        );
+    }
 
     document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;

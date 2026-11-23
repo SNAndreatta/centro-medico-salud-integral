@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const datos = JSON.parse(document.getElementById("datosAgendaJson").textContent);
     const contenedor = document.getElementById("datosAgenda");
+    const modo = contenedor.dataset.modo; // 'medico' | 'paciente'
     const consultorio = contenedor.dataset.consultorio;
     const porFecha = Object.fromEntries(datos.map(d => [d.fecha, d]));
 
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const CLASES_HORARIO = "flex items-center justify-center rounded-full px-2 py-2 text-xs font-semibold transition sm:text-sm";
     let fechaActiva = null;
     let horaActiva = null;
+    let onSeleccionarHorario = null; // callback para modo paciente
 
     function formatearFecha(iso) {
         const [y, m, d] = iso.split("-").map(Number);
@@ -51,17 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
     }
 
-    function renderHorarios(fecha) {
-        const dia = porFecha[fecha];
-        panel.innerHTML = "";
-        horaActiva = null;
-
-        if (!dia || dia.turnos.length === 0) {
-            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay atención este día.</p>`;
-            mostrarSinTurno();
-            return;
-        }
-
+    function renderHorariosMedico(dia, fecha) {
         dia.turnos.forEach(turno => {
             const btn = document.createElement("button");
             btn.type = "button";
@@ -86,6 +78,27 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarSinTurno();
     }
 
+    function renderHorariosPaciente(dia, fecha) {
+        const disponibles = dia.turnos.filter(t => !t.disponible);
+        panel.innerHTML = "";
+
+        if (disponibles.length === 0) {
+            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay horarios disponibles para este día.</p>`;
+            return;
+        }
+
+        disponibles.forEach(turno => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.dataset.hora = turno.hora;
+            btn.className = `${CLASES_HORARIO} bg-white text-acento border border-acento`;
+            btn.title = "Seleccionar horario";
+            btn.textContent = turno.hora;
+            btn.addEventListener("click", () => seleccionarHorarioPaciente(fecha, turno.hora, btn));
+            panel.appendChild(btn);
+        });
+    }
+
     function seleccionarHorario(fecha, turno, btn) {
         panel.querySelectorAll("button[data-hora]").forEach(b => {
             if (!b.disabled) b.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
@@ -95,13 +108,45 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarDetalle(fecha, turno);
     }
 
+    function seleccionarHorarioPaciente(fecha, hora, btn) {
+        panel.querySelectorAll("button[data-hora]").forEach(b => {
+            b.className = `${CLASES_HORARIO} bg-white text-acento border border-acento`;
+        });
+        btn.className = `${CLASES_HORARIO} bg-acento text-white border border-acento ring-2 ring-acento`;
+        horaActiva = hora;
+
+        // Notificar a fecha.html vía evento custom
+        const evento = new CustomEvent('turno-seleccionado-paciente', { detail: { fecha, hora } });
+        document.dispatchEvent(evento);
+
+        if (onSeleccionarHorario) onSeleccionarHorario(fecha, hora);
+    }
+
+    function renderHorarios(fecha) {
+        const dia = porFecha[fecha];
+        panel.innerHTML = "";
+        horaActiva = null;
+
+        if (!dia || dia.turnos.length === 0) {
+            panel.innerHTML = `<p class="col-span-full text-center text-sm text-gray-500">No hay atención este día.</p>`;
+            if (modo === 'medico') mostrarSinTurno();
+            return;
+        }
+
+        if (modo === 'paciente') {
+            renderHorariosPaciente(dia, fecha);
+        } else {
+            renderHorariosMedico(dia, fecha);
+        }
+    }
+
     function seleccionarDia(fecha) {
         fechaActiva = fecha;
         botonesDia.forEach(b => {
             const activo = b.dataset.fecha === fecha;
             b.classList.toggle("bg-acento", activo);
             b.classList.toggle("text-white", activo);
-            b.classList.toggle("hover:bg-acento", activo);
+            b.classList.toggle("hover:bg-acento", !activo);
             b.setAttribute("aria-pressed", activo);
         });
         titulo.textContent = formatearFecha(fecha);
@@ -111,4 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
     botonesDia.forEach(b => b.addEventListener("click", () => seleccionarDia(b.dataset.fecha)));
 
     seleccionarDia(contenedor.dataset.fechaInicial);
+
+    // API expuesta para que fecha.html se registre sin depender del modo médico
+    window.agendaMensualPaciente = {
+        onSeleccionarHorario: (cb) => { onSeleccionarHorario = cb; },
+    };
 });

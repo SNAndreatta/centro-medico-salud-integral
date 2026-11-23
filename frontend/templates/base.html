@@ -33,7 +33,7 @@
             <!-- Logo -->
             <a href="{{ url_for('rutas_home.home') }}" class="flex min-w-0 items-center gap-2 text-acento">
 
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-acento text-white sm:h-10 sm:w-10">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-acento text-white sm:h-10 sm:w-10">
                     <i data-lucide="activity" class="h-6 w-6 sm:h-7 sm:w-7"></i>
                 </div>
 
@@ -42,7 +42,7 @@
                         Centro Médico de
                     </p>
 
-                    <h1 class="break-words font-gelasio text-lg font-bold leading-tight sm:text-2xl sm:leading-normal">
+                    <h1 class="whitespace-nowrap font-gelasio text-lg font-bold leading-tight sm:text-2xl sm:leading-normal">
                         Salud Integral
                     </h1>
                 </div>
@@ -51,15 +51,15 @@
 
             <!-- Usuario -->
             {% set menu_perfil_paciente = request.blueprint == 'rutas_paciente' or (request.endpoint in ['rutas_home.home', 'rutas_profile.profile'] and rol == 'paciente') %}
-            <div class="relative">
+            <div class="relative shrink-0">
                 <button type="button"
                         id="boton-menu-perfil"
                         aria-haspopup="true"
                         aria-expanded="false"
                         aria-controls="menu-perfil-opciones"
                         title="Mi perfil"
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:opacity-80 md:h-10 md:w-10">
-                    <i data-lucide="user-round" class="h-8 w-8 sm:h-9 sm:w-9" stroke-width="1.5"></i>
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-acento text-acento transition hover:opacity-80 sm:h-10 sm:w-10">
+                    <i data-lucide="user-round" class="h-7 w-7 sm:h-9 sm:w-9" stroke-width="1.5"></i>
                 </button>
 
                 

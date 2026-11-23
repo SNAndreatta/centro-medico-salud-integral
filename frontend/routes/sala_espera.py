@@ -1,16 +1,14 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
 
 from src.api import ErrorAPI
 from src.api_catalogos import obtener_especialidades
 from src.api_estadisticas import sala_espera as sala_espera_api
+from src.api_turnos import checkin
 from src.errores import es_sesion_vencida, sesion_vencida
 from src.normalizar import normalizar_turno
 from src.permisos import requiere_rol
 
-sala_espera_admin_routes = Blueprint(
-    'rutas_admin_sala_espera',
-    __name__
-)
+sala_espera_routes = Blueprint('rutas_sala_espera', __name__)
 
 
 def _listar_especialidades():
@@ -21,9 +19,16 @@ def _listar_especialidades():
         return []
 
 
-@sala_espera_admin_routes.route('/admin/sala-espera')
-@requiere_rol("admin")
+@sala_espera_routes.route('/sala-espera')
+@requiere_rol("recepcion", "admin")
 def sala_espera():
+    """Sala de espera unificada para recepción y admin.
+
+    - Recepción: ve el botón "Ingresar paciente" para hacer check-in por QR.
+    - Admin: no ve el botón de ingreso, solo observa la sala.
+    """
+    rol_actual = session.get('rol')
+
     pacientes_en_espera = []
     error = None
     total = 0
@@ -53,9 +58,37 @@ def sala_espera():
         ]
 
     return render_template(
-        'admin/dashboards/sala_espera.html',
+        'sala_espera/sala_espera.html',
         pacientes_en_espera=pacientes_en_espera,
         especialidades=especialidades,
         total=total,
         error=error,
+        rol=rol_actual,
     )
+
+
+@sala_espera_routes.route('/checkin', methods=['POST'])
+@requiere_rol("recepcion")
+def registrar_ingreso():
+    """Registra el ingreso del paciente a partir del QR de su turno."""
+    datos = request.get_json(silent=True) or {}
+    token = str(datos.get('token') or '').strip()
+
+    if not token:
+        return jsonify({
+            'ok': False,
+            'mensaje': 'El código QR está vacío.',
+        })
+
+    try:
+        checkin(token)
+    except ErrorAPI as e:
+        return jsonify({
+            'ok': False,
+            'mensaje': e.mensaje or 'No se pudo registrar el ingreso.',
+        })
+
+    return jsonify({
+        'ok': True,
+        'mensaje': 'Ingreso registrado correctamente.',
+    })
