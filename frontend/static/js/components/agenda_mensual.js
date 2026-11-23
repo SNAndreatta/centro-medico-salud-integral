@@ -54,8 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderHorariosMedico(dia, fecha) {
-        // Filtrar: SOLO horarios OCUPADOS (con paciente = turno.disponible === false)
-        const ocupados = dia.turnos.filter(t => t.disponible === false);
+        // Filtrar: SOLO horarios OCUPADOS (con paciente = disponible === false)
+        // Defensa: acepta boolean false, string "false", 0, pero NO true/"true"/1
+        const ocupados = dia.turnos.filter(t => {
+            const d = t.disponible;
+            return d === false || d === "false" || d === 0;
+        });
 
         panel.innerHTML = "";
 
@@ -69,8 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.dataset.hora = turno.hora;
-            // Ocupado (con paciente): seleccionable, muestra el detalle del turno
-            btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
+            // Ocupado (con paciente): fondo acento clarito, seleccionable
+            btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento/30 hover:text-acento border border-acento`;
             btn.title = "Ocupado - ver turno";
             btn.textContent = turno.hora;
             btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
