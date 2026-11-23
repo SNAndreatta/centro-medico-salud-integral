@@ -1,187 +1,224 @@
+
 {% extends "base.html" %}
 
 {% block title %}Coberturas | Salud Integral{% endblock %}
 
 {% block content %}
 
-    <main class="relative mt-16 w-full rounded-b-xl rounded-tr-xl bg-acento/40 p-3 pt-6">
+<main class="relative mt-16 w-full min-w-0 rounded-xl rounded-tl-none bg-acento/40 p-2.5 pt-3 sm:p-3 sm:pt-4">
 
-        <!-- Solapa -->
-        <div class="absolute -top-7 left-0 rounded-t-xl bg-acento/40 px-4">
-            <h2 class="text-lg font-bold tracking-widest text-white">
-                COBERTURAS
-            </h2>
+    <!-- SOLAPA -->
+    <div class="absolute bottom-full left-0 rounded-t-xl bg-acento/40 px-3 py-1 sm:px-4">
+        <h2 class="whitespace-nowrap text-sm font-bold tracking-widest text-white sm:text-lg">
+            COBERTURAS
+        </h2>
+    </div>
+
+    <!-- MENSAJES -->
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+        <div class="mb-3 space-y-2">
+            {% for categoria, mensaje in mensajes %}
+            <p class="rounded-lg px-3 py-2 text-xs font-medium sm:px-4 sm:text-sm
+                {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ mensaje }}
+            </p>
+            {% endfor %}
         </div>
-
-        <!-- Mensajes -->
-        {% with mensajes = get_flashed_messages(with_categories=true) %}
-            {% if mensajes %}
-            <div class="mb-3 space-y-2">
-                {% for categoria, mensaje in mensajes %}
-                <p class="rounded-lg px-4 py-2 text-sm font-medium
-                          {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
-                    {{ mensaje }}
-                </p>
-                {% endfor %}
-            </div>
-            {% endif %}
-        {% endwith %}
-
-        {% if error %}
-        <p class="mb-3 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
-            {{ error }}
-        </p>
         {% endif %}
+    {% endwith %}
 
-        <!-- Buscador -->
-        <div class="mb-2 flex justify-end">
-            <div class="flex w-52 items-center rounded-full border border-acento/20 bg-white px-3 py-1">
-                <input
-                    id="buscar-cobertura"
-                    type="search"
-                    placeholder="Buscar coberturas"
-                    class="w-full bg-transparent text-xs text-acento outline-none placeholder:text-acento/50"
-                >
-                <i data-lucide="search" class="h-3 w-3 text-acento/50"></i>
-            </div>
-        </div>
+    {% if error %}
+    <p class="mb-3 rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 sm:px-4 sm:text-sm">
+        {{ error }}
+    </p>
+    {% endif %}
 
-        <!-- Listado de coberturas -->
-        <div class="overflow-hidden rounded-xl bg-white">
-
-            {% for cobertura in coberturas %}
-
-            <article
-                class="fila-cobertura grid min-h-[49px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-200 px-4 py-2 last:border-0 sm:px-7 md:grid-cols-[minmax(180px,1.5fr)_minmax(150px,1fr)_minmax(100px,.8fr)_90px]"
-                data-nombre="{{ cobertura.nombre | lower }}"
+    <!-- BUSCADOR -->
+    <div class="mb-2 flex justify-end">
+        <div class="flex w-full max-w-[190px] items-center rounded-full border border-acento/20 bg-white px-3 py-1 sm:w-52">
+            <input
+                id="buscar-cobertura"
+                type="search"
+                placeholder="Buscar coberturas"
+                class="w-full min-w-0 bg-transparent text-[10px] tracking-wide text-acento outline-none placeholder:text-acento/50 sm:text-xs"
             >
+            <i data-lucide="search" class="h-3 w-3 shrink-0 text-acento/50"></i>
+        </div>
+    </div>
 
-                <!-- Nombre -->
-                <h2 class="text-[18px] text-acento sm:text-[20px] font-gelasio">
-                    {{ cobertura.nombre }}
-                </h2>
+    <!-- LISTADO DE COBERTURAS -->
+    <div class="w-full min-w-0 overflow-hidden rounded-xl bg-white">
 
-                <!-- ID -->
-                <div class="hidden items-center gap-3 md:flex">
-                    <span class="text-[9px] text-acento/70">ID COBERTURA</span>
-                    <span class="text-[10px] font-semibold text-acento">
+        {% for cobertura in coberturas %}
+
+        <article
+            class="fila-cobertura grid min-h-[43px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b border-gray-200 px-2.5 py-1.5 last:border-0 sm:min-h-[49px] sm:gap-3 sm:px-7 sm:py-2 md:grid-cols-[minmax(180px,1.5fr)_minmax(150px,1fr)_minmax(100px,.8fr)_90px]"
+            data-nombre="{{ cobertura.nombre | lower }}"
+        >
+
+            <!-- NOMBRE -->
+            <h2 class="min-w-0 whitespace-nowrap font-gelasio text-[13px] leading-tight text-acento sm:text-[20px]">
+                {{ cobertura.nombre }}
+            </h2>
+
+            <!-- ID DESKTOP -->
+            <div class="hidden items-center gap-3 md:flex">
+                <span class="text-[9px] text-acento/70">ID COBERTURA</span>
+                <span class="text-[10px] font-semibold text-acento">
+                    {{ cobertura.id }}
+                </span>
+            </div>
+
+            <!-- CANTIDAD DE MÉDICOS DESKTOP -->
+            <span class="hidden text-[9px] text-acento/70 md:block">
+                {{ cobertura.cantidad_medicos }}
+                {{ 'MÉDICO' if cobertura.cantidad_medicos == 1 else 'MÉDICOS' }}
+            </span>
+
+            <!-- DETALLES -->
+            <div class="row-span-2 flex h-full items-center justify-end md:row-span-1">
+                <a
+                    href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
+                    class="inline-flex h-[20px] items-center gap-0.5 whitespace-nowrap rounded-full bg-acento/70 px-2 text-[8px] font-medium tracking-wide text-white transition hover:bg-acento sm:h-[22px] sm:gap-1 sm:px-2.5 sm:text-[9px]"
+                >
+                    DETALLES
+                    <i data-lucide="chevron-right" class="h-3 w-3 sm:h-3.5 sm:w-3.5"></i>
+                </a>
+            </div>
+
+            <!-- ID Y MÉDICOS MOBILE -->
+            <div class="col-span-1 col-start-1 row-start-2 flex flex-col items-start gap-0.5 text-[8px] leading-tight text-acento/70 sm:text-[9px] md:hidden">
+
+                <span>
+                    ID COBERTURA
+                    <span class="ml-1 font-semibold text-acento">
                         {{ cobertura.id }}
                     </span>
-                </div>
+                </span>
 
-                <!-- Médicos -->
-                <span class="hidden text-[9px] text-acento/70 md:block">
+                <span>
                     {{ cobertura.cantidad_medicos }}
                     {{ 'MÉDICO' if cobertura.cantidad_medicos == 1 else 'MÉDICOS' }}
                 </span>
 
-                <!-- Detalles -->
-                <div class="flex justify-end">
-                    <a href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
-                       class="inline-flex h-[22px] items-center gap-1 rounded-full bg-acento/70 px-2.5 text-[9px] font-medium tracking-wide text-white transition hover:bg-acento">
-                        DETALLES
-                        <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
-                    </a>
-                </div>
-
-                <!-- ID y médicos en mobile -->
-                <div class="col-span-2 -mt-2 text-[9px] text-acento/70 md:hidden">
-                    ID COBERTURA {{ cobertura.id }}
-                    <span class="ml-3">
-                        {{ cobertura.cantidad_medicos }}
-                        {{ 'MÉDICO' if cobertura.cantidad_medicos == 1 else 'MÉDICOS' }}
-                    </span>
-                </div>
-
-            </article>
-
-            {% endfor %}
-
-            <p id="sin-coberturas"
-               class="{{ 'hidden' if coberturas else '' }} px-4 py-6 text-center text-xs text-acento/70">
-                No se encontraron coberturas.
-            </p>
-
-        </div>
-
-        <!-- Volver y crear -->
-        <div class="mt-3 flex items-center justify-between">
-
-            <a href="{{ url_for('rutas_home.home') }}"
-               class="inline-flex items-center gap-1 text-[13px] text-white hover:text-acento">
-                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-                Volver al menú
-            </a>
-
-            <button
-                type="button"
-                onclick="abrirModal('modal-crear-cobertura')"
-                class="inline-flex items-center gap-2 rounded-full bg-acento px-4 py-2 text-[13px] font-medium text-white transition hover:bg-acento/60"
-            >
-                Crear cobertura
-                <i data-lucide="plus" class="h-4 w-4"></i>
-            </button>
-
-        </div>
-
-    </main>
-
-
-    <!-- MODAL: CREAR COBERTURA -->
-    <div id="modal-crear-cobertura"
-         class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4 py-6"
-         onclick="cerrarSiFondo(event, 'modal-crear-cobertura')">
-
-        <section role="dialog"
-                 aria-modal="true"
-                 aria-labelledby="titulo-crear-cobertura"
-                 class="w-full max-w-[440px] rounded-xl bg-white p-5 shadow-xl sm:p-6"
-                 onclick="event.stopPropagation()">
-
-            <div class="mb-5 flex items-center justify-between">
-                <h2 id="titulo-crear-cobertura"
-                    class="font-serif text-xl font-bold text-acento">
-                    Crear cobertura
-                </h2>
             </div>
 
-            <form method="POST"
-                  action="{{ url_for('rutas_admin_cobertura.crear_cobertura') }}"
-                  class="space-y-2">
+        </article>
 
-                <div>
-                    <label for="nombre-nueva-cobertura"
-                           class="mb-1.5 block text-[10px] font-medium uppercase text-acento/70">
-                        Nombre
-                    </label>
-                    <input id="nombre-nueva-cobertura"
-                           name="nombre"
-                           type="text"
-                           maxlength="100"
-                           placeholder="Nombre de la cobertura"
-                           required
-                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-acento outline-none focus:border-acento/70">
-                </div>
+        {% endfor %}
 
-                <div class="flex justify-center gap-2 pt-2">
-                    <button type="button"
-                            onclick="cerrarModal('modal-crear-cobertura')"
-                            class="w-1/2 rounded-full border border-gray-200 px-4 py-2 text-[13px] text-acento/70 hover:bg-gray-50">
-                        Cancelar
-                    </button>
-
-                    <button type="submit"
-                            class="w-1/2 rounded-full bg-acento px-4 py-2 text-[13px] font-medium text-white hover:bg-acento/60">
-                        Crear cobertura
-                    </button>
-                </div>
-
-            </form>
-
-        </section>
+        <!-- SIN RESULTADOS -->
+        <p
+            id="sin-coberturas"
+            class="{{ 'hidden' if coberturas else '' }} px-3 py-6 text-center text-[10px] text-acento/70 sm:px-4 sm:text-xs"
+        >
+            No se encontraron coberturas.
+        </p>
 
     </div>
 
+    <!-- VOLVER Y CREAR -->
+    <div class="mt-2.5 flex w-full min-w-0 flex-nowrap items-center justify-between gap-1 sm:mt-3 sm:gap-3">
+
+        <a
+            href="{{ url_for('rutas_home.home') }}"
+            class="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-[8px] text-white transition hover:text-acento min-[400px]:text-[9px] sm:gap-1 sm:text-[13px]"
+        >
+            <i data-lucide="arrow-left" class="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5"></i>
+            Volver al menú
+        </a>
+
+        <button
+            type="button"
+            onclick="abrirModal('modal-crear-cobertura')"
+            class="inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-acento px-2 py-1.5 text-[9px] font-medium text-white transition hover:bg-acento/60 min-[400px]:px-2.5 sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
+        >
+            Crear cobertura
+            <i data-lucide="plus" class="h-3 w-3 shrink-0 sm:h-4 sm:w-4"></i>
+        </button>
+
+    </div>
+
+</main>
+
+
+<!-- MODAL: CREAR COBERTURA -->
+<div
+    id="modal-crear-cobertura"
+    class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-3 py-4 sm:px-4 sm:py-6"
+    onclick="cerrarSiFondo(event, 'modal-crear-cobertura')"
+>
+
+    <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-crear-cobertura"
+        class="w-full max-w-[320px] rounded-xl bg-white p-4 shadow-xl sm:max-w-[440px] sm:p-6"
+        onclick="event.stopPropagation()"
+    >
+
+        <!-- TÍTULO -->
+        <div class="mb-3 flex items-center justify-center sm:mb-5">
+            <h2
+                id="titulo-crear-cobertura"
+                class="text-lg font-bold font-lexend text-acento sm:text-xl"
+            >
+                Crear cobertura
+            </h2>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form
+            method="POST"
+            action="{{ url_for('rutas_admin_cobertura.crear_cobertura') }}"
+            class="space-y-2"
+        >
+
+            <div>
+                <label
+                    for="nombre-nueva-cobertura"
+                    class="mb-1 block text-[9px] font-medium uppercase text-acento/70 sm:mb-1.5 sm:text-[10px]"
+                >
+                    Nombre
+                </label>
+
+                <input
+                    id="nombre-nueva-cobertura"
+                    name="nombre"
+                    type="text"
+                    maxlength="100"
+                    placeholder="Nombre de la cobertura"
+                    required
+                    class="w-full min-w-0 rounded-full border border-acento/30 px-3 py-1.5 text-[10px] text-acento outline-none placeholder:text-acento/60 focus:border-acento sm:py-2 sm:text-xs"
+                >
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex items-center justify-center gap-2 pt-1.5 sm:pt-2">
+
+                <button
+                    type="button"
+                    onclick="cerrarModal('modal-crear-cobertura')"
+                    class="w-1/2 whitespace-nowrap rounded-full border border-gray-200 px-2 py-1.5 text-[10px] text-acento/70 transition hover:bg-gray-50 sm:px-4 sm:py-2 sm:text-[13px]"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="w-1/2 whitespace-nowrap rounded-full bg-acento px-2 py-1.5 text-[10px] font-medium text-white transition hover:bg-acento/60 sm:px-4 sm:py-2 sm:text-[13px]"
+                >
+                    Crear cobertura
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
 
 <script src="{{ url_for('static', filename='js/admin/abm/cobertura.js') }}" defer></script>
 

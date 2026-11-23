@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Detalle de cobertura | Salud Integral{% endblock %}
@@ -5,147 +6,204 @@
 {% block content %}
 {% from "components/modales.html" import modal, modal_confirmar, botones_modal %}
 
-<div class="bg-dominante">
-    <div class="w-full">
+<div class="min-w-0 bg-dominante">
 
-        <!-- PANEL DE DETALLE -->
-        <section class="rounded-xl bg-white p-4 shadow-sm sm:p-5">
+    <main class="w-full min-w-0 rounded-xl bg-white p-3 shadow-sm sm:p-5">
 
-            <!-- Mensajes -->
-            {% with mensajes = get_flashed_messages(with_categories=true) %}
-                {% if mensajes %}
-                <div class="mb-4 space-y-2">
-                    {% for categoria, mensaje in mensajes %}
-                    <p class="rounded-lg px-4 py-2 text-sm font-medium
-                              {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
-                        {{ mensaje }}
-                    </p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endwith %}
-
-            <!-- RESUMEN DE COBERTURA -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-                <div>
-                    <h1 class="font-serif text-3xl text-acento">
-                        {{ cobertura.nombre }}
-                    </h1>
-
-                    <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[9px] text-acento/60">
-                        <span>
-                            ID COBERTURA
-                            <strong class="ml-1 text-acento/80">{{ cobertura.id }}</strong>
-                        </span>
-
-                        <span>
-                            {{ medicos | length }}
-                            {{ 'MÉDICO' if medicos | length == 1 else 'MÉDICOS' }}
-                        </span>
-                    </div>
-                </div>
-
-                <button type="button"
-                        data-abrir-modal="modal-editar-cobertura"
-                        class="inline-flex items-center justify-center gap-1.5 rounded-full bg-acento/60 px-3 py-1.5 text-[10px] font-medium text-white hover:bg-acento">
-                    <i data-lucide="pencil-line" class="h-3 w-3"></i>
-                    Editar
-                </button>
-            </div>
-
-            <!-- MÉDICOS -->
-            <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2">
-                <h2 class="text-[13px] font-medium tracking-wide text-acento/70">
-                    MÉDICOS ({{ medicos | length }})
-                </h2>
-
-                <input type="search"
-                       id="buscar-medico"
-                       placeholder="Buscar médicos"
-                       class="w-32 rounded-full border border-gray-200 bg-white px-3 py-1 text-[9px] text-acento outline-none focus:border-acento/70 sm:w-40">
-            </div>
-
-            <div id="lista-medicos" class="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-1">
-
-                {% for medico in medicos %}
-                <article class="fila-medico flex min-w-0 items-center justify-between gap-2 rounded-lg bg-blue-100/25 px-3 py-2"
-                         data-nombre="{{ medico.nombre | lower }}">
-
-                    <div class="flex min-w-0 items-center gap-2">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 font-serif text-[13px] text-emerald-700">
-                            {{ medico.iniciales }}
-                        </div>
-
-                        <div class="min-w-0">
-                            <h3 class="truncate text-[14px] font-medium text-acento">
-                                {{ medico.nombre }}
-                            </h3>
-                            <p class="text-[9px] text-acento/70">
-                                ID MÉDICO {{ medico.id }}
-                                {% if medico.especialidad %}
-                                · {{ medico.especialidad }}
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <a class="shrink-0 rounded-full bg-acento/70 px-2 py-1 text-[11px] hover:bg-acento text-white flex gap-1 items-center justify-center" href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}">
-                        Ir al perfil
-                        <i data-lucide="chevron-right" class="h-3 w-3"></i>
-                    </a>
-                </article>
+        <!-- MENSAJES -->
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+            <div class="mb-4 space-y-2">
+                {% for categoria, mensaje in mensajes %}
+                <p class="rounded-lg px-3 py-2 text-xs font-medium sm:px-4 sm:text-sm
+                    {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ mensaje }}
+                </p>
                 {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- RESUMEN DE COBERTURA -->
+        <div class="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
+
+            <div class="min-w-0 flex-1">
+
+                <h1 class="break-words font-serif text-xl leading-tight text-acento sm:text-3xl">
+                    {{ cobertura.nombre }}
+                </h1>
+
+                <div class="mt-2 flex flex-col items-start gap-0.5 text-[8px] text-acento/60 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:gap-y-1 sm:text-[9px]">
+
+                    <span>
+                        ID COBERTURA
+                        <strong class="ml-1 text-acento/80">
+                            {{ cobertura.id }}
+                        </strong>
+                    </span>
+
+                    <span>
+                        {{ medicos | length }}
+                        {{ 'MÉDICO' if medicos | length == 1 else 'MÉDICOS' }}
+                    </span>
+
+                </div>
 
             </div>
 
-            <p id="sin-medicos"
-               class="{{ 'hidden' if medicos else '' }} py-5 text-center text-[10px] text-acento/70">
-                No hay médicos asociados a esta cobertura.
-            </p>
+            <!-- EDITAR -->
+            <button
+                type="button"
+                data-abrir-modal="modal-editar-cobertura"
+                class="inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-acento/60 px-2.5 py-1.5 text-[9px] font-medium text-white transition hover:bg-acento sm:gap-1.5 sm:px-3 sm:text-[10px]"
+            >
+                <i data-lucide="pencil-line" class="h-3 w-3 sm:h-3.5 sm:w-3.5"></i>
+                Editar
+            </button>
 
-            <div class="mt-5 border-t border-gray-200 pt-3">
-                <a href="{{ url_for('rutas_admin_cobertura.obtener_coberturas') }}"
-                   class="inline-flex items-center gap-1 text-[10px] text-acento/70 hover:text-acento">
-                    <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-                    Volver a coberturas
-                </a>
+        </div>
+
+        <!-- MÉDICOS -->
+        <div class="mb-2 mt-5 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2 sm:mt-6">
+
+            <h2 class="text-[11px] font-medium tracking-wide text-acento/70 sm:text-[13px]">
+                MÉDICOS ({{ medicos | length }})
+            </h2>
+
+            <!-- BUSCADOR -->
+            <div class="flex w-full max-w-[190px] items-center rounded-full border border-gray-200 bg-white px-3 py-1 sm:w-40">
+                <input
+                    type="search"
+                    id="buscar-medico"
+                    placeholder="Buscar médicos"
+                    class="w-full min-w-0 bg-transparent text-[10px] text-acento outline-none placeholder:text-acento/50 sm:text-xs"
+                >
+                <i data-lucide="search" class="h-3 w-3 shrink-0 text-acento/50"></i>
             </div>
 
-        </section>
-    </div>
+        </div>
+
+        <!-- LISTADO DE MÉDICOS -->
+        <div id="lista-medicos" class="mt-2 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
+
+            {% for medico in medicos %}
+            
+            <article
+                class="fila-medico flex min-w-0 flex-col gap-1.5 rounded-lg bg-blue-100/25 px-2.5 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-3"
+                data-nombre="{{ medico.nombre | lower }}"
+            >
+
+                <!-- INFORMACIÓN DEL MÉDICO -->
+                <div class="flex min-w-0 flex-1 items-center gap-2">
+
+                    <!-- AVATAR -->
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 font-serif text-[12px] text-emerald-700 sm:h-9 sm:w-9 sm:text-[13px]">
+                        {{ medico.iniciales }}
+                    </div>
+
+                    <!-- DATOS -->
+                    <div class="min-w-0 flex-1">
+
+                        <h3 class="break-words text-[11px] font-medium leading-tight text-acento sm:text-[14px]">
+                            {{ medico.nombre }}
+                        </h3>
+
+                        <p class="text-[8px] leading-tight text-acento/70 sm:text-[9px]">
+                            ID MÉDICO {{ medico.id }}
+                            {% if medico.especialidad %}
+                                <span class="mx-0.5">·</span>{{ medico.especialidad }}
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- IR AL PERFIL -->
+                <div class="flex justify-end sm:shrink-0">
+                    <a
+                        href="{{ url_for('rutas_admin_usuario.usuario_perfil', id_usuario=medico.id_usuario) }}"
+                        class="inline-flex items-center justify-center gap-0.5 whitespace-nowrap rounded-full bg-acento/70 px-2 py-1 text-[8px] text-white transition hover:bg-acento sm:gap-1 sm:px-2.5 sm:text-[11px]"
+                    >
+                        Ir al perfil
+                        <i data-lucide="chevron-right" class="h-3 w-3 shrink-0"></i>
+                    </a>
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- SIN MÉDICOS -->
+        <p
+            id="sin-medicos"
+            class="{{ 'hidden' if medicos else '' }} py-5 text-center text-[10px] text-acento/70 sm:text-xs"
+        >
+            No hay médicos asociados a esta cobertura.
+        </p>
+
+        <!-- VOLVER -->
+        <div class="mt-5 border-t border-gray-200 pt-3 sm:mt-6">
+
+            <a
+                href="{{ url_for('rutas_admin_cobertura.obtener_coberturas') }}"
+                class="inline-flex items-center gap-1 text-[9px] text-acento/70 transition hover:text-acento sm:text-[10px]"
+            >
+                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                Volver a coberturas
+            </a>
+
+        </div>
+
+    </main>
+
 </div>
 
 
 <!-- MODAL: EDITAR COBERTURA -->
 {% call modal("modal-editar-cobertura", "Editar cobertura") %}
-    <form method="POST"
-          action="{{ url_for('rutas_admin_cobertura.editar_cobertura', cobertura_id=cobertura.id) }}"
-          class="mt-5">
 
-        <label for="nombre-cobertura"
-               class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+    <form
+        method="POST"
+        action="{{ url_for('rutas_admin_cobertura.editar_cobertura', cobertura_id=cobertura.id) }}"
+        class="mt-3 sm:mt-5"
+    >
+
+        <label
+            for="nombre-cobertura"
+            class="mb-1.5 block text-[9px] uppercase tracking-wide text-acento/70 sm:text-[10px]"
+        >
             Nombre
         </label>
 
-        <input id="nombre-cobertura"
-               name="nombre"
-               value="{{ cobertura.nombre }}"
-               required
-               maxlength="100"
-               class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+        <input
+            id="nombre-cobertura"
+            name="nombre"
+            value="{{ cobertura.nombre }}"
+            required
+            maxlength="100"
+            class="h-9 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+        >
 
         {{ botones_modal("modal-editar-cobertura", "Guardar") }}
+
     </form>
 
     <div class="mt-2 border-t border-gray-200 pt-2 text-center">
-        <button type="button"
-                data-abrir-modal="modal-eliminar-cobertura"
-                class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700">
+
+        <button
+            type="button"
+            data-abrir-modal="modal-eliminar-cobertura"
+            class="inline-flex items-center gap-1.5 text-[10px] font-medium text-red-600 transition hover:text-red-700 sm:text-xs"
+        >
             <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
             Eliminar cobertura
         </button>
+
     </div>
+
 {% endcall %}
 
 
@@ -156,6 +214,7 @@
     mensaje="Esta acción puede afectar los médicos relacionados con esta cobertura.",
     accion=url_for('rutas_admin_cobertura.eliminar_cobertura', cobertura_id=cobertura.id)
 ) }}
+
 
 <!-- SCRIPTS -->
 <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
