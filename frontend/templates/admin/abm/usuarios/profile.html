@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% from "components/modales.html" import modal, botones_modal, modal_confirmar %}
 
@@ -5,358 +6,547 @@
 
 {% block content %}
 
-<div class="bg-dominante">
-    <div class="w-full">
-        <div class="flex flex-col gap-7">
+<div class="w-full min-w-0 bg-dominante">
 
-            <!-- MENSAJES -->
-            {% with mensajes = get_flashed_messages(with_categories=true) %}
-                {% if mensajes %}
-                <div class="space-y-2">
-                    {% for categoria, mensaje in mensajes %}
-                    <p class="rounded-lg px-4 py-2 text-sm font-medium
-                              {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
-                        {{ mensaje }}
-                    </p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endwith %}
+    <div class="flex min-w-0 flex-col gap-5 sm:gap-7">
 
+        <!-- MENSAJES -->
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+            <div class="space-y-2">
+                {% for categoria, mensaje in mensajes %}
+                <p class="rounded-lg px-3 py-2 text-xs font-medium sm:px-4 sm:text-sm
+                          {% if categoria == 'success' %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ mensaje }}
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
 
-            <!-- TARJETA SUPERIOR DEL PERFIL -->
-            <section class="relative overflow-hidden rounded-[20px] bg-white">
-                <div class="h-28 bg-acento"></div>
+        <!-- ================================= -->
+        <!-- TARJETA DE PERFIL -->
+        <!-- ================================= -->
 
-                <div class="absolute left-5 top-16 flex h-20 w-20 items-center justify-center rounded-full border-[6px] border-white bg-acento font-lexend text-xl font-semibold text-white sm:left-8">
-                    {{ usuario.iniciales }}
-                </div>
+        <section class="relative overflow-hidden rounded-[20px] bg-white">
 
-                <div class="absolute left-28 right-5 top-0 flex h-28 items-end sm:left-32">
-                    <h1 class="mb-2 break-words font-gelasio text-2xl font-semibold text-white sm:text-3xl">
+            <!-- ENCABEZADO AZUL -->
+            <div class="relative flex min-h-[5.5rem] items-end bg-acento px-3 pb-3 pt-3 sm:h-32 sm:min-h-0 sm:px-8 sm:pb-3">
+
+                <!-- NOMBRE -->
+                <div class="min-w-0 w-full pl-[4rem] sm:pl-28">
+                    <h1 class="whitespace-nowrap font-gelasio text-sm font-semibold leading-tight text-white min-[380px]:text-base min-[450px]:text-lg sm:text-3xl">
                         {{ usuario.nombre }} {{ usuario.apellido }}
                     </h1>
                 </div>
 
-                <div class="mt-2 flex min-h-16 items-start justify-between gap-4 pl-28 pr-5 sm:pl-32 sm:pr-8">
-                    <p class="font-lexend text-sm text-acento/70">
-                        {% if usuario.id_rol == 1 %}Administrador desde {{ usuario.fecha_registro }}{% endif %}
-                        {% if usuario.id_rol == 2 %}Recepcionista desde {{ usuario.fecha_registro }}{% endif %}
-                        {% if usuario.id_rol == 3 %}Paciente desde {{ usuario.fecha_registro }}{% endif %}
-                        {% if usuario.id_rol == 4 %}Médico desde {{ usuario.fecha_registro }}{% endif %}
+                <!-- AVATAR -->
+                <div class="absolute bottom-0 left-3 z-10 flex h-14 w-14 translate-y-1/2 items-center justify-center rounded-full border-4 border-white bg-acento font-lexend text-sm font-semibold text-white sm:left-8 sm:h-24 sm:w-24 sm:border-[6px] sm:text-xl">
+                    {{ usuario.iniciales }}
+                </div>
+
+            </div>
+
+            <!-- INFORMACIÓN INFERIOR -->
+            <div class="flex min-h-[75px] flex-col items-start justify-center gap-2 px-3 py-2 pl-20 sm:min-h-[76px] sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-8 sm:py-3 sm:pl-36">
+
+                <!-- ANTIGÜEDAD -->
+                <p class="font-lexend text-[9px] leading-tight text-acento/70 min-[380px]:text-[10px] sm:text-sm">
+                    {% if usuario.id_rol == 1 %}Administrador desde {{ usuario.fecha_registro }}{% endif %}
+                    {% if usuario.id_rol == 2 %}Recepcionista desde {{ usuario.fecha_registro }}{% endif %}
+                    {% if usuario.id_rol == 3 %}Paciente desde {{ usuario.fecha_registro }}{% endif %}
+                    {% if usuario.id_rol == 4 %}Médico desde {{ usuario.fecha_registro }}{% endif %}
+                </p>
+
+                <!-- BOTÓN EDITAR -->
+                <button
+                    type="button"
+                    id="abrirModalEditarUsuario"
+                    data-abrir-modal="modalEditarUsuario"
+                    aria-label="Editar datos del usuario"
+                    class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-acento text-white transition hover:opacity-80 sm:ml-0 sm:h-9 sm:w-9"
+                >
+                    <i data-lucide="pencil-line" class="h-4 w-4 sm:h-5 sm:w-5"></i>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================= -->
+        <!-- DATOS PERSONALES -->
+        <!-- ================================= -->
+
+        <section class="rounded-[18px] bg-white p-4 sm:p-6 lg:p-7">
+
+            <div class="flex min-w-0 flex-col gap-4 sm:gap-5 lg:flex-row lg:justify-between lg:gap-0">
+
+                <!-- EMAIL -->
+                <div class="flex min-w-0 flex-col gap-1 lg:pr-4">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Email
                     </p>
 
-                    <button type="button"
-                            id="abrirModalEditarUsuario"
-                            data-abrir-modal="modalEditarUsuario"
-                            aria-label="Editar datos del usuario"
-                            class="inline-flex shrink-0 items-center gap-1 rounded-full bg-acento px-4 py-2 font-lexend text-xs text-white transition hover:opacity-80">
-                        <i data-lucide="pencil-line" class="h-3.5 w-3.5"></i>
-                        Editar
-                    </button>
-                </div>
-            </section>
-
-
-            <!-- DATOS PERSONALES -->
-            <section class="rounded-[18px] bg-white p-5 sm:p-7">
-                <div class="flex justify-between">
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Email</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.mail }}</p>
-                    </div>
-                    <div class="border-l border-acento/20"></div>
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Fecha de nacimiento</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.fecha_nacimiento }}</p>
-                    </div>
-                    <div class="border-l border-acento/20"></div>
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Documento</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.dni }}</p>
-                    </div>
-
-                    {% if usuario.id_rol == 4 %}
-                    <div class="border-l border-acento/20"></div>
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Nro. matrícula</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.matricula or '-' }}</p>
-                    </div>
-                    <div class="border-l border-acento/20"></div>
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Especialidad</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.especialidad or '-' }}</p>
-                    </div>
-                    {% endif %}
-
-                    {% if usuario.id_rol == 3 %}
-                    <div class="border-l border-acento/20"></div>
-                    <div class="flex flex-col gap-1">
-                        <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/70">Cobertura</p>
-                        <p class="break-words font-lexend text-sm font-medium text-acento">{{ usuario.cobertura or 'Particular' }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </section>
-
-
-            {% if usuario.id_rol == 4 %}
-            <!-- ================================= -->
-            <!-- SECCIÓN EXCLUSIVA DE MÉDICOS -->
-            <!-- ================================= -->
-            <section class="mb-7">
-
-                <!-- Accesos principales -->
-                <div class="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
-
-                    <!-- Turnos -->
-                    <a href="{{ url_for('rutas_admin_medico.turnos', id_medico=usuario.id_medico) }}"
-                       class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
-
-                        <div>
-                            <h2 class="text-xl font-bold text-acento">
-                                VER TURNOS
-                            </h2>
-                            <p class="mt-1 font-lexend text-xs text-acento/70">
-                                Podés ver el historial de turnos del médico.
-                            </p>
-                        </div>
-
-                        <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                            <i data-lucide="plus" class="h-10 w-10" stroke-width="1.5"></i>
-                        </div>
-
-                    </a>
-
-                    <!-- Agenda -->
-                    <a href="{{ url_for('rutas_admin_medico.agenda', id_medico=usuario.id_medico) }}"
-                       class="group flex min-h-20 items-center justify-between rounded-2xl bg-white p-5 shadow-sm">
-
-                        <div>
-                            <h2 class="text-xl font-bold text-acento">
-                                VER AGENDA
-                            </h2>
-                            <p class="mt-1 font-lexend text-xs text-acento/70">
-                                Podés ver su disponibilidad semanal.
-                            </p>
-                        </div>
-
-                        <div class="ml-3 flex h-12 w-12 shrink-0 items-center justify-center text-acento transition group-hover:scale-110">
-                            <i data-lucide="calendar-days" class="h-10 w-10" stroke-width="1.5"></i>
-                        </div>
-
-                    </a>
-
+                    <p class="break-all font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.mail }}
+                    </p>
                 </div>
 
+                <!-- FECHA DE NACIMIENTO -->
+                <div class="flex min-w-0 flex-col gap-1 border-t border-acento/20 pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Fecha de nacimiento
+                    </p>
 
-                <!-- COBERTURAS DEL MÉDICO -->
-                <div class="flex flex-col gap-4">
+                    <p class="font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.fecha_nacimiento }}
+                    </p>
+                </div>
 
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
-                        <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
-                            Coberturas ({{ coberturas_medico | length }})
+                <!-- DOCUMENTO -->
+                <div class="flex min-w-0 flex-col gap-1 border-t border-acento/20 pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Documento
+                    </p>
+
+                    <p class="font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.dni }}
+                    </p>
+                </div>
+
+                {% if usuario.id_rol == 4 %}
+
+                <!-- MATRÍCULA -->
+                <div class="flex min-w-0 flex-col gap-1 border-t border-acento/20 pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Nro. matrícula
+                    </p>
+
+                    <p class="font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.matricula or '-' }}
+                    </p>
+                </div>
+
+                <!-- ESPECIALIDAD -->
+                <div class="flex min-w-0 flex-col gap-1 border-t border-acento/20 pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Especialidad
+                    </p>
+
+                    <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.especialidad or '-' }}
+                    </p>
+                </div>
+
+                {% endif %}
+
+                {% if usuario.id_rol == 3 %}
+
+                <!-- COBERTURA -->
+                <div class="flex min-w-0 flex-col gap-1 border-t border-acento/20 pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <p class="font-lexend text-[10px] font-semibold uppercase tracking-wide text-acento/70 sm:text-xs">
+                        Cobertura
+                    </p>
+
+                    <p class="break-words font-lexend text-xs font-medium text-acento sm:text-sm">
+                        {{ usuario.cobertura or 'Particular' }}
+                    </p>
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        {% if usuario.id_rol == 4 %}
+
+        <!-- ================================= -->
+        <!-- SECCIÓN EXCLUSIVA DE MÉDICOS -->
+        <!-- ================================= -->
+
+        <section class="mb-5 flex min-w-0 flex-col gap-5 sm:mb-7 sm:gap-7">
+
+            <!-- ACCESOS PRINCIPALES -->
+            <div class="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2">
+
+                <!-- TURNOS -->
+                <a
+                    href="{{ url_for('rutas_admin_medico.turnos', id_medico=usuario.id_medico) }}"
+                    class="group flex min-h-[76px] min-w-0 items-center justify-between gap-2 rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md sm:min-h-20 sm:gap-3 sm:p-5"
+                >
+
+                    <div class="min-w-0">
+                        <h2 class="text-base font-bold text-acento sm:text-xl">
+                            VER TURNOS
                         </h2>
 
-                        <div class="flex w-48 items-center rounded-full border border-acento/20 bg-white px-3 py-1.5">
-                            <input
-                                id="buscadorCobertura"
-                                type="text"
-                                placeholder="Buscar cobertura"
-                                class="w-full bg-transparent font-lexend text-xs outline-none placeholder:text-acento/50"
-                            >
-                            <i data-lucide="search" class="h-3.5 w-3.5 text-acento/50"></i>
-                        </div>
-                    </div>
-
-                    <div id="listadoCoberturas" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {% for cobertura in coberturas_medico %}
-                        <article
-                            class="fila-cobertura flex min-h-[64px] items-center justify-between gap-3 rounded-[18px] bg-white px-5 py-4"
-                            data-busqueda="{{ cobertura.nombre | lower }}"
-                        >
-                            <h3 class="break-words font-lexend text-lg font-medium text-acento">
-                                {{ cobertura.nombre }}
-                            </h3>
-
-                            <a href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
-                               class="flex shrink-0 items-center gap-1 rounded-full bg-acento px-4 py-2 font-lexend text-xs text-white transition hover:opacity-80">
-                                Detalles
-                                <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
-                            </a>
-                        </article>
-                        {% else %}
-                        <p class="col-span-full rounded-[18px] bg-white p-6 font-lexend text-sm text-acento/70">
-                            Este médico todavía no tiene coberturas asociadas.
+                        <p class="mt-1 font-lexend text-[10px] text-acento/70 min-[380px]:text-xs">
+                            Podés ver el historial de turnos del médico.
                         </p>
-                        {% endfor %}
                     </div>
 
-                    <p id="sinResultadosCobertura"
-                       class="hidden rounded-[18px] bg-white p-6 text-center font-lexend text-sm text-acento/70">
-                        No se encontraron coberturas.
-                    </p>
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center text-acento transition group-hover:scale-110 sm:h-12 sm:w-12">
+                        <i data-lucide="plus" class="h-8 w-8 sm:h-10 sm:w-10" stroke-width="1.5"></i>
+                    </div>
+
+                </a>
+
+
+                <!-- AGENDA -->
+                <a
+                    href="{{ url_for('rutas_admin_medico.agenda', id_medico=usuario.id_medico) }}"
+                    class="group flex min-h-[76px] min-w-0 items-center justify-between gap-2 rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md sm:min-h-20 sm:gap-3 sm:p-5"
+                >
+
+                    <div class="min-w-0">
+                        <h2 class="text-base font-bold text-acento sm:text-xl">
+                            VER AGENDA
+                        </h2>
+
+                        <p class="mt-1 font-lexend text-[10px] text-acento/70 min-[380px]:text-xs">
+                            Podés ver su disponibilidad semanal.
+                        </p>
+                    </div>
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center text-acento transition group-hover:scale-110 sm:h-12 sm:w-12">
+                        <i data-lucide="calendar-days" class="h-8 w-8 sm:h-10 sm:w-10" stroke-width="1.5"></i>
+                    </div>
+
+                </a>
+
+            </div>
+
+
+            <!-- ================================= -->
+            <!-- COBERTURAS DEL MÉDICO -->
+            <!-- ================================= -->
+
+            <div class="flex min-w-0 flex-col gap-3 sm:gap-4">
+
+                <!-- ENCABEZADO Y BUSCADOR -->
+                <div class="flex min-w-0 flex-col gap-2 border-b border-acento/20 px-1 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+
+                    <h2 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+                        Coberturas ({{ coberturas_medico | length }})
+                    </h2>
+
+                    <!-- BUSCADOR -->
+                    <div class="flex w-full min-w-0 items-center rounded-full border border-acento/20 bg-white px-3 py-1.5 sm:w-48">
+                        <input
+                            id="buscadorCobertura"
+                            type="text"
+                            placeholder="Buscar cobertura"
+                            class="w-full min-w-0 bg-transparent font-lexend text-xs outline-none placeholder:text-acento/50"
+                        >
+
+                        <i data-lucide="search" class="h-3.5 w-3.5 shrink-0 text-acento/50"></i>
+                    </div>
 
                 </div>
 
-            </section>
-            {% endif %}
 
-        </div>
+                <!-- LISTADO -->
+                <div id="listadoCoberturas" class="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+
+                    {% for cobertura in coberturas_medico %}
+
+                    <article
+                        class="fila-cobertura flex min-h-[58px] min-w-0 items-center justify-between gap-2 rounded-[18px] bg-white px-3 py-3 sm:min-h-[64px] sm:gap-3 sm:px-5 sm:py-4"
+                        data-busqueda="{{ cobertura.nombre | lower }}"
+                    >
+
+                        <h3 class="min-w-0 break-words font-lexend text-sm font-medium text-acento sm:text-lg">
+                            {{ cobertura.nombre }}
+                        </h3>
+
+                        <a
+                            href="{{ url_for('rutas_admin_cobertura.detalle_cobertura', cobertura_id=cobertura.id) }}"
+                            class="flex shrink-0 items-center gap-0.5 rounded-full bg-acento px-2.5 py-1.5 font-lexend text-[10px] text-white transition hover:opacity-80 sm:gap-1 sm:px-4 sm:py-2 sm:text-xs"
+                        >
+                            Detalles
+                            <i data-lucide="chevron-right" class="h-3 w-3 sm:h-3.5 sm:w-3.5"></i>
+                        </a>
+
+                    </article>
+
+                    {% else %}
+
+                    <p class="col-span-full rounded-[18px] bg-white p-4 font-lexend text-xs text-acento/70 sm:p-6 sm:text-sm">
+                        Este médico todavía no tiene coberturas asociadas.
+                    </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- SIN RESULTADOS -->
+                <p
+                    id="sinResultadosCobertura"
+                    class="hidden rounded-[18px] bg-white p-4 text-center font-lexend text-xs text-acento/70 sm:p-6 sm:text-sm"
+                >
+                    No se encontraron coberturas.
+                </p>
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
     </div>
+
 </div>
 
 
 <!-- ================================= -->
 <!-- POPUP: EDITAR USUARIO -->
 <!-- ================================= -->
-{% call modal("modalEditarUsuario", "Editar datos de usuario", "max-w-[640px]") %}
-    <form method="POST"
-          action="{{ url_for('rutas_admin_usuario.editar_usuario', id_usuario=usuario.id) }}"
-          class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
 
-        <div>
+{% call modal("modalEditarUsuario", "Editar datos de usuario", "max-w-[640px]") %}
+
+    <form
+        method="POST"
+        action="{{ url_for('rutas_admin_usuario.editar_usuario', id_usuario=usuario.id) }}"
+        class="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4"
+    >
+
+        <!-- NOMBRE -->
+        <div class="min-w-0">
             <label for="editarNombre" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Nombre
             </label>
-            <input id="editarNombre" name="nombre" type="text" required
-                   value="{{ usuario.nombre }}"
-                   placeholder="Nombre"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarNombre"
+                name="nombre"
+                type="text"
+                required
+                value="{{ usuario.nombre }}"
+                placeholder="Nombre"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
-        <div>
+
+        <!-- APELLIDO -->
+        <div class="min-w-0">
             <label for="editarApellido" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Apellido
             </label>
-            <input id="editarApellido" name="apellido" type="text" required
-                   value="{{ usuario.apellido }}"
-                   placeholder="Apellido"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarApellido"
+                name="apellido"
+                type="text"
+                required
+                value="{{ usuario.apellido }}"
+                placeholder="Apellido"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
-        <div>
+
+        <!-- DNI -->
+        <div class="min-w-0">
             <label for="editarDni" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 DNI
             </label>
-            <input id="editarDni" name="dni" type="text" inputmode="numeric" required
-                   value="{{ usuario.dni }}"
-                   placeholder="DNI"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarDni"
+                name="dni"
+                type="text"
+                inputmode="numeric"
+                required
+                value="{{ usuario.dni }}"
+                placeholder="DNI"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
-        <div>
+
+        <!-- FECHA DE NACIMIENTO -->
+        <div class="min-w-0">
             <label for="editarFechaNacimiento" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Fecha de nacimiento
             </label>
-            <input id="editarFechaNacimiento" name="fecha_nacimiento" type="date"
-                   value="{{ usuario.fecha_nacimiento_iso }}"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarFechaNacimiento"
+                name="fecha_nacimiento"
+                type="date"
+                value="{{ usuario.fecha_nacimiento_iso }}"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
-        <div class="sm:col-span-2">
+
+        <!-- MAIL -->
+        <div class="min-w-0 sm:col-span-2">
             <label for="editarMail" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Mail
             </label>
-            <input id="editarMail" name="mail" type="email" required
-                   value="{{ usuario.mail }}"
-                   placeholder="Mail"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarMail"
+                name="mail"
+                type="email"
+                required
+                value="{{ usuario.mail }}"
+                placeholder="Mail"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
+
         {% if usuario.id_rol == 4 %}
-        <!-- Campos exclusivos de médicos -->
-        <div>
+
+        <!-- ESPECIALIDAD -->
+        <div class="min-w-0">
             <label for="editarEspecialidad" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Especialidad
             </label>
-            <select id="editarEspecialidad" name="id_especialidad" required
-                    class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <select
+                id="editarEspecialidad"
+                name="id_especialidad"
+                required
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 bg-white px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
                 <option value="">Seleccionar especialidad</option>
+
                 {% for especialidad in especialidades %}
-                <option value="{{ especialidad.id }}"
-                        {% if especialidad.nombre == usuario.especialidad %}selected{% endif %}>
+                <option
+                    value="{{ especialidad.id }}"
+                    {% if especialidad.nombre == usuario.especialidad %}selected{% endif %}
+                >
                     {{ especialidad.nombre }}
                 </option>
                 {% endfor %}
+
             </select>
         </div>
 
-        <div>
+
+        <!-- MATRÍCULA -->
+        <div class="min-w-0">
             <label for="editarMatricula" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Nro. matrícula
             </label>
-            <input id="editarMatricula" name="matricula" type="text" required
-                   value="{{ usuario.matricula or '' }}"
-                   placeholder="Matrícula"
-                   class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+
+            <input
+                id="editarMatricula"
+                name="matricula"
+                type="text"
+                required
+                value="{{ usuario.matricula or '' }}"
+                placeholder="Matrícula"
+                class="h-10 w-full min-w-0 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 sm:h-11 sm:px-4 sm:text-sm"
+            >
         </div>
 
-        <!-- Agregar coberturas (solo las que el médico todavía no tiene) -->
-        <div class="sm:col-span-2">
+
+        <!-- AGREGAR COBERTURAS -->
+        <div class="min-w-0 sm:col-span-2">
+
             <label class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
                 Agregar coberturas
             </label>
 
-            <div class="relative">
+            <div class="relative min-w-0">
+
                 <button
                     type="button"
                     id="botonSelectorCoberturas"
                     onclick="alternarSelector('selector-coberturas')"
-                    class="flex h-11 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-4 text-left text-sm text-acento/70"
+                    class="flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-full border border-gray-300 bg-white px-3 text-left text-xs text-acento/70 sm:h-11 sm:px-4 sm:text-sm"
                 >
-                    <span id="texto-coberturas" class="truncate">Coberturas</span>
+                    <span id="texto-coberturas" class="truncate">
+                        Coberturas
+                    </span>
+
                     <i data-lucide="chevron-down" class="h-4 w-4 shrink-0"></i>
                 </button>
 
+
+                <!-- SELECTOR -->
                 <div
                     id="selector-coberturas"
                     class="absolute bottom-12 left-0 z-30 hidden max-h-48 w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-lg"
                 >
+
                     <p class="border-b border-gray-200 px-2 py-2 text-[10px] uppercase text-acento/70">
                         Coberturas disponibles
                     </p>
 
                     {% for cobertura in coberturas_disponibles %}
+
                     <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-gray-200">
+
                         <input
                             type="checkbox"
                             name="coberturas"
                             value="{{ cobertura.id }}"
-                            class="h-3 w-3 accent-acento"
+                            class="h-3 w-3 shrink-0 accent-acento"
                         >
-                        <span class="text-xs text-acento">{{ cobertura.nombre }}</span>
+
+                        <span class="break-words text-xs text-acento">
+                            {{ cobertura.nombre }}
+                        </span>
+
                     </label>
+
                     {% else %}
+
                     <p class="px-2 py-2 text-xs text-acento/70">
                         No hay más coberturas para agregar.
                     </p>
+
                     {% endfor %}
+
                 </div>
+
             </div>
+
         </div>
+
         {% endif %}
 
+
+        <!-- GUARDAR -->
         <div class="sm:col-span-2">
             {{ botones_modal("modalEditarUsuario", "Guardar") }}
         </div>
+
     </form>
 
+
+    <!-- ELIMINAR USUARIO -->
     <div class="mt-2 border-t border-gray-200 pt-2 text-center">
-        <button type="button"
-                id="abrirConfirmarEliminarUsuario"
-                data-abrir-modal="modalEliminarUsuario"
-                class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700">
+
+        <button
+            type="button"
+            id="abrirConfirmarEliminarUsuario"
+            data-abrir-modal="modalEliminarUsuario"
+            class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700"
+        >
             <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
             Eliminar usuario
         </button>
+
     </div>
+
 {% endcall %}
 
 
 <!-- ================================= -->
 <!-- POPUP: ELIMINAR USUARIO -->
 <!-- ================================= -->
+
 {{ modal_confirmar(
     id="modalEliminarUsuario",
     titulo="¿Está seguro que quiere eliminar a " ~ usuario.nombre ~ " " ~ usuario.apellido ~ "?",
@@ -369,6 +559,8 @@
 
 
 {% block extra_scripts %}
+
 <script src="{{ url_for('static', filename='js/modales.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/admin/abm/usuario_profile.js') }}" defer></script>
+
 {% endblock %}
