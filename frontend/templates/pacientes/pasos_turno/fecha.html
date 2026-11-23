@@ -127,12 +127,11 @@
                 if (btnConfirmar) btnConfirmar.disabled = true;
             }
 
-            // Registrarse para recibir la selección de horario del componente
-            if (window.agendaMensualPaciente) {
-                window.agendaMensualPaciente.onSeleccionarHorario((fecha, hora) => {
-                    actualizarCampos(fecha, hora);
-                });
-            }
+            // Escuchar selección de horario del componente (evento custom)
+            document.addEventListener('turno-seleccionado-paciente', (e) => {
+                const { fecha, hora } = e.detail || {};
+                if (fecha && hora) actualizarCampos(fecha, hora);
+            });
 
             // Si viene fecha/hora de sesión, aplicarlas
             if ({{ fecha_seleccionada | tojson }} && {{ hora_seleccionada | tojson }}) {

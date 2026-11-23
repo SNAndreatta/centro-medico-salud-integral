@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.dataset.hora = turno.hora;
-            btn.className = `${CLASES_HORARIO} bg-acento text-white border border-acento`;
+            btn.className = `${CLASES_HORARIO} bg-white text-acento border border-acento`;
             btn.title = "Seleccionar horario";
             btn.textContent = turno.hora;
             btn.addEventListener("click", () => seleccionarHorarioPaciente(fecha, turno.hora, btn));
@@ -110,9 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function seleccionarHorarioPaciente(fecha, hora, btn) {
         panel.querySelectorAll("button[data-hora]").forEach(b => {
-            b.className = `${CLASES_HORARIO} bg-acento text-white border border-acento`;
+            b.className = `${CLASES_HORARIO} bg-white text-acento border border-acento`;
         });
-        btn.className = `${CLASES_HORARIO} bg-white text-acento border border-acento ring-2 ring-acento`;
+        btn.className = `${CLASES_HORARIO} bg-acento text-white border border-acento ring-2 ring-acento`;
         horaActiva = hora;
 
         // Notificar a fecha.html vía evento custom
