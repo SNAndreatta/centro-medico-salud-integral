@@ -20,8 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const video = document.getElementById("video-qr");
     const estadoLector = document.getElementById("estado-lector");
     const mensajeResultado = document.getElementById("mensaje-resultado-ingreso");
-    const iconoExito = document.getElementById("icono-resultado-exito");
-    const iconoError = document.getElementById("icono-resultado-error");
     const botonCerrarResultado = document.getElementById("boton-cerrar-resultado-ingreso");
 
     if (!botonIngresar || !modalEscaner || !modalResultado || !lector || !video) {
@@ -238,19 +236,26 @@ document.addEventListener("DOMContentLoaded", () => {
             mensajeResultado.textContent = mensaje;
         }
 
-        if (iconoExito) {
-            iconoExito.classList.toggle("hidden", !exito);
-        }
-
-        if (iconoError) {
-            iconoError.classList.toggle("hidden", exito);
-        }
-
         if (botonCerrarResultado) {
             botonCerrarResultado.textContent = exito ? "Cerrar" : "Reintentar";
         }
 
         abrirModal("modal-resultado-ingreso");
+
+        const iconoExitoVisible = modalResultado.querySelector(
+            "#icono-resultado-exito, [data-lucide='circle-check']"
+        );
+        const iconoErrorVisible = modalResultado.querySelector(
+            "#icono-resultado-error, [data-lucide='circle-x']"
+        );
+
+        if (iconoExitoVisible) {
+            iconoExitoVisible.classList.toggle("hidden", !exito);
+        }
+
+        if (iconoErrorVisible) {
+            iconoErrorVisible.classList.toggle("hidden", exito);
+        }
     }
 
     function cerrarResultado() {
