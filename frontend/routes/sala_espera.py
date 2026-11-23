@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from src.api import ErrorAPI
 from src.api_catalogos import obtener_especialidades
@@ -64,31 +64,40 @@ def sala_espera():
         total=total,
         error=error,
         rol=rol_actual,
+        ingreso_resultado=request.args.get('resultado'),
+        ingreso_mensaje=request.args.get('mensaje'),
     )
 
 
 @sala_espera_routes.route('/checkin', methods=['POST'])
 @requiere_rol("recepcion")
 def registrar_ingreso():
-    """Registra el ingreso del paciente a partir del QR de su turno."""
-    datos = request.get_json(silent=True) or {}
+    """Registra el ingreso del paciente a partir del QR de su turno.
+
+    Acepta JSON (fetch) o form data (submit tradicional). Redirige a la
+    sala de espera con los parámetros de resultado para mostrar el cartel.
+    """
+    datos = request.get_json(silent=True) or request.form or {}
     token = str(datos.get('token') or '').strip()
 
     if not token:
-        return jsonify({
-            'ok': False,
-            'mensaje': 'El código QR está vacío.',
-        })
+        return redirect(
+            url_for('rutas_sala_espera.sala_espera',
+                    resultado='error',
+                    mensaje='El código QR está vacío.')
+        )
 
     try:
         checkin(token)
     except ErrorAPI as e:
-        return jsonify({
-            'ok': False,
-            'mensaje': e.mensaje or 'No se pudo registrar el ingreso.',
-        })
+        return redirect(
+            url_for('rutas_sala_espera.sala_espera',
+                    resultado='error',
+                    mensaje=e.mensaje or 'No se pudo registrar el ingreso.')
+        )
 
-    return jsonify({
-        'ok': True,
-        'mensaje': 'Ingreso registrado correctamente.',
-    })
+    return redirect(
+        url_for('rutas_sala_espera.sala_espera',
+                resultado='ok',
+                mensaje='Ingreso registrado correctamente.')
+    )
