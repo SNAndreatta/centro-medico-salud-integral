@@ -70,12 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (turno.disponible) {
                 // Disponible: visible pero no seleccionable
                 btn.disabled = true;
-                btn.className = `${CLASES_HORARIO} cursor-default bg-dominante text-acento`;
+                btn.className = `${CLASES_HORARIO} cursor-default bg-white text-acento  border border-acento`;
                 btn.title = "Disponible";
                 btn.textContent = turno.hora;
             } else {
                 // Ocupado: seleccionable, muestra el detalle
-                btn.className = `${CLASES_HORARIO} bg-gray-200 text-gray-600 hover:bg-acento hover:text-white`;
+                btn.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
                 btn.title = "Ocupado - ver turno";
                 btn.textContent = turno.hora;
                 btn.addEventListener("click", () => seleccionarHorario(fecha, turno, btn));
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function seleccionarHorario(fecha, turno, btn) {
         panel.querySelectorAll("button[data-hora]").forEach(b => {
-            if (!b.disabled) b.className = `${CLASES_HORARIO} bg-gray-200 text-gray-600 hover:bg-acento hover:text-white`;
+            if (!b.disabled) b.className = `${CLASES_HORARIO} bg-acento/20 text-acento hover:bg-acento hover:text-acento border border-acento`;
         });
         btn.className = `${CLASES_HORARIO} bg-acento text-white`;
         horaActiva = turno.hora;

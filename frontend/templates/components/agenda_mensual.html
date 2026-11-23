@@ -1,18 +1,18 @@
-<section aria-label="Agenda mensual" class="space-y-2">
+<section aria-label="Agenda mensual" class="space-y-3 sm:space-y-4">
 
     <!-- SELECTOR DE MES Y AÑO -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
 
-        <h3 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+        <h3 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
             {{ nombre_mes | upper }} {{ anio }}
         </h3>
 
-        <form method="get" class="flex items-center gap-2">
+        <form method="get" class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
             <select
                 name="mes"
                 aria-label="Seleccionar mes"
                 onchange="this.form.submit()"
-                class="rounded-2xl border border-gray-300 bg-white px-4 py-1 text-sm font-medium text-acento/80 focus:border-acento/80 focus:outline-none"
+                class="w-full rounded-2xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:w-auto sm:px-4 sm:py-1 sm:text-sm"
             >
                 {% for num, nombre in meses %}
                 <option value="{{ num }}" {% if num == mes %}selected{% endif %}>{{ nombre }}</option>
@@ -23,7 +23,7 @@
                 name="anio"
                 aria-label="Seleccionar año"
                 onchange="this.form.submit()"
-                class="rounded-2xl border border-gray-300 bg-white px-4 py-1 text-sm font-medium text-acento/80 focus:border-acento/80 focus:outline-none"
+                class="w-full rounded-2xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:w-auto sm:px-4 sm:py-1 sm:text-sm"
             >
                 {% for a in anios %}
                 <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
@@ -40,11 +40,12 @@
     <!-- CALENDARIO MENSUAL -->
     <div class="overflow-hidden rounded-2xl border border-acento/40 bg-white">
 
-        <!-- Cabecera de días -->
+        <!-- Cabecera de días (abreviada en mobile, completa desde sm) -->
         <div class="grid grid-cols-7 border-b border-acento/30 bg-dominante">
             {% for d in dias_semana %}
-            <div class="px-1 py-3 text-center text-xs font-semibold tracking-wide text-acento sm:text-base">
-                {{ d }}
+            <div class="px-0.5 py-2 text-center text-[11px] font-semibold tracking-wide text-acento sm:px-1 sm:py-3 sm:text-base">
+                <span class="sm:hidden">{{ d[:3] }}</span>
+                <span class="hidden sm:inline">{{ d }}</span>
             </div>
             {% endfor %}
         </div>
@@ -52,25 +53,35 @@
         <!-- Grilla de días -->
         <div id="grillaMes" class="grid grid-cols-7">
 
+            {# Celdas vacías al inicio #}
             {% for _ in range(offset_inicio) %}
-            <div class="min-h-[64px] border-b border-r border-gray-200 bg-gray-50 sm:min-h-[84px]"></div>
+            <div class="min-h-[48px] border-b border-r border-gray-200 bg-gray-50 [&:nth-child(7n)]:border-r-0 sm:min-h-[84px]"></div>
             {% endfor %}
 
+            {# Días del mes #}
             {% for dia in dias %}
             <button
                 type="button"
                 data-fecha="{{ dia.fecha }}"
                 aria-pressed="false"
-                class="dia-agenda flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-r border-gray-200 px-1 py-2 transition hover:bg-dominante sm:min-h-[84px] {% if dia.dia_semana >= 5 %}text-gray-400{% else %}text-acento{% endif %}"
+                class="dia-agenda flex min-h-[48px] flex-col items-center justify-center gap-0.5 border-b border-r border-gray-200
+                px-0.5 py-3 transition hover:bg-dominante focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-acento/40 aria-[pressed=true]:bg-acento aria-[pressed=true]:text-white [&:nth-child(7n)]:border-r-0 sm:min-h-[84px] sm:gap-1 sm:px-1 sm:py-2 {% if dia.dia_semana >= 5 or not dia.turnos %}text-gray-400{% else %}text-acento{% endif %}"
             >
-                <span class="text-sm font-semibold sm:text-base">{{ dia.numero }}</span>
+                <span class="text-sm font-medium sm:text-base">{{ dia.numero }}</span>
 
+                {# Detalle solo desde sm: en mobile queda solo el número #}
                 {% if dia.turnos %}
-                <span class="text-[10px] font-medium opacity-80 sm:text-xs">{{ dia.libres }} libres</span>
+                <span class="hidden text-xs font-medium opacity-80 sm:block">{{ dia.libres }} libres</span>
                 {% else %}
-                <span class="text-[10px] opacity-60 sm:text-xs">Cerrado</span>
+                <span class="hidden text-xs opacity-60 sm:block">Cerrado</span>
                 {% endif %}
             </button>
+            {% endfor %}
+
+            {# Celdas vacías al final para completar la última semana #}
+            {% set resto = (offset_inicio + dias | length) % 7 %}
+            {% for _ in range((7 - resto) % 7) %}
+            <div class="min-h-[48px] border-b border-r border-gray-200 bg-gray-50 [&:nth-child(7n)]:border-r-0 sm:min-h-[84px]"></div>
             {% endfor %}
 
         </div>
@@ -79,12 +90,12 @@
 
     <!-- HORARIOS DEL DÍA SELECCIONADO -->
     <section>
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
-            <h2 id="tituloDia" class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-acento/20 px-1 pb-3">
+            <h2 id="tituloDia" class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
                 Seleccioná un día
             </h2>
 
-            <p class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
+            <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">
                 CONSULTORIO:
                 <span class="text-acento">
                     {{ consultorio.numero | default('123', true) }}
@@ -92,19 +103,19 @@
             </p>
         </div>
 
-        <div id="panelHorarios" class="grid grid-cols-2 gap-3 mt-4 sm:grid-cols-4 md:grid-cols-5"></div>
+        <div id="panelHorarios" class="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:grid-cols-4 sm:gap-3 md:grid-cols-5"></div>
     </section>
 
     <!-- TURNO SELECCIONADO -->
     <section>
         <div class="mb-3 border-b border-acento/30 pb-2">
-            <h2 class="font-lexend text-sm font-semibold uppercase tracking-wide text-acento/40 sm:text-base">TURNO SELECCIONADO</h2>
+            <h2 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-base">TURNO SELECCIONADO</h2>
         </div>
 
-        <div id="turnoSeleccionado" class="rounded-2xl bg-white px-6 py-10 text-center shadow-sm">
-            <i data-lucide="calendar-clock" class="mx-auto mb-4 h-10 w-10 text-gray-400"></i>
-            <h3 class="text-lg font-bold text-acento">Ningún turno seleccionado</h3>
-            <p class="mt-2 text-sm text-gray-500">Seleccioná un horario ocupado para ver los detalles del turno.</p>
+        <div id="turnoSeleccionado" class="rounded-2xl bg-white px-4 py-6 text-center shadow-sm sm:px-6 sm:py-10">
+            <i data-lucide="calendar-clock" class="mx-auto mb-3 h-8 w-8 text-gray-400 sm:mb-4 sm:h-10 sm:w-10"></i>
+            <h3 class="text-base font-bold text-acento sm:text-lg">Ningún turno seleccionado</h3>
+            <p class="mt-2 text-xs text-gray-500 sm:text-sm">Seleccioná un horario ocupado para ver los detalles del turno.</p>
         </div>
     </section>
 
