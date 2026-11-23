@@ -35,7 +35,6 @@
             <button
                 type="button"
                 id="boton-ingresar-paciente"
-                data-url-checkin="{{ url_for('rutas_recepcion.registrar_ingreso') }}"
                 class="flex items-center gap-2 rounded-full bg-acento/80 px-3 py-2 text-xs font-medium font-lexend text-white transition hover:bg-acento sm:text-sm"
             >
                 Ingresar paciente
@@ -238,7 +237,23 @@
     <!-- =========================================
          POP-UP RESULTADO DEL INGRESO
     ========================================== -->
+    <form
+        id="form-checkin-qr"
+        method="POST"
+        action="{{ url_for('rutas_recepcion.registrar_ingreso') }}"
+        class="hidden"
+    >
+        <input type="hidden" id="token-checkin" name="token">
+    </form>
+
     {% call modal("modal-resultado-ingreso", "Ingreso de paciente", "max-w-[420px]") %}
+        <div
+            id="datos-resultado-ingreso"
+            data-resultado="{{ ingreso_resultado or '' }}"
+            data-mensaje="{{ ingreso_mensaje or '' }}"
+            class="hidden"
+        ></div>
+
         <div class="flex flex-col items-center gap-4 text-center">
 
             <i

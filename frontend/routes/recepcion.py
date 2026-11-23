@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from src.api import ErrorAPI
 from src.api_catalogos import (
@@ -58,7 +58,9 @@ def sala_espera():
         'recepcion/sala_espera.html',
         pacientes_en_espera=pacientes_en_espera,
         especialidades=especialidades,
-        error=error
+        error=error,
+        ingreso_resultado=request.args.get('resultado'),
+        ingreso_mensaje=request.args.get('mensaje'),
     )
 
 
@@ -69,28 +71,30 @@ def sala_espera():
 @recepcion_routes.route('/recepcion/checkin', methods=['POST'])
 @requiere_rol("recepcion")
 def registrar_ingreso():
-    """Registra el ingreso del paciente a partir del QR de su turno."""
-    datos = request.get_json(silent=True) or {}
-    token = str(datos.get('token') or '').strip()
+    """Registra el ingreso del paciente a partir del formulario de check-in."""
+    token = str(request.form.get('token') or '').strip()
 
     if not token:
-        return jsonify({
-            'ok': False,
-            'mensaje': 'El código QR está vacío.',
-        })
+        return redirect(url_for(
+            'rutas_recepcion.sala_espera',
+            resultado='error',
+            mensaje='El código QR está vacío.',
+        ))
 
     try:
         checkin(token)
     except ErrorAPI as e:
-        return jsonify({
-            'ok': False,
-            'mensaje': e.mensaje or 'No se pudo registrar el ingreso.',
-        })
+        return redirect(url_for(
+            'rutas_recepcion.sala_espera',
+            resultado='error',
+            mensaje=e.mensaje or 'No se pudo registrar el ingreso.',
+        ))
 
-    return jsonify({
-        'ok': True,
-        'mensaje': 'Ingreso registrado correctamente.',
-    })
+    return redirect(url_for(
+        'rutas_recepcion.sala_espera',
+        resultado='ok',
+        mensaje='Ingreso registrado correctamente.',
+    ))
 
 
 # ==========================================

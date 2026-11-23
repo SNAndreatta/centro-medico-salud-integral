@@ -20,10 +20,6 @@ Centro Médico Salud Integral fue desarrollado como Proyecto Integrador de Intro
 
 El sistema permite que los pacientes encuentren una especialidad y un médico, seleccionen un horario disponible y reciban por correo la confirmación junto con un código QR. Recepción puede registrar la llegada escaneando ese código. Administración y recepción gestionan los datos maestros, las agendas y los turnos, mientras que los médicos pueden consultar su agenda y marcar las consultas atendidas.
 
-## Introducción
-
-La gestión en papel y los canales informales producen solapamientos, cancelaciones no registradas, datos incorrectos y poca visibilidad sobre la sala de espera y el ausentismo. La solución propuesta centraliza esa información y aplica reglas consistentes sobre reservas, estados, horarios, coberturas y permisos según el rol del usuario.
-
 ## Solución propuesta
 
 ### Pacientes
@@ -55,10 +51,10 @@ La gestión en papel y los canales informales producen solapamientos, cancelacio
 El proyecto está organizado como un monorepo con tres componentes principales:
 
 - `backend/`: API Flask con rutas, servicios, repositorios y consultas SQL explícitas.
-- `frontend/`: aplicación Flask SSR. La comunicación con la API se realiza desde Python mediante `requests`.
-- `db`: MySQL 8.4 ejecutado mediante Docker Compose.
+- `frontend/`: aplicación Flask SSR que no accede directamente a la base de datos.
+- `db`: MySQL 8.4 ejecutado mediante Docker Compose en el entorno local.
 
-La API monta sus rutas bajo el prefijo `/api`. El frontend no accede directamente a la base de datos: utiliza `frontend/src/api.py::api()`, reenvía el JWT almacenado en la sesión y convierte los errores del backend en respuestas controladas.
+La API monta sus rutas bajo el prefijo `/api`. El frontend comunica con la API desde Python mediante `frontend/src/api.py::api()`, que reenvía el JWT almacenado en la sesión y convierte los errores del backend en respuestas controladas.
 
 La organización del backend sigue el flujo:
 
@@ -67,6 +63,8 @@ routes → services → repositories → src/db.py → MySQL
 ```
 
 No se utiliza un ORM. Las consultas se escriben directamente en SQL a través de cursores parametrizados.
+
+Las validaciones de datos en services o routes se realizan con utilidades de validators o de utils.
 
 ## Tecnologías utilizadas
 
@@ -77,7 +75,7 @@ No se utiliza un ORM. Las consultas se escriben directamente en SQL a través de
 - Tailwind CSS 4.
 - PyJWT y Werkzeug para autenticación y contraseñas.
 - Librerías `qrcode` y Pillow para códigos QR.
-- APScheduler y tareas periódicas de ausentismo.
+- Librería `requests` para la comunicación Python del frontend con la API.
 - SMTP para comprobantes y confirmaciones por correo.
 - Swagger y una colección Postman para documentar la API.
 
@@ -120,7 +118,7 @@ Los datos iniciales de las cuentas se encuentran en `backend/database/seed.sql`.
 - Docker.
 - Docker Compose.
 - Git.
-- Puertos locales `8000`, `5000` y `3306` disponibles.
+- Puertos locales `8000`, `5000` y `3306` disponibles. El puerto 3306 no es necesario si se utiliza una base de datos hosteada.
 
 ## Configuración
 
@@ -201,57 +199,13 @@ Los módulos principales de la API incluyen autenticación, usuarios, pacientes,
 
 Los supuestos acordados para el proyecto están detallados en `docs/supuestos.txt`.
 
-## Pruebas
-
-### Backend
-
-```bash
-cd backend
-../venv/bin/python -m pytest tests/ -q
-```
-
-Para ejecutar un archivo puntual:
-
-```bash
-cd backend
-../venv/bin/python -m pytest tests/test_turnos_estado_medico.py -q
-```
-
-### Frontend
-
-```bash
-cd frontend
-PYTHONPATH=/tmp/opencode/pydeps:. ../venv/bin/python -m pytest tests/ -q
-```
-
-Si el entorno raíz no tiene `requests`, instalar las dependencias del frontend:
-
-```bash
-../venv/bin/python -m pip install -r requirements.txt
-```
-
-### JavaScript
-
-```bash
-node --check frontend/static/js/mis_turnos.js
-```
-
 ## Diseño responsive
 
-Las interfaces están desarrolladas con HTML responsivo y estilos adaptables para su uso desde computadoras, tablets y dispositivos móviles. El proyecto no utiliza funcionalidades como `fetch`, Axios o `XMLHttpRequest`; el navegador intercambia vistas y formularios con el frontend Flask, y el frontend comunica con el backend mediante Python y `requests`.
+Las interfaces utilizan Tailwind CSS con clases responsivas y vistas adaptables para computadoras, tablets y dispositivos móviles.
 
-## Decisiones y dificultades de diseño
+## Decisiones de diseño
 
-- Se separó estrictamente el frontend del acceso a datos para centralizar las reglas y la seguridad en la API.
-- Se utilizaron SQL directo y repositorios en lugar de un ORM para cumplir las restricciones de la cátedra y mantener visible cada consulta.
 - Se centralizó la configuración horaria en Argentina/Buenos Aires para evitar diferencias entre contenedores y datos SQL.
 - Se implementaron ventanas temporales específicas para check-in, atención y cancelación.
 - Se preservan las reservas canceladas como historial y se vuelve a ofrecer el horario disponible.
-- Se usa una tarea periódica y mecanismos de ejecución controlada para procesar ausentismos sin duplicar cambios.
-
-## Conclusión
-
-El proyecto integra backend Flask, frontend SSR, persistencia SQL y Docker para resolver los principales problemas de la gestión de turnos médicos. La solución contempla seguridad por roles, estados consistentes, generación de agendas, reserva y cancelación, confirmación por correo, check-in mediante QR y estadísticas operativas.
-
-Como mejoras futuras pueden incorporarse recordatorios automáticos previos al turno, reportes PDF adicionales y el despliegue en una plataforma con una base de datos administrada.
-
+- Se usa una tarea y mecanismos de ejecución controlada, ejecutada previo a cada petición, para procesar ausentismos. Esto se debe a que a la hora de hostear la aplicación en Vercel las tareas programadas en flask no funcionan. Y además, las tareas programadas de Vercel están muy limitadas en el plan gratuito.
