@@ -1,10 +1,13 @@
 {% extends "base.html" %}
+{% from "components/modales.html" import modal, botones_modal %}
 
 {% block title %}Mi agenda | Salud Integral{% endblock %}
 
 {% block content %}
 
 <div class="px-1 sm:px-2">
+
+    {% include "components/mensajes.html" %}
 
     <!-- Encabezado -->
     <div class="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
@@ -46,6 +49,118 @@
     {% set modo = 'medico' %}
     {% include "components/agenda_mensual.html" %}
 
+    {% if es_admin %}
+    {% call modal("modalCrearAgenda", "Crear agenda", "max-w-[640px]") %}
+        <p class="mt-3 text-center text-xs text-acento/70">
+            Configurá la disponibilidad del médico.
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('rutas_admin_medico.crear_agenda', id_medico=medico.id_medico) }}"
+              id="form-crear-agenda"
+              class="mt-5 space-y-4">
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="consultorioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Consultorio
+                    </label>
+                    <select id="consultorioAgenda" name="consultorio" required
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
+                        <option value="">Seleccionar consultorio</option>
+                        {% for consultorio in consultorios %}
+                        <option value="{{ consultorio.id }}">Consultorio {{ consultorio.numero }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="duracionTurno" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Duración del turno
+                    </label>
+                    <select id="duracionTurno" name="duracion_turno" required
+                            class="h-11 w-full rounded-full border border-gray-300 bg-white px-4 text-sm text-acento outline-none focus:border-acento/70">
+                        <option value="">Seleccionar duración</option>
+                        <option value="15">15 minutos</option>
+                        <option value="20">20 minutos</option>
+                        <option value="30">30 minutos</option>
+                        <option value="45">45 minutos</option>
+                        <option value="60">60 minutos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="fechaInicioAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Fecha de inicio
+                    </label>
+                    <input id="fechaInicioAgenda" name="fecha_inicio" type="date" required
+                           class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+                </div>
+
+                <div>
+                    <label for="fechaHastaAgenda" class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                        Fecha hasta
+                    </label>
+                    <input id="fechaHastaAgenda" name="fecha_hasta" type="date" required
+                           class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
+                </div>
+            </div>
+
+            <p id="errorFechasAgenda" class="hidden text-xs text-red-600">
+                La fecha de finalización debe ser igual o posterior a la fecha de inicio.
+            </p>
+
+            <div>
+                <p class="mb-1.5 block text-[10px] uppercase tracking-wide text-acento/70">
+                    Días de atención
+                </p>
+                <p class="mb-2 text-xs text-acento/70">
+                    Marcá los días que atiende dentro del rango elegido y el horario de cada uno.
+                </p>
+
+                <div class="space-y-2">
+                    {% for nombre in dias_formulario %}
+                    {% set dia = loop.index %}
+                    <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-acento/20 px-4 py-2"
+                         data-dia="{{ dia }}">
+                        <label class="flex items-center gap-2 text-sm font-medium text-acento">
+                            <input type="checkbox"
+                                   name="dias"
+                                   value="{{ dia }}"
+                                   data-dia-checkbox
+                                   class="h-4 w-4 rounded border-acento/40 text-acento focus:ring-acento/40">
+                            {{ nombre }}
+                        </label>
+
+                        <div class="ml-auto flex items-center gap-2">
+                            <input type="time"
+                                   name="hora_inicio_{{ dia }}"
+                                   data-hora-inicio
+                                   disabled
+                                   aria-label="Hora de inicio del {{ nombre }}"
+                                   class="h-9 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400">
+                            <span class="text-xs text-acento/70">a</span>
+                            <input type="time"
+                                   name="hora_fin_{{ dia }}"
+                                   data-hora-fin
+                                   disabled
+                                   aria-label="Hora de fin del {{ nombre }}"
+                                   class="h-9 rounded-full border border-gray-300 px-3 text-xs text-acento outline-none focus:border-acento/70 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <p id="errorDiasAgenda" class="hidden text-xs text-red-600"></p>
+
+            {{ botones_modal("modalCrearAgenda", "Crear") }}
+        </form>
+    {% endcall %}
+    {% endif %}
+
     <!-- Cards de turnos: se renderizan acá y el JS clona la que corresponda -->
     {% for dia in dias %}
         {% for turno in dia.turnos %}
@@ -61,5 +176,7 @@
 
 
 {% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/components/modales.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/components/agenda_mensual.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/admin/abm/medico_agenda.js') }}" defer></script>
 {% endblock %}
