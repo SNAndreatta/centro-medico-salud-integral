@@ -116,12 +116,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <i
                     data-lucide="calendar-off"
-                    class="mx-auto mb-4 h-10 w-10 text-gray-400 sm:h-12 sm:w-12"
+                    class="mx-auto mb-3 h-8 w-8 text-gray-400 sm:mb-4 sm:h-10 sm:w-10"
                 ></i>
 
                 <h3 class="text-base font-bold text-acento sm:text-lg">
                     No hay atención en el día seleccionado.
                 </h3>
+                <p class="mt-2 text-xs text-gray-500 sm:text-sm">Seleccioná otro dia para ver los horarios de atención.</p>
 
             </div>`;
             if (modo === "medico") mostrarSinTurno();
