@@ -36,7 +36,7 @@ cd frontend && PYTHONPATH=/tmp/opencode/pydeps:. ../venv/bin/python -m pytest te
 npx @tailwindcss/cli -i ./frontend/static/css/input.css -o ./frontend/static/css/output.css
 
 # JS: chequeo de sintaxis
-node --check frontend/static/js/mis_turnos.js
+node --check frontend/static/js/medico/mis_turnos.js
 
 # SQL directo contra la db del container
 docker exec centro-medico-db mysql -uapp_user -papp_password centro_medico -e "SELECT ...;"
