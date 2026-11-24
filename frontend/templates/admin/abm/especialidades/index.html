@@ -58,30 +58,29 @@
         {% for especialidad in especialidades %}
 
         <article
-            class="fila-especialidad relative grid min-h-[43px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b border-gray-200 px-2 py-2 last:border-b-0 sm:min-h-[49px] sm:gap-3 sm:px-3 sm:py-2 md:grid-cols-[1.2fr_1.2fr_1fr_auto]"
+            class="fila-especialidad relative grid min-h-[43px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b border-gray-200 px-2 py-2 last:border-b-0 sm:min-h-[49px] sm:grid-cols-[1.2fr_1.2fr_1fr_auto] sm:gap-3 sm:px-3 sm:py-2"
             data-busqueda="{{ especialidad.nombre }} {{ especialidad.id }} {{ especialidad.cantidad_medicos }}"
         >
 
             <!-- NOMBRE -->
-            <div class="row-start-1 col-start-1 flex min-w-0 items-center md:row-auto md:col-auto">
+            <div class="col-start-1 row-start-1 flex min-w-0 items-center sm:col-auto sm:row-auto">
                 <span class="truncate font-gelasio text-[14px] text-acento sm:text-[20px]">
                     {{ especialidad.nombre }}
                 </span>
             </div>
 
-            <!-- ID ESPECIALIDAD -->
-            <div class="hidden items-center gap-2 md:flex">
+            <!-- ID ESPECIALIDAD (tablet y web) -->
+            <div class="hidden items-center gap-2 sm:flex">
                 <span class="text-[9px] font-medium uppercase text-acento/50">
                     ID ESPECIALIDAD
                 </span>
-
                 <span class="text-[9px] font-semibold text-acento">
                     {{ especialidad.id }}
                 </span>
             </div>
 
-            <!-- CANTIDAD DE MÉDICOS -->
-            <div class="hidden items-center gap-2 md:flex">
+            <!-- CANTIDAD DE ESPECIALISTAS (tablet y web) -->
+            <div class="hidden items-center gap-2 sm:flex">
                 <span class="text-[9px] font-medium uppercase text-acento/50">
                     {{ especialidad.cantidad_medicos }}
                     {{ 'ESPECIALISTA' if especialidad.cantidad_medicos == 1 else 'ESPECIALISTAS' }}
@@ -89,7 +88,7 @@
             </div>
 
             <!-- MENÚ DE OPCIONES -->
-            <div class="relative row-start-1 row-span-2 col-start-2 flex self-stretch items-center justify-center md:row-auto md:col-auto">
+            <div class="relative col-start-2 row-span-2 row-start-1 flex items-center justify-center self-stretch sm:col-auto sm:row-auto sm:row-span-1 sm:self-auto">
 
                 <button
                     type="button"
@@ -132,26 +131,22 @@
                 </div>
             </div>
 
-            <!-- ID Y ESPECIALISTAS EN MOBILE -->
-            <div class="row-start-2 col-start-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-[8px] font-medium uppercase text-acento/60 md:hidden sm:text-[9px]">
-
+            <!-- ID Y ESPECIALISTAS (solo celular) -->
+            <div class="col-start-1 row-start-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-[8px] font-medium uppercase text-acento/60 sm:hidden">
                 <span>
                     ID ESPECIALIDAD
-                    <span class="font-semibold text-acento">
-                        {{ especialidad.id }}
-                    </span>
+                    <span class="font-semibold text-acento">{{ especialidad.id }}</span>
                 </span>
-
                 <span>
                     {{ especialidad.cantidad_medicos }}
                     {{ 'ESPECIALISTA' if especialidad.cantidad_medicos == 1 else 'ESPECIALISTAS' }}
                 </span>
-
             </div>
 
         </article>
 
         {% endfor %}
+
 
         <!-- SIN RESULTADOS -->
         <p
