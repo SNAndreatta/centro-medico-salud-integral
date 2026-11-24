@@ -111,10 +111,10 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
         else:
             estado = 'cerrado'
 
-        # Para el componente agenda_mensual: solo horarios disponibles,
-        # con disponible=False para que el JS los muestre como seleccionables.
+        # Horarios disponibles para el paciente (disponible=True),
+        # para que el JS los muestre como selectables en modo paciente.
         turnos_dia = [
-            {'hora': h, 'disponible': False} for h in horas
+            {'hora': h, 'disponible': True} for h in horas
         ] if estado == 'disponible' else []
 
         if estado == 'disponible' and primer_disponible is None:
