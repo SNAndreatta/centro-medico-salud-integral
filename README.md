@@ -3,7 +3,7 @@
 Aplicación web para la gestión integral de turnos médicos: reserva por pacientes, administración de agendas y profesionales, control de llegada mediante códigos QR y seguimiento de ausentismo y ocupación.
 
 ## Integrantes
- 
+  
 - Santino Nicolás Andreatta - 116024
 - Galo Fernandez Achille - 116037
 - Matias Mattos - 116125
