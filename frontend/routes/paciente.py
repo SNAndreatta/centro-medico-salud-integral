@@ -73,7 +73,7 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
             momento = datetime.fromisoformat(f"{t['fecha_iso']}T{t['hora']}")
         except (TypeError, ValueError):
             continue
-        if momento > ahora:
+        if momento >= ahora:
             libres.append(t)
 
     por_fecha = {}
@@ -104,6 +104,10 @@ def _contexto_calendario(medico, anio, mes, fecha_sel=None, hora_sel=None):
 
         if fecha < hoy:
             estado = 'pasado'
+        elif fecha == hoy:
+            # Hoy: mostrar como disponible si hay turnos, o 'disponible' si hay horas libres
+            # Los turnos que ya pasaron (hora < ahora_local) quedan fuera por el filtro momento >= ahora
+            estado = 'disponible' if horas else 'cerrado'
         elif horas:
             estado = 'disponible'
         elif atiende:

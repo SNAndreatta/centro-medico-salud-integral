@@ -126,13 +126,9 @@
                 >
                     Aplicar filtros
                 </button>
-
             </div>
-
         </div>
-
     </section>
-
 
     <!-- LISTADO DE TURNOS -->
     <section class="space-y-[18px]">
@@ -141,55 +137,66 @@
 
         {% if turnos %}
 
-            {% if turnos %}
+            {% for turno in turnos %}
+                {% include "components/_card_turno_con_medico.html" %}
+            {% endfor %}
 
-                {% for turno in turnos %}
-                    {% include "components/_card_turno_con_medico.html" %}
-                {% endfor %}
+            <!-- MENSAJE SIN RESULTADOS (FILTROS) -->
+            <div
+                id="mensaje-sin-resultados"
+                class="hidden rounded-[18px] bg-white px-6 py-12 text-center"
+            >
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-acento/20 text-acento">
+                    <i data-lucide="calendar-days" class="h-8 w-8"></i>
+                </div>
 
-            {% endif %}
+                <h2 class="mt-4 font-lexend text-lg font-semibold text-acento">
+                    No tenés turnos para mostrar
+                </h2>
+
+                <p class="mt-2 text-sm text-acento/70">
+                    No encontramos turnos que coincidan con los filtros seleccionados.
+                </p>
+            </div>
+
+        {% else %}
+
+            <!-- MENSAJE SIN TURNOS -->
+            <div class="rounded-[18px] bg-white px-6 py-12 text-center">
+
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-acento/20 text-acento">
+                    <i data-lucide="calendar-days" class="h-8 w-8"></i>
+                </div>
+
+                <h2 class="mt-4 font-lexend text-lg font-semibold text-acento">
+                    No tenés turnos para mostrar
+                </h2>
+
+                <p class="mt-2 text-sm text-acento/70">
+                    Todavía no tenés ningún turno reservado.
+                </p>
+
+            </div>
 
         {% endif %}
 
-
-        <!-- MENSAJE SIN RESULTADOS -->
-        <div
-            id="sin-resultados"
-            class="hidden rounded-[18px] bg-white px-6 py-12 text-center"
-        >
-
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-acento/20 text-acento">
-                <i data-lucide="calendar-days" class="h-8 w-8"></i>
-            </div>
-
-            <h2 class="mt-4 font-lexend text-lg font-semibold text-acento">
-                No tenés turnos para mostrar
-            </h2>
-
-            <p class="mt-2 text-sm text-acento/70">
-                No encontramos turnos que coincidan con los filtros seleccionados.
-            </p>
-
-        </div>
-
     </section>
 
+    {% if turnos %}
+        {% for turno in turnos %}
 
-{% if turnos %}
-    {% for turno in turnos %}
+        <!-- POPUP: CANCELAR TURNO -->
+        {% if turno.puede_cancelar %}
+        {{ modal_confirmar(
+            id="modal-cancelar-turno-" ~ turno.id,
+            titulo="¿Está seguro que quiere cancelar su turno?",
+            mensaje="Vas a liberar el horario y avisar a recepción.",
+            accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
+        ) }}
+        {% endif %}
 
-    <!-- POPUP: CANCELAR TURNO -->
-    {% if turno.puede_cancelar %}
-    {{ modal_confirmar(
-        id="modal-cancelar-turno-" ~ turno.id,
-        titulo="¿Está seguro que quiere cancelar su turno?",
-        mensaje="Vas a liberar el horario y avisar a recepción.",
-        accion=url_for('rutas_paciente.cancelar_turno', id_turno=turno.id)
-    ) }}
+        {% endfor %}
     {% endif %}
-
-    {% endfor %}
-{% endif %}
 
 {% endblock %}
 
