@@ -104,12 +104,12 @@
 
         </section>
 
-        <!-- Generación de turnos: habilitada sólo el día 15 de cada mes -->
+        <!-- Generación de turnos: habilitada desde el día 15 de cada mes -->
         <div class="mt-8 flex justify-center px-5 pb-2 sm:justify-end">
             <form method="post" action="{{ url_for('rutas_home.generar_turnos') }}">
                 <button type="submit"
                         {% if not puede_generar_turnos %}disabled aria-disabled="true"{% endif %}
-                        title="{% if puede_generar_turnos %}Generar los turnos del próximo mes{% else %}Disponible sólo el día 15 de cada mes{% endif %}"
+                         title="{% if puede_generar_turnos %}Generar los turnos del próximo mes{% else %}Disponible a partir del día 15 de cada mes{% endif %}"
                         class="inline-flex items-center gap-2 rounded-full px-5 py-3 font-lexend text-sm font-semibold text-white
                                {% if puede_generar_turnos %}
                                bg-acento transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-acento focus:ring-offset-2

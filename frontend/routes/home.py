@@ -21,8 +21,8 @@ DIA_GENERACION_TURNOS = 15
 
 
 def _puede_generar_turnos():
-    """La apertura de turnos se habilita sólo el día 15 de cada mes."""
-    return hoy_local().day == DIA_GENERACION_TURNOS
+    """La apertura de turnos se habilita desde el día 15 de cada mes."""
+    return hoy_local().day >= DIA_GENERACION_TURNOS
 
 
 @home_routes.route("/")
@@ -90,7 +90,7 @@ def home():
 def generar_turnos():
     if not _puede_generar_turnos():
         flash(
-            "La generación de turnos sólo está disponible el día 15 de cada mes.",
+            "La generación de turnos está disponible a partir del día 15 de cada mes.",
             "error",
         )
         return redirect(url_for("rutas_home.home"))
