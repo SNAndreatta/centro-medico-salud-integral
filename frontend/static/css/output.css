@@ -1136,6 +1136,10 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
   }
+  .border-l {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 1px;
+  }
   .border-acento {
     border-color: var(--color-acento);
   }
@@ -1628,6 +1632,9 @@
   .pl-3 {
     padding-left: calc(var(--spacing) * 3);
   }
+  .pl-4 {
+    padding-left: calc(var(--spacing) * 4);
+  }
   .pl-10 {
     padding-left: calc(var(--spacing) * 10);
   }
@@ -1744,6 +1751,10 @@
   .tracking-\[0\.2em\] {
     --tw-tracking: 0.2em;
     letter-spacing: 0.2em;
+  }
+  .tracking-\[0\.12em\] {
+    --tw-tracking: 0.12em;
+    letter-spacing: 0.12em;
   }
   .tracking-\[0\.15em\] {
     --tw-tracking: 0.15em;
@@ -2665,6 +2676,11 @@
     .sm\:self-auto {
       align-self: auto;
     }
+    .sm\:truncate {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .sm\:overflow-visible {
       overflow: visible;
     }
@@ -2739,6 +2755,9 @@
     }
     .sm\:py-2 {
       padding-block: calc(var(--spacing) * 2);
+    }
+    .sm\:py-2\.5 {
+      padding-block: calc(var(--spacing) * 2.5);
     }
     .sm\:py-3 {
       padding-block: calc(var(--spacing) * 3);
@@ -2895,6 +2914,10 @@
     .sm\:tracking-wide {
       --tw-tracking: var(--tracking-wide);
       letter-spacing: var(--tracking-wide);
+    }
+    .sm\:tracking-wider {
+      --tw-tracking: var(--tracking-wider);
+      letter-spacing: var(--tracking-wider);
     }
   }
   @media (width >= 72rem) {
