@@ -48,32 +48,6 @@
 
     <!-- LISTADO DE COBERTURAS -->
     <div class="w-full min-w-0 overflow-hidden rounded-xl bg-white">
-        <style>
-            .fila-tablet-web { display: none; }
-
-            @media (min-width: 640px) {
-                .fila-movil { display: none; }
-
-                .fila-tablet-web {
-                    display: grid;
-                    grid-template-columns: minmax(120px, 1.4fr) 96px 32px minmax(90px, 1fr) 96px;
-                    align-items: center;
-                    gap: 12px;
-                    width: 100%;
-                }
-                .fila-tablet-web .col-nombre {
-                    font-size: 20px;
-                    line-height: 1.2;
-                    min-width: 0;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-                .fila-tablet-web .col-label { font-size: 9px; }
-                .fila-tablet-web .col-id { font-size: 10px; font-weight: 600; }
-                .fila-tablet-web .col-boton { justify-self: end; }
-            }
-        </style>
         {% for cobertura in coberturas %}
         <article
             class="fila-cobertura flex min-h-[43px] items-center border-b border-gray-200 px-2.5 py-1.5 last:border-0 sm:min-h-[49px] sm:px-7 sm:py-2"
