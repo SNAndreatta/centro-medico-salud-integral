@@ -142,6 +142,8 @@ VALUES
     (1058, 1, NULL, 1, '2026-11-27 14:30:00', NULL, NULL),
     (1059, 1, NULL, 1, '2026-11-27 15:00:00', NULL, NULL),
     (1060, 1, NULL, 1, '2026-11-27 15:30:00', NULL, NULL),
+    (1061, 1, NULL, 1, '2026-11-27 16:00:00', NULL, NULL),
+    (1062, 1, NULL, 1, '2026-11-27 16:30:00', NULL, NULL),
     -- Agenda 2: Dr. Lopez (Dermatologia), Martes y Jueves 9-13 y 13-17, turno 45 min
     (2001, 2, NULL, 1, '2026-11-26 09:00:00', NULL, NULL),
     (2002, 2, NULL, 1, '2026-11-26 09:45:00', NULL, NULL),
@@ -185,7 +187,14 @@ VALUES
     (4009, 101, NULL, 1, '2026-11-27 10:00:00', NULL, NULL),
     (4010, 101, NULL, 1, '2026-11-27 10:30:00', NULL, NULL),
     (4011, 101, NULL, 1, '2026-11-27 11:00:00', NULL, NULL),
-    (4012, 101, NULL, 1, '2026-11-27 11:30:00', NULL, NULL);
+    (4012, 101, NULL, 1, '2026-11-27 11:30:00', NULL, NULL),
+    -- Turnos tarde Miércoles 27 Nov para agenda 101 (14-18, 30 min)
+    (4013, 101, NULL, 1, '2026-11-27 14:00:00', NULL, NULL),
+    (4014, 101, NULL, 1, '2026-11-27 14:30:00', NULL, NULL),
+    (4015, 101, NULL, 1, '2026-11-27 15:00:00', NULL, NULL),
+    (4016, 101, NULL, 1, '2026-11-27 15:30:00', NULL, NULL),
+    (4017, 101, NULL, 1, '2026-11-27 16:00:00', NULL, NULL),
+    (4018, 101, NULL, 1, '2026-11-27 16:30:00', NULL, NULL);
 
 INSERT IGNORE INTO turno (
     id_turno,
