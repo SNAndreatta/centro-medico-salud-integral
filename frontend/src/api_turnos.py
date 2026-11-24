@@ -35,11 +35,20 @@ def proximos_turnos_paciente(limite=3):
 
 
 def turnos_del_dia_medico():
-    """Turnos de hoy del médico autenticado."""
+    """Turnos de hoy del médico autenticado (solo turnos con paciente asignado).
+
+    Los horarios 'disponible' (sin paciente) no son turnos de pacientes,
+    por lo que se excluyen para no mostrar nombres por defecto ('Paciente'
+    / 'NC') en el home del médico.
+    """
     hoy = hoy_local().isoformat()
     turnos = listar({"fecha_desde": hoy, "fecha_hasta": hoy})
 
-    return [normalizar_turno(turno, vista="medico_home") for turno in turnos]
+    return [
+        normalizar_turno(turno, vista="medico_home")
+        for turno in turnos
+        if turno.get("paciente") is not None
+    ]
 
 
 def generar_turnos():
