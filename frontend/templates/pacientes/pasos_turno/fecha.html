@@ -1,4 +1,3 @@
-
 {% extends "pacientes/pasos_turno/sacar_turno.html" %}
 
 {% set paso = 3 %}
@@ -32,7 +31,12 @@
     <!-- AGENDA MENSUAL (componente compartido, modo paciente) -->
     {% include "components/agenda_mensual.html" %}
 
-    <form method="POST" id="form-turno">
+    <form
+        method="POST"
+        id="form-turno"
+        data-fecha-seleccionada="{{ fecha_seleccionada or '' }}"
+        data-hora-seleccionada="{{ hora_seleccionada or '' }}"
+    >
 
         <input type="hidden" name="paso" value="3">
         <input type="hidden" name="fecha" id="campo-fecha" value="{{ fecha_seleccionada or '' }}">
@@ -102,63 +106,11 @@
 
     </form>
 
-    <!-- Escucha la selección de horario del componente agenda_mensual (modo paciente) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const campoFecha = document.getElementById('campo-fecha');
-            const campoHora = document.getElementById('campo-hora');
-            const textoResumen = document.getElementById('texto-resumen-turno');
-            const errorCalendario = document.getElementById('error-calendario');
-            const btnConfirmar = document.querySelector('#form-turno button[name="accion"][value="continuar"]');
-
-            function actualizarCampos(fecha, hora) {
-                campoFecha.value = fecha;
-                campoHora.value = hora;
-                textoResumen.textContent = fecha + ' a las ' + hora;
-                errorCalendario.classList.add('hidden');
-                if (btnConfirmar) btnConfirmar.disabled = false;
-            }
-
-            function limpiarCampos() {
-                campoFecha.value = '';
-                campoHora.value = '';
-                textoResumen.textContent = 'Todavía no elegiste fecha ni horario';
-                errorCalendario.classList.remove('hidden');
-                if (btnConfirmar) btnConfirmar.disabled = true;
-            }
-
-            // Escuchar selección de horario del componente (evento custom)
-            document.addEventListener('turno-seleccionado-paciente', (e) => {
-                const { fecha, hora } = e.detail || {};
-                if (fecha && hora) actualizarCampos(fecha, hora);
-            });
-
-            // Si viene fecha/hora de sesión, aplicarlas
-            if ({{ fecha_seleccionada | tojson }} && {{ hora_seleccionada | tojson }}) {
-                actualizarCampos({{ fecha_seleccionada | tojson }}, {{ hora_seleccionada | tojson }});
-            } else {
-                limpiarCampos();
-            }
-
-            // Validación al enviar
-            const formulario = document.getElementById('form-turno');
-            if (formulario) {
-                formulario.addEventListener('submit', (evento) => {
-                    const accion = evento.submitter ? evento.submitter.value : 'continuar';
-                    if (accion === 'anterior') return;
-                    if (!campoFecha.value || !campoHora.value) {
-                        evento.preventDefault();
-                        errorCalendario.classList.remove('hidden');
-                    }
-                });
-            }
-        });
-    </script>
-
 </div>
 
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{{ url_for('static', filename='js/components/agenda_mensual.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/paciente/fecha.js') }}" defer></script>
 {% endblock %}
