@@ -27,7 +27,7 @@ El sistema permite que los pacientes encuentren una especialidad y un médico, s
 - Registro e inicio de sesión.
 - Consulta del perfil.
 - Reserva de turnos por especialidad, médico, día y horario.
-- Recepción por correo de confirmación y QR.
+- Recepción por correo de confirmación y QR. 
 - Cancelación del turno mediante el enlace recibido.
 - Consulta de turnos propios.
 
