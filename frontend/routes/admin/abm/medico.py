@@ -30,6 +30,7 @@ from src.api_usuario import (
 )
 from src.errores import es_sesion_vencida, sesion_vencida
 from src.normalizar import (
+    estado_turno,
     g,
     iniciales,
     nombre_completo,
@@ -244,7 +245,10 @@ def turnos(id_medico):
     lista_turnos = []
 
     try:
-        turnos_api = listar_turnos({'id_medico': id_medico})
+        turnos_api = [
+            turno for turno in listar_turnos({'id_medico': id_medico})
+            if estado_turno(turno) != 'disponible'
+        ]
         lista_turnos = [
             normalizar_turno(turno, indice, vista='admin_tabla')
             for indice, turno in enumerate(turnos_api)
