@@ -77,7 +77,7 @@
             {% for usuario in usuarios %}
 
             <div
-                class="fila-usuario grid grid-cols-[32px_minmax(0,1fr)_auto_auto] items-center gap-2 border-b border-gray-200 px-2 py-2 last:border-b-0 sm:grid-cols-[42px_minmax(0,1fr)_auto_auto] sm:gap-3 sm:px-4 md:grid-cols-[48px_minmax(0,1.6fr)_minmax(130px,1fr)_100px_auto] md:gap-4"
+                class="fila-usuario grid grid-cols-[32px_1fr_auto] items-center gap-2 border-b border-gray-200 px-2 py-2 last:border-b-0 sm:grid-cols-[42px_minmax(0,1fr)_auto_auto_auto] sm:gap-3 sm:px-4 md:grid-cols-[48px_minmax(0,1.6fr)_minmax(130px,1fr)_100px_auto] md:gap-4"
                 data-nombre="{{ (usuario.nombre ~ ' ' ~ usuario.apellido) | lower }}"
                 data-dni="{{ usuario.dni }}"
                 data-rol="{{ usuario.rol_clave }}"
@@ -93,14 +93,34 @@
                     {{ usuario.iniciales }}
                 </div>
 
-                <!-- Nombre -->
-                <span class="block truncate text-sm text-acento font-gelasio sm:text-[20px]">
-                    {{ usuario.nombre }} {{ usuario.apellido }}
-                </span>
+                <!-- Nombre y ID apilados (móvil) -->
+                <div class="min-w-0">
+                    <span class="block truncate text-sm text-acento font-gelasio sm:text-[20px]">
+                        {{ usuario.nombre }} {{ usuario.apellido }}
+                    </span>
+                    <div class="mt-0.5 text-[10px] font-semibold text-acento sm:hidden">
+                        ID {{ usuario.id }}
+                    </div>
+                </div>
 
-                <!-- ID de usuario (visible en móvil y desktop) -->
-                <div class="text-[10px] font-semibold text-acento whitespace-nowrap sm:text-xs">
-                    ID {{ usuario.id }}
+                <!-- Rol (tablet y desktop) -->
+                <div class="hidden min-w-0 sm:block">
+                    <span class="mr-2 text-[10px] text-acento/50">
+                        ROL
+                    </span>
+                    <span class="truncate text-xs font-semibold uppercase text-acento">
+                        {{ usuario.rol }}
+                    </span>
+                </div>
+
+                <!-- ID de usuario (tablet y desktop) -->
+                <div class="hidden min-w-0 sm:block">
+                    <span class="mr-2 text-[10px] text-acento/50">
+                        ID USUARIO
+                    </span>
+                    <span class="text-xs font-semibold text-acento">
+                        {{ usuario.id }}
+                    </span>
                 </div>
 
                 <!-- Ir al perfil -->
