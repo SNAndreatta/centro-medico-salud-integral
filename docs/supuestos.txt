@@ -4,21 +4,21 @@ Supuestos acordados — Hito 1
 
     Se atenderán pacientes con o sin cobertura médica. Los particulares no tendrán cobertura ni número de afiliado.
 
-    Las agendas podrán ser semanales o mensuales. Las semanales repetirán sus horarios cada semana durante su vigencia.
+    Las semanales repetirán sus horarios cada semana durante su vigencia.
 
     Cada médico determinará la duración de los turnos de sus agendas y recepción/administración la configurará. Los horarios disponibles se calcularán según esa duración, sin exceder la jornada.
 
     No se permitirán turnos superpuestos para un mismo médico ni asignaciones simultáneas del mismo consultorio. Un turno podrá comenzar exactamente cuando termine otro.
 
-    El paciente podrá cancelar mediante el enlace recibido por correo hasta 24 horas antes del turno, inclusive. La cancelación liberará el horario para otra reserva. Fuera de ese plazo, deberá comunicarse con recepción.
+    El paciente podrá cancelar mediante el enlace recibido por correo y tambien por un boton en la app hasta 24 horas antes del turno, inclusive. La cancelación liberará el horario para otra reserva. Fuera de ese plazo, deberá comunicarse con recepción.
 
     El check-in mediante QR se permitirá desde 30 minutos antes hasta 15 minutos después del turno, ambos límites incluidos.
 
     La llegada se registrará una única vez por turno. Los escaneos posteriores mostrarán «Llegada ya registrada», sin modificar la hora original.
 
-    Recepción marcará el turno como atendido cuando el médico confirme la finalización de la consulta.(Lo mismo que el supuesto 1)
+    Recepción marcará el turno como atendido cuando el médico confirme la finalización de la consulta.
 
-    La vinculación comercial se realiza directamente a nivel de Cobertura. Si un médico acepta una Cobertura, el sistema asume que atiende a todos los pacientes de esa cobertura.
+    La vinculación comercial se realiza direct>amente a nivel de Cobertura. Si un médico acepta una Cobertura, el sistema asume que atiende a todos los pacientes de esa cobertura.
 
     La administración trabaja con "apertura de agendas". El día 15 de cada mes, un administrador entra al sistema y aprieta un botón que dice "Abrir agenda de Noviembre". El sistema ejecuta el proceso masivo y genera todos los turnos en la base de datos solo para ese mes.
 
@@ -27,8 +27,6 @@ Observaciones de compatibilidad con el esquema
     Permitir el mismo DNI en las cuentas profesional y personal, manteniendo correos únicos.
 
     Permitir cobertura y número de afiliado nulos para pacientes particulares.
-
-    Aclarar cómo Agenda–Días representa los horarios semanales recurrentes.
 
     Permitir paciente nulo en los turnos disponibles que aún no estén reservados.
 

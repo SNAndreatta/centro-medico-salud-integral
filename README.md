@@ -122,27 +122,99 @@ Los datos iniciales de las cuentas se encuentran en `backend/database/seed.sql`.
 
 ## Configuración
 
-Antes de iniciar los contenedores, crear el archivo de configuración del backend:
+El proyecto usa dos archivos de entorno separados: uno para la API y otro para el frontend. Docker Compose puede sobrescribir varias variables en el arranque de los contenedores.
+
+### Configuración del backend
+
+Crear el archivo de entorno:
 
 ```bash
 cp backend/.env.template backend/.env
 python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-Copiar la clave generada en `SECRET_KEY` dentro de `backend/.env`. El backend exige una clave segura en modo producción y acepta una clave de desarrollo solo con `FLASK_DEBUG=true`.
+Copiar la clave generada en `SECRET_KEY`.
 
-Para habilitar el envío de comprobantes por email, completar en `backend/.env`:
+#### Base de datos MySQL
 
-- `SMTP_ENABLED=true`.
-- `SMTP_SERVER` y `SMTP_PORT`.
-- `SMTP_USERNAME` y `SMTP_PASSWORD`.
-- `SMTP_USE_TLS` o `SMTP_USE_SSL` según el proveedor.
-- `SMTP_DEFAULT_SENDER`.
-- `PUBLIC_BASE_URL` con la URL pública del backend.
+| Variable | Descripción | Valor local recomendado |
+|---|---|---|
+| `DB_HOST` | Host donde escucha MySQL. Dentro de Docker Compose debe ser el nombre del servicio `db`. | `db` |
+| `DB_PORT` | Puerto de MySQL. | `3306` |
+| `DB_NAME` | Nombre de la base de datos. | `centro_medico` |
+| `DB_USER` | Usuario con permisos sobre la base. | `app_user` |
+| `DB_PASSWORD` | Contraseña del usuario de aplicación. | `app_password` |
+| `DB_ROOT_PASSWORD` | Contraseña del usuario root usada al inicializar MySQL. | `root_password` |
 
-El envío permanece deshabilitado por defecto si `SMTP_ENABLED=false`.
+El Compose ya sobrescribe `DB_HOST=db` y las demás variables desde el entorno raíz o desde los valores por defecto definidos en `docker-compose.yaml`. El archivo `backend/.env` debe conservar valores compatibles si se ejecuta el backend fuera de Docker.
 
-El proyecto utiliza `America/Argentina/Buenos_Aires` como zona horaria. La fecha local se obtiene mediante las utilidades existentes en lugar de usar el reloj o la fecha del contenedor.
+#### Servidor Flask
+
+| Variable | Descripción | Valor local recomendado |
+|---|---|---|
+| `FLASK_HOST` | Interfaz donde escucha la API. | `0.0.0.0` dentro de Docker; `127.0.0.1` fuera de Docker |
+| `FLASK_PORT` | Puerto interno de la API. Compose lo publica como el puerto local elegido. | `5000` |
+| `FLASK_DEBUG` | Activa el modo debug. Debe ser `true` solo para desarrollo. | `true` |
+| `TIMEZONE` | Zona horaria usada por el backend. | `America/Argentina/Buenos_Aires` |
+
+#### Seguridad y sesión
+
+| Variable | Descripción | Valor recomendado |
+|---|---|---|
+| `SECRET_KEY` | Clave usada para Flask y JWT. Se genera una vez y debe mantenerse estable. | Clave aleatoria de al menos 32 caracteres |
+| `JWT_ACCESS_TOKEN_MINUTES` | Duración del token de acceso en minutos. Debe ser un número mayor que cero. | `60` |
+
+El backend acepta una clave de desarrollo si `FLASK_DEBUG=true`. En modo no-debug, `SECRET_KEY` es obligatoria y debe tener al menos 32 caracteres.
+
+#### Correo SMTP
+
+| Variable | Descripción | Valor inicial |
+|---|---|---|
+| `SMTP_ENABLED` | Habilita el envío de comprobantes y confirmaciones por correo. | `false` |
+| `SMTP_SERVER` | Servidor SMTP del proveedor. | `smtp.gmail.com` |
+| `SMTP_PORT` | Puerto SMTP. Gmail normalmente utiliza `587` con TLS. | `587` |
+| `SMTP_USE_TLS` | Usa STARTTLS. | `true` |
+| `SMTP_USE_SSL` | Usa conexión SSL implícita. | `false` |
+| `SMTP_USERNAME` | Usuario o dirección que inicia sesión en SMTP. | Vacío hasta configurar un proveedor |
+| `SMTP_PASSWORD` | Contraseña o clave de aplicación SMTP. | Vacío hasta configurar un proveedor |
+| `SMTP_DEFAULT_SENDER` | Remitente mostrado en los comprobantes. | `no-reply@saludintegral.local` |
+| `SMTP_TIMEOUT` | Tiempo máximo de espera de una conexión SMTP, en segundos. | `15` |
+
+Para activar el envío:
+
+```env
+SMTP_ENABLED=true
+SMTP_USERNAME=cuenta@proveedor.test
+SMTP_PASSWORD=clave-de-aplicacion
+SMTP_USE_TLS=true
+SMTP_USE_SSL=false
+```
+
+No usar la contraseña habitual de la cuenta si el proveedor exige una clave de aplicación. El envío queda deshabilitado si `SMTP_ENABLED=false`.
+
+#### URLs y reglas temporales
+
+| Variable | Descripción | Valor recomendado |
+|---|---|---|
+| `PUBLIC_BASE_URL` | URL pública usada para enlaces del backend incluidos en correos. | `http://localhost:5000` |
+| `FRONTEND_URL` | URL del frontend usada al cancelar turnos o redirigir desde el backend. | `http://localhost:8000` |
+| `CANCELACION_TTL_MINUTES` | Vigencia del token de cancelación, en minutos. Debe cubrir las 24 horas previas al turno. | `86400` |
+| `INTERVALO_AUSENTISMO_SEGUNDOS` | Intervalo mínimo entre ejecuciones del control de ausentismo. | `300` |
+
+### Configuración del frontend
+
+El frontend lee las variables reales en `frontend/src/config.py`:
+
+| Variable | Descripción | Valor recomendado |
+|---|---|---|
+| `FLASK_HOST` | Interfaz donde escucha el servidor Flask del frontend. | `0.0.0.0` dentro de Docker |
+| `FLASK_PORT` | Puerto interno del frontend. Compose lo publica en `8000`. | `8000` |
+| `FLASK_DEBUG` | Activa la recarga automática del frontend. | `true` |
+| `TIMEZONE` | Debe coincidir con la zona horaria del backend. | `America/Argentina/Buenos_Aires` |
+| `SECRET_KEY` | Clave de sesión del frontend. Debe ser estable y distinta de la clave del backend si se desea separarlas. | Clave aleatoria propia |
+| `BACKEND_URL` | Dirección interna que usa Python `requests` para llamar a la API. Dentro de Docker debe apuntar al servicio `api`. | `http://api:5000/api` |
+
+Docker Compose ya proporciona `FLASK_HOST`, `FLASK_PORT`, `FLASK_DEBUG`, `TIMEZONE` y `BACKEND_URL` usa su valor por defecto. En el template actual `frontend/.env.template` aparecen `FLASK_FRONT_HOST`, `FLASK_FRONT_PORT` y `FLASK_FRONT_DEBUG`; el código actual no lee esos nombres. Para configurar el frontend fuera de Docker se deben usar `FLASK_HOST`, `FLASK_PORT` y `FLASK_DEBUG`.
 
 ## Ejecución con Docker
 

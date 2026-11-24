@@ -213,6 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
         formularioCheckin.submit();
     }
 
+    function limpiarUrlResultado() {
+        // Quita ?resultado=...&mensaje=... de la URL sin recargar
+        const url = new URL(window.location.href);
+        url.searchParams.delete('resultado');
+        url.searchParams.delete('mensaje');
+        window.history.replaceState({}, '', url);
+    }
+
     function mostrarResultado(exito, mensaje) {
         recargarAlCerrar = exito;
         resultadoResuelto = false;
@@ -242,6 +250,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (iconoErrorVisible) {
             iconoErrorVisible.classList.toggle("hidden", exito);
         }
+
+        // Limpiar la URL para que al recargar no vuelva a aparecer el modal
+        limpiarUrlResultado();
     }
 
     function cerrarResultado() {
@@ -250,8 +261,16 @@ document.addEventListener("DOMContentLoaded", () => {
         resultadoResuelto = true;
         resultadoVisible = false;
 
+        // Cerrar el modal visualmente antes de recargar o reintentar
+        const modal = document.getElementById("modal-resultado-ingreso");
+        if (modal) {
+            modal.classList.remove("flex");
+            modal.classList.add("hidden");
+        }
+
         if (recargarAlCerrar) {
-            window.location.reload();
+            // Pequeño delay para que se vea el cierre del modal antes de recargar
+            setTimeout(() => window.location.reload(), 150);
             return;
         }
 
