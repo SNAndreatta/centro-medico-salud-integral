@@ -8,6 +8,12 @@
         </h3>
 
         <form method="get" class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+            {% if paso %}
+            <input type="hidden" name="paso" value="{{ paso }}">
+            {% endif %}
+            {% if modo == 'paciente' %}
+            <input type="hidden" name="cambiar_mes" value="1">
+            {% endif %}
             <select
                 name="mes"
                 aria-label="Seleccionar mes"

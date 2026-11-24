@@ -233,10 +233,13 @@ def sacar_turno():
     if 'access_token' not in session:
         return redirect(url_for('rutas_auth.login'))
 
-    if request.method == 'GET' and 'paso' not in request.args:
-        _limpiar(*CLAVES_TURNO)
-
     paso = request.args.get('paso', 1, type=int)
+    if request.method == 'GET':
+        if 'paso' not in request.args:
+            _limpiar(*CLAVES_TURNO)
+        elif request.args.get('cambiar_mes'):
+            _limpiar('turno_fecha', 'turno_hora')
+
     especialidad_id = session.get('turno_especialidad_id')
     medico = session.get('turno_medico')
     fecha_sel = session.get('turno_fecha')
