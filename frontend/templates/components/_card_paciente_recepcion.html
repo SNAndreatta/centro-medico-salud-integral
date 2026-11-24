@@ -17,12 +17,12 @@
         <div class="min-w-0 flex-1">
 
             <!-- Nombre completo -->
-            <h2 class="break-words font-gelasio text-base font-medium leading-tight text-acento sm:text-2xl lg:text-[26px]">
+            <h2 class="truncate font-gelasio text-base font-medium text-acento sm:text-2xl lg:text-[26px]">
                 {{ paciente.nombre }} {{ paciente.apellido }}
             </h2>
 
             <!-- Cobertura (solo celular) -->
-            <p class="break-words font-lexend text-[10px] font-medium tracking-wide text-acento/80 sm:hidden">
+            <p class="truncate font-lexend text-[10px] font-medium tracking-wide text-acento/80 sm:hidden">
                 Cobertura: <span class="font-semibold text-acento">{{ paciente.cobertura }}</span>
             </p>
 
