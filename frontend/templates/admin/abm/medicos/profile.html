@@ -182,7 +182,7 @@
                 Nombre
             </label>
             <input id="editarNombre" name="nombre" type="text" required
-                   value="{{ medico.nombre | default('') }}"
+                   value="{{ medico.nombre }}"
                    placeholder="Nombre"
                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
@@ -192,7 +192,7 @@
                 Apellido
             </label>
             <input id="editarApellido" name="apellido" type="text" required
-                   value="{{ medico.apellido | default('') }}"
+                   value="{{ medico.apellido }}"
                    placeholder="Apellido"
                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
@@ -202,7 +202,7 @@
                 DNI
             </label>
             <input id="editarDni" name="documento" type="text" required
-                   value="{{ medico.documento | default('') }}"
+                   value="{{ medico.documento }}"
                    placeholder="DNI"
                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>
@@ -212,7 +212,7 @@
                 Fecha de nacimiento
             </label>
             <input id="editarFechaNacimiento" name="fecha_nacimiento" type="text" required
-                   value="{{ medico.fecha_nacimiento | default('') }}"
+                   value="{{ medico.fecha_nacimiento }}"
                    placeholder="DD/MM/AAAA"
                    pattern="(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/[0-9]{4}"
                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
@@ -223,7 +223,7 @@
                 Mail
             </label>
             <input id="editarMail" name="email" type="email" required
-                   value="{{ medico.email | default('') }}"
+                   value="{{ medico.email }}"
                    placeholder="Mail"
                    class="h-11 w-full rounded-full border border-gray-300 px-4 text-sm text-acento outline-none focus:border-acento/70">
         </div>

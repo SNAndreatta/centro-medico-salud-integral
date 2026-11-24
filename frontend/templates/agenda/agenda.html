@@ -13,7 +13,7 @@
     <div class="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
         <h2 class="text-lg font-bold tracking-wide text-acento sm:text-2xl">
             {% if es_admin %}
-                AGENDA DE Dr. {{ medico.nombre_completo | default('Nombre Médico') }}
+                AGENDA DE Dr. {{ medico.nombre_completo }}
             {% else %}
                 MI AGENDA
             {% endif %}
