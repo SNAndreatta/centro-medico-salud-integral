@@ -4,20 +4,21 @@
 
 {% block content %}
 
-<div>
+<div class="w-full min-w-0 px-1 sm:px-2">
 
     <!-- FILTRO DE FECHAS -->
     <form
         method="GET"
         action="{{ url_for('rutas_admin_turnos_especialidad.turnos_especialidad') }}"
-        class="mb-5 flex flex-wrap items-center gap-3"
+        class="mb-4 flex min-w-0 flex-col gap-2 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3"
     >
 
         <!-- Desde -->
-        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+        <div class="flex min-w-0 items-center gap-1 rounded-full border border-acento/20 bg-white px-2.5 py-2 sm:gap-2 sm:px-3 sm:py-1">
+
             <label
                 for="fecha_desde"
-                class="text-[10px] uppercase tracking-wide text-acento/50"
+                class="shrink-0 text-[9px] uppercase tracking-wide text-acento/50 sm:text-[10px]"
             >
                 Desde
             </label>
@@ -27,15 +28,17 @@
                 id="fecha_desde"
                 name="fecha_desde"
                 value="{{ fecha_desde }}"
-                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+                class="w-full min-w-0 bg-transparent text-[10px] tracking-tight text-acento outline-none sm:text-xs sm:tracking-wide"
             >
+
         </div>
 
         <!-- Hasta -->
-        <div class="flex items-center gap-2 rounded-full border border-acento/20 bg-white px-3 py-1">
+        <div class="flex min-w-0 items-center gap-1 rounded-full border border-acento/20 bg-white px-2.5 py-2 sm:gap-2 sm:px-3 sm:py-1">
+
             <label
                 for="fecha_hasta"
-                class="text-[10px] uppercase tracking-wide text-acento/50"
+                class="shrink-0 text-[9px] uppercase tracking-wide text-acento/50 sm:text-[10px]"
             >
                 Hasta
             </label>
@@ -45,28 +48,21 @@
                 id="fecha_hasta"
                 name="fecha_hasta"
                 value="{{ fecha_hasta }}"
-                class="bg-transparent text-xs tracking-wide text-acento outline-none"
+                class="w-full min-w-0 bg-transparent text-[10px] tracking-tight text-acento outline-none sm:text-xs sm:tracking-wide"
             >
-        </div>
 
-        <button
-            type="submit"
-            class="rounded-full bg-acento/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-white transition hover:opacity-90 flex flex-row gap-2"
-        >
-            <span>Filtrar</span>
-            <i data-lucide="sliders-horizontal" class="h-4 w-4"></i>
-        </button>
+        </div>
 
         {% if fecha_desde or fecha_hasta %}
         <a
             href="{{ url_for('rutas_admin_turnos_especialidad.turnos_especialidad') }}"
-            class="rounded-full border border-acento/20 bg-white px-4 py-1.5 text-xs font-semibold tracking-wide text-acento transition hover:shadow-sm"
+            class="w-full rounded-full border border-acento/20 bg-white px-4 py-1.5 text-center text-[10px] font-semibold tracking-wide text-acento transition hover:shadow-sm sm:w-auto sm:text-left sm:text-xs"
         >
-            Limpiar
+            Limpiar filtros
         </a>
         {% endif %}
 
-        <p class="ml-auto text-xs tracking-wide text-acento/70">
+        <p class="w-full text-start text-[10px] tracking-tight text-acento/70 sm:ml-auto sm:w-auto sm:text-right sm:text-xs sm:tracking-wide">
             {{ total_turnos }}
             {{ 'turno' if total_turnos == 1 else 'turnos' }}
         </p>
@@ -75,59 +71,63 @@
 
     <!-- ERROR -->
     {% if error %}
-    <p class="mb-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+    <p class="mb-3 rounded-lg bg-red-100 px-3 py-2 text-[10px] font-medium text-red-700 sm:mb-4 sm:px-4 sm:text-sm">
         {{ error }}
     </p>
     {% endif %}
 
-    <div class="space-y-5">
+    <div class="space-y-4 sm:space-y-7">
 
         {% for especialidad in especialidades %}
 
-        <section class="overflow-hidden rounded-xl bg-white">
+        <section class="min-w-0 overflow-hidden rounded-xl bg-white">
 
-            <!-- Encabezado de especialidad -->
-            <div class="flex items-center justify-between gap-3 bg-acento px-4 py-2.5 text-white sm:px-5">
+            <!-- ENCABEZADO DE ESPECIALIDAD -->
+            <div class="flex min-w-0 items-center justify-between gap-2 bg-acento px-3 py-2.5 text-white sm:gap-3 sm:px-5 sm:py-2.5">
 
-                <h2 class="text-sm font-bold uppercase tracking-[0.15em] sm:text-base">
+                <h2 class="min-w-0 whitespace-nowrap text-xs font-bold uppercase tracking-[0.12em] sm:text-base sm:tracking-[0.15em]">
                     {{ especialidad.nombre }}
                 </h2>
 
-                <p class="shrink-0 text-[9px] font-semibold uppercase tracking-wider sm:text-[10px]">
-                    TOTAL TURNOS:
-                    <span>{{ especialidad.total_turnos }}</span>
+                <p class="shrink-0 text-[8px] font-semibold uppercase tracking-wide sm:text-[10px] sm:tracking-wider">
+                    <span class="sm:hidden">
+                        <span class="text-[12px]">{{ especialidad.total_turnos }}</span>
+                    </span>
+                    <span class="hidden sm:inline">
+                        <span> TOTAL TURNOS:</span>
+                        <span>{{ especialidad.total_turnos }}</span>
+                    </span>
                 </p>
 
             </div>
 
-
-            <!-- Lista de turnos -->
+            <!-- LISTA DE TURNOS -->
             <div>
 
                 {% for turno in especialidad.turnos %}
 
-                <article class="grid grid-cols-1 items-center gap-3 border-b border-acento/20 px-3 py-3 last:border-b-0 sm:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:gap-3 sm:px-4 sm:py-3">
+                <article class="grid min-w-0 grid-cols-1 items-center gap-2.5 border-b border-acento/20 px-3 py-3 last:border-b-0 sm:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:gap-3 sm:px-4 sm:py-3">
 
-                    <!-- Médico y paciente -->
-                    <div class="flex min-w-0 items-center gap-4 sm:gap-6">
+                    <!-- MÉDICO Y PACIENTE -->
+                    <div class="flex min-w-0 items-center gap-3 sm:gap-6">
 
-                        <!-- Iniciales -->
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-500/30 text-base font-medium text-pink-500 sm:h-[46px] sm:w-[46px]">
+                        <!-- INICIALES -->
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-500/30 text-sm font-medium text-pink-500 sm:h-[46px] sm:w-[46px] sm:text-base">
                             {{ turno.iniciales }}
                         </div>
 
-                        <!-- Nombre -->
+                        <!-- NOMBRE -->
                         <div class="min-w-0">
 
-                            <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
+                            <p class="text-[8px] font-medium uppercase tracking-wide text-acento/70 sm:text-[9px]">
                                 MÉDICO
                             </p>
 
-                            <h3 class="truncate text-base font-medium text-acento sm:text-lg">
+                            <h3 class="break-words text-sm font-medium leading-tight text-acento sm:truncate sm:text-lg">
                                 {{ turno.nombre }}
                             </h3>
 
-                            <p class="truncate text-[9px] uppercase tracking-wide text-acento/60">
+                            <p class="break-words text-[8px] uppercase leading-tight tracking-wide text-acento/60 sm:truncate sm:text-[9px]">
                                 {{ turno.estado }}
                                 {% if turno.paciente %}
                                 · {{ turno.paciente }}
@@ -138,27 +138,38 @@
 
                     </div>
 
+                    <!-- FECHA Y HORA -->
+                    <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-t border-acento/20 pt-2 sm:block sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
 
-                    <!-- Fecha y hora -->
-                    <div class="border-t border-acento/20 pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+                        <div>
+                            <p class="text-[8px] font-medium uppercase tracking-wide text-acento/70 sm:text-[9px]">
+                                FECHA Y HORA
+                            </p>
 
-                        <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
-                            FECHA Y HORA
-                        </p>
+                            <p class="text-base font-semibold leading-tight text-acento sm:text-lg">
+                                {{ turno.hora }}
+                            </p>
 
-                        <p class="text-base font-semibold leading-tight text-acento sm:text-lg">
-                            {{ turno.hora }}
-                        </p>
+                            <p class="text-[8px] font-medium text-acento sm:text-[10px]">
+                                {{ turno.fecha }}
+                            </p>
+                        </div>
 
-                        <p class="text-[9px] font-medium text-acento sm:text-[10px]">
-                            {{ turno.fecha }}
-                        </p>
+                        <!-- CONSULTORIO EN MOBILE -->
+                        <div class="flex flex-col items-end sm:hidden">
+                            <p class="text-[8px] font-medium uppercase tracking-wide text-acento/70">
+                                CONSULTORIO
+                            </p>
+
+                            <p class="text-xl font-bold leading-tight text-acento">
+                                {{ turno.consultorio if turno.consultorio else '—' }}
+                            </p>
+                        </div>
 
                     </div>
 
-
-                    <!-- Consultorio -->
-                    <div class="border-t border-acento/20 pt-2 sm:border-l sm:border-t-0 sm:py-1 sm:pl-4">
+                    <!-- CONSULTORIO DESKTOP -->
+                    <div class="hidden border-l border-acento/20 py-1 pl-4 sm:block">
 
                         <p class="text-[9px] font-medium uppercase tracking-wide text-acento/70">
                             CONSULTORIO
@@ -174,7 +185,7 @@
 
                 {% else %}
 
-                <div class="px-5 py-8 text-center text-sm text-gray-500">
+                <div class="px-4 py-6 text-center text-[10px] text-gray-500 sm:px-5 sm:py-8 sm:text-sm">
                     No hay turnos para esta especialidad.
                 </div>
 
@@ -186,15 +197,15 @@
 
         {% else %}
 
-        <div class="rounded-xl bg-white px-6 py-12 text-center">
+        <div class="min-w-0 rounded-xl bg-white px-4 py-7 text-center sm:px-6 sm:py-12">
 
-            <i data-lucide="calendar-x" class="mx-auto mb-3 h-10 w-10 text-gray-400"></i>
+            <i data-lucide="calendar-x" class="mx-auto mb-3 h-8 w-8 text-gray-400 sm:h-10 sm:w-10"></i>
 
-            <h3 class="font-semibold text-acento">
+            <h3 class="text-sm font-semibold text-acento sm:text-base">
                 No hay turnos disponibles
             </h3>
 
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-[10px] text-gray-500 sm:text-sm">
                 No se encontraron turnos agrupados por especialidad.
             </p>
 
@@ -205,7 +216,6 @@
     </div>
 
 </div>
-
 
 <!-- JavaScript -->
 <script src="{{ url_for('static', filename='js/admin/dashboards/turnos_especialidad.js') }}"></script>
