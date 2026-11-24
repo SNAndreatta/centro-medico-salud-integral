@@ -15,6 +15,31 @@
                 MI AGENDA
             {% endif %}
         </h2>
+        {% if es_admin %}
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+
+                <!-- BOTÓN CREAR AGENDA -->
+                <button
+                    type="button"
+                    id="abrirModalCrearAgenda"
+                    data-abrir-modal="modalCrearAgenda"
+                    class="flex w-full items-center justify-center gap-1 rounded-full bg-acento px-4 py-2 text-xs font-semibold text-white transition hover:opacity-80 sm:w-auto"
+                >
+                    Crear agenda
+                    <i data-lucide="calendar-plus" class="h-4 w-4"></i>
+                </button>
+
+                <!-- BOTÓN PERFIL -->
+                <a
+                    href="{{ url_for('rutas_admin_medico.medico_perfil', id_medico=medico.id_medico) }}"
+                    class="flex w-full items-center justify-center gap-1 rounded-full bg-acento/70 px-4 py-2 text-xs font-semibold text-white transition hover:bg-acento sm:w-auto"
+                >
+                    Ir al perfil
+                    <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                </a>
+
+            </div>
+        {% endif %}
     </div>
 
     <!-- Calendario (componente) -->
@@ -25,7 +50,7 @@
     {% for dia in dias %}
         {% for turno in dia.turnos %}
             <template data-turno-card="{{ turno.id }}">
-                {% include "components/_card_turno_paciente.html" %}
+                {% include "components/_card_turno_con_paciente.html" %}
             </template>
         {% endfor %}
     {% endfor %}

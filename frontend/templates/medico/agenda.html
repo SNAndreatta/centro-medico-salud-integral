@@ -25,7 +25,7 @@
     {% for dia in dias %}
         {% for turno in dia.turnos %}
             <template data-turno-card="{{ turno.id }}">
-                {% include "components/_card_turno_paciente.html" %}
+                {% include "components/_card_turno_con_paciente.html" %}
             </template>
         {% endfor %}
     {% endfor %}
