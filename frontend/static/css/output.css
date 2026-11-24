@@ -1010,6 +1010,9 @@
   .overscroll-contain {
     overscroll-behavior: contain;
   }
+  .rounded {
+    border-radius: 0.25rem;
+  }
   .rounded-2xl {
     border-radius: var(--radius-2xl);
   }
@@ -2061,6 +2064,12 @@
       --tw-ring-color: color-mix(in oklab, var(--color-acento) 30%, transparent);
     }
   }
+  .focus\:ring-acento\/40:focus {
+    --tw-ring-color: color-mix(in srgb, #003559 40%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-ring-color: color-mix(in oklab, var(--color-acento) 40%, transparent);
+    }
+  }
   .focus\:ring-offset-2:focus {
     --tw-ring-offset-width: 2px;
     --tw-ring-offset-shadow: var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
@@ -2090,6 +2099,12 @@
   }
   .disabled\:cursor-not-allowed:disabled {
     cursor: not-allowed;
+  }
+  .disabled\:bg-gray-100:disabled {
+    background-color: var(--color-gray-100);
+  }
+  .disabled\:text-gray-400:disabled {
+    color: var(--color-gray-400);
   }
   .disabled\:opacity-60:disabled {
     opacity: 60%;
