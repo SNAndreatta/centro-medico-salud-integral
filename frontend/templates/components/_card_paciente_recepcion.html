@@ -1,0 +1,63 @@
+<article
+    class="paciente-card flex items-center gap-3 rounded-2xl bg-white px-3 py-3 shadow-sm transition hover:shadow-md sm:gap-5 sm:px-7 sm:py-4"
+    data-nombre="{{ paciente.nombre }} {{ paciente.apellido }}"
+    data-cobertura="{{ paciente.cobertura }}"
+>
+
+    <!-- Iniciales y nombre (en celular incluye la cobertura) -->
+    <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+
+        <!-- Avatar -->
+        <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-lexend text-base font-medium sm:h-11 sm:w-11 sm:text-xl {{ paciente.color_fondo | default('bg-pink-100 text-pink-500') }}"
+        >
+            {{ paciente.iniciales | default('NC') }}
+        </div>
+
+        <div class="min-w-0 flex-1">
+
+            <!-- Nombre completo -->
+            <h2 class="break-words font-gelasio text-base font-medium leading-tight text-acento sm:text-2xl lg:text-[26px]">
+                {{ paciente.nombre }} {{ paciente.apellido }}
+            </h2>
+
+            <!-- Cobertura (solo celular) -->
+            <p class="break-words font-lexend text-[10px] font-medium tracking-wide text-acento/80 sm:hidden">
+                Cobertura: <span class="font-semibold text-acento">{{ paciente.cobertura }}</span>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Cobertura (tablet y web) -->
+    <div class="hidden min-w-0 gap-4 sm:flex sm:flex-1 sm:justify-start items-center sm:gap-7">
+
+        <span class="shrink-0 font-lexend text-xs font-medium tracking-wide text-acento/80  px-5">
+            COBERTURA
+        </span>
+
+        <span class="min-w-0 break-words font-lexend text-sm font-semibold text-acento px-5">
+            {{ paciente.cobertura }}
+        </span>
+
+    </div>
+
+
+    <!-- Botón ir al perfil -->
+    <div class="flex shrink-0 items-center justify-end sm:w-36 sm:justify-center">
+
+        <a
+            href="{{ url_for('rutas_recepcion.perfil_usuario', id_usuario=paciente.id) }}"
+            aria-label="Ir al perfil de {{ paciente.nombre }} {{ paciente.apellido }}"
+            class="flex items-center gap-1 rounded-full bg-acento/70 p-2 font-lexend text-xs font-semibold text-white transition hover:bg-acento sm:px-4"
+        >
+            <span class="hidden sm:inline">Ir al perfil</span>
+
+            <i data-lucide="chevron-right" class="h-4 w-4"></i>
+        </a>
+
+    </div>
+
+</article>

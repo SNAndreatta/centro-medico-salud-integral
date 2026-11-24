@@ -4,53 +4,38 @@
 
 {% block content %}
 
-<div class="bg-gray-200 pb-5 py-8 sm:px-8 lg:px-12">
+<div class="">
 
     <div class="mx-auto max-w-[1200px] space-y-7">
 
         <!-- TARJETA SUPERIOR DEL PERFIL -->
         <section class="relative overflow-hidden rounded-[20px] bg-white">
 
-            <!-- Franja azul -->
-            <div class="h-[105px] bg-acento"></div>
+            <!-- Franja azul con el nombre -->
+            <div class="relative flex min-h-[5.5rem] items-end bg-acento px-3 pb-3 pt-3 sm:h-32 sm:min-h-0 sm:px-8">
 
-            <!-- Avatar en celular -->
-            <div class="absolute left-7 top-16 z-10 flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full border-[7px] border-white bg-acento text-lg font-medium text-white sm:hidden">
-                {{ usuario.iniciales }}
+                <div class="min-w-0 w-full pl-[4.5rem] sm:pl-28">
+                    <h1 class="break-words font-lexend text-base font-bold leading-tight text-white min-[400px]:text-lg sm:text-2xl">
+                        {{ usuario.nombre }} {{ usuario.apellido }}
+                    </h1>
+                </div>
+
+                <!-- Avatar centrado sobre la división azul / blanco -->
+                <div class="absolute bottom-0 left-3 z-10 flex h-14 w-14 translate-y-1/2 items-center justify-center rounded-full
+                            border-4 border-white bg-acento font-lexend text-sm font-medium text-white sm:left-8 sm:h-24 sm:w-24
+                            sm:border-[6px] sm:text-2xl">
+                    {{ usuario.iniciales }}
+                </div>
+
             </div>
 
-            <!-- Avatar en pantallas grandes -->
-            <div class="absolute left-7 top-25 z-10 hidden h-[88px] w-[88px] -translate-y-1/2 items-center justify-center rounded-full border-[7px] border-white bg-acento text-2xl font-medium text-white sm:flex sm:left-8">
-                {{ usuario.iniciales }}
-            </div>
-
-            <!-- Nombre en celular -->
-            <div class="px-5 pb-2 pt-2 sm:hidden">
-                <h1 class="break-words font-lexend text-xl font-bold text-acento">
-                    {{ usuario.nombre }} {{ usuario.apellido }}
-                </h1>
-            </div>
-
-            <!-- Nombre sobre la franja azul -->
-            <div class="absolute left-[130px] right-6 top-8 hidden h-[105px] items-center sm:flex">
-                <h1 class="font-lexend text-xl font-bold text-white sm:text-2xl">
-                    {{ usuario.nombre }} {{ usuario.apellido }}
-                </h1>
-            </div>
-
-            <!-- Fecha en celular -->
-            <div class="px-5 pb-5 pt-2 sm:hidden">
-                <p class="break-words text-sm text-acento/70">
+            <!-- Parte blanca con la fecha -->
+            <div class="flex min-h-[56px] items-start py-3 pl-[4.5rem] pr-2 sm:min-h-[76px] sm:pl-36 sm:pr-8">
+                <p class="break-words font-lexend text-[11px] text-acento/70 sm:text-sm px-2 sm:px-0">
                     Paciente desde {{ usuario.fecha_registro }}
                 </p>
             </div>
 
-            <!-- Fecha en el cuadro blanco -->
-            <div class="hidden min-h-[74px] pb-5 pl-[130px] pr-12 pt-2 sm:flex">
-                <p class="text-sm text-acento/70">
-                    Paciente desde {{ usuario.fecha_registro }}
-                </p>
-            </div>
         </section>
 
         <!-- DATOS PERSONALES -->
