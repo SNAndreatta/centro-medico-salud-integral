@@ -386,15 +386,25 @@ def _obtener_periodo_proximo_mes(hoy=None):
     return fecha_desde, fecha_hasta
 
 
-def generar_disponibilidad():
+def generar_disponibilidad(dias: int | None = None):
+    """Genera turnos disponibles.
+    
+    Si `dias` se indica, genera para los próximos `dias` días (ej. 7 para una semana).
+    Si no se indica, genera para el mes completo (comportamiento anterior, requiere día 15).
+    """
     hoy = _ahora_local().date()
-    if hoy.day < 15:
+    if dias is None and hoy.day < 15:
         return error_respuesta(
             'La apertura de agendas se habilita a partir del día 15 de cada mes',
             'APERTURA_AGENDA_NO_HABILITADA',
         ), 409
 
-    fecha_desde, fecha_hasta = _obtener_periodo_proximo_mes(hoy)
+    if dias is None:
+        fecha_desde, fecha_hasta = _obtener_periodo_proximo_mes(hoy)
+    else:
+        # Generar para los próximos `dias` días desde hoy
+        fecha_desde = hoy
+        fecha_hasta = hoy + timedelta(days=dias - 1)
 
     agendas = buscar_agendas()
     turnos_a_generar = []

@@ -56,7 +56,17 @@ def detalle_turno(id_turno):
 @token_required
 @roles_required(ADMINISTRADOR, RECEPCIONISTA)
 def generar_turnos():
-    respuesta, status_code = generar_disponibilidad()
+    datos = request.get_json(silent=True) or {}
+    dias = datos.get('dias')  # Nueva parámetro opcional: cantidad de días a generar
+    # Aseguramos que sea un entero positivo o None
+    if dias is not None:
+        try:
+            dias = int(dias)
+            if dias <= 0:
+                dias = None
+        except (ValueError, TypeError):
+            dias = None
+    respuesta, status_code = generar_disponibilidad(dias=dias)
     return respuesta, status_code
 
 
