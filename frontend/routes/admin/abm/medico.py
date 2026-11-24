@@ -302,7 +302,8 @@ def agenda(id_medico):
     consultorio = consultorio or {'numero': '-'}
 
     return render_template(
-        "admin/abm/medicos/agenda.html",
+        "agenda/agenda.html",
+        es_admin=True,
         medico=_medico_vista(medico),
         agendas=[_agenda_resumen(agenda) for agenda in agendas],
         consultorios=_consultorios(),

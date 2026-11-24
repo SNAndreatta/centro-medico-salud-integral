@@ -119,6 +119,32 @@
             <p class="mt-2 text-xs text-gray-500 sm:text-sm">Seleccioná un horario ocupado para ver los detalles del turno.</p>
         </div>
     </section>
+
+    <!-- MOLDES DE CARDS: el JS clona el que corresponde a fecha y hora -->
+    {% for dia in dias %}
+        {% for t in dia.turnos if not t.disponible %}
+
+            {% set turno = {
+                'id': t.id,
+                'nombre_completo': t.paciente.nombre,
+                'iniciales': t.paciente.iniciales,
+                'color': t.paciente.color,
+                'cobertura': t.paciente.cobertura,
+                'cobertura_filtro': t.paciente.cobertura,
+                'hora': t.hora,
+                'fecha': dia.fecha,
+                'fecha_filtro': dia.fecha,
+                'consultorio': t.consultorio or consultorio.numero,
+                'estado': t.estado,
+                'puede_marcar': t.puede_marcar
+            } %}
+
+            <template data-fecha="{{ dia.fecha }}" data-hora="{{ t.hora }}">
+                {% include "components/_card_turno_paciente_cobertura.html" %}
+            </template>
+
+        {% endfor %}
+    {% endfor %}
     {% endif %}
 
 </section>

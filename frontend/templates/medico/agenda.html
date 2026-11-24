@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Mi agenda | Salud Integral{% endblock %}
@@ -9,174 +8,27 @@
 
     <!-- Encabezado -->
     <div class="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 pb-2">
-
         <h2 class="text-lg font-bold tracking-wide text-acento sm:text-2xl">
-            AGENDA DE {{ medico.nombre_completo | default('Dr. Nombre Completo') }}
+            {% if es_admin %}
+                AGENDA DE Dr. {{ medico.nombre_completo | default('Nombre Médico') }}
+            {% else %}
+                MI AGENDA
+            {% endif %}
         </h2>
-
     </div>
 
-    <!-- CALENDARIO MENSUAL -->
-    <section aria-label="Agenda mensual" class="space-y-2">
+    <!-- Calendario (componente) -->
+    {% set modo = 'medico' %}
+    {% include "components/agenda_mensual.html" %}
 
-        <!-- SELECTOR DE MES Y AÑO -->
-        <div class="flex flex-wrap items-center justify-between gap-3">
-
-            <h3 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-sm">
-                {{ nombre_mes | upper }} {{ anio }}
-            </h3>
-
-            <form method="get" class="flex items-center gap-1">
-
-                <select
-                    name="mes"
-                    aria-label="Seleccionar mes"
-                    onchange="this.form.submit()"
-                    class="rounded-2xl border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:px-4 sm:text-sm"
-                >
-                    {% for num, nombre in meses %}
-                    <option value="{{ num }}" {% if num == mes %}selected{% endif %}>{{ nombre }}</option>
-                    {% endfor %}
-                </select>
-
-                <select
-                    name="anio"
-                    aria-label="Seleccionar año"
-                    onchange="this.form.submit()"
-                    class="rounded-2xl border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-acento/80 focus:border-acento/80 focus:outline-none sm:px-4 sm:text-sm"
-                >
-                    {% for a in anios %}
-                    <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
-                    {% endfor %}
-                </select>
-
-                <noscript>
-                    <button type="submit" class="rounded-2xl bg-acento px-4 py-2 text-sm font-semibold text-white">
-                        Ver
-                    </button>
-                </noscript>
-
-            </form>
-
-        </div>
-
-        <!-- CALENDARIO MENSUAL -->
-        <div class="overflow-hidden rounded-2xl border border-acento/40 bg-white">
-
-            <!-- Cabecera de días -->
-            <div class="grid grid-cols-7 border-b border-acento/30 bg-dominante">
-
-                {% for d in dias_semana %}
-                <div class="px-0.5 py-2 text-center text-[9px] font-semibold tracking-wide text-acento sm:px-1 sm:py-3 sm:text-xs">
-                    {{ d }}
-                </div>
-                {% endfor %}
-
-            </div>
-
-            <!-- Grilla de días -->
-            <div id="grillaMes" class="grid grid-cols-7">
-
-                {% for _ in range(offset_inicio) %}
-                <div class="aspect-square border-b border-r border-gray-200 bg-gray-50 sm:aspect-auto sm:min-h-[84px]"></div>
-                {% endfor %}
-
-                {% for dia in dias %}
-
-                <button
-                    type="button"
-                    data-fecha="{{ dia.fecha }}"
-                    aria-pressed="false"
-                    class="dia-agenda flex aspect-square flex-col items-center justify-center gap-1 border-b border-r border-gray-200 px-0.5 py-1 transition hover:bg-dominante sm:aspect-auto sm:min-h-[84px] sm:py-2
-                    {% if dia.dia_semana >= 5 or not dia.turnos %}
-                        text-gray-400
-                    {% else %}
-                        text-acento
-                    {% endif %}"
-                >
-
-                    <span class="text-xs font-semibold sm:text-base">
-                        {{ dia.numero }}
-                    </span>
-
-                    {% if dia.turnos %}
-                    <span class="hidden text-[10px] font-medium opacity-80 sm:inline">
-                        {{ dia.libres }} libres
-                    </span>
-                    {% else %}
-                    <span class="hidden text-[10px] opacity-60 sm:inline">
-                        Cerrado
-                    </span>
-                    {% endif %}
-
-                </button>
-
-                {% endfor %}
-
-            </div>
-
-        </div>
-
-        <!-- HORARIOS DEL DÍA SELECCIONADO -->
-        <section>
-
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-acento/20 px-1 pb-3">
-
-                <h2 id="tituloDia" class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-sm">
-                    Seleccioná un día
-                </h2>
-
-                <p class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-sm">
-                    CONSULTORIO:
-                    <span class="text-acento">
-                        {{ consultorio.numero | default('123', true) }}
-                    </span>
-                </p>
-
-            </div>
-
-            <div id="panelHorarios" class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5"></div>
-
-        </section>
-
-        <!-- TURNO SELECCIONADO -->
-        <section>
-
-            <div class="mb-3 border-b border-acento/30 pb-2">
-
-                <h2 class="font-lexend text-xs font-semibold uppercase tracking-wide text-acento/40 sm:text-sm">
-                    TURNO SELECCIONADO
-                </h2>
-
-            </div>
-
-            <div id="turnoSeleccionado" class="rounded-2xl bg-white px-4 py-8 text-center shadow-sm sm:px-6 sm:py-10">
-
-                <i data-lucide="calendar-clock" class="mx-auto mb-4 h-8 w-8 text-gray-400 sm:h-10 sm:w-10"></i>
-
-                <h3 class="text-base font-bold text-acento sm:text-lg">
-                    Ningún turno seleccionado
-                </h3>
-
-                <p class="mt-2 text-xs text-gray-500 sm:text-sm">
-                    Seleccioná un horario ocupado para ver los detalles del turno.
-                </p>
-
-            </div>
-
-        </section>
-
-    </section>
-
-    <!-- DATOS PARA JAVASCRIPT -->
-    <div
-        id="datosAgenda"
-        data-fecha-inicial="{{ fecha_inicial }}"
-        data-consultorio="{{ consultorio.numero }}"
-        class="hidden"
-    ></div>
-
-    <script id="datosAgendaJson" type="application/json">{{ dias | tojson }}</script>
+    <!-- Cards de turnos: se renderizan acá y el JS clona la que corresponda -->
+    {% for dia in dias %}
+        {% for turno in dia.turnos %}
+            <template data-turno-card="{{ turno.id }}">
+                {% include "components/_card_turno_paciente_cobertura.html" %}
+            </template>
+        {% endfor %}
+    {% endfor %}
 
 </div>
 

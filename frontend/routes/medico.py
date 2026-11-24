@@ -140,7 +140,8 @@ def agenda():
         consultorio = agendas[0].get('consultorio') or {'numero': '-'}
 
     return render_template(
-        'medico/agenda.html',
+        'agenda/agenda.html',
+        es_admin=False,
         medico=medico,
         error=error,
         **contexto_agenda_mensual(
