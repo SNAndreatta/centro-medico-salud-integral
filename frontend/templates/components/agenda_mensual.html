@@ -72,7 +72,7 @@
                 data-fecha="{{ dia.fecha }}"
                 aria-pressed="false"
                 class="dia-agenda flex min-h-[48px] flex-col items-center justify-center gap-0.5 border-b border-r border-gray-200
-                px-0.5 py-3 transition hover:bg-dominante focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-acento/40 aria-[pressed=true]:bg-acento aria-[pressed=true]:text-white [&:nth-child(7n)]:border-r-0 sm:min-h-[84px] sm:gap-1 sm:px-1 sm:py-2 {% if dia.dia_semana >= 5 or (not dia.turnos and not tiene_agenda) %}text-gray-400{% else %}text-acento{% endif %}"
+                px-0.5 py-3 transition hover:bg-dominante focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-acento/40 aria-[pressed=true]:bg-acento aria-[pressed=true]:text-white [&:nth-child(7n)]:border-r-0 sm:min-h-[84px] sm:gap-1 sm:px-1 sm:py-2 {% if not dia.turnos and (dia.dia_semana >= 5 or not tiene_agenda) %}text-gray-400{% else %}text-acento{% endif %}"
             >
                 <span class="text-sm font-medium sm:text-base">{{ dia.numero }}</span>
 
