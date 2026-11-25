@@ -209,6 +209,7 @@ def mis_turnos():
         turnos=turnos,
         especialidades=especialidades,
         estados=ESTADOS_TURNO,
+        mostrar_cancelar=True,
     )
 
 
@@ -226,7 +227,7 @@ def cancelar_turno(id_turno):
         if resp:
             return resp
 
-    return redirect(request.referrer or url_for('rutas_paciente.mis_turnos'))
+    return redirect(url_for('rutas_paciente.mis_turnos'))
 
 
 # ---------------- SACAR TURNO ----------------

@@ -53,14 +53,12 @@ def marcar_turno_atendido(id_turno):
     except ErrorAPI as e:
         respuesta = atender_error(
             e,
-            redirect_a=request.referrer or url_for('rutas_medico.ver_turnos'),
+            redirect_a=url_for('rutas_medico.ver_turnos'),
         )
         if respuesta:
             return respuesta
 
-    return redirect(
-        request.referrer or url_for('rutas_medico.ver_turnos')
-    )
+    return redirect(url_for('rutas_medico.ver_turnos'))
 
 
 # ==========================================================

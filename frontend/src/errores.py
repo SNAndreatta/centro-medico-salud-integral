@@ -1,6 +1,6 @@
 """Política única de errores de la API en el frontend."""
 
-from flask import flash, redirect, request, session, url_for
+from flask import flash, redirect, session, url_for
 
 from src.api import ErrorAPI
 
@@ -31,5 +31,5 @@ def registrar_manejo_errores(app):
     def _error_de_api(error):
         return atender_error(
             error,
-            redirect_a=request.referrer or url_for("rutas_home.home"),
+            redirect_a=url_for("rutas_home.home"),
         )
