@@ -11,9 +11,16 @@ document.addEventListener("submit", (event) => {
     }
 
     form.dataset.submitting = "true";
-    form.querySelectorAll(
-        'button:not([type]), button[type="submit" i], input[type="submit" i], input[type="image" i]'
-    ).forEach((button) => {
-        button.disabled = true;
-    });
+    window.setTimeout(() => {
+        if (event.defaultPrevented) {
+            delete form.dataset.submitting;
+            return;
+        }
+
+        form.querySelectorAll(
+            'button:not([type]), button[type="submit" i], input[type="submit" i], input[type="image" i]'
+        ).forEach((button) => {
+            button.disabled = true;
+        });
+    }, 0);
 });
