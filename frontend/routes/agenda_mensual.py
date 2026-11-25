@@ -7,8 +7,8 @@ La grilla se arma con los datos reales del backend:
 * `GET /turnos` devuelve los turnos reales (reservados, confirmados, etc.)
   de esas agendas.
 
-Cada día del mes muestra los turnos que genera la agenda y marca como
-ocupados los que tienen un turno asignado.
+Cada día del mes muestra únicamente los turnos que existen en el backend.
+La agenda se usa para asociar la jornada y el consultorio a esos turnos.
 """
 
 import calendar
@@ -155,8 +155,10 @@ def generar_agenda_mensual(anio, mes, agendas=None, turnos=None):
 
         horarios = {}
 
-        # Horarios que define la agenda para ese día de la semana.
-        for agenda, jornada in _jornadas_del_dia(agendas, fecha):
+        jornadas = _jornadas_del_dia(agendas, fecha)
+
+        # La agenda aporta contexto a los turnos creados, pero no crea slots.
+        for agenda, jornada in jornadas:
             duracion = int(agenda.get('duracion_turno') or 0)
             hora_inicio = _a_time(jornada.get('horario_inicio_jornada'))
             hora_fin = _a_time(jornada.get('horario_final_jornada'))
@@ -168,7 +170,9 @@ def generar_agenda_mensual(anio, mes, agendas=None, turnos=None):
             fin_jornada = datetime.combine(fecha, hora_fin)
 
             while momento + timedelta(minutes=duracion) <= fin_jornada:
-                horarios[momento] = (agenda, turnos_por_momento.get(momento))
+                turno = turnos_por_momento.get(momento)
+                if turno is not None:
+                    horarios[momento] = (agenda, turno)
                 momento += timedelta(minutes=duracion)
 
         # Turnos reales que ya no coinciden con un horario de la agenda
@@ -188,6 +192,7 @@ def generar_agenda_mensual(anio, mes, agendas=None, turnos=None):
             "fecha": fecha.isoformat(),
             "numero": numero,
             "dia_semana": fecha.weekday(),
+            "tiene_agenda": bool(jornadas),
             "turnos": lista_horarios,
             "libres": sum(1 for t in lista_horarios if t["disponible"]),
         })
