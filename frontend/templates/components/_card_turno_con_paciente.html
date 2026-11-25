@@ -76,7 +76,7 @@
         {% if estado in ['atendido', 'completado', 'realizado'] %}
 
             <span
-                class="inline-flex w-full items-center justify-center rounded-full bg-green-600/60 px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm"
+                class="inline-flex w-full items-center justify-center rounded-full bg-green-600/60 px-3 py-1 text-xs font-medium text-white sm:px-4 sm:text-sm"
             >
                 Atendido
             </span>
@@ -84,7 +84,7 @@
         {% elif estado in ['cancelado', 'cancelada'] %}
 
             <span
-                class="inline-flex w-full items-center justify-center rounded-full bg-red-500/60 px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm"
+                class="inline-flex w-full items-center justify-center rounded-full bg-red-500/60 px-3 py-1 text-xs font-medium text-white sm:px-4 sm:text-sm"
             >
                 Cancelado
             </span>
@@ -92,7 +92,7 @@
         {% else %}
 
             <span
-                class="inline-flex w-full items-center justify-center rounded-full bg-dominante px-3 py-1.5 text-xs font-medium text-acento sm:px-4 sm:text-sm"
+                class="inline-flex w-full items-center justify-center rounded-full bg-dominante px-3 py-1 text-xs font-medium text-acento sm:px-4 sm:text-sm"
             >
                 {{ turno.estado }}
             </span>
@@ -110,7 +110,7 @@
 
                 <button
                     type="submit"
-                    class="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm"
+                    class="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm justify-center border border-green-700 truncate"
                 >
                     <i data-lucide="check" class="h-4 w-4"></i>
                     Atendido
