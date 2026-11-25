@@ -375,24 +375,28 @@ def obtener_detalle_turno(id_turno, usuario_actual):
     return {'turno': turnos[0]}, 200
 
 
-def _obtener_periodo_proximo_mes(hoy=None):
+def _obtener_periodo_generacion(hoy=None):
     hoy = hoy or _ahora_local().date()
 
-    fecha_desde = (hoy.replace(day=28) + timedelta(days=4)).replace(day=1)
-    primer_dia_mes_siguiente = (fecha_desde.replace(day=28) + timedelta(days=4)).replace(day=1)
+    primer_dia_mes_siguiente = (hoy.replace(day=28) + timedelta(days=4)).replace(day=1)
+    primer_dia_mes_posterior = (
+        primer_dia_mes_siguiente.replace(day=28) + timedelta(days=4)
+    ).replace(day=1)
 
-    fecha_hasta = primer_dia_mes_siguiente - timedelta(days=1)
+    fecha_hasta = primer_dia_mes_posterior - timedelta(days=1)
 
-    return fecha_desde, fecha_hasta
+    return hoy, fecha_hasta
 
 
 def generar_disponibilidad(dias: int | None = None):
     """Genera turnos disponibles.
     
     Si `dias` se indica, genera para los próximos `dias` días (ej. 7 para una semana).
-    Si no se indica, genera para el mes completo (comportamiento anterior, requiere día 15).
+    Si no se indica, completa los días futuros del mes actual y genera el mes siguiente.
+    La apertura mensual requiere que sea al menos el día 15.
     """
-    hoy = _ahora_local().date()
+    ahora = _ahora_local()
+    hoy = ahora.date()
     if dias is None and hoy.day < 15:
         return error_respuesta(
             'La apertura de agendas se habilita a partir del día 15 de cada mes',
@@ -400,7 +404,7 @@ def generar_disponibilidad(dias: int | None = None):
         ), 409
 
     if dias is None:
-        fecha_desde, fecha_hasta = _obtener_periodo_proximo_mes(hoy)
+        fecha_desde, fecha_hasta = _obtener_periodo_generacion(hoy)
     else:
         # Generar para los próximos `dias` días desde hoy
         fecha_desde = hoy
@@ -435,11 +439,12 @@ def generar_disponibilidad(dias: int | None = None):
                     inicio_turno = datetime.combine(fecha_actual, hora_inicio)
 
                     fin_jornada = datetime.combine(fecha_actual, hora_fin)
-                    while(inicio_turno + timedelta(minutes=duracion_turno) <= fin_jornada):
-                        turnos_a_generar.append({
-                            'id_agenda': agenda['id_agenda'],
-                            'fecha_horario_inicial': inicio_turno,
-                        })
+                    while inicio_turno + timedelta(minutes=duracion_turno) <= fin_jornada:
+                        if inicio_turno >= ahora:
+                            turnos_a_generar.append({
+                                'id_agenda': agenda['id_agenda'],
+                                'fecha_horario_inicial': inicio_turno,
+                            })
 
                         inicio_turno += timedelta(minutes=duracion_turno)
                 fecha_actual += timedelta(days=1)

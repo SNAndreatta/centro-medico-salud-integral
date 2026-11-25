@@ -20,7 +20,7 @@ Supuestos acordados — Hito 1
 
     La vinculación comercial se realiza direct>amente a nivel de Cobertura. Si un médico acepta una Cobertura, el sistema asume que atiende a todos los pacientes de esa cobertura.
 
-    La administración trabaja con "apertura de agendas". El día 15 de cada mes, un administrador entra al sistema y aprieta un botón que dice "Abrir agenda de Noviembre". El sistema ejecuta el proceso masivo y genera todos los turnos en la base de datos solo para ese mes.
+    La administración trabaja con "apertura de agendas". Desde el día 15 de cada mes, un administrador ejecuta el proceso masivo para completar los turnos futuros faltantes del mes actual y generar los del mes siguiente. Los turnos ya existentes no se duplican.
 
 Observaciones de compatibilidad con el esquema
 

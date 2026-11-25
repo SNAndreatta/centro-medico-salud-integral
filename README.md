@@ -267,7 +267,7 @@ Los módulos principales de la API incluyen autenticación, usuarios, pacientes,
 - La llegada se registra una sola vez por turno.
 - Un turno confirmado puede pasar a atendido dentro de la ventana definida por el sistema.
 - Los turnos sin check-in quedan sujetos al procesamiento automático de ausentismo.
-- La apertura de agendas genera los turnos del mes siguiente.
+- Desde el día 15, la apertura completa los turnos futuros faltantes del mes actual y genera los del mes siguiente, sin duplicar los existentes.
 
 Los supuestos acordados para el proyecto están detallados en `docs/supuestos.txt`.
 
