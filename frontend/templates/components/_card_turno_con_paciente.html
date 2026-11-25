@@ -103,17 +103,17 @@
 
             <form
                 method="POST"
-                class="boton-marcar-atendido w-full"
+                class="boton-marcar-atendido"
                 data-fecha="{{ turno.fecha_filtro }}"
                 action="{{ url_for('rutas_medico.marcar_turno_atendido', id_turno=turno.id) }}"
             >
 
                 <button
                     type="submit"
-                    class="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-2xl bg-green-100 px-3 py-2 text-center text-xs font-medium leading-tight text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm"
+                    class="inline-flex items-center gap-2 rounded-2xl bg-green-100 px-3 py-2 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm"
                 >
-                    <i data-lucide="check" class="h-4 w-4 shrink-0"></i>
-                    <span class="min-w-0 break-words">Marcar como atendido</span>
+                    <i data-lucide="check" class="h-4 w-4"></i>
+                    Marcar como atendido
                 </button>
             </form>
         {% endif %}
