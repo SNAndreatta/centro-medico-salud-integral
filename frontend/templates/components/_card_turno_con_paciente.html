@@ -1,5 +1,5 @@
 <article
-    class="turno-card flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4 lg:justify-between"
+    class="turno-card flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4 lg:justify-between mt-5"
     data-fecha="{{ turno.fecha_filtro }}"
     data-cobertura="{{ turno.cobertura_filtro | lower }}"
     data-estado="{{ turno.estado | lower }}"
@@ -68,7 +68,7 @@
 
     <!-- ESTADO DEL TURNO -->
     <div
-        class="flex flex-col mt-5 items-start gap-2 border-t border-gray-200 pt-3 lg:w-[14%] lg:items-end lg:justify-end lg:border-t-0 lg:pt-0"
+        class="flex flex-col items-start gap-2 border-t border-gray-200 pt-3 lg:w-[14%] lg:items-end lg:justify-end lg:border-t-0 lg:pt-0"
     >
 
         {% set estado = turno.estado | string | lower %}
@@ -110,7 +110,7 @@
 
                 <button
                     type="submit"
-                    class="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm justify-center border border-green-700 truncate"
+                    class="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition hover:bg-green-200 active:scale-95 sm:px-4 sm:text-sm justify-center border border-green-700 truncate w-full"
                 >
                     <i data-lucide="check" class="h-4 w-4"></i>
                     Atendido
