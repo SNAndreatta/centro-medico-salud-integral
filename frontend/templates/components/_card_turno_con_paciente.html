@@ -2,6 +2,7 @@
     class="turno-card flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm transition duration-200 hover:shadow-md lg:flex-row lg:items-center lg:gap-0 lg:px-6 lg:py-4 lg:justify-between"
     data-fecha="{{ turno.fecha_filtro }}"
     data-cobertura="{{ turno.cobertura_filtro | lower }}"
+    data-estado="{{ turno.estado | lower }}"
     data-marcable="{{ 'true' if turno.puede_marcar else 'false' }}"
 >
 

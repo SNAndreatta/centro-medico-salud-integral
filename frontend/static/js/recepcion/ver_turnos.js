@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const panelFiltros = document.querySelector("#panel-filtros");
     const filtroEspecialidad = document.querySelector("#filtro-especialidad");
     const filtroMedico = document.querySelector("#filtro-medico");
+    const filtroEstado = document.querySelector("#filtro-estado");
     const aplicarFiltros = document.querySelector("#aplicar-filtros");
     const limpiarFiltros = document.querySelector("#limpiar-filtros");
     const tarjetas = document.querySelectorAll(".turno-card");
@@ -42,14 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function filtrarTurnos() {
         const especialidad = filtroEspecialidad ? filtroEspecialidad.value.toLowerCase().trim() : "";
         const medico = filtroMedico ? filtroMedico.value.toLowerCase().trim() : "";
+        const estado = filtroEstado ? filtroEstado.value.toLowerCase().trim() : "";
         let turnosVisibles = 0;
 
         tarjetas.forEach((tarjeta) => {
             const especialidadTurno = (tarjeta.dataset.especialidad || "").toLowerCase().trim();
             const medicoTurno = (tarjeta.dataset.medico || "").toLowerCase().trim();
+            const estadoTurno = (tarjeta.dataset.estado || "").toLowerCase().trim();
             const coincideEspecialidad = especialidad === "" || especialidadTurno === especialidad;
             const coincideMedico = medico === "" || medicoTurno === medico;
-            const coincide = coincideEspecialidad && coincideMedico;
+            const coincideEstado = estado === "" || estadoTurno === estado;
+            const coincide = coincideEspecialidad && coincideMedico && coincideEstado;
             tarjeta.classList.toggle("hidden", !coincide);
             if (coincide) turnosVisibles++;
         });
@@ -72,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             if (filtroEspecialidad) filtroEspecialidad.value = "";
             if (filtroMedico) filtroMedico.value = "";
+            if (filtroEstado) filtroEstado.value = "";
             filtrarTurnos();
             cerrarPanelFiltros();
         });

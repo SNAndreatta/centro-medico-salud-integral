@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const filtroFecha = document.querySelector("#filtro-fecha");
     const filtroCobertura = document.querySelector("#filtro-cobertura");
+    const filtroEstado = document.querySelector("#filtro-estado");
 
     const aplicarFiltros = document.querySelector("#aplicar-filtros");
     const limpiarFiltros = document.querySelector("#limpiar-filtros");
@@ -90,6 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const cobertura = filtroCobertura
             ? filtroCobertura.value.toLowerCase().trim()
             : "";
+        const estado = filtroEstado
+            ? filtroEstado.value.toLowerCase().trim()
+            : "";
 
         let turnosVisibles = 0;
 
@@ -103,6 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const coberturaTurno = (
                 tarjeta.dataset.cobertura || ""
             ).toLowerCase().trim();
+            const estadoTurno = (
+                tarjeta.dataset.estado || ""
+            ).toLowerCase().trim();
 
 
             const coincideFecha =
@@ -110,11 +117,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const coincideCobertura =
                 cobertura === "" || coberturaTurno === cobertura;
+            const coincideEstado =
+                estado === "" || estadoTurno === estado;
 
 
             const coincide =
                 coincideFecha &&
-                coincideCobertura;
+                coincideCobertura &&
+                coincideEstado;
 
 
             tarjeta.classList.toggle("hidden", !coincide);
@@ -206,6 +216,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (filtroCobertura) {
                 filtroCobertura.value = "";
+            }
+
+            if (filtroEstado) {
+                filtroEstado.value = "";
             }
 
             filtrarTurnos();
